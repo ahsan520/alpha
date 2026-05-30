@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Alpha Terminal v49.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- NEWS TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="ticker-inner">Loading news...</div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-brand">◈ ALPHA TERMINAL <span>v49.2</span></div>
+  <div class="hdr-right">
+    <div class="hstat"><span class="hstat-l">BTC DOM</span><span class="hstat-v" id="h-btcdom">—</span></div>
+    <div class="hstat"><span class="hstat-l">MCAP</span><span class="hstat-v" id="h-mcap">—</span></div>
+    <div class="hstat"><span class="hstat-l">24H VOL</span><span class="hstat-v" id="h-vol">—</span></div>
+    <div id="fg-pill" style="background:rgba(100,100,100,.2);color:#888;">F&G —</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">
+      <span class="sdot" id="sdot"></span><span id="sstatus">INIT</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on"  onclick="switchTab('matrix',this)">◆ SIGNAL MATRIX</button>
+  <button class="tab"     onclick="switchTab('journal',this)">◆ TRADE JOURNAL</button>
+  <button class="tab"     onclick="switchTab('alerts',this)">🔔 ALERTS</button>
+</div>
+
+<!-- ══ MATRIX TAB ══ -->
+<div id="tab-matrix" class="tc on">
+  <div class="grid2">
+    <!-- Watchlist -->
+    <div class="wl-wrap">
+      <div class="ph">
+        <span class="pt">◆ WATCHLIST</span>
+        <span id="wl-count" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">0</span>
+      </div>
+      <div class="wl-ctrl">
+        <div class="wl-row">
+          <input type="text" id="newT" placeholder="BTC, ETH, XEG.TO…">
+          <button class="btn-add" onclick="addTicker()">+ ADD</button>
+        </div>
+        <select class="wl-sel" id="assetType">
+          <option value="crypto">Crypto (Binance)</option>
+          <option value="stock">Stock / ETF</option>
+        </select>
+      </div>
+      <div class="wl-list" id="wl-cont"></div>
+      <div class="wl-btns">
+        <button class="bsm" onclick="exportWL()">↓ SAVE</button>
+        <button class="bsm" onclick="document.getElementById('wlFile').click()">↑ LOAD</button>
+        <input type="file" id="wlFile" style="display:none" onchange="importWL(this)">
+        <button class="bsm" onclick="wipeData()" style="grid-column:1/3;color:#3a3a3a;">⚡ RESET CACHE</button>
+      </div>
+    </div>
+    <!-- TradingView Chart -->
+    <div class="chart-wrap">
+      <div id="tv_chart" style="height:100%;"></div>
+    </div>
+  </div>
+
+  <!-- News Feed -->
+  <div class="bnews">
+    <div class="bnews-hdr" onclick="toggleNews()">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="pt">◆ LIVE NEWS FEED</span>
+        <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+        <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
+        <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
+      </div>
+      <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+    </div>
+    <div class="bnews-body" id="bnews-body"></div>
+  </div>
+</div>
+
+<!-- ══ JOURNAL TAB ══ -->
+<div id="tab-journal" class="tc">
+  <div class="j-layout">
+    <div class="j-form">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-bright);letter-spacing:2px;">◆ LOG TRADE</div>
+      <div><label>SYMBOL</label><input type="text" id="j-sym" placeholder="BTC, ETH, XEG.TO…"></div>
+      <div class="frow">
+        <div><label>DIRECTION</label><select id="j-dir"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select></div>
+        <div><label>STATUS</label><select id="j-status"><option value="OPEN">OPEN</option><option value="CLOSED">CLOSED</option></select></div>
+      </div>
+      <div class="frow">
+        <div><label>ENTRY PRICE</label><input type="number" id="j-entry" placeholder="0.00" step="any"></div>
+        <div><label>EXIT PRICE</label><input type="number" id="j-exit" placeholder="0.00" step="any"></div>
+      </div>
+      <div class="frow">
+        <div><label>SIZE (units)</label><input type="number" id="j-size" placeholder="0" step="any"></div>
+        <div><label>STOP LOSS</label><input type="number" id="j-stop" placeholder="0.00" step="any"></div>
+      </div>
+      <div><label>SIGNAL / REASON</label><input type="text" id="j-signal" placeholder="e.g. OBI spike + CVD bull + RSI 15m OS"></div>
+      <div><label>NOTES</label><textarea id="j-notes" placeholder="Execution notes, emotions, market context…"></textarea></div>
+      <button class="btn-log" onclick="addTrade()">+ LOG TRADE</button>
+      <div class="pos-calc">
+        <div class="pc-title">POSITION SIZE CALCULATOR</div>
+        <label>ACCOUNT SIZE ($)</label><input type="number" id="ps-acc" placeholder="10000" style="margin-bottom:6px;">
+        <label>RISK PER TRADE (%)</label><input type="number" id="ps-risk" placeholder="1" step="0.1" style="margin-bottom:6px;">
+        <label>ENTRY PRICE</label><input type="number" id="ps-entry" placeholder="0.00" step="any" style="margin-bottom:6px;">
+        <label>STOP LOSS PRICE</label><input type="number" id="ps-stop" placeholder="0.00" step="any" style="margin-bottom:6px;">
+        <button class="bsm" onclick="calcPos()" style="width:100%;padding:8px;">CALCULATE</button>
+        <div class="pc-grid" id="pc-result" style="display:none;">
+          <div class="pc-val"><span class="pc-vl">RISK $</span><span class="pc-vn" id="pc-r">—</span></div>
+          <div class="pc-val"><span class="pc-vl">UNITS</span><span class="pc-vn" id="pc-u">—</span></div>
+          <div class="pc-val"><span class="pc-vl">POSITION $</span><span class="pc-vn" id="pc-p">—</span></div>
+          <div class="pc-val"><span class="pc-vl">STOP DIST %</span><span class="pc-vn" id="pc-d">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="j-right">
+      <div class="j-stats">
+        <div class="jst"><div class="jst-v" id="js-total" style="color:var(--accent)">0</div><div class="jst-l">TRADES</div></div>
+        <div class="jst"><div class="jst-v" id="js-wr" style="color:var(--bull)">0%</div><div class="jst-l">WIN RATE</div></div>
+        <div class="jst"><div class="jst-v" id="js-pnl" style="color:var(--bull)">$0</div><div class="jst-l">TOTAL P&L</div></div>
+        <div class="jst"><div class="jst-v" id="js-rr" style="color:var(--gold)">—</div><div class="jst-l">AVG R:R</div></div>
+      </div>
+      <div class="j-tbl-wrap">
+        <table class="jtbl">
+          <thead><tr><th>DATE</th><th>SYMBOL</th><th>DIR</th><th>ENTRY</th><th>EXIT</th><th>SIZE</th><th>P&L $</th><th>P&L %</th><th>SIGNAL</th><th>STATUS</th><th></th></tr></thead>
+          <tbody id="j-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALERTS TAB ══ -->
+<div id="tab-alerts" class="tc" style="height:calc(100vh - 80px);overflow:hidden;display:none;flex-direction:column;">
+  <!-- Populated by renderAlertCfgPage() in alerts.js -->
+</div>
+
+<!-- ══ SIGNAL MATRIX TABLE (always visible below tabs) ══ -->
+<div class="tbl-wrap">
+  <div class="tbl-ph">
+    <span class="pt">◆ PREDATOR APEX — Signal Matrix v49.2</span>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="bsm" onclick="toggleAlerts()" style="padding:3px 10px;">🔔 ALERTS</button>
+    </div>
+  </div>
+  <div id="alert-strip" class="alert-strip" style="display:none;"></div>
+  <div class="tbl-scroll">
+    <table class="mx">
+      <thead><tr>
+        <th onclick="sortBy('name')">TICKER ↕</th>
+        <th onclick="sortBy('p')">PRICE ↕</th>
+        <th onclick="sortBy('chg')">24H % ↕</th>
+        <th>SPARK</th>
+        <th onclick="sortBy('r1h')">MTF RSI</th>
+        <th onclick="sortBy('obi')">OB IMBAL ↕</th>
+        <th onclick="sortBy('cvdv')">CVD ↕</th>
+        <th onclick="sortBy('shock')">VOL SHOCK ↕</th>
+        <th onclick="sortBy('nf')">FLOW ↕</th>
+        <th onclick="sortBy('lp')">L/S ↕</th>
+        <th onclick="sortBy('fr')">FUNDING ↕</th>
+        <th onclick="sortBy('liqdist')">LIQ CLUSTER ↕</th>
+        <th onclick="sortBy('emaTrend')" title="Price vs 200-period EMA">EMA TREND ↕</th>
+        <th title="Funding Rate zone">FUNDING ZONE ↕</th>
+        <th title="Open Interest vs price divergence">OI DIV</th>
+        <th onclick="sortBy('dipScore')" title="Buy-dip / sell composite score">DIP SCORE ↕</th>
+        <th onclick="sortBy('bias4hScore')" title="4H timeframe bias">4H BIAS ↕</th>
+        <th onclick="sortBy('biasDayScore')" title="Daily bias">DAILY BIAS ↕</th>
+        <th onclick="sortBy('score')">SIGNAL ↕</th>
+        <th title="Support level estimate">SUP</th>
+        <th title="Resistance level estimate">RES</th>
+        <th>LINK</th>
+        <th>REASONING</th>
+      </tr></thead>
+      <tbody id="mx-body"></tbody>
+    </table>
+  </div>
+  <!-- Last Updated Bar -->
+  <div class="last-upd-bar">
+    <span>LAST UPDATE:</span>
+    <span id="last-upd-bar-time">—</span>
+    <span style="margin-left:auto;color:#2a3040;">Alpha Terminal v49.2 · 15s refresh</span>
+  </div>
+</div>
+
+<!-- Scripts — load order matters: config → api → signals → render → alerts → journal → app -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/signals.js"></script>
+<script src="js/render.js"></script>
+<script src="js/alerts.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
