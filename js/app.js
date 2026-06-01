@@ -2,14 +2,22 @@
 // app.js — init, sync loop, nav, misc UI actions
 // ══════════════════════════════════════════════
 
+// ── DEFAULT WATCHLIST (fallback if watchlist.json cannot be fetched) ──
+const DEFAULT_WATCHLIST = ["ETHY.TO","KILO.TO","GE.TO","XRPP.TO","ETHH.TO","SVR.TO","XBM.TO","XEG.TO","T.TO","CGL.TO","GLCC.TO","ENCC.TO","TXF.TO","HTAE.TO","QMAX.TO"];
+
 // ── INIT ──
 async function init() {
-  const saved = JSON.parse(localStorage.getItem('a49_wl'));
-  if (saved && saved.length) STATE.watchlist = saved;
-  else {
-    try { const r = await fetch('watchlist.json'); STATE.watchlist = r.ok ? await r.json() : defWL(); }
-    catch { STATE.watchlist = defWL(); }
-  }
+  // watchlist.json is always the source of truth.
+  // localStorage only adds tickers the user appended via the GUI.
+  let base = DEFAULT_WATCHLIST;
+  try {
+    const r = await fetch('watchlist.json');
+    if (r.ok) base = await r.json();
+  } catch {}
+
+  const added = JSON.parse(localStorage.getItem('a49_wl_added') || '[]');
+  const merged = [...base, ...added.filter(s => !base.includes(s))];
+  STATE.watchlist = merged;
   STATE.currentS = STATE.watchlist[0];
   switchT(STATE.currentS);
   fetchGlobal();
@@ -30,7 +38,8 @@ async function init() {
 async function sync() {
   document.getElementById('sstatus').textContent = 'SYNCING';
   document.getElementById('sdot').style.background = 'var(--gold)';
-  localStorage.setItem('a49_wl', JSON.stringify(STATE.watchlist));
+  const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
+  localStorage.setItem('a49_wl_added', JSON.stringify(added));
 
   const cryptoS = STATE.watchlist.filter(s => s.includes('BINANCE:'));
   const stockS = STATE.watchlist.filter(s => !s.includes('BINANCE:'));
@@ -133,6 +142,8 @@ function addTicker() {
   const e = (t === 'crypto' && !v.includes('BINANCE:')) ? `BINANCE:${v}${v.includes('USDT') ? '' : 'USDT'}` : v;
   if (!STATE.watchlist.includes(e)) {
     STATE.watchlist.push(e);
+    const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
+    localStorage.setItem('a49_wl_added', JSON.stringify(added));
     logAlertItem('info', 'Added: ' + e);
     sync();
   }
@@ -141,6 +152,8 @@ function addTicker() {
 
 function delT(s) {
   STATE.watchlist = STATE.watchlist.filter(x => x !== s);
+  const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
+  localStorage.setItem('a49_wl_added', JSON.stringify(added));
   delete STATE.DS[s];
   delete STATE.PH[s];
   if (STATE.currentS === s && STATE.watchlist.length) switchT(STATE.watchlist[0]);
