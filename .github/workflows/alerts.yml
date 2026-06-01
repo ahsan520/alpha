@@ -1,0 +1,43 @@
+name: Alpha Terminal — Alert Check
+
+on:
+  schedule:
+    # Runs every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:   # allow manual trigger from GitHub UI
+
+jobs:
+  check-alerts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit state file back
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --prefix scripts
+
+      - name: Run alert checker
+        env:
+          TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '4' }}
+          DIGEST_MODE:          ${{ vars.DIGEST_MODE || 'true' }}
+          # Optional — override the default watchlist with a JSON array string
+          # WATCHLIST: '["ETHY.TO","KILO.TO","BTCUSDT"]'
+        run: node scripts/alert-runner.js
+
+      - name: Persist alert state
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/.alert-state.json
+          git diff --cached --quiet && echo "No state changes." || git commit -m "chore: update alert state [skip ci]"
+          git push
