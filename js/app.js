@@ -21,6 +21,7 @@ async function init() {
   setInterval(fetchFG, 300000);
   setInterval(fetchGlobal, 60000);
   renderJournal();
+  initAlertCfg();
   renderAlertCfgPage();
   updateLastUpdBar();
 }
@@ -76,6 +77,7 @@ async function sync() {
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
+  await flushDigest();  // send combined overnight alerts after all symbols processed
   render();
   updateLastUpdBar();
 

@@ -11,15 +11,7 @@ window.STATE = {
   PH: JSON.parse(localStorage.getItem('a49_ph') || '{}'),
   cgCache: JSON.parse(localStorage.getItem('a49_cgc') || '{}'),
   trades: JSON.parse(localStorage.getItem('a49_trades') || '[]'),
-  alertCfg: JSON.parse(localStorage.getItem('a49_alertcfg') || JSON.stringify({
-    email: { enabled: false, address: '', emailjsServiceId: '', emailjsTemplateId: '', emailjsPublicKey: '' },
-    telegram: { enabled: false, botToken: '', chatId: '' },
-    rules: [
-      { id: 'vol_bull_4h', label: 'Vol Shock > 1.5 × AND 4H Bias = Bullish', enabled: true, channels: ['email', 'telegram'] },
-      { id: 'strong_buy', label: 'Signal = STRONG BUY', enabled: true, channels: ['email', 'telegram'] },
-      { id: 'strong_sell', label: 'Signal = STRONG SELL', enabled: true, channels: ['email', 'telegram'] },
-    ]
-  })),
+  alertCfg: {}, // initialized by alerts.js initAlertCfg()
   currentS: '',
   tvW: null,
   sortK: 'chg',

@@ -268,3 +268,11 @@ canvas.sp{display:block;}
   table.mx{min-width:1400px;}
   table.mx td,table.mx th{padding:5px 6px;font-size:9px;}
 }
+
+/* ── Alert log (cfg panel) ── */
+.alert-log-wrap{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow-y:auto;}
+.alert-log-item{display:flex;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(30,37,48,.5);font-family:var(--mono);font-size:8px;}
+.alert-log-item:last-child{border-bottom:none;}
+.alt{color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
+.amsg{color:var(--text);}
+.alert-log-item.triggered .amsg{color:var(--bull);}
