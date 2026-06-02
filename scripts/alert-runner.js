@@ -36,8 +36,12 @@ const OVN_BUY_CONDITIONS = [
 
 const OVN_SELL_CONDITIONS = [
   { id:'ovn_sell_daily', required:true,  enabled:true,  label:'Daily Bias', desc:'LEAN BEAR or BEAR DAY' },
-  { id:'ovn_sell_4h',    required:true,  enabled:true,  label:'4H Bias',    desc:'NEUTRAL / LEAN BEAR / BEAR 4H' },
-  { id:'ovn_sell_signal',required:false, enabled:true,  label:'Signal',     desc:'BEARISH or WAIT' },
+  // FIX Bug 3: ovn_sell_4h was too loose (passed on NEUTRAL → almost everything qualified).
+  // Now requires an explicitly bearish 4H (LEAN BEAR or BEAR 4H), not NEUTRAL.
+  { id:'ovn_sell_4h',    required:true,  enabled:true,  label:'4H Bias',    desc:'LEAN BEAR or BEAR 4H' },
+  // FIX Bug 3 (related): ovn_sell_signal was passing on WAIT (too common).
+  // Now only passes on explicitly bearish signals.
+  { id:'ovn_sell_signal',required:false, enabled:true,  label:'Signal',     desc:'BEARISH or STRONG SELL' },
   { id:'ovn_sell_oi',    required:false, enabled:false, label:'OI Div',     desc:'BEAR OI or OI DROP' },
   { id:'ovn_sell_ls',    required:false, enabled:false, label:'L/S Ratio',  desc:'≥65% Longs' },
 ];
@@ -367,8 +371,12 @@ function evalOvnCond(condId, d) {
     case 'ovn_buy_signal': return sig === 'STRONG BUY' || sig === 'BULLISH';
     case 'ovn_buy_oi':     return !!(oiDiv   && (oiDiv.includes('OI DROP')    || oiDiv.includes('CONFIRM')));
     case 'ovn_sell_daily': return !!(biasDay && (biasDay.includes('LEAN BEAR')|| biasDay.includes('BEAR DAY')));
-    case 'ovn_sell_4h':    return !!(bias4h  && (bias4h.includes('NEUTRAL')   || bias4h.includes('LEAN BEAR') || bias4h.includes('BEAR 4H')));
-    case 'ovn_sell_signal':return sig === 'BEARISH' || sig === 'STRONG SELL' || sig === 'WAIT';
+    // FIX Bug 3: Was (NEUTRAL || LEAN BEAR || BEAR 4H) — NEUTRAL is too loose.
+    // Now requires an explicitly bearish 4H reading.
+    case 'ovn_sell_4h':    return !!(bias4h  && (bias4h.includes('LEAN BEAR') || bias4h.includes('BEAR 4H')));
+    // FIX Bug 3 (related): Was (BEARISH || STRONG SELL || WAIT) — WAIT is too common.
+    // Now only passes on genuinely bearish signals.
+    case 'ovn_sell_signal':return sig === 'BEARISH' || sig === 'STRONG SELL';
     case 'ovn_sell_oi':    return !!(oiDiv   && (oiDiv.includes('BEAR OI')    || oiDiv.includes('OI DROP')));
     case 'ovn_sell_ls':    return lp >= 65;
     default: return false;
@@ -431,6 +439,12 @@ function markFired(state, ruleId, sym) {
   state[`alert_state_${ruleId}_${sym}`] = 'fired';
   state[`alert_ts_${ruleId}_${sym}`]    = String(Date.now());
 }
+// FIX Bug 4: Removed clearFired entirely for signal rules.
+// The old logic deleted suppression state whenever a signal wasn't triggered,
+// which allowed a ticker to re-fire within the cooldown window if the signal
+// briefly dropped and came back. Suppression must only expire by time (isSuppressed),
+// not be erased by a momentary non-trigger. clearFired is kept only for overnight
+// rules (where it reflects a genuine condition change across distinct nightly windows).
 function clearFired(state, ruleId, sym) {
   delete state[`alert_state_${ruleId}_${sym}`];
 }
@@ -466,12 +480,47 @@ async function main() {
     const d = computeSignals(ticker, k4h, kDay);
     console.log(`  price=${ticker.price.toFixed(2)}  chg=${ticker.chgPct.toFixed(2)}%  bias4h=${d.bias4h}  biasDay=${d.biasDay}  sig=${d.sig}`);
 
+    // FIX Bug 1 & 2: Determine whether overnight rules would fire for this ticker
+    // BEFORE evaluating signal rules, so we can suppress signal alerts on the same
+    // ticker+direction that overnight already covers (or vice versa).
+    // Strategy: if a ticker qualifies for overnight (buy or sell), skip the
+    // corresponding signal-group alert for that ticker entirely — the overnight
+    // digest is the authoritative message for that run.
+    const overnightBuyFires  = (() => {
+      const rule = DEFAULT_RULES.find(r => r.id === 'overnight_buy');
+      if (!rule || !rule.enabled) return false;
+      const active = OVN_BUY_CONDITIONS.filter(c => c.enabled !== false);
+      return active.every(c => evalOvnCond(c.id, d));
+    })();
+    const overnightSellFires = (() => {
+      const rule = DEFAULT_RULES.find(r => r.id === 'overnight_sell');
+      if (!rule || !rule.enabled) return false;
+      const active = OVN_SELL_CONDITIONS.filter(c => c.enabled !== false);
+      return active.every(c => evalOvnCond(c.id, d));
+    })();
+
     for (const rule of DEFAULT_RULES) {
       if (!rule.enabled) continue;
 
       if (rule.group === 'signals') {
         const triggered = evalSignalRule(rule.id, d);
-        if (!triggered) { clearFired(state, rule.id, sym); continue; }
+
+        // FIX Bug 4: Do NOT call clearFired when a signal rule is not triggered.
+        // Suppression state expires naturally via the cooldown clock in isSuppressed.
+        // Erasing it here would allow re-firing within the cooldown window.
+        if (!triggered) { continue; }
+
+        // FIX Bug 1 & 2: Skip individual signal alert if overnight already covers
+        // this ticker in the same direction — avoids double-alerting.
+        if (rule.action === 'buy'  && overnightBuyFires) {
+          console.log(`  ⏭  [${rule.id}] skipped — overnight_buy covers this ticker`);
+          continue;
+        }
+        if (rule.action === 'sell' && overnightSellFires) {
+          console.log(`  ⏭  [${rule.id}] skipped — overnight_sell covers this ticker`);
+          continue;
+        }
+
         if (isSuppressed(state, rule.id, sym)) {
           console.log(`  🔕  [${rule.id}] suppressed (cooldown)`); continue;
         }
@@ -514,6 +563,9 @@ async function main() {
           await sendTelegram(msg);
         }
       } else {
+        // Overnight conditions genuinely not met — clear suppression so the rule
+        // can fire fresh next time conditions align (safe here because overnight
+        // is a discrete nightly check, unlike continuous signal polling).
         clearFired(state, rule.id, sym);
       }
     }
