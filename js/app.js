@@ -19,6 +19,10 @@ async function init() {
   const merged = [...base, ...added.filter(s => !base.includes(s))];
   STATE.watchlist = merged;
   STATE.currentS = STATE.watchlist[0];
+
+  // Initialise alert-filter state AFTER base watchlist is known
+  initAlertFilterState();
+  STATE._baseWatchlist = [...base];
   switchT(STATE.currentS);
   fetchGlobal();
   fetchFG();
@@ -106,6 +110,7 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('on');
   btn.classList.add('on');
   if (tab === 'alerts') renderAlertCfgPage();
+  if (tab === 'watchlist-mgr') renderWatchlistManager();
 }
 
 // ── SORT ──

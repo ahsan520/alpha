@@ -18,13 +18,23 @@ const TG_CHAT         = process.env.TELEGRAM_CHAT_ID    || '';
 const COOLDOWN_HOURS  = parseFloat(process.env.ALERT_COOLDOWN_HOURS || '4');
 const DIGEST_MODE     = (process.env.DIGEST_MODE || 'true') === 'true';
 
-// Watchlist — mix crypto (plain e.g. BTCUSDT) and stocks/ETFs (e.g. ETHY.TO)
-// Override via WATCHLIST env var as a JSON array string
+// Watchlist — reads from watchlist.json at repo root (single source of truth).
+// Override via WATCHLIST env var as a JSON array string (useful for testing).
+const WATCHLIST_JSON_PATH = path.join(__dirname, '..', 'watchlist.json');
 const WATCHLIST = process.env.WATCHLIST
   ? JSON.parse(process.env.WATCHLIST)
-  : ['ETHY.TO','KILO.TO','GE.TO','XRPP.TO','ETHH.TO','SVR.TO',
-     'XBM.TO','XEG.TO','T.TO','CGL.TO','GLCC.TO','ENCC.TO',
-     'TXF.TO','HTAE.TO','QMAX.TO'];
+  : (() => {
+      try {
+        const list = JSON.parse(fs.readFileSync(WATCHLIST_JSON_PATH, 'utf8'));
+        console.log(`📋  Loaded ${list.length} tickers from watchlist.json`);
+        return list;
+      } catch (e) {
+        console.warn('⚠  watchlist.json not found — using built-in fallback list');
+        return ['ETHY.TO','KILO.TO','GE.TO','XRPP.TO','ETHH.TO','SVR.TO',
+                'XBM.TO','XEG.TO','T.TO','CGL.TO','GLCC.TO','ENCC.TO',
+                'TXF.TO','HTAE.TO','QMAX.TO'];
+      }
+    })();
 
 // ── Overnight checklist conditions ──
 const OVN_BUY_CONDITIONS = [

@@ -84,8 +84,20 @@ function initAlertCfg() {
 
 // ── Alert log ──
 function logAlertItem(type, msg) {
-  STATE.alertLog.unshift({ type, msg, time: new Date().toLocaleTimeString() });
-  if (STATE.alertLog.length > 80) STATE.alertLog.pop();
+  // Infer display type from message content so the log is colour-coded
+  // without requiring every call site to pass the right type.
+  let displayType = type;
+  if (msg.startsWith('🔕') || msg.includes('cooldown') || msg.includes('suppressed') || msg.includes('SKIPPED')) {
+    displayType = 'suppressed';
+  } else if (msg.startsWith('🟢') || msg.includes('[BUY]') || msg.includes('OVERNIGHT BUY') || msg.includes('🌙🟢')) {
+    displayType = 'buy';
+  } else if (msg.startsWith('🔴') || msg.includes('[SELL]') || msg.includes('OVERNIGHT SELL') || msg.includes('🌙🔴')) {
+    displayType = 'sell';
+  } else if (msg.startsWith('✈') || msg.includes('Telegram sent')) {
+    displayType = 'sent';
+  }
+  STATE.alertLog.unshift({ type: displayType, msg, time: new Date().toLocaleTimeString() });
+  if (STATE.alertLog.length > 120) STATE.alertLog.pop();
   const strip = document.getElementById('alert-strip');
   if (strip) {
     strip.innerHTML = STATE.alertLog.map(a =>
@@ -134,10 +146,17 @@ async function sendTelegramAlert(msg) {
   } catch(e) { logAlertItem('info', `✈ Telegram FAILED: ${e.message}`); }
 }
 
-function dispatchAlert(rule, msg) {
+function dispatchAlert(rule, msg, sym) {
   logAlertItem('info', `[ALERT] ${msg}`);
   if (rule.channels.includes('email'))    sendEmailAlert(msg);
-  if (rule.channels.includes('telegram')) sendTelegramAlert(msg);
+  // ── Alert filter: only send Telegram if ticker has alerts enabled ──
+  if (rule.channels.includes('telegram')) {
+    if (!sym || (typeof isAlertEnabled === 'function' && isAlertEnabled(sym))) {
+      sendTelegramAlert(msg);
+    } else {
+      logAlertItem('info', `[TG SKIPPED] ${sym} — alerts disabled in Watchlist Manager`);
+    }
+  }
 }
 
 // ── Evaluate a single overnight condition ──
@@ -180,6 +199,43 @@ function buildChecklistMsg(sym, conditions, d, shock) {
   }).join('\n');
 }
 
+// ── Cooldown helpers (fingerprint = rule + sym + direction) ──
+// The fingerprint encodes WHAT fired, not just which rule+sym.
+// This means: if ETHY.TO was BUY and flips to SELL, that is a NEW fingerprint
+// → fires immediately regardless of cooldown.
+// If ETHY.TO stays BUY → same fingerprint → cooldown suppresses repeat TG, but
+//   the result still appears in the alert log every cycle.
+
+function _fpKey(ruleId, sym, direction) {
+  // direction: 'buy' | 'sell' | 'overnight_buy' | 'overnight_sell'
+  return `a49_fp_${ruleId}_${sym}_${direction}`;
+}
+
+function _isCoolingDown(ruleId, sym, direction) {
+  const key = _fpKey(ruleId, sym, direction);
+  const ts  = parseInt(localStorage.getItem(key) || '0');
+  if (!ts) return false;
+  const cooldownMs = (STATE.alertCfg?.cooldownHours ?? 4) * 3600000;
+  return (Date.now() - ts) < cooldownMs;
+}
+
+function _markFired(ruleId, sym, direction) {
+  localStorage.setItem(_fpKey(ruleId, sym, direction), String(Date.now()));
+}
+
+function _clearFingerprint(ruleId, sym, direction) {
+  localStorage.removeItem(_fpKey(ruleId, sym, direction));
+}
+
+function _cooldownRemaining(ruleId, sym, direction) {
+  const key = _fpKey(ruleId, sym, direction);
+  const ts  = parseInt(localStorage.getItem(key) || '0');
+  if (!ts) return 0;
+  const cooldownMs = (STATE.alertCfg?.cooldownHours ?? 4) * 3600000;
+  const remaining  = cooldownMs - (Date.now() - ts);
+  return remaining > 0 ? remaining : 0;
+}
+
 // ── Main checker called from signals.js ──
 function checkAlertRules(sym, d, shock, bias4h) {
   const cfg = STATE.alertCfg;
@@ -189,84 +245,79 @@ function checkAlertRules(sym, d, shock, bias4h) {
   for (const rule of cfg.rules) {
     if (!rule.enabled) continue;
 
-    let triggered = false;
-    let msg = '';
-
+    // ── Signal rules ──
     if (rule.group === 'signals') {
-      triggered = evalSignalRule(rule.id, d, shock);
-      if (triggered) {
-        const actionEmoji = rule.action === 'buy' ? '🟢' : '🔴';
-        msg = `${actionEmoji} ${name} [${rule.action.toUpperCase()}] — ${rule.label}`;
+      const triggered = evalSignalRule(rule.id, d, shock);
+
+      if (!triggered) {
+        // Signal gone — clear fingerprint so it can re-fire when it returns
+        _clearFingerprint(rule.id, sym, rule.action);
+        continue;
       }
 
-    } else if (rule.id === 'overnight_buy') {
-      const conds       = cfg.ovnBuyConditions || OVN_BUY_CONDITIONS;
-      const activeConds  = conds.filter(c => c.enabled !== false);
-      const allPass      = activeConds.every(c => evalOvnCond(c.id, d, shock));
-      const hasMust      = activeConds.some(c => c.required);
-      if (hasMust && allPass) {
-        if (STATE.alertCfg.digestMode) {
-          bufferDigest(rule, sym, d);
-          // mark suppression same as a fired alert to avoid re-collecting each tick
-          const sk = `alert_state_${rule.id}_${sym}`;
-          const ts = parseInt(localStorage.getItem(`alert_ts_${rule.id}_${sym}`) || '0');
-          const cd = (STATE.alertCfg.cooldownHours ?? 4) * 3600000;
-          if (localStorage.getItem(sk) === 'fired' && (Date.now() - ts) < cd) continue;
-          localStorage.setItem(sk, 'fired');
-          localStorage.setItem(`alert_ts_${rule.id}_${sym}`, String(Date.now()));
-        } else {
-          triggered = true;
-          const checklist = buildChecklistMsg(sym, conds, d, shock);
-          const passCount = activeConds.length;
-          msg = `🌙🟢 OVERNIGHT BUY — ${name}\n\n${checklist}\n\n✅ ${passCount}/${activeConds.length} active conditions passed`;
-        }
+      // Signal is active — always log it so the alert log shows every cycle
+      const actionEmoji = rule.action === 'buy' ? '🟢' : '🔴';
+      const msg = `${actionEmoji} ${name} [${rule.action.toUpperCase()}] — ${rule.label}`;
+
+      if (_isCoolingDown(rule.id, sym, rule.action)) {
+        // Same direction still in cooldown — log with suppression notice, skip TG
+        const remaining = _cooldownRemaining(rule.id, sym, rule.action);
+        const hLeft = (remaining / 3600000).toFixed(1);
+        logAlertItem('info', `🔕 ${name} [${rule.action.toUpperCase()}] — ${rule.id} · cooldown ${hLeft}h left · logged only`);
+        continue;
       }
 
-    } else if (rule.id === 'overnight_sell') {
-      const conds       = cfg.ovnSellConditions || OVN_SELL_CONDITIONS;
-      const activeConds  = conds.filter(c => c.enabled !== false);
-      const allPass      = activeConds.every(c => evalOvnCond(c.id, d, shock));
-      const hasMust      = activeConds.some(c => c.required);
-      if (hasMust && allPass) {
-        if (STATE.alertCfg.digestMode) {
-          bufferDigest(rule, sym, d);
-          const sk = `alert_state_${rule.id}_${sym}`;
-          const ts = parseInt(localStorage.getItem(`alert_ts_${rule.id}_${sym}`) || '0');
-          const cd = (STATE.alertCfg.cooldownHours ?? 4) * 3600000;
-          if (localStorage.getItem(sk) === 'fired' && (Date.now() - ts) < cd) continue;
-          localStorage.setItem(sk, 'fired');
-          localStorage.setItem(`alert_ts_${rule.id}_${sym}`, String(Date.now()));
-        } else {
-          triggered = true;
-          const checklist = buildChecklistMsg(sym, conds, d, shock);
-          const passCount = activeConds.length;
-          msg = `🌙🔴 OVERNIGHT SELL — ${name}\n\n${checklist}\n\n✅ ${passCount}/${activeConds.length} active conditions passed`;
-        }
-      }
-    }
-
-    if (!triggered) {
-      // When conditions stop matching, clear fired state so next match re-alerts
-      const stateKey = `alert_state_${rule.id}_${sym}`;
-      if (localStorage.getItem(stateKey) === 'fired') {
-        localStorage.removeItem(stateKey);
-      }
+      // Not cooling down — send TG and mark fired
+      _markFired(rule.id, sym, rule.action);
+      dispatchAlert(rule, msg, sym);
       continue;
     }
 
-    // Fingerprint-based dedupe:
-    // Only fire if: (a) not already fired for this condition state, OR (b) cooldown has elapsed
-    const stateKey     = `alert_state_${rule.id}_${sym}`;
-    const lastFiredTs  = parseInt(localStorage.getItem(`alert_ts_${rule.id}_${sym}`) || '0');
-    const alreadyFired = localStorage.getItem(stateKey) === 'fired';
-    const cooldownMs   = (STATE.alertCfg.cooldownHours ?? 4) * 60 * 60 * 1000;
-    const cooldownOk   = (Date.now() - lastFiredTs) >= cooldownMs;
+    // ── Overnight rules ──
+    const isOvnBuy = rule.id === 'overnight_buy';
+    const isOvnSell = rule.id === 'overnight_sell';
+    if (!isOvnBuy && !isOvnSell) continue;
 
-    if (alreadyFired && !cooldownOk) continue;   // same state, still in cooldown — suppress
+    const conds      = isOvnBuy ? (cfg.ovnBuyConditions || OVN_BUY_CONDITIONS)
+                                : (cfg.ovnSellConditions || OVN_SELL_CONDITIONS);
+    const activeConds = conds.filter(c => c.enabled !== false);
+    const allPass     = activeConds.every(c => evalOvnCond(c.id, d, shock));
+    const hasMust     = activeConds.some(c => c.required);
+    const direction   = isOvnBuy ? 'overnight_buy' : 'overnight_sell';
 
-    localStorage.setItem(stateKey, 'fired');
-    localStorage.setItem(`alert_ts_${rule.id}_${sym}`, String(Date.now()));
-    dispatchAlert(rule, msg);
+    if (!(hasMust && allPass)) {
+      // Conditions no longer met — clear fingerprint so next qualifying run fires fresh
+      _clearFingerprint(rule.id, sym, direction);
+      continue;
+    }
+
+    // Conditions met — always log
+    const icon    = isOvnBuy ? '🌙🟢' : '🌙🔴';
+    const dirStr  = isOvnBuy ? 'BUY'  : 'SELL';
+    const checklist = buildChecklistMsg(sym, conds, d, shock);
+    const passCount = activeConds.length;
+    const fullMsg   = `${icon} OVERNIGHT ${dirStr} — ${name}\n\n${checklist}\n\n✅ ${passCount}/${activeConds.length} active conditions passed`;
+
+    if (cfg.digestMode) {
+      bufferDigest(rule, sym, d);
+      if (_isCoolingDown(rule.id, sym, direction)) {
+        const remaining = _cooldownRemaining(rule.id, sym, direction);
+        const hLeft = (remaining / 3600000).toFixed(1);
+        logAlertItem('info', `🔕 ${name} [OVN ${dirStr}] — digest cooldown ${hLeft}h left · logged only`);
+        continue;
+      }
+      _markFired(rule.id, sym, direction);
+    } else {
+      logAlertItem('info', fullMsg);
+      if (_isCoolingDown(rule.id, sym, direction)) {
+        const remaining = _cooldownRemaining(rule.id, sym, direction);
+        const hLeft = (remaining / 3600000).toFixed(1);
+        logAlertItem('info', `🔕 ${name} [OVN ${dirStr}] — cooldown ${hLeft}h left · logged only`);
+        continue;
+      }
+      _markFired(rule.id, sym, direction);
+      dispatchAlert(rule, fullMsg, sym);
+    }
   }
 }
 
@@ -338,35 +389,85 @@ function bufferDigest(rule, sym, d) {
   const bias4h  = d.bias4h  || '-';
   const biasDay = d.biasDay || '-';
   const sig     = d.sig     || '-';
-  STATE.digestPending[rule.id].matches.push({ name, bias4h, biasDay, sig });
+  STATE.digestPending[rule.id].matches.push({ sym, name, bias4h, biasDay, sig });
 }
 
 async function flushDigest() {
   if (!STATE.digestPending) return;
   const pending = STATE.digestPending;
   STATE.digestPending = {};
+
   for (const [ruleId, { rule, matches }] of Object.entries(pending)) {
     if (!matches.length) continue;
-    const isBuy  = ruleId === 'overnight_buy';
-    const icon   = isBuy ? '🌙🟢' : '🌙🔴';
-    const dir    = isBuy ? 'BUY' : 'SELL';
-    const count  = matches.length;
-    const header = icon + ' OVERNIGHT ' + dir + ' — ' + count + ' asset' + (count > 1 ? 's' : '') + ' matched';
-    const rows   = matches.map(m =>
-      '✅ *' + m.name + '*\n' +
-      '  4H: ' + m.bias4h + '\n' +
-      '  Daily: ' + m.biasDay + '\n' +
-      '  Signal: ' + m.sig
-    ).join('\n\n');
-    const msg = header + '\n\n' + rows + '\n\n_' + new Date().toLocaleString() + '_';
-    logAlertItem('info', '[DIGEST] ' + header);
-    if (rule.channels.includes('telegram')) await sendTelegramAlert(msg);
-    if (rule.channels.includes('email'))    await sendEmailAlert(msg);
+    const isBuy     = ruleId === 'overnight_buy';
+    const icon      = isBuy ? '🌙🟢' : '🌙🔴';
+    const dir       = isBuy ? 'BUY' : 'SELL';
+    const direction = isBuy ? 'overnight_buy' : 'overnight_sell';
+
+    // ── Always log every matched ticker (alert log shows everything) ──
+    logAlertItem('info', `${icon} OVERNIGHT ${dir} — ${matches.length} ticker(s) matched`);
+
+    if (!rule.channels.includes('telegram') && !rule.channels.includes('email')) continue;
+
+    // ── Filter: watchlist-manager alert enable, then per-ticker cooldown ──
+    const toSend = [];
+    const suppressed = [];
+
+    for (const m of matches) {
+      // 1. Watchlist-manager gate
+      if (typeof isAlertEnabled === 'function' && !isAlertEnabled(m.sym)) {
+        suppressed.push({ m, reason: 'disabled' });
+        continue;
+      }
+      // 2. Cooldown gate per ticker (fingerprint = rule+sym+direction)
+      if (_isCoolingDown(ruleId, m.sym, direction)) {
+        const rem  = _cooldownRemaining(ruleId, m.sym, direction);
+        const hLeft = (rem / 3600000).toFixed(1);
+        suppressed.push({ m, reason: `cooldown ${hLeft}h left` });
+        logAlertItem('info', `  🔕 ${m.name} [OVN ${dir}] — cooldown ${hLeft}h left · logged only`);
+        continue;
+      }
+      toSend.push(m);
+    }
+
+    if (suppressed.length && toSend.length === 0) {
+      logAlertItem('info', `  ⏭ All ${suppressed.length} ticker(s) suppressed — no TG sent`);
+    }
+
+    // ── Send TG digest only for non-suppressed tickers ──
+    if (toSend.length > 0 && rule.channels.includes('telegram')) {
+      const header = `${icon} OVERNIGHT ${dir} — ${toSend.length} asset${toSend.length > 1 ? 's' : ''} matched`;
+      const rows   = toSend.map(m =>
+        '✅ *' + m.name + '*\n' +
+        '  4H: ' + m.bias4h + '\n' +
+        '  Daily: ' + m.biasDay + '\n' +
+        '  Signal: ' + m.sig
+      ).join('\n\n');
+      const tgMsg = header + '\n\n' + rows + '\n\n_' + new Date().toLocaleString() + '_';
+      await sendTelegramAlert(tgMsg);
+      // Mark fired for each sent ticker
+      toSend.forEach(m => _markFired(ruleId, m.sym, direction));
+      if (suppressed.length) {
+        logAlertItem('info', `  ℹ ${suppressed.length} ticker(s) suppressed from this digest`);
+      }
+    }
+
+    // ── Email uses full match list (email doesn't have per-ticker cooldown) ──
+    if (toSend.length > 0 && rule.channels.includes('email')) {
+      const header = `${icon} OVERNIGHT ${dir} — ${toSend.length} asset${toSend.length > 1 ? 's' : ''} matched`;
+      const rows   = toSend.map(m =>
+        '✅ ' + m.name + '\n' +
+        '  4H: ' + m.bias4h + '\n' +
+        '  Daily: ' + m.biasDay + '\n' +
+        '  Signal: ' + m.sig
+      ).join('\n\n');
+      await sendEmailAlert(header + '\n\n' + rows);
+    }
   }
 }
 
 function resetSuppression() {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith('alert_state_') || k.startsWith('alert_ts_'));
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('a49_fp_') || k.startsWith('alert_state_') || k.startsWith('alert_ts_'));
   keys.forEach(k => localStorage.removeItem(k));
   logAlertItem('info', `🔄 Suppression cleared for ${keys.length} alert(s) — next match will fire immediately.`);
 }
@@ -665,10 +766,21 @@ function renderAlertCfgPage() {
 function renderAlertLog() {
   const el = document.getElementById('alert-cfg-log');
   if (!el || !STATE.alertLog.length) return;
-  el.innerHTML = STATE.alertLog.map(a =>
-    `<div style="display:flex;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(30,37,48,.5);font-family:var(--mono);font-size:8px;">
+  const colorMap = {
+    buy:        'var(--bull)',
+    sell:       'var(--bear)',
+    sent:       '#4caf50',
+    suppressed: '#444',
+    info:       'var(--text-dim)',
+  };
+  el.innerHTML = STATE.alertLog.map(a => {
+    const color = colorMap[a.type] || 'var(--text-dim)';
+    const bg    = a.type === 'suppressed' ? 'rgba(20,20,20,.3)' :
+                  a.type === 'buy'        ? 'rgba(0,200,100,.04)' :
+                  a.type === 'sell'       ? 'rgba(255,60,60,.04)' : 'transparent';
+    return `<div style="display:flex;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(30,37,48,.5);font-family:var(--mono);font-size:8px;background:${bg};">
       <span style="color:var(--text-dim);white-space:nowrap;flex-shrink:0;">${a.time}</span>
-      <span style="color:${a.type === 'buy' ? 'var(--bull)' : 'var(--text)'};white-space:pre-wrap;">${a.msg}</span>
-    </div>`
-  ).join('');
+      <span style="color:${color};white-space:pre-wrap;">${a.msg}</span>
+    </div>`;
+  }).join('');
 }

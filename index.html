@@ -33,6 +33,7 @@
   <button class="tab on"  onclick="switchTab('matrix',this)">◆ SIGNAL MATRIX</button>
   <button class="tab"     onclick="switchTab('journal',this)">◆ TRADE JOURNAL</button>
   <button class="tab"     onclick="switchTab('alerts',this)">🔔 ALERTS</button>
+  <button class="tab"     onclick="switchTab('watchlist-mgr',this)">⚙ WATCHLIST</button>
 </div>
 
 <!-- ══ MATRIX TAB ══ -->
@@ -141,6 +142,11 @@
   <!-- Populated by renderAlertCfgPage() in alerts.js -->
 </div>
 
+<!-- ══ WATCHLIST MANAGER TAB ══ -->
+<div id="tab-watchlist-mgr" class="tc">
+  <!-- Populated by renderWatchlistManager() in watchlist-manager.js -->
+</div>
+
 <!-- ══ SIGNAL MATRIX TABLE (always visible below tabs) ══ -->
 <div class="tbl-wrap">
   <div class="tbl-ph">
@@ -196,6 +202,7 @@
 <script src="js/render.js"></script>
 <script src="js/alerts.js"></script>
 <script src="js/journal.js"></script>
+<script src="js/watchlist-manager.js"></script>
 <script src="js/app.js"></script>
 
 </body>
