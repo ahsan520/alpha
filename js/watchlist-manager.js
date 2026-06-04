@@ -220,7 +220,7 @@ function removeAllLocalTickers() {
     delete STATE.DS[s];
     delete STATE.PH[s];
   });
-  sessionStorage.setItem('a49_wl_added', JSON.stringify([]));
+  // Session additions cleared in-memory only — no localStorage write needed.
   saveAlertSets(STATE._alertEnabled, STATE._alertDisabled);
   if (STATE.watchlist.length) switchT(STATE.watchlist[0]);
   render();

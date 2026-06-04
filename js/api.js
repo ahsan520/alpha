@@ -106,33 +106,36 @@ async function binanceFallback(sym) {
 }
 
 // ── Stock price via Yahoo Finance ──
-// Priority: v7 quote endpoint returns regularMarketChangePercent which is the
-// exchange-official day-change %. v8 chart uses (price-previousClose)/previousClose
-// which is equivalent but we prefer the explicit field. Try v7 first, fall back to v8.
+// Source priority for 24h%:
+//   1. v7 quote → regularMarketChangePercent  (official exchange day-change, best)
+//   2. v8 chart range=2d → (regularMarketPrice - previousClose) / previousClose
+//      range=2d guarantees bar[0]=yesterday bar[1]=today; wider ranges can land on
+//      a close from several days ago when markets are closed / extended hours.
 async function fetchStock(sym) {
-  // Primary: Yahoo v7 quote — regularMarketChangePercent is the authoritative day %
+  // Primary: Yahoo v7 quote
   try {
     const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${sym}`);
-    const q = d.quoteResponse.result[0];
-    if (q && q.regularMarketPrice != null) {
-      return {
-        p: q.regularMarketPrice,
-        chg: q.regularMarketChangePercent ?? 0, // official exchange day-change %
-      };
+    const q = d?.quoteResponse?.result?.[0];
+    if (q?.regularMarketPrice != null && q?.regularMarketChangePercent != null) {
+      return { p: q.regularMarketPrice, chg: q.regularMarketChangePercent };
     }
   } catch {}
-  // Fallback: v8 chart — use regularMarketPreviousClose, NOT meta.previousClose.
-  // meta.previousClose is a chart/adjusted field that diverges significantly for
-  // TSX ETFs, producing wildly wrong 24h% values. regularMarketPreviousClose is
-  // the official prior regular-session close that matches Yahoo Finance UI.
+  // Fallback: v8 chart with range=2d — only 2 daily bars, so bar[0].close = previousClose
+  try {
+    const d = await fetchProxy(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`);
+    const r = d.chart.result[0];
+    const p = r.meta.regularMarketPrice ?? r.meta.previousClose;
+    // meta.previousClose is the prior session close — correct anchor for 1-day %
+    const prev = r.meta.previousClose ?? r.meta.chartPreviousClose;
+    return { p, chg: prev ? ((p - prev) / prev) * 100 : 0 };
+  } catch {}
+  // Last resort: v8 range=5d via query2
   try {
     const d = await fetchProxy(`https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`);
     const r = d.chart.result[0];
-    const p = r.meta.regularMarketPrice ?? r.meta.regularMarketPreviousClose;
-    const prev = r.meta.regularMarketPreviousClose
-               ?? r.meta.chartPreviousClose
-               ?? r.meta.previousClose;
-    return { p, chg: (p != null && prev) ? ((p - prev) / prev) * 100 : 0 };
+    const p = r.meta.regularMarketPrice ?? r.meta.previousClose;
+    const prev = r.meta.previousClose ?? r.meta.chartPreviousClose;
+    return { p, chg: prev ? ((p - prev) / prev) * 100 : 0 };
   } catch {}
   throw new Error('stock failed: ' + sym);
 }
@@ -193,11 +196,13 @@ async function fetchStockExtra(sym) {
     const k7 = 2 / (7 + 1);
     let ema7 = closes[Math.max(0, n - 8)];
     for (let i = Math.max(0, n - 7); i < n; i++) ema7 = closes[i] * k7 + ema7 * (1 - k7);
-    const chg7d = closes[n - 7] > 0 ? ((closes[n - 1] - closes[n - 7]) / closes[n - 7] * 100) : 0;
+    const chg7d  = closes[n - 7] > 0 ? ((closes[n - 1] - closes[n - 7]) / closes[n - 7] * 100) : 0;
+    // chg1d: previous close → current close (true single-day change from daily bars)
+    const chg1d  = closes[n - 2] > 0 ? ((closes[n - 1] - closes[n - 2]) / closes[n - 2] * 100) : 0;
     const volSurge = volumes[n - 1] > avgVol * 1.4;
     let cvdDaily = 0;
     for (let i = n - 7; i < n; i++) cvdDaily += bars[i].c >= bars[i].o ? 1 : -1;
-    extra.kDay = { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d.toFixed(1)), cvdDaily };
+    extra.kDay = { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d.toFixed(1)), chg1d: parseFloat(chg1d.toFixed(2)), cvdDaily };
 
     // Expose raw OHLC bar arrays so calcSupRes() in signals.js can compute pivots
     extra._barsDay = bars;           // all daily bars (up to ~60 from 3mo range)
@@ -275,11 +280,13 @@ async function fetchDailyKlines(pair) {
     const avgVol = volumes.slice(0, n - 1).reduce((a, b) => a + b, 0) / (n - 1);
     const volSurge = volumes[n - 1] > avgVol * 1.5;
     const chg7d = ((closes[n - 1] - closes[n - 7]) / closes[n - 7] * 100).toFixed(1);
+    // chg1d: previous daily close → current close (true 24h from Binance daily bars)
+    const chg1d = closes[n - 2] > 0 ? parseFloat(((closes[n - 1] - closes[n - 2]) / closes[n - 2] * 100).toFixed(2)) : null;
     let cvdDaily = 0;
     for (let i = n - 7; i < n; i++) { const o = parseFloat(k[i][1]); cvdDaily += closes[i] > o ? 1 : -1; }
     // Build normalised bar array for calcSupRes pivot detection
     const dailyBars = k.map(c => ({ h: parseFloat(c[2]), l: parseFloat(c[3]), c: parseFloat(c[4]) }));
-    return { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d), cvdDaily, _barsDay: dailyBars };
+    return { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d), chg1d, cvdDaily, _barsDay: dailyBars };
   } catch { return null; }
 }
 

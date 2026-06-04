@@ -263,13 +263,29 @@ function processAI(s, p, chg, ex) {
   const srBars = extractBars(ex);
   const { sup, res } = calcSupRes(parseFloat(p), srBars);
 
+  // ── 24h% — prefer kDay.chg1d (derived from freshly-fetched daily bar series)
+  // over the raw chg param when available. chg1d = (closes[n-1] - closes[n-2]) /
+  // closes[n-2] and is immune to proxy-cached stale previousClose values.
+  const kDayEx = ex.kDay || null;
+  const chg1dEx = kDayEx?.chg1d;
+  const finalChg = (chg1dEx != null) ? chg1dEx : parseFloat(chg);
+
+  // ── Spark data — use last 7 daily closes from bar series, not live-poll ticks.
+  // PH[] only has 15-second ticks since page load (minutes of data), which produces
+  // a flat or meaningless line. Daily closes give a true 5-7 day price shape.
+  let sparkBars = null;
+  const barsDay = ex._barsDay || kDayEx?._barsDay || null;
+  if (barsDay && barsDay.length >= 5) {
+    sparkBars = barsDay.slice(-7).map(b => b.c ?? b);
+  }
+
   DS[s] = {
-    p: p.toFixed(p < 1 ? 5 : p < 10 ? 3 : 2), chg: chg.toFixed(2),
+    p: p.toFixed(p < 1 ? 5 : p < 10 ? 3 : 2), chg: finalChg.toFixed(2),
     r15, r1h, r4h, shock, nf, lp, sp, fr, whale, sig, sigC, reason, score,
     obi, cvd: cvd ? { value: cvd.value, trending: cvd.trending, series: cvd.series } : null, liq,
     emaTrend, emaVal, fundingFlag, fundingFlagC, oiDiv, oiDivC, dipScore, dipLabel, dipLabelC,
     bias4h, bias4hC, bias4hScore, biasDay, biasDayC, biasDayScore,
-    sup, res,
+    sup, res, sparkBars,
   };
 
   // ── CHECK ALERT RULES ──

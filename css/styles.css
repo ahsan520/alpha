@@ -16,14 +16,16 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 
 /* ── NEWS TICKER ── */
 .ticker-bar{background:#0a0e13;border-bottom:1px solid var(--border);padding:5px 0;overflow:hidden;white-space:nowrap;position:relative;height:26px;}
-.ticker-bar::before{content:'◆ LIVE';position:absolute;left:0;top:0;bottom:0;background:var(--bear);color:#000;font-weight:700;padding:0 10px;display:flex;align-items:center;z-index:2;font-family:var(--mono);font-size:8px;letter-spacing:1px;}
+.ticker-bar::before{content:'◆ MARKET';position:absolute;left:0;top:0;bottom:0;background:var(--bear);color:#000;font-weight:700;padding:0 10px;display:flex;align-items:center;z-index:2;font-family:var(--mono);font-size:8px;letter-spacing:1px;}
 .ticker-inner{display:inline-block;animation:scroll-ticker 70s linear infinite;padding-left:90px;font-family:var(--mono);font-size:9px;}
 .ticker-inner:hover{animation-play-state:paused;}
 @keyframes scroll-ticker{from{transform:translateX(100vw);}to{transform:translateX(-100%);}}
-.ti{display:inline-block;margin-right:50px;}
+.ti{display:inline-block;margin-right:44px;}
 .ti a{color:var(--accent);text-decoration:none;}
 .ti-b{color:var(--bull);}
 .ti-s{color:var(--bear);}
+.ti-tag{display:inline-block;border:1px solid;border-radius:3px;padding:0 4px;font-size:7px;font-weight:700;letter-spacing:.5px;margin-right:5px;vertical-align:middle;}
+.ni-tag{display:inline-block;border:1px solid;border-radius:3px;padding:0 4px;font-size:7px;font-weight:700;letter-spacing:.5px;margin-right:4px;}
 
 /* ── HEADER ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap;gap:6px;}
@@ -51,6 +53,10 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 
 /* watchlist */
 .wl-wrap{grid-column:1;grid-row:1;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.wl-body{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.wl-body.hide{display:none;}
+.wl-hdr{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.wl-wrap:has(.wl-body.hide){flex:none;height:auto;}
 .ph{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;}
 .pt{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:2px;}
 .wl-ctrl{padding:9px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;}
@@ -88,7 +94,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;}
 
 /* Table — no column hiding on mobile; full horizontal scroll instead */
-table.mx{width:100%;min-width:1400px;border-collapse:collapse;}
+table.mx{width:100%;min-width:980px;border-collapse:collapse;}
 table.mx thead th{font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1.2px;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:5;white-space:nowrap;cursor:pointer;user-select:none;}
 table.mx thead th:hover{color:var(--accent);}
 table.mx thead th.srt{color:var(--accent);}
@@ -260,6 +266,8 @@ canvas.sp{display:block;}
 @media(max-width:768px){
   .grid2{grid-template-columns:1fr;height:auto;}
   .wl-wrap{grid-column:1;grid-row:2;border-right:none;border-bottom:1px solid var(--border);max-height:280px;}
+  .wl-wrap:has(.wl-body.hide){max-height:none;border-bottom:none;}
+  .grid2:has(.wl-body.hide){grid-template-rows:1fr;}
   .chart-wrap{grid-column:1;grid-row:1;height:260px;}
   .hdr-right .hstat:nth-child(n+3){display:none;}
   .bnews-body{grid-template-columns:1fr;max-height:260px;}
@@ -270,7 +278,7 @@ canvas.sp{display:block;}
   .tab{font-size:8px;padding:7px 9px;letter-spacing:0;}
   /* Mobile table: allow full horizontal scroll, no column hiding */
   .tbl-scroll{overflow-x:scroll;-webkit-overflow-scrolling:touch;}
-  table.mx{min-width:1400px;}
+  table.mx{min-width:980px;}
   table.mx td,table.mx th{padding:5px 6px;font-size:9px;}
 }
 

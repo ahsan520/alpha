@@ -22,7 +22,8 @@ window.STATE = {
   sortD: -1,
   alertLog: [],
   newsItems: [],
-  newsOpen: true,
+  newsOpen: false,
+  wlOpen: false,   // watchlist sidebar starts collapsed on mobile
   alertsOpen: false,
 };
 
