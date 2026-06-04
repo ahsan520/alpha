@@ -121,13 +121,18 @@ async function fetchStock(sym) {
       };
     }
   } catch {}
-  // Fallback: v8 chart — compute from regularMarketPrice / previousClose
+  // Fallback: v8 chart — use regularMarketPreviousClose, NOT meta.previousClose.
+  // meta.previousClose is a chart/adjusted field that diverges significantly for
+  // TSX ETFs, producing wildly wrong 24h% values. regularMarketPreviousClose is
+  // the official prior regular-session close that matches Yahoo Finance UI.
   try {
     const d = await fetchProxy(`https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`);
     const r = d.chart.result[0];
-    const p = r.meta.regularMarketPrice || r.meta.previousClose;
-    const prev = r.meta.previousClose || r.meta.chartPreviousClose;
-    return { p, chg: prev ? ((p - prev) / prev) * 100 : 0 };
+    const p = r.meta.regularMarketPrice ?? r.meta.regularMarketPreviousClose;
+    const prev = r.meta.regularMarketPreviousClose
+               ?? r.meta.chartPreviousClose
+               ?? r.meta.previousClose;
+    return { p, chg: (p != null && prev) ? ((p - prev) / prev) * 100 : 0 };
   } catch {}
   throw new Error('stock failed: ' + sym);
 }
