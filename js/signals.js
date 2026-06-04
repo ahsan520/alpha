@@ -3,6 +3,70 @@
 // All column data computed here, stored in STATE.DS
 // ══════════════════════════════════════════════
 
+// ── SUPPORT / RESISTANCE from klines ──
+// Uses a simple pivot-point method on the available OHLC bars.
+// Works for both crypto (k4h / kDay raw klines stored in extra) and
+// stocks (fetchStockExtra already returns bar arrays inside kDay/k4h).
+//
+// Strategy:
+//  1. Collect a set of recent high and low pivots from the price bars.
+//  2. Cluster nearby pivots (within 0.8% of each other) so we don't show
+//     duplicate levels that are basically the same price.
+//  3. Levels below current price → support candidates; above → resistance.
+//  4. Pick the nearest support and nearest resistance.
+function calcSupRes(price, bars) {
+  // bars: array of { h, l, c } objects, oldest → newest
+  if (!bars || bars.length < 5 || !price) return { sup: null, res: null };
+
+  const n = bars.length;
+  const pivots = [];
+
+  // Identify swing highs and swing lows (window ±2)
+  for (let i = 2; i < n - 2; i++) {
+    const h = bars[i].h, l = bars[i].l;
+    const isSwingH = h >= bars[i-1].h && h >= bars[i-2].h && h >= bars[i+1].h && h >= bars[i+2].h;
+    const isSwingL = l <= bars[i-1].l && l <= bars[i-2].l && l <= bars[i+1].l && l <= bars[i+2].l;
+    if (isSwingH) pivots.push(h);
+    if (isSwingL) pivots.push(l);
+  }
+  // Also always include the recent high/low as reference
+  pivots.push(Math.max(...bars.slice(-5).map(b => b.h)));
+  pivots.push(Math.min(...bars.slice(-5).map(b => b.l)));
+
+  // Cluster: merge pivots within 0.8% of each other
+  const sorted = [...new Set(pivots)].sort((a, b) => a - b);
+  const clustered = [];
+  for (const v of sorted) {
+    if (!clustered.length || (v - clustered[clustered.length - 1]) / clustered[clustered.length - 1] > 0.008) {
+      clustered.push(v);
+    } else {
+      // Average the cluster
+      clustered[clustered.length - 1] = (clustered[clustered.length - 1] + v) / 2;
+    }
+  }
+
+  // Split into support (≤ price) and resistance (> price)
+  const supports    = clustered.filter(v => v <= price * 1.001).sort((a, b) => b - a); // nearest first
+  const resistances = clustered.filter(v => v > price * 0.999).sort((a, b) => a - b);  // nearest first
+
+  const fmt = v => v == null ? null : (v < 1 ? v.toFixed(4) : v < 10 ? v.toFixed(3) : v < 100 ? v.toFixed(2) : v.toFixed(2));
+  return {
+    sup: fmt(supports[0] ?? null),
+    res: fmt(resistances[0] ?? null),
+  };
+}
+
+// ── Extract normalised bar array from whatever kline shape is available ──
+function extractBars(ex) {
+  // Stocks: fetchStockExtra exposes ex._barsDay (all daily bars, OHLCV objects)
+  if (ex._barsDay && ex._barsDay.length >= 5) return ex._barsDay;
+  // Stocks: shorter 4h-proxy fallback
+  if (ex._bars4h && ex._bars4h.length >= 5) return ex._bars4h;
+  // Crypto: fetchDailyKlines returns kDay with nested _barsDay
+  if (ex.kDay && ex.kDay._barsDay && ex.kDay._barsDay.length >= 5) return ex.kDay._barsDay;
+  return [];
+}
+
 function processAI(s, p, chg, ex) {
   const isCrypto = s.includes('BINANCE:');
   const { DS, PH } = STATE;
@@ -194,12 +258,18 @@ function processAI(s, p, chg, ex) {
     sig = 'WAIT'; sigC = 's-w';
   }
 
+  // ── SUPPORT / RESISTANCE ──
+  // Prefer daily bars (wider swings); fall back to 4h bars for intraday context.
+  const srBars = extractBars(ex);
+  const { sup, res } = calcSupRes(parseFloat(p), srBars);
+
   DS[s] = {
     p: p.toFixed(p < 1 ? 5 : p < 10 ? 3 : 2), chg: chg.toFixed(2),
     r15, r1h, r4h, shock, nf, lp, sp, fr, whale, sig, sigC, reason, score,
     obi, cvd: cvd ? { value: cvd.value, trending: cvd.trending, series: cvd.series } : null, liq,
     emaTrend, emaVal, fundingFlag, fundingFlagC, oiDiv, oiDivC, dipScore, dipLabel, dipLabelC,
-    bias4h, bias4hC, bias4hScore, biasDay, biasDayC, biasDayScore
+    bias4h, bias4hC, bias4hScore, biasDay, biasDayC, biasDayScore,
+    sup, res,
   };
 
   // ── CHECK ALERT RULES ──
@@ -245,3 +315,23 @@ function checkAlertRules(sym, d, shock, bias4h) {
     }
   }
 }
+
+
+// === ChatGPT TFSA Yield ETF Adjustment ===
+// Covered-call / yield ETFs can look artificially weak because
+// distributions and option overwriting reduce momentum.
+// This helper can be incorporated into the scoring model.
+const yieldEtfs = ['ETHY.TO','BTCY.TO','ETHH.TO','XRPP.TO'];
+
+function applyYieldEtfAdjustment(symbol, state){
+    if(!yieldEtfs.includes(symbol)) return state;
+
+    // soften extreme sell signals
+    if(typeof state.score === 'number') state.score += 2;
+    if(typeof state.dipScore === 'number') state.dipScore += 2;
+
+    return state;
+}
+
+// Example:
+// state = applyYieldEtfAdjustment(symbol, state);

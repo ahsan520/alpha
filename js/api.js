@@ -51,21 +51,50 @@ async function cgId(pair) {
   return base;
 }
 
-// ── Batch crypto prices via CoinGecko ──
+// ── Batch crypto prices — Binance first for real-time true 24h%, CoinGecko fallback ──
+// CoinGecko usd_24h_change can be stale by hours; Binance priceChangePercent is a
+// rolling 24h value updated every few seconds and is the authoritative source.
 async function batchCrypto(syms) {
   if (!syms.length) return {};
   const pairs = syms.map(s => s.split(':')[1]);
-  const idMap = {};
-  await Promise.all(pairs.map(async p => { idMap[await cgId(p)] = p; }));
-  const ids = Object.keys(idMap).join(',');
+  const res = {};
+
+  // Attempt Binance batch ticker — single request covers all symbols
   try {
-    const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-    const res = {};
-    for (const [id, pair] of Object.entries(idMap)) {
-      if (d[id]) res['BINANCE:' + pair] = { p: d[id].usd, chg: d[id].usd_24h_change || 0 };
+    const url = `https://api.binance.com/api/v3/ticker/24hr`;
+    let data = null;
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (r.ok) data = await r.json();
+    } catch {}
+    if (!data) data = await fetchProxy(url);
+    if (Array.isArray(data)) {
+      const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
+      for (const pair of pairs) {
+        const t = byPair[pair];
+        if (t) res['BINANCE:' + pair] = {
+          p: parseFloat(t.lastPrice),
+          chg: parseFloat(t.priceChangePercent), // real-time rolling 24h from Binance
+        };
+      }
+      if (pairs.every(p => res['BINANCE:' + p])) return res;
     }
-    return res;
-  } catch { return {}; }
+  } catch {}
+
+  // Fallback: CoinGecko for any pairs Binance didn't cover (price + stale 24h%)
+  const missing = pairs.filter(p => !res['BINANCE:' + p]);
+  if (missing.length) {
+    try {
+      const idMap = {};
+      await Promise.all(missing.map(async p => { idMap[await cgId(p)] = p; }));
+      const ids = Object.keys(idMap).join(',');
+      const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+      for (const [id, pair] of Object.entries(idMap)) {
+        if (d[id]) res['BINANCE:' + pair] = { p: d[id].usd, chg: d[id].usd_24h_change || 0 };
+      }
+    } catch {}
+  }
+  return res;
 }
 
 // ── Binance fallback for single pair ──
@@ -77,18 +106,28 @@ async function binanceFallback(sym) {
 }
 
 // ── Stock price via Yahoo Finance ──
+// Priority: v7 quote endpoint returns regularMarketChangePercent which is the
+// exchange-official day-change %. v8 chart uses (price-previousClose)/previousClose
+// which is equivalent but we prefer the explicit field. Try v7 first, fall back to v8.
 async function fetchStock(sym) {
+  // Primary: Yahoo v7 quote — regularMarketChangePercent is the authoritative day %
   try {
-    const d = await fetchProxy(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`);
+    const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${sym}`);
+    const q = d.quoteResponse.result[0];
+    if (q && q.regularMarketPrice != null) {
+      return {
+        p: q.regularMarketPrice,
+        chg: q.regularMarketChangePercent ?? 0, // official exchange day-change %
+      };
+    }
+  } catch {}
+  // Fallback: v8 chart — compute from regularMarketPrice / previousClose
+  try {
+    const d = await fetchProxy(`https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`);
     const r = d.chart.result[0];
     const p = r.meta.regularMarketPrice || r.meta.previousClose;
     const prev = r.meta.previousClose || r.meta.chartPreviousClose;
     return { p, chg: prev ? ((p - prev) / prev) * 100 : 0 };
-  } catch {}
-  try {
-    const d = await fetchProxy(`https://query2.finance.yahoo.com/v7/finance/quote?symbols=${sym}`);
-    const q = d.quoteResponse.result[0];
-    return { p: q.regularMarketPrice, chg: q.regularMarketChangePercent };
   } catch {}
   throw new Error('stock failed: ' + sym);
 }
@@ -154,6 +193,10 @@ async function fetchStockExtra(sym) {
     let cvdDaily = 0;
     for (let i = n - 7; i < n; i++) cvdDaily += bars[i].c >= bars[i].o ? 1 : -1;
     extra.kDay = { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d.toFixed(1)), cvdDaily };
+
+    // Expose raw OHLC bar arrays so calcSupRes() in signals.js can compute pivots
+    extra._barsDay = bars;           // all daily bars (up to ~60 from 3mo range)
+    extra._bars4h  = bars.slice(-20); // most-recent 20 as shorter-term context
   } catch {}
   return extra;
 }
@@ -229,7 +272,9 @@ async function fetchDailyKlines(pair) {
     const chg7d = ((closes[n - 1] - closes[n - 7]) / closes[n - 7] * 100).toFixed(1);
     let cvdDaily = 0;
     for (let i = n - 7; i < n; i++) { const o = parseFloat(k[i][1]); cvdDaily += closes[i] > o ? 1 : -1; }
-    return { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d), cvdDaily };
+    // Build normalised bar array for calcSupRes pivot detection
+    const dailyBars = k.map(c => ({ h: parseFloat(c[2]), l: parseFloat(c[3]), c: parseFloat(c[4]) }));
+    return { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d), cvdDaily, _barsDay: dailyBars };
   } catch { return null; }
 }
 

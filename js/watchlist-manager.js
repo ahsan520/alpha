@@ -220,7 +220,7 @@ function removeAllLocalTickers() {
     delete STATE.DS[s];
     delete STATE.PH[s];
   });
-  localStorage.setItem('a49_wl_added', JSON.stringify([]));
+  sessionStorage.setItem('a49_wl_added', JSON.stringify([]));
   saveAlertSets(STATE._alertEnabled, STATE._alertDisabled);
   if (STATE.watchlist.length) switchT(STATE.watchlist[0]);
   render();

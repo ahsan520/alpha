@@ -7,8 +7,12 @@ const APP_VERSION = 'v49.2';
 // ── SHARED STATE ──
 window.STATE = {
   watchlist: [],
-  DS: JSON.parse(localStorage.getItem('a49_ds') || '{}'),
-  PH: JSON.parse(localStorage.getItem('a49_ph') || '{}'),
+  // DS and PH are intentionally left empty here.
+  // They are populated in init() after the watchlist is resolved,
+  // filtered to only symbols in this tab's watchlist.json — this prevents
+  // stale symbols from other open tabs bleeding in via localStorage.
+  DS: {},
+  PH: {},
   cgCache: JSON.parse(localStorage.getItem('a49_cgc') || '{}'),
   trades: JSON.parse(localStorage.getItem('a49_trades') || '[]'),
   alertCfg: {}, // initialized by alerts.js initAlertCfg()

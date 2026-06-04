@@ -112,9 +112,17 @@ function renderTable() {
       <td style="font-size:10px;font-weight:700;color:${d.bias4hC};" title="4H score: ${d.bias4hScore || 0}">${d.bias4h || '—'}</td>
       <td style="font-size:10px;font-weight:700;color:${d.biasDayC};" title="Daily score: ${d.biasDayScore || 0}">${d.biasDay || '—'}</td>
       <td><span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span></td>
-      <td style="font-size:9px;color:var(--text-dim);">${d.sup || '—'}</td>
-      <td style="font-size:9px;color:var(--text-dim);">${d.res || '—'}</td>
+      <td style="font-size:9px;min-width:90px;">
+        ${d.sup || d.res
+          ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;">
+               <span style="color:var(--bull);" title="Support">S $${d.sup || '—'}</span>
+               <span style="color:var(--bear);" title="Resistance">R $${d.res || '—'}</span>
+             </div>`
+          : '<span style="color:var(--text-dim);">—</span>'
+        }
+      </td>
       <td><a href="https://finance.yahoo.com/quote/${s.replace('BINANCE:', '').replace('USDT', '')}" target="_blank" style="color:var(--accent);text-decoration:none;font-size:9px;">⬡</a></td>
+      <td><button class="rbtn" onclick="event.stopPropagation();refreshSymbol('${s}',this)" title="Refresh ${name}">↺</button></td>
       <td class="td-reason" title="${d.reason}">${d.reason}</td>
     </tr>`;
   }).join('');

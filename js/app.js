@@ -15,10 +15,22 @@ async function init() {
     if (r.ok) base = await r.json();
   } catch {}
 
-  const added = JSON.parse(localStorage.getItem('a49_wl_added') || '[]');
+  // sessionStorage is tab-scoped: additions made in Tab A never bleed into Tab B.
+  const added = JSON.parse(sessionStorage.getItem('a49_wl_added') || '[]');
   const merged = [...base, ...added.filter(s => !base.includes(s))];
   STATE.watchlist = merged;
   STATE.currentS = STATE.watchlist[0];
+
+  // Load DS/PH from localStorage but ONLY keep entries for symbols in THIS
+  // tab's watchlist. This prevents cached data from other open tabs (which
+  // may have a completely different watchlist.json) from appearing in the table.
+  const wlSet = new Set(merged);
+  const rawDS = JSON.parse(localStorage.getItem('a49_ds') || '{}');
+  const rawPH = JSON.parse(localStorage.getItem('a49_ph') || '{}');
+  for (const sym of wlSet) {
+    if (rawDS[sym] !== undefined) STATE.DS[sym] = rawDS[sym];
+    if (rawPH[sym] !== undefined) STATE.PH[sym] = rawPH[sym];
+  }
 
   // Initialise alert-filter state AFTER base watchlist is known
   initAlertFilterState();
@@ -38,44 +50,30 @@ async function init() {
   updateLastUpdBar();
 }
 
-// ── MAIN SYNC LOOP ──
-async function sync() {
-  document.getElementById('sstatus').textContent = 'SYNCING';
-  document.getElementById('sdot').style.background = 'var(--gold)';
-  const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
-  localStorage.setItem('a49_wl_added', JSON.stringify(added));
+// ── SINGLE SYMBOL FETCH ──
+// Fetches and processes one symbol; used by both sync() and per-row refresh buttons.
+async function syncOne(s) {
+  const isCrypto = s.includes('BINANCE:');
+  try {
+    if (isCrypto) {
+      const pair = s.split(':')[1];
+      // Stagger extra calls to avoid bursting — run sequentially within one symbol
+      let pd;
+      try { pd = (await batchCrypto([s]))[s]; } catch {}
+      if (!pd) pd = await binanceFallback(s);
 
-  const cryptoS = STATE.watchlist.filter(s => s.includes('BINANCE:'));
-  const stockS = STATE.watchlist.filter(s => !s.includes('BINANCE:'));
-  let ok = 0, fail = 0;
+      const obi   = await fetchOBI(pair).catch(() => null);
+      const cvd   = await fetchCVD(pair).catch(() => null);
+      const mtf   = await fetchMTF(pair).catch(() => [null, null, null]);
+      const k4h   = await fetch4hKlines(pair).catch(() => null);
+      const kDay  = await fetchDailyKlines(pair).catch(() => null);
+      const extra = { obi, cvd, mtf, k4h, kDay };
 
-  const batch = await batchCrypto(cryptoS);
-
-  const extra = {};
-  await Promise.all(cryptoS.map(async s => {
-    const pair = s.split(':')[1];
-    const [obi, cvd, mtf, k4h, kDay] = await Promise.all([
-      fetchOBI(pair).catch(() => null),
-      fetchCVD(pair).catch(() => null),
-      fetchMTF(pair).catch(() => [null, null, null]),
-      fetch4hKlines(pair).catch(() => null),
-      fetchDailyKlines(pair).catch(() => null),
-    ]);
-    extra[s] = { obi, cvd, mtf, k4h, kDay };
-  }));
-
-  for (const s of cryptoS) {
-    let pd = batch[s];
-    if (!pd) { try { pd = await binanceFallback(s); } catch { fail++; continue; } }
-    ok++;
-    if (!STATE.PH[s]) STATE.PH[s] = [];
-    STATE.PH[s].push(pd.p);
-    if (STATE.PH[s].length > 200) STATE.PH[s].shift();
-    processAI(s, pd.p, pd.chg, extra[s] || {});
-  }
-
-  await Promise.all(stockS.map(async s => {
-    try {
+      if (!STATE.PH[s]) STATE.PH[s] = [];
+      STATE.PH[s].push(pd.p);
+      if (STATE.PH[s].length > 200) STATE.PH[s].shift();
+      processAI(s, pd.p, pd.chg, extra);
+    } else {
       const [{ p, chg }, stockExtra] = await Promise.all([
         fetchStock(s),
         fetchStockExtra(s).catch(() => ({})),
@@ -84,18 +82,56 @@ async function sync() {
       STATE.PH[s].push(p);
       if (STATE.PH[s].length > 200) STATE.PH[s].shift();
       processAI(s, p, chg, stockExtra);
-      ok++;
-    } catch { fail++; }
-  }));
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── MAIN SYNC LOOP — staggered sequential loading ──
+// Loads symbols one-at-a-time with a small gap between each to avoid
+// mass-throttling 100+ concurrent requests when the watchlist is large.
+async function sync() {
+  document.getElementById('sstatus').textContent = 'SYNCING';
+  document.getElementById('sdot').style.background = 'var(--gold)';
+
+  // sessionStorage is tab-scoped — GUI additions in this tab stay in this tab.
+  const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
+  sessionStorage.setItem('a49_wl_added', JSON.stringify(added));
+
+  let ok = 0, fail = 0;
+  const STAGGER_MS = 300; // ms gap between symbols — keeps concurrent requests low
+
+  for (const s of STATE.watchlist) {
+    const success = await syncOne(s);
+    if (success) ok++; else fail++;
+    // Render after every symbol so the table populates progressively
+    render();
+    updateLastUpdBar();
+    // Yield to browser between symbols to keep UI responsive
+    await new Promise(r => setTimeout(r, STAGGER_MS));
+  }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
-  await flushDigest();  // send combined overnight alerts after all symbols processed
+  await flushDigest();
   render();
   updateLastUpdBar();
 
   document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
   document.getElementById('sdot').style.background = ok > 0 ? 'var(--bull)' : 'var(--bear)';
+}
+
+// ── PER-ROW REFRESH — called from the refresh button on each table row ──
+async function refreshSymbol(s, btnEl) {
+  if (btnEl) { btnEl.textContent = '⟳'; btnEl.style.opacity = '0.4'; btnEl.disabled = true; }
+  const ok = await syncOne(s);
+  if (btnEl) { btnEl.textContent = '↺'; btnEl.style.opacity = ok ? '1' : '0.3'; btnEl.disabled = false; }
+  localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
+  localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
+  render();
+  updateLastUpdBar();
 }
 
 function updateLastUpdBar() {
@@ -148,7 +184,7 @@ function addTicker() {
   if (!STATE.watchlist.includes(e)) {
     STATE.watchlist.push(e);
     const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
-    localStorage.setItem('a49_wl_added', JSON.stringify(added));
+    sessionStorage.setItem('a49_wl_added', JSON.stringify(added));
     logAlertItem('info', 'Added: ' + e);
     sync();
   }
@@ -158,7 +194,7 @@ function addTicker() {
 function delT(s) {
   STATE.watchlist = STATE.watchlist.filter(x => x !== s);
   const added = STATE.watchlist.filter(s => !DEFAULT_WATCHLIST.includes(s));
-  localStorage.setItem('a49_wl_added', JSON.stringify(added));
+  sessionStorage.setItem('a49_wl_added', JSON.stringify(added));
   delete STATE.DS[s];
   delete STATE.PH[s];
   if (STATE.currentS === s && STATE.watchlist.length) switchT(STATE.watchlist[0]);

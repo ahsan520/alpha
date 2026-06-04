@@ -73,6 +73,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .wl-btns{padding:7px;display:grid;grid-template-columns:1fr 1fr;gap:4px;flex-shrink:0;border-top:1px solid var(--border);}
 .bsm{background:none;border:1px solid var(--border2);color:var(--text-dim);padding:6px;border-radius:4px;cursor:pointer;font-size:8px;font-family:var(--mono);transition:.2s;}
 .bsm:hover{border-color:var(--accent);color:var(--accent);}
+.rbtn{background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;padding:2px 4px;border-radius:3px;transition:color .15s,opacity .15s;line-height:1;}
+.rbtn:hover{color:var(--accent);}
+.rbtn:disabled{cursor:default;}
 
 /* chart */
 .chart-wrap{grid-column:2;grid-row:1;overflow:hidden;}
