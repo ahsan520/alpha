@@ -67,72 +67,74 @@
     </div>
   </div>
 
-  <!-- ◆ UNIFIED MARKET BAR — always visible, pulse tiles + live ticker -->
-  <div class="mbar" id="mpulse-panel">
+</div><!-- /tab-matrix -->
 
-    <!-- Row 1: Market Pulse Tiles -->
-    <div class="mbar-pulse">
-      <div class="mp-group">
-        <div class="mp-group-lbl">INDEX</div>
-        <div class="mp-tile" id="mp-SPY"><div class="mp-tile-name">S&amp;P 500</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-QQQ"><div class="mp-tile-name">NASDAQ</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-DIA"><div class="mp-tile-name">DOW</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-IWM"><div class="mp-tile-name">RUSSELL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-      </div>
-      <div class="mp-vsep"></div>
-      <div class="mp-group">
-        <div class="mp-group-lbl">SECTOR</div>
-        <div class="mp-tile" id="mp-XLK"><div class="mp-tile-name">TECH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-XLE"><div class="mp-tile-name">ENERGY</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-XLF"><div class="mp-tile-name">FINANCE</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-XLV"><div class="mp-tile-name">HEALTH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-      </div>
-      <div class="mp-vsep"></div>
-      <div class="mp-group">
-        <div class="mp-group-lbl">MACRO</div>
-        <div class="mp-tile" id="mp-GLD"><div class="mp-tile-name">GOLD</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-UUP"><div class="mp-tile-name">USD·DXY</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-TLT"><div class="mp-tile-name">BONDS</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-USO"><div class="mp-tile-name">OIL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-      </div>
-      <div class="mp-vsep"></div>
-      <div class="mp-group">
-        <div class="mp-group-lbl">CRYPTO</div>
-        <div class="mp-tile" id="mp-BTC"><div class="mp-tile-name">BTC</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-ETH"><div class="mp-tile-name">ETH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-SOL"><div class="mp-tile-name">SOL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-        <div class="mp-tile" id="mp-XMR"><div class="mp-tile-name">XMR</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
-      </div>
-      <div class="mp-refresh-wrap">
-        <div class="mp-updated" id="mp-updated">—</div>
-        <button class="mp-refresh-btn" onclick="fetchMarketPulse()" title="Refresh market pulse">↺</button>
-      </div>
-    </div><!-- /mbar-pulse -->
+<!-- ◆ UNIFIED MARKET BAR — outside all tabs, always visible -->
+<div class="mbar" id="mpulse-panel">
 
-    <!-- Row 2: Live News Ticker -->
-    <div class="mbar-ticker">
-      <div class="mbar-ticker-label">◆ LIVE</div>
-      <div class="mbar-ticker-track">
-        <div class="ticker-inner" id="ticker-inner">Loading headlines…</div>
-      </div>
+  <!-- Row 1: Market Pulse Tiles -->
+  <div class="mbar-pulse">
+    <div class="mp-group">
+      <div class="mp-group-lbl">INDEX</div>
+      <div class="mp-tile" id="mp-SPY"><div class="mp-tile-name">S&amp;P 500</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-QQQ"><div class="mp-tile-name">NASDAQ</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-DIA"><div class="mp-tile-name">DOW</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-IWM"><div class="mp-tile-name">RUSSELL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
     </div>
-
-  </div><!-- /mbar -->
-
-  <!-- ◆ NEWS FEED — collapsible article grid -->
-  <div class="bnews">
-    <div class="bnews-hdr" onclick="toggleNews()">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="pt">◆ NEWS FEED</span>
-        <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
-        <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
-        <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
-        <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
-      </div>
-      <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+    <div class="mp-vsep"></div>
+    <div class="mp-group">
+      <div class="mp-group-lbl">SECTOR</div>
+      <div class="mp-tile" id="mp-XLK"><div class="mp-tile-name">TECH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-XLE"><div class="mp-tile-name">ENERGY</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-XLF"><div class="mp-tile-name">FINANCE</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-XLV"><div class="mp-tile-name">HEALTH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
     </div>
-    <div class="bnews-body" id="bnews-body"></div>
+    <div class="mp-vsep"></div>
+    <div class="mp-group">
+      <div class="mp-group-lbl">MACRO</div>
+      <div class="mp-tile" id="mp-GLD"><div class="mp-tile-name">GOLD</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-UUP"><div class="mp-tile-name">USD·DXY</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-TLT"><div class="mp-tile-name">BONDS</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-USO"><div class="mp-tile-name">OIL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+    </div>
+    <div class="mp-vsep"></div>
+    <div class="mp-group">
+      <div class="mp-group-lbl">CRYPTO</div>
+      <div class="mp-tile" id="mp-BTC"><div class="mp-tile-name">BTC</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-ETH"><div class="mp-tile-name">ETH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-SOL"><div class="mp-tile-name">SOL</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-XMR"><div class="mp-tile-name">XMR</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+    </div>
+    <div class="mp-refresh-wrap">
+      <div class="mp-updated" id="mp-updated">—</div>
+      <button class="mp-refresh-btn" onclick="fetchMarketPulse()" title="Refresh market pulse">↺</button>
+    </div>
+  </div><!-- /mbar-pulse -->
+
+  <!-- Row 2: Live News Ticker -->
+  <div class="mbar-ticker">
+    <div class="mbar-ticker-label">◆ LIVE</div>
+    <div class="mbar-ticker-track">
+      <div class="ticker-inner" id="ticker-inner">Loading headlines…</div>
+    </div>
   </div>
+
+</div><!-- /mbar -->
+
+<!-- ◆ NEWS FEED — collapsible, outside tabs, always accessible -->
+<div class="bnews">
+  <div class="bnews-hdr" onclick="toggleNews()">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="pt">◆ NEWS FEED</span>
+      <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
+      <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+      <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
+      <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
+    </div>
+    <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+  </div>
+  <div class="bnews-body" id="bnews-body"></div>
+</div>
 
 <!-- ══ JOURNAL TAB ══ -->
 <div id="tab-journal" class="tc">
