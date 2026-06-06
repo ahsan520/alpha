@@ -395,6 +395,8 @@ function mockNews() {
 function toggleNews() {
   STATE.newsOpen = !STATE.newsOpen;
   document.getElementById('bnews-body').classList.toggle('hide', !STATE.newsOpen);
+  const panel = document.getElementById('mpulse-panel');
+  if (panel) panel.classList.toggle('hide', !STATE.newsOpen);
   document.getElementById('news-chevron').textContent = STATE.newsOpen ? '▲ COLLAPSE' : '▼ EXPAND';
 }
 

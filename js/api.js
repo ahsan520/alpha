@@ -423,33 +423,40 @@ async function fetchFG() {
   } catch {}
 }
 
-// ── Market Pulse Bar — indices, sectors, macro, crypto ──
-// Stock/ETF pills use Yahoo Finance (same as watchlist stocks).
-// Crypto pills use Binance ticker (same as batchCrypto).
-const MPULSE_PILLS = [
-  { id: 'mp-SPY', sym: 'SPY',              crypto: false },
-  { id: 'mp-QQQ', sym: 'QQQ',              crypto: false },
-  { id: 'mp-DIA', sym: 'DIA',              crypto: false },
-  { id: 'mp-IWM', sym: 'IWM',              crypto: false },
-  { id: 'mp-XLK', sym: 'XLK',              crypto: false },
-  { id: 'mp-XLE', sym: 'XLE',              crypto: false },
-  { id: 'mp-XLF', sym: 'XLF',              crypto: false },
-  { id: 'mp-XLV', sym: 'XLV',              crypto: false },
-  { id: 'mp-GLD', sym: 'GLD',              crypto: false },
-  { id: 'mp-UUP', sym: 'UUP',              crypto: false },
-  { id: 'mp-TLT', sym: 'TLT',              crypto: false },
-  { id: 'mp-OIL', sym: 'USO',              crypto: false },
-  { id: 'mp-BTC', sym: 'BTCUSDT',          crypto: true  },
-  { id: 'mp-ETH', sym: 'ETHUSDT',          crypto: true  },
-  { id: 'mp-SOL', sym: 'SOLUSDT',          crypto: true  },
+// ── Market Pulse Panel — indices, sectors, macro, crypto ──
+const MPULSE_STOCKS = [
+  { id: 'mp-SPY', sym: 'SPY'  },
+  { id: 'mp-QQQ', sym: 'QQQ'  },
+  { id: 'mp-DIA', sym: 'DIA'  },
+  { id: 'mp-IWM', sym: 'IWM'  },
+  { id: 'mp-XLK', sym: 'XLK'  },
+  { id: 'mp-XLE', sym: 'XLE'  },
+  { id: 'mp-XLF', sym: 'XLF'  },
+  { id: 'mp-XLV', sym: 'XLV'  },
+  { id: 'mp-GLD', sym: 'GLD'  },
+  { id: 'mp-UUP', sym: 'UUP'  },
+  { id: 'mp-TLT', sym: 'TLT'  },
+  { id: 'mp-USO', sym: 'USO'  },
+];
+
+const MPULSE_CRYPTO = [
+  { id: 'mp-BTC', sym: 'BTCUSDT' },
+  { id: 'mp-ETH', sym: 'ETHUSDT' },
+  { id: 'mp-SOL', sym: 'SOLUSDT' },
+  { id: 'mp-XMR', sym: 'XMRUSDT' },
 ];
 
 async function fetchMarketPulse() {
-  // ── Crypto: single Binance batch call ──
-  const cryptoPills = MPULSE_PILLS.filter(p => p.crypto);
-  const stockPills  = MPULSE_PILLS.filter(p => !p.crypto);
+  const btn = document.querySelector('.mp-refresh-btn');
+  if (btn) btn.classList.add('spinning');
 
-  // Crypto batch
+  // Mark all tiles as loading
+  [...MPULSE_STOCKS, ...MPULSE_CRYPTO].forEach(p => {
+    const el = document.getElementById(p.id);
+    if (el) el.classList.add('mp-loading');
+  });
+
+  // ── Crypto: single Binance batch (skip delisted) ──
   try {
     const url = `https://api.binance.com/api/v3/ticker/24hr`;
     let data = null;
@@ -457,16 +464,31 @@ async function fetchMarketPulse() {
     if (!data) data = await fetchProxy(url);
     if (Array.isArray(data)) {
       const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
-      for (const pill of cryptoPills) {
+      for (const pill of MPULSE_CRYPTO) {
+        if (BINANCE_DELISTED.has(pill.sym)) continue;
         const t = byPair[pill.sym];
         if (t) updateMPill(pill.id, parseFloat(t.lastPrice), parseFloat(t.priceChangePercent));
       }
     }
   } catch {}
 
-  // Stocks: parallel Yahoo v7 calls (small batch, low rate)
-  await Promise.allSettled(stockPills.map(async pill => {
+  // XMR and other delisted: CoinGecko simple/price
+  const delistedCrypto = MPULSE_CRYPTO.filter(p => BINANCE_DELISTED.has(p.sym));
+  if (delistedCrypto.length) {
     try {
+      const ids = delistedCrypto.map(p => CG[p.sym]).filter(Boolean).join(',');
+      const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+      for (const pill of delistedCrypto) {
+        const cgid = CG[pill.sym];
+        if (d[cgid]) updateMPill(pill.id, d[cgid].usd, d[cgid].usd_24h_change || 0);
+      }
+    } catch {}
+  }
+
+  // ── Stocks/ETFs: batch Yahoo v7 quote (one request per symbol, parallel) ──
+  await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
+    try {
+      // Yahoo v7 batch: comma-separated symbols in one call
       const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${pill.sym}`);
       const q = d?.quoteResponse?.result?.[0];
       if (q?.regularMarketPrice != null && q?.regularMarketChangePercent != null) {
@@ -475,33 +497,31 @@ async function fetchMarketPulse() {
     } catch {}
   }));
 
-  // Timestamp
-  const el = document.getElementById('mpulse-updated');
-  if (el) el.textContent = 'UPD ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // Timestamp + stop spinner
+  const upd = document.getElementById('mp-updated');
+  if (upd) upd.textContent = 'UPD ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (btn) btn.classList.remove('spinning');
 }
 
 function updateMPill(id, price, chgPct) {
   const el = document.getElementById(id);
   if (!el) return;
-  const valEl = el.querySelector('.mp-val');
-  const chgEl = el.querySelector('.mp-chg');
+  el.classList.remove('mp-loading');
+
+  const valEl = el.querySelector('.mp-tile-val');
+  const chgEl = el.querySelector('.mp-tile-chg');
   if (!valEl || !chgEl) return;
 
-  // Format price: crypto needs more decimals for low-price coins
-  const isCrypto = id.startsWith('mp-BTC') || id.startsWith('mp-ETH') || id.startsWith('mp-SOL');
-  const pStr = price >= 1000 ? '$' + price.toLocaleString('en', { maximumFractionDigits: 0 })
-             : price >= 1    ? '$' + price.toFixed(2)
-             :                 '$' + price.toFixed(4);
+  const pStr = price >= 10000 ? '$' + Math.round(price).toLocaleString('en')
+             : price >= 1     ? '$' + price.toFixed(2)
+             :                  '$' + price.toFixed(4);
   valEl.textContent = pStr;
 
   const sign = chgPct >= 0 ? '+' : '';
   chgEl.textContent = sign + chgPct.toFixed(2) + '%';
 
-  const up   = chgPct > 0.05;
-  const dn   = chgPct < -0.05;
-  chgEl.className = 'mp-chg ' + (up ? 'up' : dn ? 'dn' : 'flat');
-
-  // Hot-glow on big moves (>1.5%)
+  const up = chgPct > 0.05, dn = chgPct < -0.05;
+  chgEl.className = 'mp-tile-chg ' + (up ? 'up' : dn ? 'dn' : 'flat');
   el.classList.toggle('mp-hot-up', chgPct >  1.5);
   el.classList.toggle('mp-hot-dn', chgPct < -1.5);
 }
