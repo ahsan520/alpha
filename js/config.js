@@ -61,7 +61,7 @@ window.CG = {
 
 // Pairs delisted from Binance — routed directly to CoinGecko
 // XMR was delisted by Binance in Feb 2024 due to regulatory pressure
-window.BINANCE_DELISTED = new Set(['XMRUSDT','ZECUSDT']);
+window.BINANCE_DELISTED = new Set(['XMRUSDT']);
 
 function defWL() {
   return ['BINANCE:BTCUSDT','BINANCE:ETHUSDT','BINANCE:SOLUSDT','XEG.TO','KILO.TO'];
