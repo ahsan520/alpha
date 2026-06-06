@@ -28,6 +28,41 @@
   </div>
 </div>
 
+<!-- MARKET PULSE BAR -->
+<div class="mpulse-bar" id="mpulse-bar">
+  <div class="mpulse-group">
+    <span class="mpulse-label">INDEX</span>
+    <div class="mpulse-pill" id="mp-SPY"    data-sym="SPY"    data-name="S&amp;P 500"><span class="mp-name">S&amp;P500</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-QQQ"    data-sym="QQQ"    data-name="NASDAQ"><span class="mp-name">NASDAQ</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-DIA"    data-sym="DIA"    data-name="DOW"><span class="mp-name">DOW</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-IWM"    data-sym="IWM"    data-name="RUSSELL"><span class="mp-name">RUSSELL</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+  </div>
+  <div class="mpulse-sep"></div>
+  <div class="mpulse-group">
+    <span class="mpulse-label">SECTOR</span>
+    <div class="mpulse-pill" id="mp-XLK"    data-sym="XLK"    data-name="Tech"><span class="mp-name">TECH</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-XLE"    data-sym="XLE"    data-name="Energy"><span class="mp-name">ENERGY</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-XLF"    data-sym="XLF"    data-name="Finance"><span class="mp-name">FINANCE</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-XLV"    data-sym="XLV"    data-name="Health"><span class="mp-name">HEALTH</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+  </div>
+  <div class="mpulse-sep"></div>
+  <div class="mpulse-group">
+    <span class="mpulse-label">MACRO</span>
+    <div class="mpulse-pill" id="mp-GLD"    data-sym="GLD"    data-name="Gold"><span class="mp-name">GOLD</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-UUP"    data-sym="UUP"    data-name="USD DXY"><span class="mp-name">USD·DXY</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-TLT"    data-sym="TLT"    data-name="20Y Bond"><span class="mp-name">BONDS</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-OIL"    data-sym="USO"    data-name="Oil"><span class="mp-name">OIL</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+  </div>
+  <div class="mpulse-sep"></div>
+  <div class="mpulse-group">
+    <span class="mpulse-label">CRYPTO</span>
+    <div class="mpulse-pill" id="mp-BTC"    data-sym="BINANCE:BTCUSDT"  data-name="Bitcoin"><span class="mp-name">BTC</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-ETH"    data-sym="BINANCE:ETHUSDT"  data-name="Ethereum"><span class="mp-name">ETH</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+    <div class="mpulse-pill" id="mp-SOL"    data-sym="BINANCE:SOLUSDT"  data-name="Solana"><span class="mp-name">SOL</span><span class="mp-val">—</span><span class="mp-chg">—</span></div>
+  </div>
+  <div class="mpulse-updated" id="mpulse-updated">—</div>
+</div>
+
 <!-- TABS -->
 <div class="tabs">
   <button class="tab on"  onclick="switchTab('matrix',this)">◆ SIGNAL MATRIX</button>
@@ -77,21 +112,14 @@
     <div class="bnews-hdr" onclick="toggleNews()">
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="pt">◆ MARKET UPDATES</span>
-        <span style="font-family:var(--mono);font-size:7px;letter-spacing:.4px;">
-          <span style="color:#7b61ff">CRYPTO</span> ·
-          <span style="color:#ff8c00">ENERGY</span> ·
-          <span style="color:#c9a84c">COMMODITY</span> ·
-          <span style="color:#c0c0c0">METAL</span> ·
-          <span style="color:#00b4d8">TECH</span> ·
-          <span style="color:#00e5a0">TSX</span>
-        </span>
+        <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
         <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
         <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
         <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
       </div>
-      <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▼ EXPAND</span>
+      <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
     </div>
-    <div class="bnews-body hide" id="bnews-body"></div>
+    <div class="bnews-body" id="bnews-body"></div>
   </div>
 </div>
 

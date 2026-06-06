@@ -150,12 +150,33 @@ function drawSpark(id, data) {
 // ── News ──
 function renderNews() {
   const { newsItems } = STATE;
-  const bulls = newsItems.filter(n => n.sent === 'bullish').length;
-  const bears = newsItems.filter(n => n.sent === 'bearish').length;
-  document.getElementById('news-badge').textContent = newsItems.length + ' items';
+  const activeTag = STATE.activeNewsTag || 'ALL';
+  const filtered = activeTag === 'ALL' ? newsItems : newsItems.filter(n => n.tag === activeTag);
+  const bulls = filtered.filter(n => n.sent === 'bullish').length;
+  const bears = filtered.filter(n => n.sent === 'bearish').length;
+  document.getElementById('news-badge').textContent = filtered.length + ' items';
   document.getElementById('bull-n').textContent = '▲ ' + bulls;
   document.getElementById('bear-n').textContent = '▼ ' + bears;
-  document.getElementById('bnews-body').innerHTML = newsItems.map(n => {
+
+  // Render tag filter buttons
+  const allTags = ['ALL', 'CRYPTO', 'TECH', 'ENERGY', 'METAL', 'COMMODITY', 'TSX'];
+  const tagBar = document.getElementById('news-tag-bar');
+  if (tagBar) {
+    tagBar.innerHTML = allTags.map(tag => {
+      const tc = tag === 'ALL' ? 'var(--text-dim)' : (TAG_COLORS[tag] || 'var(--text-dim)');
+      const active = activeTag === tag;
+      return `<button class="news-tag-btn${active ? ' active' : ''}" 
+        style="${active ? `background:${tc};color:#000;border-color:${tc};` : `color:${tc};border-color:${tc};`}"
+        onclick="setNewsTag('${tag}')">${tag}</button>`;
+    }).join('');
+  }
+
+  if (!filtered.length) {
+    document.getElementById('bnews-body').innerHTML = '<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Loading ' + activeTag + ' news… refreshes every 5 min</div>';
+    return;
+  }
+
+  document.getElementById('bnews-body').innerHTML = filtered.map(n => {
     const tc = TAG_COLORS[n.tag] || 'var(--text-dim)';
     return `
     <div class="ni" onclick="window.open('${n.url}','_blank')">
@@ -168,6 +189,11 @@ function renderNews() {
       </div>
     </div>`;
   }).join('');
+}
+
+function setNewsTag(tag) {
+  STATE.activeNewsTag = tag;
+  renderNews();
 }
 
 // Tag colour map for the scrolling ticker

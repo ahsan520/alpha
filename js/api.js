@@ -60,6 +60,8 @@ async function batchCrypto(syms) {
   const res = {};
 
   // Attempt Binance batch ticker — single request covers all symbols
+  // Skip pairs known to be delisted from Binance (e.g. XMRUSDT removed Feb 2024)
+  const binancePairs = pairs.filter(p => !BINANCE_DELISTED.has(p));
   try {
     const url = `https://api.binance.com/api/v3/ticker/24hr`;
     let data = null;
@@ -70,7 +72,7 @@ async function batchCrypto(syms) {
     if (!data) data = await fetchProxy(url);
     if (Array.isArray(data)) {
       const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
-      for (const pair of pairs) {
+      for (const pair of binancePairs) {
         const t = byPair[pair];
         if (t) res['BINANCE:' + pair] = {
           p: parseFloat(t.lastPrice),
@@ -304,6 +306,87 @@ function calcRSI(closes, p = 14) {
   return al === 0 ? 100 : parseFloat((100 - 100 / (1 + ag / al)).toFixed(1));
 }
 
+// ── CoinGecko OHLC fallback for Binance-delisted pairs (e.g. XMRUSDT) ──
+// CoinGecko /ohlc returns [[timestamp,o,h,l,c], ...] for 14 days at daily granularity.
+// We use this to reconstruct kDay, k4h (approximated), CVD, MTF RSI, and sup/res bars
+// so all columns compute correctly even without Binance data.
+async function fetchCoinGeckoExtra(pair) {
+  const cgid = CG[pair];
+  if (!cgid) return null;
+  try {
+    // 14-day daily OHLC — sufficient for RSI-14, EMA-7, sup/res pivots
+    const url = `https://api.coingecko.com/api/v3/coins/${cgid}/ohlc?vs_currency=usd&days=14`;
+    let raw = null;
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (r.ok) raw = await r.json();
+    } catch {}
+    if (!raw) raw = await fetchProxy(url);
+    if (!Array.isArray(raw) || raw.length < 8) return null;
+
+    // raw rows: [timestamp_ms, open, high, low, close]
+    const bars = raw.map(r => ({ t: r[0], o: r[1], h: r[2], l: r[3], c: r[4] }));
+    const closes  = bars.map(b => b.c);
+    const n = closes.length;
+
+    // ── kDay ──
+    const rsiDaily = calcRSI(closes, 14);
+    const k2 = 2 / (7 + 1); let ema7 = closes[0];
+    for (let i = 1; i < n; i++) ema7 = closes[i] * k2 + ema7 * (1 - k2);
+    const chg7d  = closes[n - 7] > 0 ? parseFloat(((closes[n-1] - closes[n-7]) / closes[n-7] * 100).toFixed(1)) : 0;
+    const chg1d  = closes[n - 2] > 0 ? parseFloat(((closes[n-1] - closes[n-2]) / closes[n-2] * 100).toFixed(2)) : null;
+    // CoinGecko OHLC has no volume; approximate CVD from candle direction
+    let cvdDaily = 0;
+    for (let i = n - 7; i < n; i++) cvdDaily += bars[i].c >= bars[i].o ? 1 : -1;
+    // volSurge: use body size of last candle vs avg of prior 6 as a proxy
+    const bodySize = i => Math.abs(bars[i].c - bars[i].o);
+    const avgBody = bars.slice(n - 7, n - 1).reduce((s, _, ii, a) => s + bodySize(n - 7 + ii), 0) / 6;
+    const volSurge = bodySize(n - 1) > avgBody * 1.5;
+    const dailyBars = bars.map(b => ({ h: b.h, l: b.l, c: b.c }));
+    const kDay = { rsiDaily, aboveEma7: closes[n-1] > ema7, volSurge, chg7d, chg1d, cvdDaily, _barsDay: dailyBars };
+
+    // ── k4h proxy — use last 8 daily bars split into pseudo-4h segments ──
+    // (CoinGecko free tier doesn't offer 4h OHLC without a paid plan)
+    const recent = bars.slice(-8);
+    const rClose = recent.map(b => b.c);
+    const rn = rClose.length;
+    const rsi4h = calcRSI(rClose, Math.min(7, rn - 1));
+    const k3 = 2 / (8 + 1); let ema8 = rClose[0];
+    for (let i = 1; i < rn; i++) ema8 = rClose[i] * k3 + ema8 * (1 - k3);
+    const recentUp = rClose[rn-1] > rClose[rn-4];
+    // vol proxy: last candle body vs prior 3 average
+    const recentBodies = recent.map(b => Math.abs(b.c - b.o));
+    const volUp = recentBodies[rn-1] > (recentBodies.slice(-4, -1).reduce((a, b) => a + b, 0) / 3);
+    let cvd4h = 0;
+    for (let i = rn - 4; i < rn; i++) cvd4h += recent[i].c >= recent[i].o ? 1 : -1;
+    const k4h = { rsi4h, recentUp, volUp, aboveEma8: rClose[rn-1] > ema8, cvd4h, lastClose: rClose[rn-1], prevClose: rClose[rn-4] };
+
+    // ── MTF RSI — derived from the same daily bar series at different lookbacks ──
+    // True 15m/1h/4h bars aren't available from CoinGecko free tier.
+    // We approximate using different RSI periods on daily closes:
+    //   r15 (≈ short-term) → RSI-3 on last 6 bars
+    //   r1h (≈ mid-term)   → RSI-5 on last 10 bars
+    //   r4h (≈ swing)      → RSI-7 on last 12 bars
+    const r15 = calcRSI(closes.slice(-6),  3);
+    const r1h = calcRSI(closes.slice(-10), 5);
+    const r4h = calcRSI(closes.slice(-12), 7);
+    const mtf = [r15, r1h, r4h];
+
+    // ── CVD approximation (candle-direction proxy) ──
+    let cvdAcc = 0;
+    const cvdSeries = bars.slice(-20).map(b => { cvdAcc += b.c >= b.o ? 1 : -1; return cvdAcc; });
+    const cvdLast = cvdSeries[cvdSeries.length - 1];
+    const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
+    const cvd = { value: cvdLast, series: cvdSeries, trending: cvdLast > cvdPrev ? 'up' : 'down' };
+
+    // ── OBI: not available without Binance order book — return null ──
+    // (will show — in the OBI column, which is correct)
+    const obi = null;
+
+    return { obi, cvd, mtf, k4h, kDay, _barsDay: dailyBars };
+  } catch { return null; }
+}
+
 // ── Liq cluster estimate (crypto only) ──
 function liqEstimate(price, fr, lp) {
   if (!price) return null;
@@ -338,4 +421,87 @@ async function fetchFG() {
     else if (val >= 75) { pill.style.background = 'var(--bull-dim)'; pill.style.color = 'var(--bull)'; }
     else { pill.style.background = 'rgba(100,100,100,.2)'; pill.style.color = '#aaa'; }
   } catch {}
+}
+
+// ── Market Pulse Bar — indices, sectors, macro, crypto ──
+// Stock/ETF pills use Yahoo Finance (same as watchlist stocks).
+// Crypto pills use Binance ticker (same as batchCrypto).
+const MPULSE_PILLS = [
+  { id: 'mp-SPY', sym: 'SPY',              crypto: false },
+  { id: 'mp-QQQ', sym: 'QQQ',              crypto: false },
+  { id: 'mp-DIA', sym: 'DIA',              crypto: false },
+  { id: 'mp-IWM', sym: 'IWM',              crypto: false },
+  { id: 'mp-XLK', sym: 'XLK',              crypto: false },
+  { id: 'mp-XLE', sym: 'XLE',              crypto: false },
+  { id: 'mp-XLF', sym: 'XLF',              crypto: false },
+  { id: 'mp-XLV', sym: 'XLV',              crypto: false },
+  { id: 'mp-GLD', sym: 'GLD',              crypto: false },
+  { id: 'mp-UUP', sym: 'UUP',              crypto: false },
+  { id: 'mp-TLT', sym: 'TLT',              crypto: false },
+  { id: 'mp-OIL', sym: 'USO',              crypto: false },
+  { id: 'mp-BTC', sym: 'BTCUSDT',          crypto: true  },
+  { id: 'mp-ETH', sym: 'ETHUSDT',          crypto: true  },
+  { id: 'mp-SOL', sym: 'SOLUSDT',          crypto: true  },
+];
+
+async function fetchMarketPulse() {
+  // ── Crypto: single Binance batch call ──
+  const cryptoPills = MPULSE_PILLS.filter(p => p.crypto);
+  const stockPills  = MPULSE_PILLS.filter(p => !p.crypto);
+
+  // Crypto batch
+  try {
+    const url = `https://api.binance.com/api/v3/ticker/24hr`;
+    let data = null;
+    try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) data = await r.json(); } catch {}
+    if (!data) data = await fetchProxy(url);
+    if (Array.isArray(data)) {
+      const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
+      for (const pill of cryptoPills) {
+        const t = byPair[pill.sym];
+        if (t) updateMPill(pill.id, parseFloat(t.lastPrice), parseFloat(t.priceChangePercent));
+      }
+    }
+  } catch {}
+
+  // Stocks: parallel Yahoo v7 calls (small batch, low rate)
+  await Promise.allSettled(stockPills.map(async pill => {
+    try {
+      const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${pill.sym}`);
+      const q = d?.quoteResponse?.result?.[0];
+      if (q?.regularMarketPrice != null && q?.regularMarketChangePercent != null) {
+        updateMPill(pill.id, q.regularMarketPrice, q.regularMarketChangePercent);
+      }
+    } catch {}
+  }));
+
+  // Timestamp
+  const el = document.getElementById('mpulse-updated');
+  if (el) el.textContent = 'UPD ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function updateMPill(id, price, chgPct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const valEl = el.querySelector('.mp-val');
+  const chgEl = el.querySelector('.mp-chg');
+  if (!valEl || !chgEl) return;
+
+  // Format price: crypto needs more decimals for low-price coins
+  const isCrypto = id.startsWith('mp-BTC') || id.startsWith('mp-ETH') || id.startsWith('mp-SOL');
+  const pStr = price >= 1000 ? '$' + price.toLocaleString('en', { maximumFractionDigits: 0 })
+             : price >= 1    ? '$' + price.toFixed(2)
+             :                 '$' + price.toFixed(4);
+  valEl.textContent = pStr;
+
+  const sign = chgPct >= 0 ? '+' : '';
+  chgEl.textContent = sign + chgPct.toFixed(2) + '%';
+
+  const up   = chgPct > 0.05;
+  const dn   = chgPct < -0.05;
+  chgEl.className = 'mp-chg ' + (up ? 'up' : dn ? 'dn' : 'flat');
+
+  // Hot-glow on big moves (>1.5%)
+  el.classList.toggle('mp-hot-up', chgPct >  1.5);
+  el.classList.toggle('mp-hot-dn', chgPct < -1.5);
 }

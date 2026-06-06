@@ -7,6 +7,9 @@ const DEFAULT_WATCHLIST = ["ETHY.TO","KILO.TO","GE.TO","XRPP.TO","ETHH.TO","SVR.
 
 // ── INIT ──
 async function init() {
+  STATE.newsOpen = true;
+  STATE.alertsOpen = false;
+  STATE.activeNewsTag = 'ALL';
   // ── Watchlist source of truth ──
   // ONLY two valid sources:
   //   1. watchlist.json (fetched from server)
@@ -41,11 +44,13 @@ async function init() {
   fetchGlobal();
   fetchFG();
   fetchNews();
+  fetchMarketPulse();
   sync();
   setInterval(sync, 15000);
-  setInterval(fetchNews, 60000);
+  setInterval(fetchNews, 300000); // 5 min per sector refresh
   setInterval(fetchFG, 300000);
   setInterval(fetchGlobal, 60000);
+  setInterval(fetchMarketPulse, 60000); // market pulse refreshes every 60s
   renderJournal();
   initAlertCfg();
   renderAlertCfgPage();
@@ -59,17 +64,26 @@ async function syncOne(s) {
   try {
     if (isCrypto) {
       const pair = s.split(':')[1];
-      // Stagger extra calls to avoid bursting — run sequentially within one symbol
+      const isDelisted = BINANCE_DELISTED.has(pair);
+
+      // ── Price ──
       let pd;
       try { pd = (await batchCrypto([s]))[s]; } catch {}
-      if (!pd) pd = await binanceFallback(s);
+      if (!pd && !isDelisted) pd = await binanceFallback(s);
 
-      const obi   = await fetchOBI(pair).catch(() => null);
-      const cvd   = await fetchCVD(pair).catch(() => null);
-      const mtf   = await fetchMTF(pair).catch(() => [null, null, null]);
-      const k4h   = await fetch4hKlines(pair).catch(() => null);
-      const kDay  = await fetchDailyKlines(pair).catch(() => null);
-      const extra = { obi, cvd, mtf, k4h, kDay };
+      // ── Extra data: Binance klines for listed pairs, CoinGecko for delisted ──
+      let extra;
+      if (isDelisted) {
+        // All kline/depth data sourced from CoinGecko — Binance has no data for this pair
+        extra = await fetchCoinGeckoExtra(pair).catch(() => ({})) || {};
+      } else {
+        const obi  = await fetchOBI(pair).catch(() => null);
+        const cvd  = await fetchCVD(pair).catch(() => null);
+        const mtf  = await fetchMTF(pair).catch(() => [null, null, null]);
+        const k4h  = await fetch4hKlines(pair).catch(() => null);
+        const kDay = await fetchDailyKlines(pair).catch(() => null);
+        extra = { obi, cvd, mtf, k4h, kDay };
+      }
 
       if (!STATE.PH[s]) STATE.PH[s] = [];
       STATE.PH[s].push(pd.p);

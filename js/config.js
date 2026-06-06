@@ -22,9 +22,10 @@ window.STATE = {
   sortD: -1,
   alertLog: [],
   newsItems: [],
-  newsOpen: false,
+  newsOpen: true,   // news panel open by default
   wlOpen: false,   // watchlist sidebar starts collapsed on mobile
-  alertsOpen: false,
+  alertsOpen: false,  // alert strip hidden by default
+  activeNewsTag: 'ALL', // active news sector filter
 };
 
 // ── COINGECKO ID MAP ──
@@ -57,6 +58,10 @@ window.CG = {
   'DYDXUSDT':'dydx','BLURUSDT':'blur','WBTCUSDT':'wrapped-bitcoin',
   'STETHUSDT':'staked-ether','AXLUSDT':'axelar',
 };
+
+// Pairs delisted from Binance — routed directly to CoinGecko
+// XMR was delisted by Binance in Feb 2024 due to regulatory pressure
+window.BINANCE_DELISTED = new Set(['XMRUSDT']);
 
 function defWL() {
   return ['BINANCE:BTCUSDT','BINANCE:ETHUSDT','BINANCE:SOLUSDT','XEG.TO','KILO.TO'];
