@@ -104,6 +104,7 @@ function renderTable() {
       <td>${lsH}</td>
       <td style="color:${frC};font-size:9px;">${frStr}</td>
       <td style="font-size:9px;font-weight:700;color:${d.emaTrend === 'ABOVE' ? 'var(--bull)' : d.emaTrend === 'BELOW' ? 'var(--bear)' : 'var(--text-dim)'};">${d.emaTrend || '—'}</td>
+      <td style="font-size:10px;font-weight:700;color:${d.oiDivC};" title="OI Divergence">${d.oiDiv || '—'}</td>
       <td style="font-size:10px;font-weight:700;color:${d.dipLabelC};" title="Score: ${d.dipScore || 0}">${d.dipLabel || '—'}</td>
       <td style="font-size:10px;font-weight:700;color:${d.bias4hC};" title="4H score: ${d.bias4hScore || 0}">${d.bias4h || '—'}</td>
       <td style="font-size:10px;font-weight:700;color:${d.biasDayC};" title="Daily score: ${d.biasDayScore || 0}">${d.biasDay || '—'}</td>
