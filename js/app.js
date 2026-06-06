@@ -50,7 +50,7 @@ async function init() {
   setInterval(fetchNews, 300000); // 5 min per sector refresh
   setInterval(fetchFG, 300000);
   setInterval(fetchGlobal, 60000);
-  setInterval(fetchMarketPulse, 60000); // market pulse refreshes every 60s
+  setInterval(fetchMarketPulse, 300000); // market pulse refreshes every 5 min (same as news)
   renderJournal();
   initAlertCfg();
   renderAlertCfgPage();
@@ -183,6 +183,7 @@ function sortBy(k) {
 
 // ── CHART SWITCH ──
 function switchT(s) {
+  const prev = STATE.currentS;
   STATE.currentS = s;
   const tv = s.endsWith('.TO') ? 'TSX:' + s.replace('.TO', '') : s;
   if (STATE.tvW) { try { STATE.tvW.remove(); } catch {} }
@@ -197,6 +198,8 @@ function switchT(s) {
     }
   });
   renderWL();
+  // Refresh news feed so TSX feed URL reflects the newly selected symbol
+  if (s !== prev) fetchNews();
 }
 
 // ── WATCHLIST MANAGEMENT ──
@@ -213,6 +216,7 @@ function addTicker() {
     if (!STATE._sessionAdded.includes(e)) STATE._sessionAdded.push(e);
     logAlertItem('info', 'Added: ' + e);
     sync();
+    fetchNews(); // rebuild TSX feed URL to include the new ticker
   }
   document.getElementById('newT').value = '';
 }
@@ -250,37 +254,52 @@ function importWL(inp) {
 // All RSS feeds go through allorigins.win which returns { contents: "<xml>..." }
 // CryptoPanic is a JSON API handled separately.
 // Feed URLs chosen for CORS-proxy reliability (no Cloudflare blocks).
-const MARKET_FEEDS = [
-  // Crypto — CryptoPanic JSON API
-  { tag: 'CRYPTO', json: true,
-    url: 'https://cryptopanic.com/api/free/v1/posts/?auth_token=&public=true&kind=news',
-    parse: d => (d.results || []).slice(0, 15).map(p => ({
-      title: p.title, url: p.url, source: p.source.title, tag: 'CRYPTO',
-      time: new Date(p.published_at).toLocaleTimeString(),
-      sent: p.votes ? (p.votes.positive > p.votes.negative ? 'bullish' : p.votes.negative > p.votes.positive ? 'bearish' : 'neutral') : 'neutral'
-    }))
-  },
-  // Energy & Commodities — Yahoo Finance RSS (works via allorigins)
-  { tag: 'ENERGY', rss: true, limit: 10, keywords: ['oil','gas','energy','crude','opec','lng','brent','wti','barrel','refin'],
-    url: 'https://finance.yahoo.com/rss/headline?s=USO,XLE,CL%3DF,NG%3DF'
-  },
-  // Metals & Mining
-  { tag: 'METAL', rss: true, limit: 10, keywords: ['gold','silver','copper','platinum','palladium','mining','metal','lithium','iron','steel'],
-    url: 'https://finance.yahoo.com/rss/headline?s=GLD,SLV,GDX,COPPER'
-  },
-  // Commodities — grains, soft commodities
-  { tag: 'COMMODITY', rss: true, limit: 8, keywords: ['wheat','corn','soy','coffee','sugar','cotton','grain','cattle','hog','farm'],
-    url: 'https://finance.yahoo.com/rss/headline?s=WEAT,CORN,SOYB,DBA'
-  },
-  // Tech
-  { tag: 'TECH', rss: true, limit: 10, keywords: ['tech','ai','chip','semiconductor','nvidia','apple','microsoft','google','cloud','software','data'],
-    url: 'https://finance.yahoo.com/rss/headline?s=QQQ,NVDA,AAPL,MSFT,SMH'
-  },
-  // TSX & Canadian markets — use Yahoo Canada top stories
-  { tag: 'TSX', rss: true, limit: 10, keywords: ['tsx','canada','canadian','tsx','bay street','bank of canada','loonie','cad','toronto','cnq','shop'],
-    url: 'https://finance.yahoo.com/rss/headline?s=XIU.TO,ENB.TO,RY.TO,TD.TO,SU.TO'
-  },
-];
+// ── Dynamic feed builder — rebuilds TSX feed URL from current watchlist ──
+// Stock tickers (.TO / non-crypto) are injected into the TSX RSS feed so that
+// when you add or switch symbols the news feed follows the watchlist.
+function buildMarketFeeds() {
+  // Collect non-crypto tickers from the current watchlist (up to 8 for URL length)
+  const stockSyms = (STATE.watchlist || [])
+    .filter(s => !s.includes('BINANCE:'))
+    .slice(0, 8);
+
+  // Always include a handful of liquid TSX anchors so the feed isn't empty on first load
+  const tsxAnchors = ['XIU.TO', 'ENB.TO', 'RY.TO', 'TD.TO', 'SU.TO'];
+  const tsxSyms = [...new Set([...stockSyms, ...tsxAnchors])].slice(0, 10);
+  const tsxParam = tsxSyms.map(s => encodeURIComponent(s)).join(',');
+
+  return [
+    // Crypto — CryptoPanic JSON API
+    { tag: 'CRYPTO', json: true,
+      url: 'https://cryptopanic.com/api/free/v1/posts/?auth_token=&public=true&kind=news',
+      parse: d => (d.results || []).slice(0, 15).map(p => ({
+        title: p.title, url: p.url, source: p.source.title, tag: 'CRYPTO',
+        time: new Date(p.published_at).toLocaleTimeString(),
+        sent: p.votes ? (p.votes.positive > p.votes.negative ? 'bullish' : p.votes.negative > p.votes.positive ? 'bearish' : 'neutral') : 'neutral'
+      }))
+    },
+    // Energy & Commodities — Yahoo Finance RSS
+    { tag: 'ENERGY', rss: true, limit: 10, keywords: ['oil','gas','energy','crude','opec','lng','brent','wti','barrel','refin'],
+      url: 'https://finance.yahoo.com/rss/headline?s=USO,XLE,CL%3DF,NG%3DF'
+    },
+    // Metals & Mining
+    { tag: 'METAL', rss: true, limit: 10, keywords: ['gold','silver','copper','platinum','palladium','mining','metal','lithium','iron','steel'],
+      url: 'https://finance.yahoo.com/rss/headline?s=GLD,SLV,GDX,COPPER'
+    },
+    // Commodities — grains, soft commodities
+    { tag: 'COMMODITY', rss: true, limit: 8, keywords: ['wheat','corn','soy','coffee','sugar','cotton','grain','cattle','hog','farm'],
+      url: 'https://finance.yahoo.com/rss/headline?s=WEAT,CORN,SOYB,DBA'
+    },
+    // Tech
+    { tag: 'TECH', rss: true, limit: 10, keywords: ['tech','ai','chip','semiconductor','nvidia','apple','microsoft','google','cloud','software','data'],
+      url: 'https://finance.yahoo.com/rss/headline?s=QQQ,NVDA,AAPL,MSFT,SMH'
+    },
+    // TSX & Canadian markets — dynamically includes current watchlist stock tickers
+    { tag: 'TSX', rss: true, limit: 12, keywords: ['tsx','canada','canadian','bay street','bank of canada','loonie','cad','toronto','cnq','shop'],
+      url: `https://finance.yahoo.com/rss/headline?s=${tsxParam}`
+    },
+  ];
+}
 
 function parseRssItems(xmlText, tag, keywords, limit) {
   try {
@@ -324,6 +343,7 @@ function parseRssItems(xmlText, tag, keywords, limit) {
 async function fetchNews() {
   const allItems = [];
 
+  const MARKET_FEEDS = buildMarketFeeds();
   await Promise.allSettled(MARKET_FEEDS.map(async feed => {
     try {
       if (feed.parse) {
@@ -395,8 +415,6 @@ function mockNews() {
 function toggleNews() {
   STATE.newsOpen = !STATE.newsOpen;
   document.getElementById('bnews-body').classList.toggle('hide', !STATE.newsOpen);
-  const panel = document.getElementById('mpulse-panel');
-  if (panel) panel.classList.toggle('hide', !STATE.newsOpen);
   document.getElementById('news-chevron').textContent = STATE.newsOpen ? '▲ COLLAPSE' : '▼ EXPAND';
 }
 

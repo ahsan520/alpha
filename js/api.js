@@ -485,14 +485,21 @@ async function fetchMarketPulse() {
     } catch {}
   }
 
-  // ── Stocks/ETFs: batch Yahoo v7 quote (one request per symbol, parallel) ──
-  await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
+  // ── Stocks/ETFs: 2 batched Yahoo v7 calls instead of 12 parallel ──
+  const stockBatches = [
+    MPULSE_STOCKS.slice(0, 6),   // SPY QQQ DIA IWM XLK XLE
+    MPULSE_STOCKS.slice(6),      // XLF XLV GLD UUP TLT USO
+  ];
+  await Promise.allSettled(stockBatches.map(async batch => {
     try {
-      // Yahoo v7 batch: comma-separated symbols in one call
-      const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${pill.sym}`);
-      const q = d?.quoteResponse?.result?.[0];
-      if (q?.regularMarketPrice != null && q?.regularMarketChangePercent != null) {
-        updateMPill(pill.id, q.regularMarketPrice, q.regularMarketChangePercent);
+      const syms = batch.map(p => p.sym).join(',');
+      const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}`);
+      const results = d?.quoteResponse?.result || [];
+      for (const q of results) {
+        const pill = batch.find(p => p.sym === q.symbol);
+        if (pill && q.regularMarketPrice != null && q.regularMarketChangePercent != null) {
+          updateMPill(pill.id, q.regularMarketPrice, q.regularMarketChangePercent);
+        }
       }
     } catch {}
   }));
