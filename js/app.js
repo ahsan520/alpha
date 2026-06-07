@@ -192,15 +192,16 @@ async function _adaptiveTick() {
     const success = await syncOne(s);
     _lastSyncTime[s] = Date.now();
     if (success) ok++; else fail++;
-    renderTable();
-    updateLastUpdBar();
+    // Touch only the one row that just updated — no table-wide repaint
+    patchSymbolRow(s);
     await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
-  render();
+  // Leaderboard + last-updated bar fire once at end of the full cycle
+  scheduleLeaderboard();
   updateLastUpdBar();
 
   document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
@@ -270,15 +271,17 @@ async function sync() {
     const success = await syncOne(s);
     _lastSyncTime[s] = Date.now(); // reset per-symbol timer after forced sync
     if (success) ok++; else fail++;
-    renderTable();
-    updateLastUpdBar();
+    // Patch only this symbol's row — no table-wide repaint mid-loop
+    if (typeof patchSymbolRow === 'function') patchSymbolRow(s);
     await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
-  render();
+  // After the full pass: update WL sidebar prices + leaderboard once
+  renderWL();
+  scheduleLeaderboard();
   updateLastUpdBar();
 
   document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
@@ -293,7 +296,10 @@ async function refreshSymbol(s, btnEl) {
   if (btnEl) { btnEl.textContent = '↺'; btnEl.style.opacity = ok ? '1' : '0.3'; btnEl.disabled = false; }
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
-  render();
+  // Row button: patch just that row + refresh leaderboard + WL price
+  if (typeof patchSymbolRow === 'function') patchSymbolRow(s); else renderTable();
+  renderWL();
+  scheduleLeaderboard();
   updateLastUpdBar();
 }
 

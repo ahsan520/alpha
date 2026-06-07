@@ -217,6 +217,106 @@ function renderTable() {
   });
 }
 
+// ── Single-symbol row patch — called by sync loop after each syncOne() ──
+// Only touches the ONE row for symbol `s`. No sort check, no tbody scan,
+// no other rows involved. Falls back to full renderTable() only if the row
+// doesn't exist yet (new symbol added mid-session).
+function patchSymbolRow(s) {
+  const tbody = document.getElementById('mx-body');
+  if (!tbody) return;
+
+  const d = STATE.DS[s];
+  if (!d) return; // no data yet — row stays as SYNC placeholder
+
+  const tr = tbody.querySelector(`tr[data-sym="${CSS.escape(s)}"]`);
+  if (!tr) {
+    // Row missing — symbol was just added; trigger a full rebuild once
+    renderTable();
+    return;
+  }
+
+  // Reuse the existing patchRow closure by extracting its logic inline.
+  // patchRow is a closure inside renderTable so we duplicate the minimal
+  // version here for direct external access.
+  const def = {
+    p:'—',chg:'0',r15:50,r1h:50,r4h:50,shock:'1.0',nf:0,lp:50,sp:50,fr:'N/A',
+    whale:'—',sig:'SYNC',sigC:'s-w',reason:'...',obi:null,cvd:null,
+    emaTrend:'—',fundingFlag:'—',fundingFlagC:'var(--text-dim)',
+    oiDiv:'—',oiDivC:'var(--text-dim)',dipScore:0,dipLabel:'—',dipLabelC:'var(--text-dim)',
+    bias4h:'—',bias4hC:'var(--text-dim)',bias4hScore:0,biasDay:'—',biasDayC:'var(--text-dim)',biasDayScore:0,
+    sup:null,res:null,sparkBars:null,
+  };
+  const fd = { ...def, ...d };
+  const up = parseFloat(fd.chg) >= 0;
+  const frC = fd.fr !== 'N/A' ? (parseFloat(fd.fr) >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
+  const frStr = fd.fr !== 'N/A' ? (parseFloat(fd.fr) >= 0 ? '+' : '') + (parseFloat(fd.fr) * 100).toFixed(3) + '%' : '—';
+
+  function sc(k, html, style) {
+    const td = tr.querySelector(`[data-k="${k}"]`);
+    if (!td) return;
+    if (td.innerHTML !== html) td.innerHTML = html;
+    if (style) Object.assign(td.style, style);
+  }
+
+  sc('p', `$${fd.p}`);
+  sc('chg', `${up?'+':''}${fd.chg}%`, { color: up?'var(--bull)':'var(--bear)', fontWeight:'700' });
+  sc('mtf', `<div class="mtf">${rdot(fd.r15,'15m')}${rdot(fd.r1h,'1h')}${rdot(fd.r4h,'4h')}</div>`);
+
+  let obiH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+  if (fd.obi) {
+    const bw = parseFloat(fd.obi.bidPct), aw = 100 - bw;
+    const c = bw > 55 ? 'var(--bull)' : bw < 45 ? 'var(--bear)' : 'var(--text-dim)';
+    obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
+  }
+  sc('obi', obiH);
+
+  const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi, '_');
+  let cvdH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+  if (fd.cvd) {
+    const val = fd.cvd.value, up2 = fd.cvd.trending === 'up';
+    const fv = Math.abs(val)>1e6?(val/1e6).toFixed(2)+'M':Math.abs(val)>1000?(val/1000).toFixed(1)+'K':val.toFixed(0);
+    cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
+  }
+  sc('cvd', cvdH);
+
+  sc('shock', `<div class="vbar"><span style="color:var(--gold)">${fd.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(fd.shock)-.5)*80)}%"></div></div></div>`);
+  sc('ls', `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${fd.lp}%"></div><div class="ls-s" style="width:${fd.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${fd.lp}%</span><span style="color:var(--bear)">S${fd.sp}%</span></div></div>`);
+  sc('fr', frStr, { color: frC, fontSize: '9px' });
+  sc('ema', fd.emaTrend||'—', { color: fd.emaTrend==='ABOVE'?'var(--bull)':fd.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)', fontSize:'9px', fontWeight:'700' });
+  sc('oidiv', fd.oiDiv||'—', { color: fd.oiDivC, fontSize:'10px', fontWeight:'700' });
+  sc('dip', fd.dipLabel||'—', { color: fd.dipLabelC, fontSize:'10px', fontWeight:'700' });
+  sc('b4h', fd.bias4h||'—', { color: fd.bias4hC, fontSize:'10px', fontWeight:'700' });
+  sc('bday', fd.biasDay||'—', { color: fd.biasDayC, fontSize:'10px', fontWeight:'700' });
+  const sdotC = fd.sigC.includes('sb')||fd.sigC.includes('-b')?'var(--bull)':fd.sigC.includes('ss')||fd.sigC.includes('be')?'var(--bear)':'#555';
+  sc('sig', `<span class="sig ${fd.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${fd.sig}</span>`);
+  const srH = fd.sup||fd.res
+    ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${fd.sup||'—'}</span><span style="color:var(--bear);">R $${fd.res||'—'}</span></div>`
+    : '<span style="color:var(--text-dim);">—</span>';
+  sc('sr', srH);
+  sc('reason', fd.reason, {});
+
+  // Row-level class (flash colour) and market-closed dim
+  const hc = parseFloat(fd.chg) > 2.5 ? 'ru' : parseFloat(fd.chg) < -2.5 ? 'rd' : '';
+  const mktClosed = typeof marketStatus === 'function' && marketStatus(s) !== 'open';
+  tr.className = [hc, mktClosed ? 'mkt-closed-row' : ''].filter(Boolean).join(' ');
+
+  // Update CLOSED badge in the name cell without rebuilding it
+  const symCell = tr.querySelector('.td-sym');
+  if (symCell) {
+    const badge = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
+    const name = s.includes(':') ? s.split(':')[1].replace('USDT','') : s;
+    const want = name + badge;
+    if (symCell.innerHTML !== want) symCell.innerHTML = want;
+  }
+
+  // Sparklines — only the two canvases for this one symbol
+  requestAnimationFrame(() => {
+    const sparkData = (fd.sparkBars?.length > 1) ? fd.sparkBars : (STATE.PH[s]?.length > 1 ? STATE.PH[s] : null);
+    if (sparkData) drawSpark('sp_' + s.replace(/[^a-z0-9]/gi,'_'), sparkData);
+    if (fd.cvd?.series?.length > 1) drawSpark('cv_' + s.replace(/[^a-z0-9]/gi,'_'), fd.cvd.series);
+  });
+}
+
 // ── Sparkline ──
 // ── Sparkline ──
 function drawSpark(id, data) {
