@@ -2,7 +2,7 @@
 // config.js — constants, shared state, CoinGecko ID map
 // ══════════════════════════════════════════════
 
-const APP_VERSION = 'v49.3';
+const APP_VERSION = 'v12.4';
 
 // ── SHARED STATE ──
 window.STATE = {

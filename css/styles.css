@@ -1423,3 +1423,44 @@ canvas.sp{display:block;}
   .hcl-hdr:hover  { background: var(--bg2); }
   .nf-card:hover   { background: transparent; }
 }
+
+/* ══════════════════════════════════════════
+   v12.4 — Market hours badge
+   Injected into td-sym cells and wl-name spans
+   for closed/pre-post symbols.
+   ══════════════════════════════════════════ */
+.mkt-badge {
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 5px;
+  vertical-align: middle;
+  line-height: 14px;
+  white-space: nowrap;
+}
+.mkt-badge.closed {
+  background: rgba(255,60,60,.12);
+  color: #ff6060;
+  border: 1px solid rgba(255,60,60,.3);
+}
+.mkt-badge.prepost {
+  background: rgba(240,165,0,.10);
+  color: #f0a500;
+  border: 1px solid rgba(240,165,0,.25);
+}
+/* Dim the row text slightly for closed symbols — still readable */
+tr.mkt-closed-row td {
+  opacity: .72;
+}
+tr.mkt-closed-row td.td-sym {
+  opacity: 1; /* keep name + badge crisp */
+}
+.mkt-closed-wli {
+  opacity: .72;
+}
+.mkt-closed-wli .wl-name {
+  opacity: 1;
+}

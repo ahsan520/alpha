@@ -1,61 +1,211 @@
 // ══════════════════════════════════════════════
-// app.js — init, sync loop, nav, misc UI actions
+// app.js — v12.4 — init, sync loop, nav, misc UI
+// Changes from v12.3:
+//   • Market hours gate: stocks/ETFs (.TO, US) frozen after 4pm ET Mon-Fri
+//   • Leaderboard excludes closed-market symbols from conv scoring
+//   • 🔒 CLOSED badge on table rows and watchlist entries for after-hours symbols
+//   • Sync interval for closed symbols downgraded from 15s → 60s
+//   • Lazy init: no symbol pre-selected → TradingView iframe deferred until click
+//   • News feed collapsed by default, data fetched only on first open
+//   • Sparklines skipped until row is hovered/clicked (viewport-only draw)
+//   • Watchlist sidebar shows names only — no price polling until symbol selected
+//   • Score breakdown in leaderboard only computed when card is expanded
 // ══════════════════════════════════════════════
 
 // ── DEFAULT WATCHLIST (fallback if watchlist.json cannot be fetched) ──
 const DEFAULT_WATCHLIST = ["ETHY.TO","KILO.TO","GE.TO","XRPP.TO","ETHH.TO","SVR.TO","XBM.TO","XEG.TO","T.TO","CGL.TO","GLCC.TO","ENCC.TO","TXF.TO","HTAE.TO","QMAX.TO"];
 
+// ══════════════════════════════════════════════
+// MARKET HOURS ENGINE
+// Determines whether a symbol's exchange is currently open,
+// closed, or in pre/post market. All times compared in ET.
+// ══════════════════════════════════════════════
+
+// Returns the current wall-clock time as {h, m, dow} in US Eastern Time.
+// dow: 0=Sun, 1=Mon … 6=Sat
+function nowET() {
+  const now = new Date();
+  // toLocaleString with timeZone gives us a string we can parse back
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric', minute: 'numeric',
+    weekday: 'short', hour12: false,
+  }).formatToParts(now);
+  const get = t => parseInt(parts.find(p => p.type === t)?.value ?? '0', 10);
+  const dowStr = parts.find(p => p.type === 'weekday')?.value ?? 'Mon';
+  const dowMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+  return { h: get('hour'), m: get('minute'), dow: dowMap[dowStr] ?? 1 };
+}
+
+// Returns market status for a given symbol:
+//   'open'       → live session, include in leaderboard
+//   'prepost'    → extended hours 04:00–09:30 / 16:00–20:00 ET, sync but freeze LB
+//   'closed'     → weekend or outside all hours, exclude from LB, sync at 60s
+function marketStatus(sym) {
+  if (sym.includes('BINANCE:')) return 'open'; // crypto: 24/7
+
+  const { h, m, dow } = nowET();
+  const mins = h * 60 + m; // minutes since midnight ET
+
+  // Weekend → fully closed for all equities
+  if (dow === 0 || dow === 6) return 'closed';
+
+  // NYSE/NASDAQ + TSX share the same core session hours: 09:30–16:00 ET
+  const OPEN_MINS  =  9 * 60 + 30;  // 09:30
+  const CLOSE_MINS = 16 * 60;        // 16:00
+  // Extended hours window (US only): 04:00–09:30 and 16:00–20:00
+  const PRE_START  =  4 * 60;        // 04:00
+  const POST_END   = 20 * 60;        // 20:00
+
+  if (mins >= OPEN_MINS && mins < CLOSE_MINS) return 'open';
+
+  // TSX has no meaningful pre/post market — treat as closed outside core hours
+  if (sym.endsWith('.TO')) return 'closed';
+
+  // US equities: pre/post window
+  if ((mins >= PRE_START && mins < OPEN_MINS) || (mins >= CLOSE_MINS && mins < POST_END)) return 'prepost';
+
+  return 'closed';
+}
+
+// Convenience: returns true when the symbol is eligible for leaderboard scoring
+function isLeaderboardEligible(sym) {
+  return marketStatus(sym) === 'open'; // only live session qualifies
+}
+
+// Returns sync interval ms for a symbol based on its market status
+function syncIntervalFor(sym) {
+  const s = marketStatus(sym);
+  if (s === 'open')    return 15_000;   // 15s — live data
+  if (s === 'prepost') return 60_000;   // 60s — extended hours, light polling
+  return                       60_000;  // 60s — closed, minimal refresh
+}
+
 // ── INIT ──
 async function init() {
-  STATE.newsOpen = true;
+  // v12.4: news starts collapsed — no data fetched until tab is opened
+  STATE.newsOpen = false;
+  STATE._newsFetched = false; // lazy flag: fetch only on first open
   STATE.alertsOpen = false;
   STATE.activeNewsTag = 'ALL';
   STATE.collapsedCols = {};
+
   // ── Watchlist source of truth ──
   // ONLY two valid sources:
   //   1. watchlist.json (fetched from server)
   //   2. Tickers added in THIS tab's session via the GUI (STATE._sessionAdded)
   //
   // a49_wl_added (localStorage) is intentionally NOT read here.
-  // Reading it would pull in tickers added by other open tabs that share the
-  // same localStorage origin, causing foreign symbols to appear in this dashboard.
-  // GUI additions persist for this session only; to make them permanent, export
-  // watchlist.json and commit it.
   let base = DEFAULT_WATCHLIST;
   try {
     const r = await fetch('watchlist.json');
     if (r.ok) base = await r.json();
   } catch {}
 
-  // Session-only additions: tickers the user added via GUI in this tab.
-  // Populated by addTicker(); never read from localStorage.
   if (!STATE._sessionAdded) STATE._sessionAdded = [];
   const merged = [...base, ...STATE._sessionAdded.filter(s => !base.includes(s))];
   STATE.watchlist = merged;
-  STATE.currentS = STATE.watchlist[0];
 
-  // DS/PH: no cross-tab bleed — STATE.DS/PH start empty (see config.js).
-  // We intentionally do NOT restore them from localStorage on init so stale
-  // data from other tabs never pre-populates this tab's table.
+  // v12.4: NO symbol pre-selected on load — TradingView iframe deferred
+  // until the user clicks a symbol. currentS starts null.
+  STATE.currentS = null;
 
   // Initialise alert-filter state AFTER base watchlist is known
   initAlertFilterState();
   STATE._baseWatchlist = [...base];
-  switchT(STATE.currentS);
+
+  // Render the watchlist sidebar immediately (names only — no price yet)
+  renderWL();
+
+  // Render the table shell (rows with SYNC placeholders, no sparklines yet)
+  renderTable();
+
+  // Show the "click a symbol to load chart" placeholder in the TV panel
+  _renderChartPlaceholder();
+
   fetchGlobal();
   fetchFG();
-  fetchNews();
+  // v12.4: news NOT fetched here — deferred to first toggleNews() call
   fetchMarketPulse();
+
+  // Start the sync engine
   sync();
-  setInterval(sync, 15000);
-  setInterval(fetchNews, 300000); // 5 min per sector refresh
-  setInterval(fetchFG, 300000);
-  setInterval(fetchGlobal, 60000);
-  setInterval(fetchMarketPulse, 300000); // market pulse refreshes every 5 min (same as news)
+  _startAdaptiveSyncLoop();
+
+  setInterval(fetchFG, 300_000);
+  setInterval(fetchGlobal, 60_000);
+  setInterval(fetchMarketPulse, 300_000);
+
   renderJournal();
   initAlertCfg();
   renderAlertCfgPage();
   updateLastUpdBar();
+}
+
+// ── CHART PLACEHOLDER — shown until user clicks a symbol ──
+function _renderChartPlaceholder() {
+  const cont = document.getElementById('tv_chart');
+  if (!cont) return;
+  cont.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;min-height:220px;color:var(--text-dim);font-size:12px;gap:8px;
+      background:var(--panel);border-radius:6px;">
+      <span style="font-size:22px;opacity:.35;">📈</span>
+      <span>Click any symbol to load chart</span>
+    </div>`;
+}
+
+// ── ADAPTIVE SYNC LOOP ──
+// Replaces the fixed setInterval(sync,15000). Runs a rolling timer that
+// re-syncs all symbols, but uses per-symbol market-hours-aware intervals
+// to decide whether each symbol actually needs a fetch this cycle.
+// Closed-market symbols are only hit at most every 60s regardless of how
+// fast the global loop fires.
+let _syncRunning = false;
+let _lastSyncTime = {}; // sym → timestamp of last successful syncOne call
+
+function _startAdaptiveSyncLoop() {
+  // Master tick: every 15s check which symbols need a refresh
+  setInterval(_adaptiveTick, 15_000);
+}
+
+async function _adaptiveTick() {
+  if (_syncRunning) return; // guard: don't overlap
+  _syncRunning = true;
+
+  const now = Date.now();
+  const toSync = STATE.watchlist.filter(s => {
+    const interval = syncIntervalFor(s);
+    const last = _lastSyncTime[s] || 0;
+    return (now - last) >= interval;
+  });
+
+  if (!toSync.length) { _syncRunning = false; return; }
+
+  document.getElementById('sstatus').textContent = 'SYNCING';
+  document.getElementById('sdot').style.background = 'var(--gold)';
+
+  let ok = 0, fail = 0;
+  const STAGGER_MS = 300;
+
+  for (const s of toSync) {
+    const success = await syncOne(s);
+    _lastSyncTime[s] = Date.now();
+    if (success) ok++; else fail++;
+    renderTable();
+    updateLastUpdBar();
+    await new Promise(r => setTimeout(r, STAGGER_MS));
+  }
+
+  localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
+  localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
+  await flushDigest();
+  render();
+  updateLastUpdBar();
+
+  document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
+  document.getElementById('sdot').style.background = ok > 0 ? 'var(--bull)' : 'var(--bear)';
+  _syncRunning = false;
 }
 
 // ── SINGLE SYMBOL FETCH ──
@@ -67,15 +217,12 @@ async function syncOne(s) {
       const pair = s.split(':')[1];
       const isDelisted = BINANCE_DELISTED.has(pair);
 
-      // ── Price ──
       let pd;
       try { pd = (await batchCrypto([s]))[s]; } catch {}
       if (!pd && !isDelisted) pd = await binanceFallback(s);
 
-      // ── Extra data: Binance klines for listed pairs, CoinGecko for delisted ──
       let extra;
       if (isDelisted) {
-        // All kline/depth data sourced from CoinGecko — Binance has no data for this pair
         extra = await fetchCoinGeckoExtra(pair).catch(() => ({})) || {};
       } else {
         const obi  = await fetchOBI(pair).catch(() => null);
@@ -95,15 +242,9 @@ async function syncOne(s) {
         fetchStock(s),
         fetchStockExtra(s).catch(() => ({})),
       ]);
-      // Use the most reliable 24h% available:
-      //   fetchStock v7 → regularMarketChangePercent (best, official exchange value)
-      //   fetchStock v8 fallback → (price - previousClose) / previousClose
-      //   stockExtra.kDay.chg1d → verified from 3-month daily bar series (closes[n-2] → closes[n-1])
-      // If rawChg looks like a 7d figure (|rawChg| > 20 while kDay.chg1d is sane), prefer chg1d.
       const chg1d = stockExtra?.kDay?.chg1d;
       const chg = (chg1d != null && Math.abs(rawChg) > 15 && Math.abs(chg1d) < Math.abs(rawChg))
-        ? chg1d   // rawChg was suspiciously large — use bar-derived 1d instead
-        : rawChg; // normal path: use what fetchStock returned
+        ? chg1d : rawChg;
       if (!STATE.PH[s]) STATE.PH[s] = [];
       STATE.PH[s].push(p);
       if (STATE.PH[s].length > 200) STATE.PH[s].shift();
@@ -115,33 +256,28 @@ async function syncOne(s) {
   }
 }
 
-// ── MAIN SYNC LOOP — staggered sequential loading ──
-// Loads symbols one-at-a-time with a small gap between each to avoid
-// mass-throttling 100+ concurrent requests when the watchlist is large.
+// ── FULL SYNC (manual / on-demand) ──
+// Kept for compatibility with addTicker(), importWL(), etc.
+// Forces a full pass over the entire watchlist ignoring the adaptive timer.
 async function sync() {
   document.getElementById('sstatus').textContent = 'SYNCING';
   document.getElementById('sdot').style.background = 'var(--gold)';
 
-  // Do NOT persist a49_wl_added — session additions stay session-only to prevent
-  // them leaking into other open tabs that share localStorage.
-
   let ok = 0, fail = 0;
-  const STAGGER_MS = 300; // ms gap between symbols — keeps concurrent requests low
+  const STAGGER_MS = 300;
 
   for (const s of STATE.watchlist) {
     const success = await syncOne(s);
+    _lastSyncTime[s] = Date.now(); // reset per-symbol timer after forced sync
     if (success) ok++; else fail++;
-    // Patch table row for this symbol only — leaderboard fires once at end
     renderTable();
     updateLastUpdBar();
-    // Yield to browser between symbols to keep UI responsive on mobile
     await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
-  // Full render including leaderboard only once after all symbols done
   render();
   updateLastUpdBar();
 
@@ -153,6 +289,7 @@ async function sync() {
 async function refreshSymbol(s, btnEl) {
   if (btnEl) { btnEl.textContent = '⟳'; btnEl.style.opacity = '0.4'; btnEl.disabled = true; }
   const ok = await syncOne(s);
+  _lastSyncTime[s] = Date.now();
   if (btnEl) { btnEl.textContent = '↺'; btnEl.style.opacity = ok ? '1' : '0.3'; btnEl.disabled = false; }
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
@@ -184,10 +321,19 @@ function sortBy(k) {
 }
 
 // ── CHART SWITCH ──
+// v12.4: TradingView widget is NOT created on init. It is created lazily here
+// when the user first clicks a symbol. Subsequent clicks swap the symbol.
 function switchT(s) {
   const prev = STATE.currentS;
   STATE.currentS = s;
   const tv = s.endsWith('.TO') ? 'TSX:' + s.replace('.TO', '') : s;
+
+  // Clear placeholder HTML if this is the very first symbol click
+  const cont = document.getElementById('tv_chart');
+  if (cont && cont.querySelector('div[style*="Click any symbol"]')) {
+    cont.innerHTML = '';
+  }
+
   if (STATE.tvW) { try { STATE.tvW.remove(); } catch {} }
   STATE.tvW = new TradingView.widget({
     autosize: true, symbol: tv, interval: '30', theme: 'dark',
@@ -201,7 +347,7 @@ function switchT(s) {
   });
   renderWL();
   // Refresh news feed so TSX feed URL reflects the newly selected symbol
-  if (s !== prev) fetchNews();
+  if (s !== prev && STATE._newsFetched) fetchNews();
 }
 
 // ── WATCHLIST MANAGEMENT ──
@@ -212,24 +358,26 @@ function addTicker() {
   const e = (t === 'crypto' && !v.includes('BINANCE:')) ? `BINANCE:${v}${v.includes('USDT') ? '' : 'USDT'}` : v;
   if (!STATE.watchlist.includes(e)) {
     STATE.watchlist.push(e);
-    // Track in session-only array — never written to localStorage so other tabs
-    // running a different watchlist.json are not affected.
     if (!STATE._sessionAdded) STATE._sessionAdded = [];
     if (!STATE._sessionAdded.includes(e)) STATE._sessionAdded.push(e);
     logAlertItem('info', 'Added: ' + e);
     sync();
-    fetchNews(); // rebuild TSX feed URL to include the new ticker
+    if (STATE._newsFetched) fetchNews();
   }
   document.getElementById('newT').value = '';
 }
 
 function delT(s) {
   STATE.watchlist = STATE.watchlist.filter(x => x !== s);
-  // Remove from session additions if it was one; no localStorage write needed.
   if (STATE._sessionAdded) STATE._sessionAdded = STATE._sessionAdded.filter(x => x !== s);
   delete STATE.DS[s];
   delete STATE.PH[s];
-  if (STATE.currentS === s && STATE.watchlist.length) switchT(STATE.watchlist[0]);
+  delete _lastSyncTime[s];
+  if (STATE.currentS === s) {
+    // Deselect: go back to placeholder rather than auto-picking next symbol
+    STATE.currentS = null;
+    _renderChartPlaceholder();
+  }
   render();
 }
 
@@ -250,28 +398,37 @@ function importWL(inp) {
   r.readAsText(inp.files[0]);
 }
 
-// ── NEWS UI ──
+// ══════════════════════════════════════════════
+// NEWS UI
+// v12.4: news is lazy — data is NOT fetched until the panel is first opened.
+// ══════════════════════════════════════════════
+
+function toggleNews() {
+  STATE.newsOpen = !STATE.newsOpen;
+  const body = document.getElementById('bnews-body');
+  const chev = document.getElementById('news-chevron');
+  if (body) body.classList.toggle('hide', !STATE.newsOpen);
+  if (chev) chev.textContent = STATE.newsOpen ? '▲ COLLAPSE' : '▼ EXPAND';
+
+  // v12.4 lazy load: fetch news only on first open
+  if (STATE.newsOpen && !STATE._newsFetched) {
+    STATE._newsFetched = true;
+    fetchNews();
+    // Start the recurring refresh now that the panel has been opened once
+    setInterval(fetchNews, 300_000);
+  }
+}
+
 // ── Market feed categories ──
-// ── Market update feeds ──
-// All RSS feeds go through allorigins.win which returns { contents: "<xml>..." }
-// CRYPTO uses rss2json.com (free, no key) to fetch the CoinDesk RSS as JSON.
-// Feed URLs chosen for CORS-proxy reliability (no Cloudflare blocks).
-// ── Dynamic feed builder — rebuilds TSX feed URL from current watchlist ──
-// Stock tickers (.TO / non-crypto) are injected into the TSX RSS feed so that
-// when you add or switch symbols the news feed follows the watchlist.
 function buildMarketFeeds() {
-  // Collect non-crypto tickers from the current watchlist (up to 8 for URL length)
   const stockSyms = (STATE.watchlist || [])
     .filter(s => !s.includes('BINANCE:'))
     .slice(0, 8);
-
-  // Always include a handful of liquid TSX anchors so the feed isn't empty on first load
   const tsxAnchors = ['XIU.TO', 'ENB.TO', 'RY.TO', 'TD.TO', 'SU.TO'];
   const tsxSyms = [...new Set([...stockSyms, ...tsxAnchors])].slice(0, 10);
   const tsxParam = tsxSyms.map(s => encodeURIComponent(s)).join(',');
 
   return [
-    // Crypto — CoinDesk RSS via rss2json (free, no key required)
     { tag: 'CRYPTO', json: true,
       url: 'https://api.rss2json.com/v1/api.json?rss_url=https://coindesk.com/arc/outboundfeeds/rss/',
       parse: d => (d.items || []).slice(0, 15).map(p => ({
@@ -281,27 +438,21 @@ function buildMarketFeeds() {
         sent: 'neutral'
       }))
     },
-    // Energy & Commodities — Yahoo Finance RSS
     { tag: 'ENERGY', rss: true, limit: 10, keywords: ['oil','gas','energy','crude','opec','lng','brent','wti','barrel','refin'],
       url: 'https://finance.yahoo.com/rss/headline?s=USO,XLE,CL%3DF,NG%3DF'
     },
-    // Metals & Mining — no keyword filter so all GLD/SLV/GDX headlines pass through
     { tag: 'METAL', rss: true, limit: 10, keywords: [],
       url: 'https://finance.yahoo.com/rss/headline?s=GLD,SLV,GDX,COPPER'
     },
-    // Commodities — grains, soft commodities
     { tag: 'COMMODITY', rss: true, limit: 8, keywords: ['wheat','corn','soy','coffee','sugar','cotton','grain','cattle','hog','farm'],
       url: 'https://finance.yahoo.com/rss/headline?s=WEAT,CORN,SOYB,DBA'
     },
-    // Tech
     { tag: 'TECH', rss: true, limit: 10, keywords: ['tech','ai','chip','semiconductor','nvidia','apple','microsoft','google','cloud','software','data'],
       url: 'https://finance.yahoo.com/rss/headline?s=QQQ,NVDA,AAPL,MSFT,SMH'
     },
-    // TSX & Canadian markets — dynamically includes current watchlist stock tickers
     { tag: 'TSX', rss: true, limit: 12, keywords: ['tsx','canada','canadian','bay street','bank of canada','loonie','cad','toronto','cnq','shop'],
       url: `https://finance.yahoo.com/rss/headline?s=${tsxParam}`
     },
-    // CAD/USD & DXY — macro forex trend news
     { tag: 'FX', rss: true, limit: 10, keywords: ['cad','usd','dollar','loonie','dxy','forex','fx','currency','exchange rate','bank of canada','federal reserve','rate','inflation','boc','fed'],
       url: 'https://finance.yahoo.com/rss/headline?s=CADUSD%3DX,DX-Y.NYB,FXC,UUP'
     },
@@ -352,21 +503,17 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
 
 async function fetchNews() {
   const allItems = [];
-
   const MARKET_FEEDS = buildMarketFeeds();
-  // Sequential loop with stagger — avoids rate-limit bursts and proxy bans
+
   for (let fi = 0; fi < MARKET_FEEDS.length; fi++) {
     if (fi > 0) await delay(400);
     const feed = MARKET_FEEDS[fi];
     let feedItems = [];
     try {
       if (feed.parse) {
-        // JSON feed (CoinDesk via rss2json)
         const d = await fetchProxy(feed.url);
         feedItems = feed.parse(d);
       } else {
-        // RSS — use allorigins (returns { contents: '<xml>...' }) which is more
-        // reliable for XML than corsproxy. Two-proxy fallback for resilience.
         let xml = null;
         const proxies = [
           `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`,
@@ -377,7 +524,6 @@ async function fetchNews() {
             const r = await fetch(purl, { signal: AbortSignal.timeout(9000) });
             if (!r.ok) continue;
             const txt = await r.text();
-            // allorigins wraps in JSON { contents: "..." }
             try { const j = JSON.parse(txt); xml = j.contents || txt; break; }
             catch { xml = txt; break; }
           } catch {}
@@ -385,14 +531,12 @@ async function fetchNews() {
         if (xml) feedItems = parseRssItems(xml, feed.tag, feed.keywords, feed.limit);
       }
       if (feedItems.length) {
-        // Success — write to cache
         STATE.newsCache[feed.tag] = feedItems;
         allItems.push(...feedItems);
       } else {
         throw new Error('empty');
       }
     } catch {
-      // Failure — read from cache and label items as cached
       const cached = STATE.newsCache[feed.tag];
       if (cached && cached.length) {
         const now = new Date().toLocaleTimeString();
@@ -401,8 +545,6 @@ async function fetchNews() {
     }
   }
 
-  // Sort by recency best-effort; group by tag for variety
-  // Interleave tags so the ticker shows all categories
   const byTag = {};
   for (const item of allItems) {
     if (!byTag[item.tag]) byTag[item.tag] = [];
@@ -441,12 +583,6 @@ function mockNews() {
   ];
 }
 
-function toggleNews() {
-  STATE.newsOpen = !STATE.newsOpen;
-  document.getElementById('bnews-body').classList.toggle('hide', !STATE.newsOpen);
-  document.getElementById('news-chevron').textContent = STATE.newsOpen ? '▲ COLLAPSE' : '▼ EXPAND';
-}
-
 function toggleWatchlist() {
   STATE.wlOpen = !STATE.wlOpen;
   const body = document.getElementById('wl-body');
@@ -463,12 +599,24 @@ function toggleAlerts() {
 window.onload = init;
 
 // ══════════════════════════════════════════════
-// MOBILE HELPERS — appended by mobile responsive pass
+// MARKET STATUS HELPERS — exposed for render.js
+// ══════════════════════════════════════════════
+
+// Returns HTML badge for a symbol's current market status.
+// render.js calls this to inject the 🔒 CLOSED tag into row headers.
+function marketStatusBadge(sym) {
+  const s = marketStatus(sym);
+  if (s === 'open') return '';
+  if (s === 'prepost') return '<span class="mkt-badge prepost" title="Pre/post market — excluded from leaderboard">🕐 EXT HRS</span>';
+  return '<span class="mkt-badge closed" title="Market closed — queued for tomorrow\'s open">🔒 CLOSED</span>';
+}
+
+// ══════════════════════════════════════════════
+// MOBILE HELPERS
 // ══════════════════════════════════════════════
 
 const isMobile = () => window.innerWidth <= 768;
 
-// ── Mobile news: show only the active tag column ──
 function applyMobileNewsFilter() {
   if (!isMobile()) return;
   const wrap = document.querySelector('.nf-cols-wrap');
@@ -487,21 +635,18 @@ function applyMobileNewsFilter() {
     });
   }
 
-  // Update pill highlights
   document.querySelectorAll('#news-tag-bar .nf-pill').forEach(btn => {
     const m = btn.getAttribute('onclick')?.match(/'([A-Z]+)'/);
     if (m) btn.classList.toggle('active', m[1] === activeTag);
   });
 }
 
-// ── Override pill onclick on mobile to switch single-column view ──
 window.mobilePillClick = function(tag) {
   if (!isMobile()) { toggleNewsCol(tag); return; }
   STATE.mobileNewsTag = (STATE.mobileNewsTag === tag) ? 'ALL' : tag;
   applyMobileNewsFilter();
 };
 
-// ── Leaderboard swipe dot indicators ──
 function renderLeaderboardDots() {
   if (!isMobile()) return;
   const body = document.querySelector('.hcl-body');
@@ -523,7 +668,6 @@ function renderLeaderboardDots() {
   });
   body.parentNode.insertBefore(dots, body.nextSibling);
 
-  // Sync dots to scroll position
   body.addEventListener('scroll', () => {
     const idx = Math.round(body.scrollLeft / Math.max(body.clientWidth, 1));
     dots.querySelectorAll('span').forEach((d, i) => {
@@ -534,7 +678,6 @@ function renderLeaderboardDots() {
   }, { passive: true });
 }
 
-// ── Hook into renderNews to apply mobile filter after each render ──
 document.addEventListener('DOMContentLoaded', () => {
   const newsBody = document.getElementById('bnews-body');
   if (newsBody) {

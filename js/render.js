@@ -33,8 +33,9 @@ function renderWL() {
       const up = parseFloat(d.chg || 0) >= 0;
       const name = s.includes(':') ? s.split(':')[1].replace('USDT', '') : s;
       const hc = Math.abs(parseFloat(d.chg || 0)) > 3 ? (up ? 'var(--bull)' : 'var(--bear)') : 'transparent';
-      return `<div class="wli ${s === currentS ? 'on' : ''}" onclick="switchT('${s}')" data-sym="${s}">
-        <span class="wl-name">${name}</span>
+      const _mktB = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
+      return `<div class="wli ${s === currentS ? 'on' : ''}${_mktB ? ' mkt-closed-wli' : ''}" onclick="switchT('${s}')" data-sym="${s}">
+        <span class="wl-name">${name}${_mktB}</span>
         <span class="wl-chg" style="color:${up ? 'var(--bull)' : 'var(--bear)'}">${up ? '+' : ''}${d.chg || '0'}%</span>
       </div>`;
     }).join('');
@@ -111,8 +112,9 @@ function renderTable() {
     }
     const lsH = `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${d.lp}%"></div><div class="ls-s" style="width:${d.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${d.lp}%</span><span style="color:var(--bear)">S${d.sp}%</span></div></div>`;
     const sdotC = d.sigC.includes('sb')||d.sigC.includes('-b') ? 'var(--bull)' : d.sigC.includes('ss')||d.sigC.includes('be') ? 'var(--bear)' : '#555';
-    return `<tr class="${hc}" data-sym="${s}" onclick="switchT('${s}')">
-      <td class="td-sym">${name}</td>
+    const mktBadge = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
+    return `<tr class="${hc}${mktBadge ? ' mkt-closed-row' : ''}" data-sym="${s}" onclick="switchT('${s}')">
+      <td class="td-sym">${name}${mktBadge}</td>
       <td class="td-px" data-k="p">$${d.p}</td>
       <td data-k="chg" style="color:${up?'var(--bull)':'var(--bear)'};font-weight:700;">${up?'+':''}${d.chg}%</td>
       <td><canvas id="${spId}" width="68" height="20" class="sp"></canvas></td>
@@ -576,6 +578,21 @@ function renderLeaderboard() {
     .map(sym => {
       const d = DS[sym];
       if (!d) return null;
+
+      // ── v12.4 MARKET HOURS GATE ──────────────────────────────────────
+      // Symbols whose exchange is closed are excluded from conv scoring.
+      // They still appear in the signal table (with a CLOSED badge) but
+      // cannot enter or hold a leaderboard position until the market re-opens.
+      // Pre/post market symbols are also excluded — stale extended-hours
+      // data produces unreliable OI/CVD signals.
+      if (typeof isLeaderboardEligible === 'function' && !isLeaderboardEligible(sym)) {
+        // Mark symbol as ineligible — reset persistence so it can re-qualify
+        // cleanly when the market re-opens rather than riding stale enterCount.
+        if (STATE.hclPersist && STATE.hclPersist[sym]) {
+          STATE.hclPersist[sym] = { dir: 'neutral', enterCount: 0, exitCount: 0, active: false };
+        }
+        return null; // excluded from leaderboard this cycle
+      }
 
       let conv = 0;
       const r15 = d.r15 || 50, r1h = d.r1h || 50, r4h = d.r4h || 50;
