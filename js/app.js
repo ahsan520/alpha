@@ -131,16 +131,17 @@ async function sync() {
   for (const s of STATE.watchlist) {
     const success = await syncOne(s);
     if (success) ok++; else fail++;
-    // Render after every symbol so the table populates progressively
-    render();
+    // Patch table row for this symbol only — leaderboard fires once at end
+    renderTable();
     updateLastUpdBar();
-    // Yield to browser between symbols to keep UI responsive
+    // Yield to browser between symbols to keep UI responsive on mobile
     await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
+  // Full render including leaderboard only once after all symbols done
   render();
   updateLastUpdBar();
 

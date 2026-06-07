@@ -2,23 +2,59 @@
 // render.js — all DOM rendering functions
 // ══════════════════════════════════════════════
 
-function render() { renderWL(); renderTable(); }
+// ══════════════════════════════════════════════════════════════════
+// Stable DOM rendering — patch values in-place, never full rebuild
+// This prevents mobile blank-screens and leaderboard flicker
+// ══════════════════════════════════════════════════════════════════
 
-// ── Watchlist sidebar ──
+// Track what's currently rendered so we only touch changed nodes
+const _rendered = { wl: null, tableSyms: null };
+
+// Debounce renderLeaderboard — only fire once after full sync, not mid-cycle
+let _lbTimer = null;
+function scheduleLeaderboard() {
+  clearTimeout(_lbTimer);
+  _lbTimer = setTimeout(() => renderLeaderboard(), 800);
+}
+
+function render() { renderWL(); renderTable(); scheduleLeaderboard(); }
+
+// ── Watchlist sidebar — in-place patch ──
 function renderWL() {
   const { watchlist, DS, currentS } = STATE;
-  document.getElementById('wl-cont').innerHTML = watchlist.map(s => {
+  const cont = document.getElementById('wl-cont');
+  if (!cont) return;
+
+  // First load or watchlist structure changed — do a full build
+  const wlKey = watchlist.join(',');
+  if (_rendered.wl !== wlKey) {
+    cont.innerHTML = watchlist.map(s => {
+      const d = DS[s] || {};
+      const up = parseFloat(d.chg || 0) >= 0;
+      const name = s.includes(':') ? s.split(':')[1].replace('USDT', '') : s;
+      const hc = Math.abs(parseFloat(d.chg || 0)) > 3 ? (up ? 'var(--bull)' : 'var(--bear)') : 'transparent';
+      return `<div class="wli ${s === currentS ? 'on' : ''}" onclick="switchT('${s}')" data-sym="${s}">
+        <span class="wl-name">${name}</span>
+        <span class="wl-chg" style="color:${up ? 'var(--bull)' : 'var(--bear)'}">${up ? '+' : ''}${d.chg || '0'}%</span>
+      </div>`;
+    }).join('');
+    _rendered.wl = wlKey;
+    return;
+  }
+
+  // Patch only changed values
+  watchlist.forEach(s => {
+    const el = cont.querySelector(`[data-sym="${CSS.escape(s)}"]`);
+    if (!el) return;
     const d = DS[s] || {};
     const up = parseFloat(d.chg || 0) >= 0;
-    const name = s.includes(':') ? s.split(':')[1].replace('USDT', '') : s;
-    const hc = Math.abs(parseFloat(d.chg || 0)) > 3 ? (up ? 'var(--bull)' : 'var(--bear)') : 'transparent';
-    return `<div class="wli ${s === currentS ? 'on' : ''}" onclick="switchT('${s}')">
-      <div class="wli-hbar" style="background:${hc}"></div>
-      <div><div class="wli-name">${name}</div><div class="wli-price">${d.p ? '$' + d.p : '—'}</div></div>
-      <div class="wli-chg" style="color:${up ? 'var(--bull)' : 'var(--bear)'}">${up ? '+' : ''}${d.chg || '0.00'}%</div>
-      <span onclick="event.stopPropagation();delT('${s}')" class="del">×</span>
-    </div>`;
-  }).join('');
+    const chgEl = el.querySelector('.wl-chg');
+    if (chgEl) {
+      chgEl.textContent = (up ? '+' : '') + (d.chg || '0') + '%';
+      chgEl.style.color = up ? 'var(--bull)' : 'var(--bear)';
+    }
+    el.classList.toggle('on', s === STATE.currentS);
+  });
 }
 
 // ── MTF RSI dot ──
@@ -29,9 +65,12 @@ function rdot(v, lbl) {
   return `<div class="mtf-col"><div class="mtf-d" style="background:${c};box-shadow:0 0 5px ${c}44;" title="${lbl}: ${v}"></div><div class="mtf-l" style="color:${c}">${v}</div></div>`;
 }
 
-// ── Main signal table ──
+// ── Main signal table — in-place patch, no full rebuilds ──
 function renderTable() {
   const { watchlist, DS, PH, sortK, sortD } = STATE;
+  const tbody = document.getElementById('mx-body');
+  if (!tbody) return;
+
   let sorted = [...watchlist];
   if (sortK) {
     sorted.sort((a, b) => {
@@ -49,93 +88,134 @@ function renderTable() {
     bias4h: '—', bias4hC: 'var(--text-dim)', bias4hScore: 0, biasDay: '—', biasDayC: 'var(--text-dim)', biasDayScore: 0
   };
 
-  document.getElementById('mx-body').innerHTML = sorted.map(s => {
-    const d = { ...def, ...(DS[s] || {}) };
+  // Helper to build a full row HTML (used on first load only)
+  function buildRow(s, d) {
     const up = parseFloat(d.chg) >= 0;
     const name = s.includes(':') ? s.split(':')[1].replace('USDT', '') : s;
     const hc = parseFloat(d.chg) > 2.5 ? 'ru' : parseFloat(d.chg) < -2.5 ? 'rd' : '';
     const spId = 'sp_' + s.replace(/[^a-z0-9]/gi, '_');
     const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi, '_');
-    const isCrypto = s.includes('BINANCE:');
-    const nfC = d.nf >= 0 ? 'var(--bull)' : 'var(--bear)';
     const frC = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
     const frStr = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? '+' : '') + (parseFloat(d.fr) * 100).toFixed(3) + '%' : '—';
-
-    // OBI cell
     let obiH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
     if (d.obi) {
       const bw = parseFloat(d.obi.bidPct), aw = 100 - bw;
       const c = bw > 55 ? 'var(--bull)' : bw < 45 ? 'var(--bear)' : 'var(--text-dim)';
-      obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span>
-        <div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
+      obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
     }
-
-    // CVD cell
     let cvdH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
     if (d.cvd) {
       const val = d.cvd.value; const up2 = d.cvd.trending === 'up';
-      const fv = Math.abs(val) > 1e6 ? (val / 1e6).toFixed(2) + 'M' : Math.abs(val) > 1000 ? (val / 1000).toFixed(1) + 'K' : val.toFixed(0);
-      cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas>
-        <span class="cvd-v" style="color:${up2 ? 'var(--bull)' : 'var(--bear)'}">${up2 ? '▲' : '▼'}${fv}</span></div>`;
+      const fv = Math.abs(val) > 1e6 ? (val/1e6).toFixed(2)+'M' : Math.abs(val) > 1000 ? (val/1000).toFixed(1)+'K' : val.toFixed(0);
+      cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
     }
-
-    // Liq cell
-    let liqH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
-    if (d.liq) {
-      const lc = parseFloat(d.liq.dist) < 0 ? 'var(--bear)' : 'var(--accent)';
-      liqH = `<div class="liq"><div class="liq-p" style="color:${lc}">$${d.liq.price}</div><div class="liq-d">${d.liq.dist}% · ${d.liq.side}</div></div>`;
-    }
-
-    // L/S cell
-    const lsH = `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${d.lp}%"></div><div class="ls-s" style="width:${d.sp}%"></div></div>
-      <div class="ls-lbl"><span style="color:var(--bull)">L${d.lp}%</span><span style="color:var(--bear)">S${d.sp}%</span></div></div>`;
-
-    const sdotC = d.sigC.includes('sb') || d.sigC.includes('-b') ? 'var(--bull)' : d.sigC.includes('ss') || d.sigC.includes('be') ? 'var(--bear)' : '#555';
-
-    return `<tr class="${hc}" onclick="switchT('${s}')">
+    const lsH = `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${d.lp}%"></div><div class="ls-s" style="width:${d.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${d.lp}%</span><span style="color:var(--bear)">S${d.sp}%</span></div></div>`;
+    const sdotC = d.sigC.includes('sb')||d.sigC.includes('-b') ? 'var(--bull)' : d.sigC.includes('ss')||d.sigC.includes('be') ? 'var(--bear)' : '#555';
+    return `<tr class="${hc}" data-sym="${s}" onclick="switchT('${s}')">
       <td class="td-sym">${name}</td>
-      <td class="td-px">$${d.p}</td>
-      <td style="color:${up ? 'var(--bull)' : 'var(--bear)'};font-weight:700;">${up ? '+' : ''}${d.chg}%</td>
+      <td class="td-px" data-k="p">$${d.p}</td>
+      <td data-k="chg" style="color:${up?'var(--bull)':'var(--bear)'};font-weight:700;">${up?'+':''}${d.chg}%</td>
       <td><canvas id="${spId}" width="68" height="20" class="sp"></canvas></td>
-      <td><div class="mtf">${rdot(d.r15, '15m')}${rdot(d.r1h, '1h')}${rdot(d.r4h, '4h')}</div></td>
-      <td>${obiH}</td>
-      <td>${cvdH}</td>
-      <td><div class="vbar"><span style="color:var(--gold)">${d.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100, (parseFloat(d.shock) - .5) * 80)}%"></div></div></div></td>
-      <td>${lsH}</td>
-      <td style="color:${frC};font-size:9px;">${frStr}</td>
-      <td style="font-size:9px;font-weight:700;color:${d.emaTrend === 'ABOVE' ? 'var(--bull)' : d.emaTrend === 'BELOW' ? 'var(--bear)' : 'var(--text-dim)'};">${d.emaTrend || '—'}</td>
-      <td style="font-size:10px;font-weight:700;color:${d.oiDivC};" title="OI Divergence">${d.oiDiv || '—'}</td>
-      <td style="font-size:10px;font-weight:700;color:${d.dipLabelC};" title="Score: ${d.dipScore || 0}">${d.dipLabel || '—'}</td>
-      <td style="font-size:10px;font-weight:700;color:${d.bias4hC};" title="4H score: ${d.bias4hScore || 0}">${d.bias4h || '—'}</td>
-      <td style="font-size:10px;font-weight:700;color:${d.biasDayC};" title="Daily score: ${d.biasDayScore || 0}">${d.biasDay || '—'}</td>
-      <td><span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span></td>
-      <td style="font-size:9px;min-width:90px;">
-        ${d.sup || d.res
-          ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;">
-               <span style="color:var(--bull);" title="Support">S $${d.sup || '—'}</span>
-               <span style="color:var(--bear);" title="Resistance">R $${d.res || '—'}</span>
-             </div>`
-          : '<span style="color:var(--text-dim);">—</span>'
-        }
-      </td>
-      <td><button class="rbtn" onclick="event.stopPropagation();refreshSymbol('${s}',this)" title="Refresh ${name}">↺</button></td>
-      <td class="td-reason" title="${d.reason}">${d.reason}</td>
+      <td data-k="mtf"><div class="mtf">${rdot(d.r15,'15m')}${rdot(d.r1h,'1h')}${rdot(d.r4h,'4h')}</div></td>
+      <td data-k="obi">${obiH}</td>
+      <td data-k="cvd">${cvdH}</td>
+      <td data-k="shock"><div class="vbar"><span style="color:var(--gold)">${d.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(d.shock)-.5)*80)}%"></div></div></div></td>
+      <td data-k="ls">${lsH}</td>
+      <td data-k="fr" style="color:${frC};font-size:9px;">${frStr}</td>
+      <td data-k="ema" style="font-size:9px;font-weight:700;color:${d.emaTrend==='ABOVE'?'var(--bull)':d.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)'};">${d.emaTrend||'—'}</td>
+      <td data-k="oidiv" style="font-size:10px;font-weight:700;color:${d.oiDivC};">${d.oiDiv||'—'}</td>
+      <td data-k="dip" style="font-size:10px;font-weight:700;color:${d.dipLabelC};">${d.dipLabel||'—'}</td>
+      <td data-k="b4h" style="font-size:10px;font-weight:700;color:${d.bias4hC};">${d.bias4h||'—'}</td>
+      <td data-k="bday" style="font-size:10px;font-weight:700;color:${d.biasDayC};">${d.biasDay||'—'}</td>
+      <td data-k="sig"><span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span></td>
+      <td data-k="sr" style="font-size:9px;min-width:90px;">${d.sup||d.res?`<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${d.sup||'—'}</span><span style="color:var(--bear);">R $${d.res||'—'}</span></div>`:'<span style="color:var(--text-dim);">—</span>'}</td>
+      <td><button class="rbtn" onclick="event.stopPropagation();refreshSymbol('${s}',this)">↺</button></td>
+      <td class="td-reason" data-k="reason" title="${d.reason}">${d.reason}</td>
     </tr>`;
-  }).join('');
+  }
 
+  // Helper to patch only changed cells in an existing row
+  function patchRow(tr, s, d) {
+    const up = parseFloat(d.chg) >= 0;
+    const frC = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
+    const frStr = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? '+' : '') + (parseFloat(d.fr) * 100).toFixed(3) + '%' : '—';
+
+    function setCell(k, html, style) {
+      const td = tr.querySelector(`[data-k="${k}"]`);
+      if (!td) return;
+      if (td.innerHTML !== html) td.innerHTML = html;
+      if (style) Object.assign(td.style, style);
+    }
+
+    setCell('p', `$${d.p}`);
+    setCell('chg', `${up?'+':''}${d.chg}%`, { color: up?'var(--bull)':'var(--bear)', fontWeight:'700' });
+
+    const mtfH = `<div class="mtf">${rdot(d.r15,'15m')}${rdot(d.r1h,'1h')}${rdot(d.r4h,'4h')}</div>`;
+    setCell('mtf', mtfH);
+
+    let obiH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+    if (d.obi) {
+      const bw = parseFloat(d.obi.bidPct), aw = 100-bw;
+      const c = bw>55?'var(--bull)':bw<45?'var(--bear)':'var(--text-dim)';
+      obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
+    }
+    setCell('obi', obiH);
+
+    const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi, '_');
+    let cvdH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+    if (d.cvd) {
+      const val = d.cvd.value; const up2 = d.cvd.trending==='up';
+      const fv = Math.abs(val)>1e6?(val/1e6).toFixed(2)+'M':Math.abs(val)>1000?(val/1000).toFixed(1)+'K':val.toFixed(0);
+      cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
+    }
+    setCell('cvd', cvdH);
+
+    setCell('shock', `<div class="vbar"><span style="color:var(--gold)">${d.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(d.shock)-.5)*80)}%"></div></div></div>`);
+    setCell('ls', `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${d.lp}%"></div><div class="ls-s" style="width:${d.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${d.lp}%</span><span style="color:var(--bear)">S${d.sp}%</span></div></div>`);
+    setCell('fr', frStr, { color: frC, fontSize:'9px' });
+    setCell('ema', d.emaTrend||'—', { color: d.emaTrend==='ABOVE'?'var(--bull)':d.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)', fontSize:'9px', fontWeight:'700' });
+    setCell('oidiv', d.oiDiv||'—', { color: d.oiDivC, fontSize:'10px', fontWeight:'700' });
+    setCell('dip', d.dipLabel||'—', { color: d.dipLabelC, fontSize:'10px', fontWeight:'700' });
+    setCell('b4h', d.bias4h||'—', { color: d.bias4hC, fontSize:'10px', fontWeight:'700' });
+    setCell('bday', d.biasDay||'—', { color: d.biasDayC, fontSize:'10px', fontWeight:'700' });
+    const sdotC = d.sigC.includes('sb')||d.sigC.includes('-b')?'var(--bull)':d.sigC.includes('ss')||d.sigC.includes('be')?'var(--bear)':'#555';
+    setCell('sig', `<span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span>`);
+    const srH = d.sup||d.res?`<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${d.sup||'—'}</span><span style="color:var(--bear);">R $${d.res||'—'}</span></div>`:'<span style="color:var(--text-dim);">—</span>';
+    setCell('sr', srH);
+    setCell('reason', d.reason);
+
+    const hc = parseFloat(d.chg) > 2.5 ? 'ru' : parseFloat(d.chg) < -2.5 ? 'rd' : '';
+    tr.className = hc;
+  }
+
+  // Check if rows exist and match current sorted order
+  const existingRows = Array.from(tbody.querySelectorAll('tr[data-sym]'));
+  const existingSyms = existingRows.map(r => r.getAttribute('data-sym'));
+  const needsRebuild = sorted.join(',') !== existingSyms.join(',');
+
+  if (needsRebuild) {
+    // Structure changed (sort or watchlist edit) — full rebuild once
+    tbody.innerHTML = sorted.map(s => buildRow(s, { ...def, ...(DS[s]||{}) })).join('');
+  } else {
+    // Same rows — patch values only (no DOM destruction)
+    existingRows.forEach(tr => {
+      const s = tr.getAttribute('data-sym');
+      if (DS[s]) patchRow(tr, s, { ...def, ...DS[s] });
+    });
+  }
+
+  // Redraw sparklines (canvas — must always repaint)
   requestAnimationFrame(() => {
     sorted.forEach(s => {
       const d = DS[s];
-      // Prefer sparkBars (last 7 daily closes) — gives a meaningful 5-7d price shape.
-      // Fall back to live-poll ticks (PH) only when daily bars aren't loaded yet.
       const sparkData = (d?.sparkBars?.length > 1) ? d.sparkBars : (PH[s]?.length > 1 ? PH[s] : null);
       if (sparkData) drawSpark('sp_' + s.replace(/[^a-z0-9]/gi, '_'), sparkData);
-      if (d && d.cvd && d.cvd.series && d.cvd.series.length > 1)
-        drawSpark('cv_' + s.replace(/[^a-z0-9]/gi, '_'), d.cvd.series);
+      if (d?.cvd?.series?.length > 1) drawSpark('cv_' + s.replace(/[^a-z0-9]/gi, '_'), d.cvd.series);
     });
   });
 }
 
+// ── Sparkline ──
 // ── Sparkline ──
 function drawSpark(id, data) {
   const c = document.getElementById(id); if (!c || data.length < 2) return;
@@ -330,7 +410,8 @@ function updateTicker() {
 // Terminal-style squeeze cards: #1 🚀 SQUEEZE NOW format
 // ══════════════════════════════════════════════
 
-let _hclOpen = true;
+let _hclOpen = false; // leaderboard collapsed by default — saves mobile battery
+if (!STATE.expandedCards) STATE.expandedCards = new Set(); // track which cards are expanded
 
 function toggleHCL() {
   _hclOpen = !_hclOpen;
@@ -342,14 +423,33 @@ function toggleHCL() {
   if (chev) chev.textContent   = _hclOpen ? '▼' : '▲';
 }
 
+function toggleCard(sym) {
+  if (STATE.expandedCards.has(sym)) {
+    STATE.expandedCards.delete(sym);
+  } else {
+    STATE.expandedCards.add(sym);
+  }
+  // Update just this card's detail visibility — no full re-render
+  const card = document.querySelector(`.hcl-card[data-sym="${CSS.escape(sym)}"]`);
+  if (!card) return;
+  const detail = card.querySelector('.hcl-card-detail');
+  const chev   = card.querySelector('.hcl-card-chev');
+  const isOpen = STATE.expandedCards.has(sym);
+  if (detail) detail.style.display = isOpen ? '' : 'none';
+  if (chev)   chev.textContent     = isOpen ? '▲' : '▼';
+  // Switch chart only when expanding
+  if (isOpen) switchT(sym);
+}
+
 // ── Determine setup mode label from signal data ──
-function getSetupMode(d, conv) {
+function getSetupMode(d, conv, isCapitulation) {
   const shock = parseFloat(d.shock) || 1;
   const frNum = parseFloat(d.fr) || 0;
-  if (d.oiDiv === '💎 DIP BUY' && frNum <= -0.01) return { label: 'DIP BUY', cls: 'dip-buy', emoji: '💎' };
+  if (isCapitulation)                                        return { label: 'CAP BUY',    cls: 'cap-buy',  emoji: '💥' };
+  if (d.oiDiv === '💎 DIP BUY' && frNum <= -0.01)           return { label: 'DIP BUY',    cls: 'dip-buy',  emoji: '💎' };
   if (shock >= 2.0 && d.cvd?.trending === 'up' && conv > 6) return { label: 'SQUEEZE NOW', cls: 'squeeze', emoji: '🚀' };
-  if (d.emaTrend === 'ABOVE' && conv > 5) return { label: 'BREAKOUT', cls: 'breakout', emoji: '⚡' };
-  if (conv < -4) return { label: 'SHORT SETUP', cls: 'bear', emoji: '🔻' };
+  if (d.emaTrend === 'ABOVE' && conv > 5)                   return { label: 'BREAKOUT',   cls: 'breakout', emoji: '⚡' };
+  if (conv < -4)                                             return { label: 'SHORT SETUP', cls: 'bear',   emoji: '🔻' };
   return { label: 'WATCHING', cls: 'watching', emoji: '⏳' };
 }
 
@@ -478,14 +578,14 @@ function renderLeaderboard() {
       if (!d) return null;
 
       let conv = 0;
+      const r15 = d.r15 || 50, r1h = d.r1h || 50, r4h = d.r4h || 50;
+      const shock = parseFloat(d.shock) || 1;
+      const frNum = parseFloat(d.fr) || 0;
 
       // Core signal score (already signed ±)
       conv += (d.score        || 0) * 1.5;
       conv += (d.dipScore     || 0) * 1.2;
-
-      // 4H bias — full weight both directions
       conv += (d.bias4hScore  || 0) * 1.0;
-      // Daily bias — full weight both directions
       conv += (d.biasDayScore || 0) * 0.8;
 
       // ── BULL bonuses ──
@@ -497,10 +597,19 @@ function renderLeaderboard() {
       if (d.bias4h?.includes('LEAN BULL')) conv += 1;
       if (d.biasDay?.includes('BULL DAY')) conv += 2;
       if (d.biasDay?.includes('LEAN BULL'))conv += 1;
-      const r15 = d.r15 || 50, r1h = d.r1h || 50;
-      if (r15 < 30 && r1h < 35)           conv += 2;
-      if (parseFloat(d.shock) > 2 && d.cvd?.trending === 'up')   conv += 2;
-      else if (parseFloat(d.shock) > 2)   conv += 1;
+      if (r15 < 30 && r1h < 35)           conv += 2;   // oversold = fuel
+      if (shock > 2 && d.cvd?.trending === 'up')  conv += 2;
+      else if (shock > 2)                  conv += 1;
+
+      // ── FIX 1: Overbought penalty for bull setups ─────────────────────────
+      // High RSI on a long = late entry, poor risk/reward — penalise ranking
+      // This fixes ZEC (RSI 81/70) ranking above ETH (RSI 50/55)
+      if (r15 > 75)                        conv -= 3;  // extremely overbought 15m
+      else if (r15 > 65)                   conv -= 1.5; // overbought 15m
+      if (r1h > 70)                        conv -= 2;  // overbought 1h — worse signal
+      else if (r1h > 60)                   conv -= 1;
+      // Sweet spot: RSI 40-60 = healthy trend with room to run (no penalty)
+      // RSI 30-40 = mild dip = mild bonus already captured above
 
       // ── BEAR bonuses ──
       if (d.oiDiv === '↓ BEAR OI')        conv -= 3;
@@ -512,7 +621,7 @@ function renderLeaderboard() {
       if (d.biasDay?.includes('LEAN BEAR'))conv -= 1;
       if (d.dipScore <= -2)                conv -= 1;
       if (r15 > 70 && r1h > 65)           conv -= 2;
-      if (parseFloat(d.shock) > 2 && d.cvd?.trending === 'down') conv -= 2;
+      if (shock > 2 && d.cvd?.trending === 'down') conv -= 2;
 
       // STABILISER 1: add fresh news bonus (capped ±3)
       conv += newsConvBonus(sym);
@@ -520,56 +629,67 @@ function renderLeaderboard() {
       // STABILISER 2: smooth score over last 4 refreshes
       const smoothConv = smoothedConv(sym, conv);
 
-      // STABILISER 4: 4H bias GATE — 4H is slow-moving, use it to lock direction
-      // If 4H is firmly bull/bear, block the opposite direction regardless of 15m noise
+      // STABILISER 4: 4H bias GATE
       const bias4hStr = d.bias4h || '';
       let allowedDir = 'both';
-      if (bias4hStr.includes('BULL 4H'))        allowedDir = 'bull';  // locked bull — 4H won't flip in 15m
-      else if (bias4hStr.includes('BEAR 4H'))   allowedDir = 'bear';  // locked bear
-      else if (bias4hStr.includes('LEAN BULL')) allowedDir = 'bull';  // soft lock
-      else if (bias4hStr.includes('LEAN BEAR')) allowedDir = 'bear';  // soft lock
+      if (bias4hStr.includes('BULL 4H'))        allowedDir = 'bull';
+      else if (bias4hStr.includes('BEAR 4H'))   allowedDir = 'bear';
+      else if (bias4hStr.includes('LEAN BULL')) allowedDir = 'bull';
+      else if (bias4hStr.includes('LEAN BEAR')) allowedDir = 'bear';
 
-      // Raw direction from smoothed score
       let rawDir = smoothConv >= 4 ? 'bull' : smoothConv <= -4 ? 'bear' : 'neutral';
-
-      // Apply 4H gate: if 4H says bull but score is bear (or neutral), suppress bear
       let dir = rawDir;
-      if (allowedDir === 'bull' && rawDir === 'bear') dir = 'neutral'; // 4H gate blocks bear flip
-      if (allowedDir === 'bear' && rawDir === 'bull') dir = 'neutral'; // 4H gate blocks bull flip
+      if (allowedDir === 'bull' && rawDir === 'bear') dir = 'neutral';
+      if (allowedDir === 'bear' && rawDir === 'bull') dir = 'neutral';
+
+      // ── FIX 2: Capitulation buy detector ──────────────────────────────────
+      // A bear symbol that is extremely oversold + sellers exhausting = bounce buy
+      // Bypasses the 4H bear gate — this is a counter-trend setup
+      // Requires 3+ of these conditions to avoid false signals:
+      let capScore = 0;
+      if (r15 < 15)                                capScore += 2; // extreme oversold 15m
+      else if (r15 < 25)                           capScore += 1;
+      if (r1h < 25)                                capScore += 2; // extreme oversold 1h
+      else if (r1h < 35)                           capScore += 1;
+      if (frNum < -0.02)                           capScore += 2; // deeply negative funding = shorts piling in = squeeze fuel
+      else if (frNum < -0.01)                      capScore += 1;
+      if (shock > 2.5 && d.cvd?.trending !== 'up') capScore += 1; // climactic sell volume
+      if (d.oiDiv === '⚠ OI DROP')                capScore += 1; // forced liq nearly done
+      if (d.cvd?.trending === 'up')                capScore += 2; // CVD starting to reverse — strongest signal
+      if (parseFloat(d.chg || 0) < -7)            capScore += 1; // down hard today = washout
+
+      const isCapitulation = capScore >= 3 && rawDir === 'bear';
+      if (isCapitulation) {
+        dir = 'bull'; // surface in bull pool as counter-trend
+      }
 
       // STABILISER 3: persistence debounce
       const p = STATE.hclPersist[sym] || { dir: 'neutral', enterCount: 0, exitCount: 0, active: false };
       if (dir !== 'neutral') {
         if (!p.active || p.dir !== dir) {
-          // New direction signal — start counting
           p.enterCount = (p.dir === dir) ? p.enterCount + 1 : 1;
           p.exitCount  = 0;
           p.dir        = dir;
-          if (p.enterCount >= ENTER_THRESHOLD) p.active = true; // promoted to leaderboard
+          if (p.enterCount >= ENTER_THRESHOLD) p.active = true;
         } else {
-          // Same direction, already active — reset exit counter
           p.enterCount = Math.min(p.enterCount + 1, ENTER_THRESHOLD);
           p.exitCount  = 0;
         }
       } else {
-        // Neutral / direction reversed — start exit countdown
         p.exitCount++;
         if (p.exitCount >= EXIT_THRESHOLD) {
-          p.active     = false;
-          p.enterCount = 0;
-          p.dir        = 'neutral';
+          p.active = false; p.enterCount = 0; p.dir = 'neutral';
         }
       }
       STATE.hclPersist[sym] = p;
 
-      // Only surface if persistence gate passed
       const activeDir = p.active ? p.dir : 'neutral';
 
       const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
       const catalyst = freshNews.find(n => n.title.toLowerCase().includes(base))
                     || news.find(n => n.title.toLowerCase().includes(base));
 
-      return { sym, d, conv: smoothConv, dir: activeDir, catalyst };
+      return { sym, d, conv: smoothConv, dir: activeDir, isCapitulation: isCapitulation && activeDir === 'bull', capScore, catalyst };
     })
     .filter(Boolean)
     .filter(r => r.dir !== 'neutral');
@@ -650,21 +770,26 @@ function renderLeaderboard() {
 
   // AI message — summarise top bull and top bear with their signals
   if (aiEl) {
-    const topBull = ranked.find(r => r.dir === 'bull');
+    const topBull = ranked.find(r => r.dir === 'bull' && !r.isCapitulation);
+    const topCap  = ranked.find(r => r.isCapitulation);
     const topBear = ranked.find(r => r.dir === 'bear');
     const parts = [];
+    if (topCap) {
+      const sym = topCap.sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+      parts.push(`💥 ${sym}: capitulation bounce · RSI ${topCap.d?.r15||'?'}/${topCap.d?.r1h||'?'} · tight stop`);
+    }
     if (topBull) {
       const sym = topBull.sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
       const reason = topBull.d?.reason || 'bull setup';
-      parts.push(`▲ ${sym}: ${reason.slice(0, 35)}`);
+      parts.push(`▲ ${sym}: ${reason.slice(0,35)}`);
     }
     if (topBear) {
       const sym = topBear.sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
       const reason = topBear.d?.reason || 'bear setup';
-      parts.push(`▼ ${sym}: ${reason.slice(0, 35)}`);
+      parts.push(`▼ ${sym}: ${reason.slice(0,30)}`);
     }
     const msg = parts.length ? parts.join(' · ') : 'Awaiting signal data';
-    aiEl.textContent = `AI: "${msg.length > 90 ? msg.slice(0,90)+'…' : msg}"`;
+    aiEl.textContent = `AI: "${msg.length > 95 ? msg.slice(0,95)+'…' : msg}"`;
   }
 
   const body = document.getElementById('hcl-body');
@@ -686,12 +811,13 @@ function renderLeaderboard() {
   body.innerHTML = ranked.map((r, i) => {
     const { sym, d, conv, dir, catalyst } = r;
     if (dir === 'bull') bullRank++; else bearRank++;
-    const rankLabel = dir === 'bull' ? `B${bullRank}` : `S${bearRank}`;
+    const isCap    = r.isCapitulation || false;
+    const rankLabel = isCap ? `💥` : dir === 'bull' ? `B${bullRank}` : `S${bearRank}`;
     const base   = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
     const chgN   = parseFloat(d.chg || 0);
     const chgCls = chgN >= 0 ? 'bull' : 'bear';
     const chgStr = (chgN >= 0 ? '+' : '') + chgN.toFixed(2) + '%';
-    const setup  = getSetupMode(d, conv);
+    const setup  = getSetupMode(d, conv, isCap);
     const levels = calcEntryLevels(d);
     const sparkId = `hcl2-spark-${i}`;
 
@@ -701,12 +827,15 @@ function renderLeaderboard() {
     const timerStr = `${Math.floor(secsLeft / 60)}min ${secsLeft % 60}s to reset`;
 
     // Score breakdown values
-    const techScore  = Math.round((d.score        || 0) * 1.5);
-    const sqzScore   = Math.round(parseFloat(d.shock || 1) > 1.5 ? (parseFloat(d.shock) - 1) * 5 : 0);
-    const instScore  = Math.round((d.dipScore     || 0) * 1.2);
-    const aiSentScore= Math.round(d.bias4hScore   || 0);
-    const socialScore= Math.round(d.biasDayScore  || 0);
-    const macroScore = d.emaTrend === 'ABOVE' ? 1 : d.emaTrend === 'BELOW' ? -1 : 0;
+    // ── Score components — weighted by signal stability ──
+    // Fast-flipping signals (seconds/minutes) get LOW weight
+    // Slow-moving signals (hours/days) get HIGH weight
+    const techScore  = Math.round((d.score     || 0) * 1.0);  // RSI composite — flips in minutes, was 1.5×
+    const sqzScore   = Math.round(parseFloat(d.shock || 1) > 1.5 ? (parseFloat(d.shock) - 1) * 3 : 0); // vol shock — flips in seconds, was ×5
+    const instScore  = Math.round((d.dipScore  || 0) * 1.0);  // OI dip — lags price ~5-15min, was 1.2×
+    const aiSentScore= Math.round((d.bias4hScore|| 0) * 1.5); // 4H bias — hours to flip, boosted from 1.0×
+    const socialScore= Math.round((d.biasDayScore||0) * 1.5); // Daily bias — days to flip, boosted from 1.0×
+    const macroScore = d.emaTrend === 'ABOVE' ? 2 : d.emaTrend === 'BELOW' ? -2 : 0; // EMA — slow, was ±1
     const totalScore = Math.round(Math.abs(conv));
     const timeBoost  = mult !== '×1.0' ? mult : null;
 
@@ -715,6 +844,7 @@ function renderLeaderboard() {
     const cascLabel = spyChg < -1 ? 'CASCADE RISK' : 'CASCADE neutral';
 
     // Evidence items
+    const isCrypto = sym.includes('BINANCE:');
     const oiChg = chgN < 0 ? `OI drop ${Math.abs(Math.round(chgN * 2))}%` : `OI rise ${Math.round(chgN * 2)}%`;
     const frNum = parseFloat(d.fr) || 0;
     const frStr = d.fr !== 'N/A' ? `funding ${(frNum * 100).toFixed(2)}%` : 'funding N/A';
@@ -725,7 +855,15 @@ function renderLeaderboard() {
     const shockBull = parseFloat(d.shock) > 1.5;
     const shortsCovering = lsBull && chgN < 0;
 
-    const evidence = [
+    const evidence = isCap ? [
+      // Capitulation buy — show exhaustion signals, not normal bull evidence
+      { txt: `RSI ${d.r15||50}/${d.r1h||50} — extreme oversold`, bull: true },
+      { txt: frBull ? `funding ${(frNum*100).toFixed(2)}% neg — squeeze fuel` : frStr, bull: frBull },
+      { txt: cvdBull ? 'CVD reversing ▲ — sellers exhausting' : 'CVD falling — watch for flip', bull: cvdBull },
+      { txt: `Vol ${d.shock||'1.0'}x${parseFloat(d.shock)>2.5?' — climactic sell':' — elevated'}`, bull: true },
+      { txt: `Down ${Math.abs(chgN).toFixed(1)}% today — washout`, bull: true },
+      { txt: `⚠ Counter-trend · tight stop · short hold`, bull: false },
+    ] : [
       { txt: oiChg, bull: chgN > 0 },
       { txt: frStr, bull: frBull },
       { txt: cvdBull ? 'CVD rising' : 'CVD falling', bull: cvdBull },
@@ -740,7 +878,6 @@ function renderLeaderboard() {
       : `Watching price action…`;
 
     // Correlation
-    const isCrypto = sym.includes('BINANCE:');
     const corrStr = isCrypto ? `${base} standalone` : `${base} vs SPY`;
 
     // Catalyst / reason
@@ -752,21 +889,27 @@ function renderLeaderboard() {
     const asiaStr = spyChg !== 0 ? `Asia ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.5).toFixed(1)}%` : 'Asia —';
     const lonStr  = spyChg !== 0 ? `London ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.4).toFixed(1)}%` : 'London —';
 
-    return `<div class="hcl-card ${dir}" onclick="switchT('${sym}')">
+    const isExpanded = STATE.expandedCards.has(sym);
+    return `<div class="hcl-card ${dir}" data-sym="${sym}">
 
-      <!-- Top bar: rank · mode · symbol · timer -->
-      <div class="hcl-ct">
+      <!-- Always-visible collapsed header — tap to expand -->
+      <div class="hcl-ct" onclick="toggleCard('${sym}')">
         <div class="hcl-ct-left">
           <span class="hcl-rank-badge ${dir}">${rankLabel}</span>
           <span style="font-size:11px">${setup.emoji}</span>
           <span class="hcl-mode ${setup.cls}">${setup.label}</span>
           <span class="hcl-sym-name">${base}</span>
         </div>
-        <div class="hcl-timer">
-          <span style="font-size:9px">⏱</span>
-          <span class="hcl-timer-val">${timerStr}</span>
+        <div class="hcl-ct-right">
+          <span class="hcl-price-val" style="font-size:11px">$${d.p || '—'}</span>
+          <span class="hcl-chg ${chgCls}" style="font-size:10px">${chgStr}</span>
+          <span class="hcl-timer-val" style="font-size:9px;color:var(--text-dim)">⏱${timerStr}</span>
+          <span class="hcl-card-chev" style="font-size:9px;color:var(--text-dim);margin-left:4px">${isExpanded ? '▲' : '▼'}</span>
         </div>
       </div>
+
+      <!-- Expandable detail — hidden by default, shown on tap -->
+      <div class="hcl-card-detail" style="display:${isExpanded ? '' : 'none'}">
 
       <!-- Price row -->
       <div class="hcl-pr">
@@ -862,6 +1005,7 @@ function renderLeaderboard() {
         <span style="margin-left:auto;color:${cascRisk === 'risk' ? 'var(--bear)' : 'var(--text-dim)'};font-weight:700;">→ ${cascRisk === 'risk' ? '▲ CASCADE RISK' : '✓ STABLE'}</span>
       </div>
 
+      </div><!-- end hcl-card-detail -->
     </div>`;
   }).join('');
 

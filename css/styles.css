@@ -1002,12 +1002,21 @@ canvas.sp{display:block;}
 /* Card top bar */
 .hcl-ct {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 5px 10px; border-bottom: 1px solid var(--border);
+  padding: 6px 10px;
   background: rgba(255,255,255,.025);
+  cursor: pointer; user-select: none;
 }
+.hcl-ct:hover { background: rgba(255,255,255,.05); }
 .hcl-ct-left {
   display: flex; align-items: center; gap: 7px;
 }
+.hcl-ct-right {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+/* When card is expanded, show a subtle top border accent */
+.hcl-card.bull .hcl-ct  { border-top: 2px solid var(--bull); }
+.hcl-card.bear .hcl-ct  { border-top: 2px solid var(--bear); }
+.hcl-card-detail { border-top: 1px solid var(--border); }
 .hcl-rank-badge {
   font-size: 9px; font-weight: 700; color: var(--accent);
   padding: 1px 5px; border-radius: 2px; border: 1px solid currentColor;
@@ -1017,10 +1026,13 @@ canvas.sp{display:block;}
 .hcl-mode {
   font-size: 9px; font-weight: 700; letter-spacing: .5px;
 }
-.hcl-mode.squeeze { color: #fff; }
+.hcl-mode.squeeze  { color: #fff; }
 .hcl-mode.breakout { color: var(--bull); }
-.hcl-mode.dip-buy { color: #7b61ff; }
-.hcl-mode.bear { color: var(--bear); }
+.hcl-mode.dip-buy  { color: #7b61ff; }
+.hcl-mode.cap-buy  { color: #ff9500; font-weight: 900; letter-spacing: 1px; }
+.hcl-mode.bear     { color: var(--bear); }
+/* Capitulation card gets orange accent border */
+.hcl-card.bull .hcl-ct.cap { border-top-color: #ff9500; }
 .hcl-sym-name {
   font-size: 11px; font-weight: 700; color: var(--text);
 }
