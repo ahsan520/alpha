@@ -914,16 +914,64 @@ function renderLeaderboard() {
   if (!body) return;
 
   if (!ranked.length) {
-    body.innerHTML = '<div class="hcl-loading">No high-conviction setups yet — scores populate as data arrives</div>';
+    if (body.innerHTML.indexOf('hcl-loading') === -1)
+      body.innerHTML = '<div class="hcl-loading">No high-conviction setups yet — scores populate as data arrives</div>';
     buildAlertBar(alertBar);
     return;
   }
 
-  // Track bull and bear rank numbers separately for display
+  // ── Diff check: only rebuild cards when the ranked set / order changes ──
+  // The "fingerprint" is the ordered list of symbols + their direction.
+  // If it matches the DOM, we patch visible text nodes in-place instead.
+  const newFingerprint = ranked.map(r => r.sym + ':' + r.dir).join('|');
+  const existingCards  = [...body.querySelectorAll('.hcl-card[data-sym]')];
+  const oldFingerprint = existingCards.map(c =>
+    c.getAttribute('data-sym') + ':' + (c.classList.contains('bull') ? 'bull' : 'bear')
+  ).join('|');
+
+  const session = getSessionLabel();
+  const mult    = getSessionMult();
+
+  if (newFingerprint === oldFingerprint && existingCards.length === ranked.length) {
+    // Same cards, same order — patch only the live values that change every 15s:
+    // price, chg, timer, sparkline, header bar values (already updated above).
+    ranked.forEach((r, i) => {
+      const { sym, d, conv, dir } = r;
+      const card = existingCards[i];
+      if (!card) return;
+      const chgN   = parseFloat(d.chg || 0);
+      const chgCls = chgN >= 0 ? 'bull' : 'bear';
+      const chgStr = (chgN >= 0 ? '+' : '') + chgN.toFixed(2) + '%';
+      // Timer countdown
+      const nowT = new Date();
+      const secsLeft = 900 - (nowT.getMinutes() % 15) * 60 - nowT.getSeconds();
+      const timerStr = `${Math.floor(secsLeft / 60)}min ${secsLeft % 60}s to reset`;
+
+      // Collapsed header: price + chg + timer (these are visible even collapsed)
+      const priceEl = card.querySelector('.hcl-price-val');
+      const chgEl   = card.querySelector('.hcl-chg');
+      const timerEl = card.querySelector('.hcl-timer-val');
+      if (priceEl && priceEl.textContent !== `$${d.p || '—'}`) priceEl.textContent = `$${d.p || '—'}`;
+      if (chgEl) { if (chgEl.textContent !== chgStr) chgEl.textContent = chgStr; chgEl.className = `hcl-chg ${chgCls}`; }
+      if (timerEl) timerEl.textContent = `⏱${timerStr}`;
+
+      // Sparkline — only if card is expanded (saves canvas work on collapsed cards)
+      if (STATE.expandedCards.has(sym)) {
+        const sparkId = `hcl2-spark-${i}`;
+        const canvas  = document.getElementById(sparkId);
+        if (canvas) {
+          const sparkData = (d?.sparkBars?.length > 1) ? d.sparkBars : (STATE.PH[sym]?.length > 1 ? STATE.PH[sym].slice(-30) : null);
+          if (sparkData && sparkData.length > 1) drawSparkLine(canvas, sparkData, dir === 'bull' ? '#00e5a0' : '#ff4455');
+        }
+      }
+    });
+    buildAlertBar(alertBar);
+    return; // ← exit without touching body.innerHTML
+  }
+
+  // Ranked set changed — full card rebuild (happens rarely: symbol enters/leaves LB)
   let bullRank = 0, bearRank = 0;
   const medals = ['#1','#2','#3','#4','#5','#6'];
-  const session = getSessionLabel();
-  const mult = getSessionMult();
 
   body.innerHTML = ranked.map((r, i) => {
     const { sym, d, conv, dir, catalyst } = r;

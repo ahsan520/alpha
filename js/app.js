@@ -136,6 +136,15 @@ async function init() {
   setInterval(fetchGlobal, 60_000);
   setInterval(fetchMarketPulse, 300_000);
 
+  // ── Independent UI refresh timers ────────────────────────────────────────
+  // These run completely separately from the data sync loop.
+  // The sync loop only patches individual table cells (patchSymbolRow).
+  // WL sidebar prices update every 30s — cheap, just text nodes.
+  setInterval(renderWL, 30_000);
+  // Leaderboard re-scores every 60s — uses its fingerprint diff so it only
+  // rebuilds cards when the ranked set actually changes.
+  setInterval(scheduleLeaderboard, 60_000);
+
   renderJournal();
   initAlertCfg();
   renderAlertCfgPage();
@@ -200,8 +209,7 @@ async function _adaptiveTick() {
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
-  // Leaderboard + last-updated bar fire once at end of the full cycle
-  scheduleLeaderboard();
+  // Status bar update only — WL sidebar and leaderboard run on their own slow timers
   updateLastUpdBar();
 
   document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
@@ -279,9 +287,6 @@ async function sync() {
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
   await flushDigest();
-  // After the full pass: update WL sidebar prices + leaderboard once
-  renderWL();
-  scheduleLeaderboard();
   updateLastUpdBar();
 
   document.getElementById('sstatus').textContent = fail > 0 ? `LIVE (${fail} ERR)` : 'LIVE';
@@ -296,10 +301,8 @@ async function refreshSymbol(s, btnEl) {
   if (btnEl) { btnEl.textContent = '↺'; btnEl.style.opacity = ok ? '1' : '0.3'; btnEl.disabled = false; }
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
-  // Row button: patch just that row + refresh leaderboard + WL price
+  // Patch only this row's cells — nothing else on the page changes
   if (typeof patchSymbolRow === 'function') patchSymbolRow(s); else renderTable();
-  renderWL();
-  scheduleLeaderboard();
   updateLastUpdBar();
 }
 
