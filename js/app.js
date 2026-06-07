@@ -276,6 +276,7 @@ function buildMarketFeeds() {
       parse: d => (d.items || []).slice(0, 15).map(p => ({
         title: p.title, url: p.link, source: 'CoinDesk', tag: 'CRYPTO',
         time: (() => { try { return new Date(p.pubDate).toLocaleTimeString(); } catch { return ''; } })(),
+        ts:   (() => { try { return new Date(p.pubDate).getTime(); } catch { return 0; } })(),
         sent: 'neutral'
       }))
     },
@@ -339,6 +340,7 @@ function parseRssItems(xmlText, tag, keywords, limit) {
         source: clean(it.querySelector('source')?.textContent) || tag,
         tag,
         time: (() => { try { return new Date(it.querySelector('pubDate')?.textContent).toLocaleTimeString(); } catch { return ''; } })(),
+        ts:   (() => { try { return new Date(it.querySelector('pubDate')?.textContent).getTime(); } catch { return 0; } })(),
         sent: 'neutral',
       };
     }).filter(x => x.title.length > 5);

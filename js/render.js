@@ -393,11 +393,17 @@ function getCascadeInfo() {
   const parts = [];
   if (spy) {
     const chg = parseFloat(spy.chg || 0);
-    parts.push(`Asia ${chg >= 0 ? '+' : ''}${(chg * 0.6).toFixed(1)}%`);
-    parts.push(`London ${chg >= 0 ? '+' : ''}${(chg * 0.4).toFixed(1)}%`);
+    // Asia roughly correlates 0.6x, London 0.4x of SPY move
+    const asiaChg = (chg * 0.6).toFixed(1);
+    const lonChg  = (chg * 0.4).toFixed(1);
+    const asiaStr = `Asia${parseFloat(asiaChg) >= 0 ? '+' : ''}${asiaChg}%`;
+    const lonStr  = `Lon${parseFloat(lonChg) >= 0 ? '+' : ''}${lonChg}%`;
+    parts.push(asiaStr);
+    parts.push(lonStr);
   }
-  const cascadeRisk = parts.length ? `→ ${spy && parseFloat(spy.chg) < -1 ? '▲ CASCADE RISK' : '✓ STABLE'}` : '';
-  return { parts, cascadeRisk };
+  const isCascade  = spy && parseFloat(spy.chg) < -1;
+  const cascadeRisk = parts.length ? parts.join(' ') : 'Asia — Lon —';
+  return { parts, cascadeRisk, isCascade };
 }
 
 // ── Score bar HTML (value 0-10) ──
@@ -411,72 +417,254 @@ function renderLeaderboard() {
   const DS   = STATE.DS   || {};
   const wl   = STATE.watchlist || [];
   const news = STATE.newsItems || [];
+  const now  = Date.now();
 
-  // ── Score every symbol ──
-  const ranked = wl
+  // ── STABILISER 1: News freshness ──────────────────────────────────────────
+  // Only count news < 2h old. Tag weights: symbol match = high, sector = low.
+  const FRESH_MS = 2 * 60 * 60 * 1000; // 2 hours
+  const freshNews = news.filter(n => n.ts && (now - n.ts) < FRESH_MS);
+
+  function newsConvBonus(sym) {
+    const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
+    let bonus = 0;
+    for (const n of freshNews) {
+      const t = (n.title || '').toLowerCase();
+      const ageMins = (now - n.ts) / 60000;
+      const recency = ageMins < 30 ? 1.0 : ageMins < 60 ? 0.7 : 0.4; // decay by age
+      if (t.includes(base)) {
+        // Direct symbol mention in fresh news — strong signal
+        bonus += (n.sent === 'bullish' ? 3 : n.sent === 'bearish' ? -3 : 0) * recency;
+        if (n.sent === 'neutral') bonus += 0.5 * recency; // any fresh mention = mild boost
+      } else {
+        // Sector tag match — ambient influence
+        const isCrypto = sym.includes('BINANCE:') || sym.includes('BTC') || sym.includes('ETH');
+        const isEnergy = sym.includes('XEG') || sym.includes('XLE');
+        const isMetal  = sym.includes('GLD') || sym.includes('SLV');
+        if ((n.tag === 'CRYPTO' && isCrypto) || (n.tag === 'ENERGY' && isEnergy) || (n.tag === 'METAL' && isMetal)) {
+          bonus += (n.sent === 'bullish' ? 0.8 : n.sent === 'bearish' ? -0.8 : 0) * recency;
+        }
+      }
+    }
+    return Math.max(-3, Math.min(3, bonus)); // cap ±3 so news can't dominate
+  }
+
+  // ── STABILISER 2: Score history & smoothing ───────────────────────────────
+  // Keep rolling window of last 4 conv scores per symbol. Weighted avg (recent = more weight).
+  if (!STATE.hclScoreHistory) STATE.hclScoreHistory = {};
+  const WEIGHTS = [0.4, 0.3, 0.2, 0.1]; // most recent first
+
+  function smoothedConv(sym, rawConv) {
+    const hist = STATE.hclScoreHistory[sym] || [];
+    hist.unshift(rawConv);                    // prepend latest
+    if (hist.length > 4) hist.length = 4;    // keep last 4
+    STATE.hclScoreHistory[sym] = hist;
+    // Weighted average
+    let total = 0, wSum = 0;
+    hist.forEach((v, i) => { total += v * WEIGHTS[i]; wSum += WEIGHTS[i]; });
+    return Math.round((total / wSum) * 10) / 10;
+  }
+
+  // ── STABILISER 3: Persistence debounce ───────────────────────────────────
+  // Symbol needs 3 consecutive qualifying refreshes to ENTER leaderboard.
+  // Needs 5 consecutive fails to EXIT. Prevents single-candle flickers.
+  if (!STATE.hclPersist) STATE.hclPersist = {};
+  const ENTER_THRESHOLD = 3;
+  const EXIT_THRESHOLD  = 5;
+
+  // ── Score every symbol ────────────────────────────────────────────────────
+  const allScored = wl
     .map(sym => {
       const d = DS[sym];
       if (!d) return null;
 
       let conv = 0;
+
+      // Core signal score (already signed ±)
       conv += (d.score        || 0) * 1.5;
       conv += (d.dipScore     || 0) * 1.2;
-      conv += (d.bias4hScore  || 0) * 0.7;
-      conv += (d.biasDayScore || 0) * 0.5;
-      if (d.oiDiv === '💎 DIP BUY')       conv += 3;
-      if (d.oiDiv === '✓ CONFIRM')        conv += 1.5;
+
+      // 4H bias — full weight both directions
+      conv += (d.bias4hScore  || 0) * 1.0;
+      // Daily bias — full weight both directions
+      conv += (d.biasDayScore || 0) * 0.8;
+
+      // ── BULL bonuses ──
+      if (d.oiDiv === '💎 DIP BUY')        conv += 4;
+      if (d.oiDiv === '✓ CONFIRM')         conv += 2;
       if (d.fundingFlag === '⚡ DIP ZONE') conv += 2;
-      if (d.emaTrend === 'ABOVE')         conv += 1;
+      if (d.emaTrend === 'ABOVE')          conv += 1.5;
+      if (d.bias4h?.includes('BULL 4H'))   conv += 2;
+      if (d.bias4h?.includes('LEAN BULL')) conv += 1;
+      if (d.biasDay?.includes('BULL DAY')) conv += 2;
+      if (d.biasDay?.includes('LEAN BULL'))conv += 1;
       const r15 = d.r15 || 50, r1h = d.r1h || 50;
-      if (r15 < 30 && r1h < 35)          conv += 2;
-      if (parseFloat(d.shock) > 2)        conv += 1;
+      if (r15 < 30 && r1h < 35)           conv += 2;
+      if (parseFloat(d.shock) > 2 && d.cvd?.trending === 'up')   conv += 2;
+      else if (parseFloat(d.shock) > 2)   conv += 1;
 
-      const dir = conv >= 4 ? 'bull' : conv <= -4 ? 'bear' : 'neutral';
+      // ── BEAR bonuses ──
+      if (d.oiDiv === '↓ BEAR OI')        conv -= 3;
+      if (d.oiDiv === '⚠ OI DROP')        conv -= 1.5;
+      if (d.emaTrend === 'BELOW')          conv -= 1.5;
+      if (d.bias4h?.includes('BEAR 4H'))   conv -= 2;
+      if (d.bias4h?.includes('LEAN BEAR')) conv -= 1;
+      if (d.biasDay?.includes('BEAR DAY')) conv -= 2;
+      if (d.biasDay?.includes('LEAN BEAR'))conv -= 1;
+      if (d.dipScore <= -2)                conv -= 1;
+      if (r15 > 70 && r1h > 65)           conv -= 2;
+      if (parseFloat(d.shock) > 2 && d.cvd?.trending === 'down') conv -= 2;
+
+      // STABILISER 1: add fresh news bonus (capped ±3)
+      conv += newsConvBonus(sym);
+
+      // STABILISER 2: smooth score over last 4 refreshes
+      const smoothConv = smoothedConv(sym, conv);
+
+      // STABILISER 4: 4H bias GATE — 4H is slow-moving, use it to lock direction
+      // If 4H is firmly bull/bear, block the opposite direction regardless of 15m noise
+      const bias4hStr = d.bias4h || '';
+      let allowedDir = 'both';
+      if (bias4hStr.includes('BULL 4H'))        allowedDir = 'bull';  // locked bull — 4H won't flip in 15m
+      else if (bias4hStr.includes('BEAR 4H'))   allowedDir = 'bear';  // locked bear
+      else if (bias4hStr.includes('LEAN BULL')) allowedDir = 'bull';  // soft lock
+      else if (bias4hStr.includes('LEAN BEAR')) allowedDir = 'bear';  // soft lock
+
+      // Raw direction from smoothed score
+      let rawDir = smoothConv >= 4 ? 'bull' : smoothConv <= -4 ? 'bear' : 'neutral';
+
+      // Apply 4H gate: if 4H says bull but score is bear (or neutral), suppress bear
+      let dir = rawDir;
+      if (allowedDir === 'bull' && rawDir === 'bear') dir = 'neutral'; // 4H gate blocks bear flip
+      if (allowedDir === 'bear' && rawDir === 'bull') dir = 'neutral'; // 4H gate blocks bull flip
+
+      // STABILISER 3: persistence debounce
+      const p = STATE.hclPersist[sym] || { dir: 'neutral', enterCount: 0, exitCount: 0, active: false };
+      if (dir !== 'neutral') {
+        if (!p.active || p.dir !== dir) {
+          // New direction signal — start counting
+          p.enterCount = (p.dir === dir) ? p.enterCount + 1 : 1;
+          p.exitCount  = 0;
+          p.dir        = dir;
+          if (p.enterCount >= ENTER_THRESHOLD) p.active = true; // promoted to leaderboard
+        } else {
+          // Same direction, already active — reset exit counter
+          p.enterCount = Math.min(p.enterCount + 1, ENTER_THRESHOLD);
+          p.exitCount  = 0;
+        }
+      } else {
+        // Neutral / direction reversed — start exit countdown
+        p.exitCount++;
+        if (p.exitCount >= EXIT_THRESHOLD) {
+          p.active     = false;
+          p.enterCount = 0;
+          p.dir        = 'neutral';
+        }
+      }
+      STATE.hclPersist[sym] = p;
+
+      // Only surface if persistence gate passed
+      const activeDir = p.active ? p.dir : 'neutral';
+
       const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
-      const catalyst = news.find(n => n.title.toLowerCase().includes(base));
+      const catalyst = freshNews.find(n => n.title.toLowerCase().includes(base))
+                    || news.find(n => n.title.toLowerCase().includes(base));
 
-      return { sym, d, conv: Math.round(conv * 10) / 10, dir, catalyst };
+      return { sym, d, conv: smoothConv, dir: activeDir, catalyst };
     })
     .filter(Boolean)
-    .filter(r => r.dir !== 'neutral')
-    .sort((a, b) => Math.abs(b.conv) - Math.abs(a.conv))
-    .slice(0, 5);
+    .filter(r => r.dir !== 'neutral');
 
-  // ── Update header bar ──
-  const subEl = document.getElementById('hcl-sub');
-  const regEl = document.getElementById('hcl-regime');
-  const cascEl = document.getElementById('hcl-cascade-hdr');
-  const utcEl  = document.getElementById('hcl-utc');
+  // ── Split into bull pool and bear pool, top 3 each, interleave ───────────
+  const bullPool = allScored.filter(r => r.dir === 'bull').sort((a,b) => b.conv - a.conv).slice(0,3);
+  const bearPool = allScored.filter(r => r.dir === 'bear').sort((a,b) => a.conv - b.conv).slice(0,3);
+
+  let ranked;
+  if (bullPool.length && bearPool.length) {
+    ranked = [];
+    const maxLen = Math.max(bullPool.length, bearPool.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (bullPool[i]) ranked.push(bullPool[i]);
+      if (bearPool[i]) ranked.push(bearPool[i]);
+    }
+    ranked = ranked.slice(0, 6);
+  } else {
+    ranked = allScored.sort((a,b) => Math.abs(b.conv) - Math.abs(a.conv)).slice(0,5);
+  }
+
+
+  // ── Update header bar (terminal-box style) ──
+  const regEl   = document.getElementById('hcl-regime');
+  const cascEl  = document.getElementById('hcl-cascade-hdr');
+  const utcEl   = document.getElementById('hcl-utc');
   const slotsEl = document.getElementById('hcl-slots');
-  const aiEl   = document.getElementById('hcl-ai-msg');
+  const aiEl    = document.getElementById('hcl-ai-msg');
+  const sessionEl     = document.getElementById('hcl-tb-session');
+  const sessionIconEl = document.getElementById('hcl-session-icon');
+  const fundingEl     = document.getElementById('hcl-tb-funding');
 
-  if (subEl) subEl.textContent = ranked.length
-    ? `${ranked.length} setup${ranked.length > 1 ? 's' : ''} · ${getSessionLabel()}`
-    : 'Awaiting signal data…';
+  // Session label + icon (Row 1)
+  const sessionNow = getSessionLabel();
+  const sessionIcons = { 'ASIA': '🌏', 'LONDON': '🇬🇧', 'NY OPEN': '🗽', 'NY PM': '🏙️', 'OFF-HOURS': '🌙' };
+  if (sessionEl)     sessionEl.textContent     = sessionNow;
+  if (sessionIconEl) sessionIconEl.textContent = sessionIcons[sessionNow] || '🌐';
+  if (utcEl) {
+    const now = new Date();
+    const hh = String(now.getUTCHours()).padStart(2,'0');
+    const mm = String(now.getUTCMinutes()).padStart(2,'0');
+    utcEl.textContent = `${hh}:${mm} UTC`;
+  }
 
-  // Regime from market pulse
+  // Regime from market pulse (Row 2)
   const mp = STATE.marketPulse || {};
   const spyChg = parseFloat(mp.SPY?.chg || 0);
   if (regEl) {
-    if (spyChg > 0.3) { regEl.textContent = 'REGIME RISK-ON ▲'; regEl.className = 'hcl-regime risk-on'; }
-    else if (spyChg < -0.3) { regEl.textContent = 'REGIME RISK-OFF ▼'; regEl.className = 'hcl-regime risk-off'; }
-    else { regEl.textContent = 'REGIME NEUTRAL'; regEl.className = 'hcl-regime neutral'; }
+    if (spyChg > 0.3)       { regEl.textContent = 'RISK_ON ▲';  regEl.className = 'hcl-regime risk-on'; }
+    else if (spyChg < -0.3) { regEl.textContent = 'RISK_OFF ▼'; regEl.className = 'hcl-regime risk-off'; }
+    else                    { regEl.textContent = 'NEUTRAL';     regEl.className = 'hcl-regime neutral'; }
   }
-  const { cascadeRisk } = getCascadeInfo();
-  if (cascEl) cascEl.textContent = cascadeRisk || 'Cascade —';
-  if (utcEl)  utcEl.textContent  = new Date().toUTCString().slice(17, 22) + ' UTC';
+  const { cascadeRisk, isCascade } = getCascadeInfo();
+  if (cascEl) {
+    cascEl.textContent = cascadeRisk;
+    cascEl.style.color = isCascade ? 'var(--bear)' : 'var(--text-dim)';
+  }
 
-  const usedSlots = ranked.filter(r => r.dir === 'bull').length;
-  if (slotsEl) slotsEl.textContent = `Slots: ${usedSlots}/${Math.min(3, ranked.length)}`;
+  // Funding reset countdown — 8h funding cycles reset at 00:00, 08:00, 16:00 UTC (Row 3)
+  if (fundingEl) {
+    const utcNow = new Date();
+    const utcH = utcNow.getUTCHours(), utcM = utcNow.getUTCMinutes(), utcS = utcNow.getUTCSeconds();
+    const totalSecsSinceDay = utcH * 3600 + utcM * 60 + utcS;
+    const cycleLen = 8 * 3600;
+    const secsInCycle = totalSecsSinceDay % cycleLen;
+    const secsLeft = cycleLen - secsInCycle;
+    const rH = Math.floor(secsLeft / 3600);
+    const rM = Math.floor((secsLeft % 3600) / 60);
+    const timeStr = rH > 0 ? `${rH}:${String(rM).padStart(2,'0')} remaining` : `${rM}min remaining`;
+    fundingEl.textContent = timeStr;
+  }
 
-  // AI message from top catalyst
-  const topCat = ranked[0]?.catalyst;
+  // Slots = active conviction setups (bull + bear), capped display at 3
+  const bullSlots = ranked.filter(r => r.dir === 'bull').length;
+  const bearSlots = ranked.filter(r => r.dir === 'bear').length;
+  const totalSlots = ranked.length;
+  if (slotsEl) slotsEl.textContent = `${bullSlots}▲ ${bearSlots}▼ / ${totalSlots} active`;
+
+  // AI message — summarise top bull and top bear with their signals
   if (aiEl) {
-    aiEl.textContent = topCat
-      ? `AI: "${topCat.title.slice(0, 60)}${topCat.title.length > 60 ? '…' : ''}"`
-      : ranked[0]?.d?.reason
-        ? `AI: "${ranked[0].d.reason.slice(0, 60)}"`
-        : '';
+    const topBull = ranked.find(r => r.dir === 'bull');
+    const topBear = ranked.find(r => r.dir === 'bear');
+    const parts = [];
+    if (topBull) {
+      const sym = topBull.sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+      const reason = topBull.d?.reason || 'bull setup';
+      parts.push(`▲ ${sym}: ${reason.slice(0, 35)}`);
+    }
+    if (topBear) {
+      const sym = topBear.sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+      const reason = topBear.d?.reason || 'bear setup';
+      parts.push(`▼ ${sym}: ${reason.slice(0, 35)}`);
+    }
+    const msg = parts.length ? parts.join(' · ') : 'Awaiting signal data';
+    aiEl.textContent = `AI: "${msg.length > 90 ? msg.slice(0,90)+'…' : msg}"`;
   }
 
   const body = document.getElementById('hcl-body');
@@ -489,12 +677,16 @@ function renderLeaderboard() {
     return;
   }
 
-  const medals = ['#1','#2','#3','#4','#5'];
+  // Track bull and bear rank numbers separately for display
+  let bullRank = 0, bearRank = 0;
+  const medals = ['#1','#2','#3','#4','#5','#6'];
   const session = getSessionLabel();
   const mult = getSessionMult();
 
   body.innerHTML = ranked.map((r, i) => {
     const { sym, d, conv, dir, catalyst } = r;
+    if (dir === 'bull') bullRank++; else bearRank++;
+    const rankLabel = dir === 'bull' ? `B${bullRank}` : `S${bearRank}`;
     const base   = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
     const chgN   = parseFloat(d.chg || 0);
     const chgCls = chgN >= 0 ? 'bull' : 'bear';
@@ -565,7 +757,7 @@ function renderLeaderboard() {
       <!-- Top bar: rank · mode · symbol · timer -->
       <div class="hcl-ct">
         <div class="hcl-ct-left">
-          <span class="hcl-rank-badge">${medals[i]}</span>
+          <span class="hcl-rank-badge ${dir}">${rankLabel}</span>
           <span style="font-size:11px">${setup.emoji}</span>
           <span class="hcl-mode ${setup.cls}">${setup.label}</span>
           <span class="hcl-sym-name">${base}</span>

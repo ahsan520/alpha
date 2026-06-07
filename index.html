@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Alpha Terminal v49.3</title>
+<title>Alpha Terminal v49.4</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -11,7 +11,7 @@
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="hdr-brand">◈ ALPHA TERMINAL <span>v49.3</span></div>
+  <div class="hdr-brand">◈ ALPHA TERMINAL <span>v49.4</span></div>
   <div class="hdr-right">
     <div class="hstat"><span class="hstat-l">BTC DOM</span><span class="hstat-v" id="h-btcdom">—</span></div>
     <div class="hstat"><span class="hstat-l">MCAP</span><span class="hstat-v" id="h-mcap">—</span></div>
@@ -124,16 +124,44 @@
 <!-- ◆ HIGH CONVICTION LEADERBOARD v12 -->
 <div class="hcl" id="hcl-wrap">
   <div class="hcl-hdr" onclick="toggleHCL()">
-    <span class="hcl-trophy">🏆</span>
-    <span class="hcl-title">ALPHA LEADERBOARD</span>
-    <span class="hcl-sub" id="hcl-sub">—</span>
-    <div class="hcl-hdr-meta">
-      <span class="hcl-regime neutral" id="hcl-regime">REGIME —</span>
-      <span class="hcl-cascade" id="hcl-cascade-hdr">Cascade —</span>
-      <span class="hcl-utc" id="hcl-utc">—</span>
-      <span class="hcl-slots" id="hcl-slots">Slots —</span>
+    <!-- Terminal-box header bar -->
+    <div class="hcl-termbox" id="hcl-termbox">
+      <div class="hcl-tb-top"></div>
+      <div class="hcl-tb-row hcl-tb-row1">
+        <span class="hcl-tb-pipe">|</span>
+        <span class="hcl-trophy">🏆</span>
+        <span class="hcl-title">ALPHA LEADERBOARD</span>
+        <span class="hcl-tb-sep">&nbsp;&nbsp;</span>
+        <span class="hcl-tb-session-icon" id="hcl-session-icon">🗽</span>
+        <span class="hcl-tb-session" id="hcl-tb-session">NY OPEN</span>
+        <span class="hcl-utc" id="hcl-utc">—</span>
+        <span class="hcl-tb-pipe hcl-tb-end">|</span>
+      </div>
+      <div class="hcl-tb-row hcl-tb-row2">
+        <span class="hcl-tb-pipe">|</span>
+        <span class="hcl-tb-lbl">Regime:</span>
+        <span class="hcl-regime neutral" id="hcl-regime">—</span>
+        <span class="hcl-tb-sep">&nbsp;&nbsp;</span>
+        <span class="hcl-tb-lbl">Cascade:</span>
+        <span class="hcl-cascade" id="hcl-cascade-hdr">—</span>
+        <span class="hcl-tb-pipe hcl-tb-end">|</span>
+      </div>
+      <div class="hcl-tb-row hcl-tb-row3">
+        <span class="hcl-tb-pipe">|</span>
+        <span class="hcl-tb-lbl">Funding reset:</span>
+        <span class="hcl-tb-funding" id="hcl-tb-funding">—</span>
+        <span class="hcl-tb-sep">&nbsp;&nbsp;</span>
+        <span class="hcl-tb-lbl">Slots:</span>
+        <span class="hcl-slots" id="hcl-slots">—</span>
+        <span class="hcl-tb-pipe hcl-tb-end">|</span>
+      </div>
+      <div class="hcl-tb-row hcl-tb-row4">
+        <span class="hcl-tb-pipe">|</span>
+        <span class="hcl-ai-msg" id="hcl-ai-msg">AI: "—"</span>
+        <span class="hcl-tb-pipe hcl-tb-end">|</span>
+      </div>
+      <div class="hcl-tb-bottom"></div>
     </div>
-    <span class="hcl-ai-msg" id="hcl-ai-msg"></span>
     <span class="hcl-chevron" id="hcl-chevron">▼</span>
   </div>
   <div class="hcl-body" id="hcl-body">
@@ -223,7 +251,7 @@
 <!-- ══ SIGNAL MATRIX TABLE (always visible below tabs) ══ -->
 <div class="tbl-wrap">
   <div class="tbl-ph">
-    <span class="pt">◆ PREDATOR APEX — Signal Matrix v49.3</span>
+    <span class="pt">◆ PREDATOR APEX — Signal Matrix v49.4</span>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <button class="bsm" onclick="toggleAlerts()" style="padding:3px 10px;">🔔 ALERTS</button>
     </div>
@@ -259,7 +287,7 @@
   <div class="last-upd-bar">
     <span>LAST UPDATE:</span>
     <span id="last-upd-bar-time">—</span>
-    <span style="margin-left:auto;color:#2a3040;">Alpha Terminal v49.3 · 15s refresh</span>
+    <span style="margin-left:auto;color:#2a3040;">Alpha Terminal v49.4 · 15s refresh</span>
   </div>
 </div>
 
