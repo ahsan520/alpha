@@ -149,47 +149,154 @@ function drawSpark(id, data) {
 }
 
 // ── News ──
+// ── BLOOMBERG-STYLE NEWS FEED RENDERER ──
+// Column-per-category layout with alert badges, rich cards, bottom alert bar
+
+const COL_META = {
+  CRYPTO:    { icon: '₿',  label: 'Crypto',          color: '#7b61ff' },
+  TECH:      { icon: '⚡', label: 'AI / Tech',        color: '#00b4d8' },
+  ENERGY:    { icon: '🛢', label: 'Energy',           color: '#ff8c00' },
+  METAL:     { icon: '⬡',  label: 'Metals',           color: '#c0c0c0' },
+  COMMODITY: { icon: '🌾', label: 'Commodities',      color: '#c9a84c' },
+  TSX:       { icon: '🍁', label: 'TSX / CAD',        color: '#00e5a0' },
+  FX:        { icon: '💱', label: 'CAD/USD · DXY',    color: '#ffd166' },
+};
+
+const COL_ORDER = ['CRYPTO','TECH','ENERGY','METAL','COMMODITY','TSX','FX'];
+
+// Which columns are collapsed (persisted in STATE)
+if (!STATE.collapsedCols) STATE.collapsedCols = {};
+
 function renderNews() {
   const { newsItems } = STATE;
-  const activeTag = STATE.activeNewsTag || 'ALL';
-  const filtered = activeTag === 'ALL' ? newsItems : newsItems.filter(n => n.tag === activeTag);
-  const bulls = filtered.filter(n => n.sent === 'bullish').length;
-  const bears = filtered.filter(n => n.sent === 'bearish').length;
-  document.getElementById('news-badge').textContent = filtered.length + ' items';
+  const bulls = newsItems.filter(n => n.sent === 'bullish').length;
+  const bears = newsItems.filter(n => n.sent === 'bearish').length;
+  document.getElementById('news-badge').textContent = newsItems.length + ' items';
   document.getElementById('bull-n').textContent = '▲ ' + bulls;
   document.getElementById('bear-n').textContent = '▼ ' + bears;
 
-  // Render tag filter buttons
-  const allTags = ['ALL', 'CRYPTO', 'TECH', 'ENERGY', 'METAL', 'COMMODITY', 'TSX'];
-  const tagBar = document.getElementById('news-tag-bar');
-  if (tagBar) {
-    tagBar.innerHTML = allTags.map(tag => {
-      const tc = tag === 'ALL' ? 'var(--text-dim)' : (TAG_COLORS[tag] || 'var(--text-dim)');
-      const active = activeTag === tag;
-      return `<button class="news-tag-btn${active ? ' active' : ''}" 
-        style="${active ? `background:${tc};color:#000;border-color:${tc};` : `color:${tc};border-color:${tc};`}"
-        onclick="setNewsTag('${tag}')">${tag}</button>`;
-    }).join('');
+  // Group by tag
+  const byTag = {};
+  for (const item of newsItems) {
+    if (!byTag[item.tag]) byTag[item.tag] = [];
+    byTag[item.tag].push(item);
   }
 
-  if (!filtered.length) {
-    document.getElementById('bnews-body').innerHTML = '<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Loading ' + activeTag + ' news… refreshes every 5 min</div>';
+  // Render tag filter pill row (now acts as column toggle)
+  const tagBar = document.getElementById('news-tag-bar');
+  if (tagBar) {
+    tagBar.innerHTML = COL_ORDER.map(tag => {
+      const m = COL_META[tag];
+      const active = !STATE.collapsedCols[tag];
+      return `<button class="nf-pill${active ? ' active' : ''}"
+        style="--pc:${m.color}"
+        onclick="toggleNewsCol('${tag}')">${m.icon} ${m.label}</button>`;
+    }).join('') +
+    `<button class="nf-pill-collapse" onclick="collapseAllCols()">COLLAPSE ALL</button>`;
+  }
+
+  if (!newsItems.length) {
+    document.getElementById('bnews-body').innerHTML =
+      `<div style="padding:30px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Loading news… refreshes every 5 min</div>`;
     return;
   }
 
-  document.getElementById('bnews-body').innerHTML = filtered.map(n => {
-    const tc = TAG_COLORS[n.tag] || 'var(--text-dim)';
-    return `
-    <div class="ni" onclick="window.open('${n.url}','_blank')">
-      <div class="ni-hl">${n.title}</div>
-      <div class="ni-meta">
-        <span class="ni-tag" style="color:${tc};border-color:${tc}">${n.tag || n.source}</span>
-        <span class="ni-src">${n.source !== n.tag ? n.source : ''}</span>
-        <span>${n.time}</span>
-        ${n.sent !== 'neutral' ? `<span class="ntag ${n.sent}">${n.sent.toUpperCase()}</span>` : ''}
+  // Build columns
+  const cols = COL_ORDER.filter(tag => !STATE.collapsedCols[tag]).map(tag => {
+    const m = COL_META[tag];
+    const items = byTag[tag] || [];
+    const bullCount = items.filter(n => n.sent === 'bullish').length;
+    const bearCount = items.filter(n => n.sent === 'bearish').length;
+
+    const cards = items.slice(0, 8).map(n => {
+      const alertBadge = n.sent === 'bullish'
+        ? `<span class="nf-alert bull">● INFLOW</span>`
+        : n.sent === 'bearish'
+        ? `<span class="nf-alert bear">● ALERT</span>`
+        : `<span class="nf-alert neu">● UPDATE</span>`;
+
+      // Derive 2-3 inline tags from title keywords
+      const inlineTags = [];
+      const tl = n.title.toLowerCase();
+      if (/bitcoin|btc/.test(tl)) inlineTags.push('BTC');
+      if (/ethereum|eth/.test(tl)) inlineTags.push('ETH');
+      if (/solana|sol/.test(tl)) inlineTags.push('SOL');
+      if (/gold/.test(tl)) inlineTags.push('Gold');
+      if (/silver/.test(tl)) inlineTags.push('Silver');
+      if (/oil|crude|brent|wti/.test(tl)) inlineTags.push('OIL');
+      if (/fed|fomc|rate|hawkish|dovish/.test(tl)) inlineTags.push('FED');
+      if (/nvidia|nvda/.test(tl)) inlineTags.push('NVDA');
+      if (/apple|aapl/.test(tl)) inlineTags.push('AAPL');
+      if (/ai|artificial intelligence/.test(tl)) inlineTags.push('AI');
+      if (/wheat|corn|soy/.test(tl)) inlineTags.push('GRAIN');
+      if (/canada|tsx|cad/.test(tl)) inlineTags.push('CAD');
+      if (/dxy|dollar/.test(tl)) inlineTags.push('DXY');
+      if (/copper/.test(tl)) inlineTags.push('CU');
+      if (/enb|enbrige/.test(tl)) inlineTags.push('ENB');
+      const tagPills = inlineTags.slice(0, 3).map(t =>
+        `<span class="nf-itag">${t}</span>`).join('');
+
+      // Ticker flow indicators from watchlist symbols mentioned
+      const wlHits = (STATE.watchlist || []).filter(sym => {
+        const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+        return tl.includes(base.toLowerCase());
+      });
+      const flowArrows = wlHits.slice(0,2).map(sym => {
+        const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+        const d = STATE.DS && STATE.DS[sym];
+        const chg = d ? parseFloat(d.chg) : 0;
+        const arrow = chg >= 0 ? '→' : '↘';
+        const col = chg >= 0 ? 'var(--bull)' : 'var(--bear)';
+        return `<span style="font-family:var(--mono);font-size:8px;color:${col};margin-left:4px">${arrow} ${base}</span>`;
+      }).join('');
+
+      return `<div class="nf-card" onclick="window.open('${n.url}','_blank')">
+        <div class="nf-card-top">
+          ${alertBadge}
+          <span class="nf-time">${n.time || ''}</span>
+        </div>
+        <div class="nf-headline">${n.title}</div>
+        <div class="nf-card-bot">
+          <div class="nf-tags">${tagPills}${flowArrows}</div>
+          <span class="nf-src">${n.source || ''}</span>
+        </div>
+      </div>`;
+    }).join('') || `<div class="nf-empty">Loading ${m.label}…</div>`;
+
+    return `<div class="nf-col">
+      <div class="nf-col-hdr" onclick="toggleNewsCol('${tag}')">
+        <span class="nf-col-icon" style="color:${m.color}">${m.icon}</span>
+        <span class="nf-col-lbl">${m.label.toUpperCase()}</span>
+        <span class="nf-col-count">${items.length}</span>
+        <span class="nf-col-sent">
+          ${bullCount ? `<span style="color:var(--bull)">▲${bullCount}</span>` : ''}
+          ${bearCount ? `<span style="color:var(--bear)">▼${bearCount}</span>` : ''}
+        </span>
+        <span class="nf-col-x">✕</span>
       </div>
+      <div class="nf-col-body">${cards}</div>
     </div>`;
   }).join('');
+
+  // Alert bar — recent strong signals from STATE.alertLog
+  const alerts = (STATE.alertLog || []).slice(0, 12);
+  const alertBar = alerts.length
+    ? `<div class="nf-alertbar">
+        <span class="nf-alertbar-lbl">◆ LIVE</span>
+        <div class="nf-alertbar-track">
+          <div class="nf-alertbar-inner">
+            ${alerts.map(a => {
+              const cls = a.type === 'buy' ? 'bull' : a.type === 'sell' ? 'bear' : 'neu';
+              return `<span class="nf-ab-item ${cls}">● ${a.msg}</span>`;
+            }).join('<span class="nf-ab-sep">│</span>')}
+          </div>
+        </div>
+      </div>`
+    : '';
+
+  document.getElementById('bnews-body').innerHTML =
+    `<div class="nf-cols-wrap">${cols || '<div class="nf-empty" style="padding:20px">All columns collapsed — click a category above to show</div>'}</div>` +
+    alertBar;
 }
 
 function setNewsTag(tag) {
@@ -197,8 +304,18 @@ function setNewsTag(tag) {
   renderNews();
 }
 
+function toggleNewsCol(tag) {
+  STATE.collapsedCols[tag] = !STATE.collapsedCols[tag];
+  renderNews();
+}
+
+function collapseAllCols() {
+  COL_ORDER.forEach(t => STATE.collapsedCols[t] = true);
+  renderNews();
+}
+
 // Tag colour map for the scrolling ticker
-const TAG_COLORS = { CRYPTO:'#7b61ff', ENERGY:'#ff8c00', COMMODITY:'#c9a84c', TECH:'#00b4d8', TSX:'#00e5a0', METAL:'#c0c0c0' };
+const TAG_COLORS = { CRYPTO:'#7b61ff', ENERGY:'#ff8c00', COMMODITY:'#c9a84c', TECH:'#00b4d8', TSX:'#00e5a0', METAL:'#c0c0c0', FX:'#ffd166' };
 
 function updateTicker() {
   document.getElementById('ticker-inner').innerHTML = STATE.newsItems.map(n => {
@@ -206,4 +323,215 @@ function updateTicker() {
     const sentArrow = n.sent === 'bullish' ? `<span class="ti-b">▲</span>` : n.sent === 'bearish' ? `<span class="ti-s">▼</span>` : '';
     return `<span class="ti"><span class="ti-tag" style="color:${tc};border-color:${tc}">${n.tag || n.source}</span>${sentArrow} <a href="${n.url}" target="_blank">${n.title}</a></span>`;
   }).join('');
+}
+
+// ══════════════════════════════════════════════
+// HIGH CONVICTION LEADERBOARD
+// ══════════════════════════════════════════════
+
+let _hclOpen = true;
+
+function toggleHCL() {
+  _hclOpen = !_hclOpen;
+  const body = document.getElementById('hcl-body');
+  const ab   = document.getElementById('hcl-alertbar');
+  const chev = document.getElementById('hcl-chevron');
+  if (body) body.style.display = _hclOpen ? '' : 'none';
+  if (ab)   ab.style.display   = _hclOpen ? '' : 'none';
+  if (chev) chev.textContent   = _hclOpen ? '▼' : '▲';
+}
+
+function renderLeaderboard() {
+  const DS  = STATE.DS  || {};
+  const wl  = STATE.watchlist || [];
+  const news = STATE.newsItems || [];
+
+  // ── Score every symbol we have data for ──
+  const ranked = wl
+    .map(sym => {
+      const d = DS[sym];
+      if (!d) return null;
+
+      // Composite conviction score  (higher = stronger buy setup)
+      let conv = 0;
+      conv += (d.score        || 0) * 1.5;   // base signal score (weighted)
+      conv += (d.dipScore     || 0) * 1.2;   // dip composite
+      conv += (d.bias4hScore  || 0) * 0.7;   // 4H bias
+      conv += (d.biasDayScore || 0) * 0.5;   // daily bias
+      if (d.oiDiv === '💎 DIP BUY')  conv += 3;
+      if (d.oiDiv === '✓ CONFIRM')   conv += 1.5;
+      if (d.fundingFlag === '⚡ DIP ZONE') conv += 2;
+      if (d.emaTrend === 'ABOVE')    conv += 1;
+      const r15 = d.r15 || 50, r1h = d.r1h || 50;
+      if (r15 < 30 && r1h < 35)     conv += 2;  // oversold RSI
+      if (parseFloat(d.shock) > 2)  conv += 1;  // vol spike
+
+      // Direction: only surface high-conviction setups (both bull and bear)
+      const dir = conv >= 4 ? 'bull' : conv <= -4 ? 'bear' : 'neutral';
+
+      // Find linked catalyst from news (headline mentioning base symbol)
+      const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
+      const catalyst = news.find(n => n.title.toLowerCase().includes(base));
+
+      // Checklist items
+      const checks = [
+        { label: 'Vol Shock',  val: parseFloat(d.shock).toFixed(1)+'x', pass: parseFloat(d.shock) > 1.5 },
+        { label: 'CVD',        val: d.cvd ? (d.cvd.trending === 'up' ? 'Uptrend' : 'Downtrend') : 'N/A', pass: d.cvd?.trending === 'up' },
+        { label: 'L/S Ratio',  val: d.lp+'% Long', pass: d.lp > 50 },
+        { label: 'OI Div',     val: d.oiDiv || '—', pass: d.oiDiv === '💎 DIP BUY' || d.oiDiv === '✓ CONFIRM' },
+        { label: 'EMA',        val: d.emaTrend || '—', pass: d.emaTrend === 'ABOVE' },
+        { label: 'MTF RSI',    val: `${d.r15}/${d.r1h}/${d.r4h}`, pass: d.r15 < 40 && d.r1h < 45 },
+      ];
+
+      return { sym, d, conv: Math.round(conv * 10) / 10, dir, catalyst, checks };
+    })
+    .filter(Boolean)
+    .filter(r => r.dir !== 'neutral')
+    .sort((a, b) => Math.abs(b.conv) - Math.abs(a.conv))
+    .slice(0, 4);  // top 4 cards
+
+  const sub = document.getElementById('hcl-sub');
+  const body = document.getElementById('hcl-body');
+  const alertBar = document.getElementById('hcl-alertbar');
+  if (!body) return;
+
+  if (sub) sub.textContent = ranked.length
+    ? `${ranked.length} conviction setup${ranked.length > 1 ? 's' : ''} detected`
+    : 'Awaiting signal data…';
+
+  if (!ranked.length) {
+    body.innerHTML = '<div class="hcl-loading">No high-conviction setups yet — scores populate as data arrives</div>';
+    buildAlertBar(alertBar);
+    return;
+  }
+
+  const medals = ['#1','#2','#3','#4'];
+
+  body.innerHTML = ranked.map((r, i) => {
+    const { sym, d, conv, dir, catalyst, checks } = r;
+    const base  = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+    const chgN  = parseFloat(d.chg);
+    const chgCls = chgN >= 0 ? 'bull' : 'bear';
+    const chgStr = (chgN >= 0 ? '+' : '') + chgN.toFixed(2) + '%';
+    const sigBadge = d.sig === 'STRONG BUY'
+      ? `<span class="hcl-sig bull">◆ STRONG BUY SIGNAL</span>`
+      : d.sig === 'BULLISH'
+      ? `<span class="hcl-sig bull-lite">◆ BULLISH SIGNAL</span>`
+      : d.sig === 'STRONG SELL'
+      ? `<span class="hcl-sig bear">◆ STRONG SELL</span>`
+      : `<span class="hcl-sig bear-lite">◆ BEARISH</span>`;
+
+    const checkRows = checks.map(c =>
+      `<div class="hcl-chk">
+        <span class="hcl-chk-dot ${c.pass ? 'pass' : 'fail'}">●</span>
+        <span class="hcl-chk-lbl">${c.label}</span>
+        <span class="hcl-chk-val ${c.pass ? 'bull' : 'bear'}">${c.val}</span>
+      </div>`
+    ).join('');
+
+    const catalystBlock = catalyst
+      ? `<div class="hcl-catalyst">
+          <div class="hcl-cat-lbl">⚡ Linked Catalyst</div>
+          <div class="hcl-cat-txt">${catalyst.title}</div>
+          <div class="hcl-cat-src">${catalyst.source} · ${catalyst.time}</div>
+         </div>`
+      : `<div class="hcl-catalyst">
+          <div class="hcl-cat-lbl">⚡ Signal Reason</div>
+          <div class="hcl-cat-txt">${d.reason || 'Awaiting data'}</div>
+         </div>`;
+
+    const sparkId = `hcl-spark-${i}`;
+    const biasLabel = d.bias4h !== '—' ? d.bias4h : d.biasDay;
+    const biasColor = d.bias4hC !== 'var(--text-dim)' ? d.bias4hC : d.biasDayC;
+
+    const watchTag = d.sup
+      ? `<span class="hcl-watch">WATCH: SUP ${d.sup} / RES ${d.res || '—'}</span>`
+      : '';
+
+    return `<div class="hcl-card ${dir}">
+      <div class="hcl-card-top">
+        <div class="hcl-rank">${medals[i]}</div>
+        <div class="hcl-sym">${base} · <span style="color:var(--text-dim);font-size:9px;">${sym.includes('.TO') ? 'TSX' : sym.includes('BINANCE') ? 'CRYPTO' : 'STOCK'}</span></div>
+        ${sigBadge}
+        ${watchTag}
+      </div>
+
+      <div class="hcl-card-body">
+
+        <!-- Left: price + spark + bias -->
+        <div class="hcl-left">
+          <div class="hcl-price">$${d.p}</div>
+          <div class="hcl-chg ${chgCls}">${chgStr}</div>
+          <canvas class="hcl-spark" id="${sparkId}" width="120" height="36"></canvas>
+          <div class="hcl-bias" style="color:${biasColor}">${biasLabel || '—'}</div>
+          <div class="hcl-conv-bar">
+            <div class="hcl-conv-fill ${dir}" style="width:${Math.min(100, Math.abs(conv/12*100))}%"></div>
+          </div>
+          <div class="hcl-conv-lbl">Conviction ${conv > 0 ? '+' : ''}${conv}</div>
+        </div>
+
+        <!-- Mid: checklist -->
+        <div class="hcl-mid">
+          <div class="hcl-mid-hdr">Technical Confluence</div>
+          ${checkRows}
+        </div>
+
+        <!-- Right: catalyst -->
+        <div class="hcl-right">
+          ${catalystBlock}
+        </div>
+
+      </div>
+    </div>`;
+  }).join('');
+
+  // Draw spark charts after DOM is set
+  ranked.forEach((r, i) => {
+    const canvas = document.getElementById(`hcl-spark-${i}`);
+    if (!canvas || !r.d.sparkBars || r.d.sparkBars.length < 2) return;
+    drawSparkLine(canvas, r.d.sparkBars, r.dir === 'bull' ? '#00e5a0' : '#ff4455');
+  });
+
+  buildAlertBar(alertBar);
+}
+
+function drawSparkLine(canvas, data, color) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const mn = Math.min(...data), mx = Math.max(...data);
+  const range = mx - mn || 1;
+  ctx.clearRect(0,0,w,h);
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - mn) / range) * h * 0.85 - h * 0.05;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // Fill gradient under line
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, color + '40');
+  grad.addColorStop(1, color + '00');
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+function buildAlertBar(el) {
+  if (!el) return;
+  const log = STATE.alertLog || [];
+  if (!log.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="hcl-ab">
+    <span class="hcl-ab-lbl">⚡ ACTIVE ALERTS</span>
+    <div class="hcl-ab-track">
+      <div class="hcl-ab-inner">
+        ${log.slice(0,10).map(a => {
+          const cls = a.type==='buy' ? 'bull' : a.type==='sell' ? 'bear' : 'neu';
+          return `<span class="hcl-ab-item ${cls}">● ${a.msg}</span><span class="hcl-ab-sep"> · </span>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
 }

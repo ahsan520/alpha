@@ -10,6 +10,7 @@ async function init() {
   STATE.newsOpen = true;
   STATE.alertsOpen = false;
   STATE.activeNewsTag = 'ALL';
+  STATE.collapsedCols = {};
   // ── Watchlist source of truth ──
   // ONLY two valid sources:
   //   1. watchlist.json (fetched from server)
@@ -252,7 +253,7 @@ function importWL(inp) {
 // ── Market feed categories ──
 // ── Market update feeds ──
 // All RSS feeds go through allorigins.win which returns { contents: "<xml>..." }
-// CryptoPanic is a JSON API handled separately.
+// CRYPTO uses rss2json.com (free, no key) to fetch the CoinDesk RSS as JSON.
 // Feed URLs chosen for CORS-proxy reliability (no Cloudflare blocks).
 // ── Dynamic feed builder — rebuilds TSX feed URL from current watchlist ──
 // Stock tickers (.TO / non-crypto) are injected into the TSX RSS feed so that
@@ -269,21 +270,21 @@ function buildMarketFeeds() {
   const tsxParam = tsxSyms.map(s => encodeURIComponent(s)).join(',');
 
   return [
-    // Crypto — CryptoPanic JSON API
+    // Crypto — CoinDesk RSS via rss2json (free, no key required)
     { tag: 'CRYPTO', json: true,
-      url: 'https://cryptopanic.com/api/free/v1/posts/?auth_token=&public=true&kind=news',
-      parse: d => (d.results || []).slice(0, 15).map(p => ({
-        title: p.title, url: p.url, source: p.source.title, tag: 'CRYPTO',
-        time: new Date(p.published_at).toLocaleTimeString(),
-        sent: p.votes ? (p.votes.positive > p.votes.negative ? 'bullish' : p.votes.negative > p.votes.positive ? 'bearish' : 'neutral') : 'neutral'
+      url: 'https://api.rss2json.com/v1/api.json?rss_url=https://coindesk.com/arc/outboundfeeds/rss/',
+      parse: d => (d.items || []).slice(0, 15).map(p => ({
+        title: p.title, url: p.link, source: 'CoinDesk', tag: 'CRYPTO',
+        time: (() => { try { return new Date(p.pubDate).toLocaleTimeString(); } catch { return ''; } })(),
+        sent: 'neutral'
       }))
     },
     // Energy & Commodities — Yahoo Finance RSS
     { tag: 'ENERGY', rss: true, limit: 10, keywords: ['oil','gas','energy','crude','opec','lng','brent','wti','barrel','refin'],
       url: 'https://finance.yahoo.com/rss/headline?s=USO,XLE,CL%3DF,NG%3DF'
     },
-    // Metals & Mining
-    { tag: 'METAL', rss: true, limit: 10, keywords: ['gold','silver','copper','platinum','palladium','mining','metal','lithium','iron','steel'],
+    // Metals & Mining — no keyword filter so all GLD/SLV/GDX headlines pass through
+    { tag: 'METAL', rss: true, limit: 10, keywords: [],
       url: 'https://finance.yahoo.com/rss/headline?s=GLD,SLV,GDX,COPPER'
     },
     // Commodities — grains, soft commodities
@@ -297,6 +298,10 @@ function buildMarketFeeds() {
     // TSX & Canadian markets — dynamically includes current watchlist stock tickers
     { tag: 'TSX', rss: true, limit: 12, keywords: ['tsx','canada','canadian','bay street','bank of canada','loonie','cad','toronto','cnq','shop'],
       url: `https://finance.yahoo.com/rss/headline?s=${tsxParam}`
+    },
+    // CAD/USD & DXY — macro forex trend news
+    { tag: 'FX', rss: true, limit: 10, keywords: ['cad','usd','dollar','loonie','dxy','forex','fx','currency','exchange rate','bank of canada','federal reserve','rate','inflation','boc','fed'],
+      url: 'https://finance.yahoo.com/rss/headline?s=CADUSD%3DX,DX-Y.NYB,FXC,UUP'
     },
   ];
 }
@@ -340,16 +345,22 @@ function parseRssItems(xmlText, tag, keywords, limit) {
   } catch { return []; }
 }
 
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
 async function fetchNews() {
   const allItems = [];
 
   const MARKET_FEEDS = buildMarketFeeds();
-  await Promise.allSettled(MARKET_FEEDS.map(async feed => {
+  // Sequential loop with stagger — avoids rate-limit bursts and proxy bans
+  for (let fi = 0; fi < MARKET_FEEDS.length; fi++) {
+    if (fi > 0) await delay(400);
+    const feed = MARKET_FEEDS[fi];
+    let feedItems = [];
     try {
       if (feed.parse) {
-        // JSON feed (CryptoPanic)
+        // JSON feed (CoinDesk via rss2json)
         const d = await fetchProxy(feed.url);
-        allItems.push(...feed.parse(d));
+        feedItems = feed.parse(d);
       } else {
         // RSS — use allorigins (returns { contents: '<xml>...' }) which is more
         // reliable for XML than corsproxy. Two-proxy fallback for resilience.
@@ -368,10 +379,24 @@ async function fetchNews() {
             catch { xml = txt; break; }
           } catch {}
         }
-        if (xml) allItems.push(...parseRssItems(xml, feed.tag, feed.keywords, feed.limit));
+        if (xml) feedItems = parseRssItems(xml, feed.tag, feed.keywords, feed.limit);
       }
-    } catch {}
-  }));
+      if (feedItems.length) {
+        // Success — write to cache
+        STATE.newsCache[feed.tag] = feedItems;
+        allItems.push(...feedItems);
+      } else {
+        throw new Error('empty');
+      }
+    } catch {
+      // Failure — read from cache and label items as cached
+      const cached = STATE.newsCache[feed.tag];
+      if (cached && cached.length) {
+        const now = new Date().toLocaleTimeString();
+        allItems.push(...cached.map(it => ({ ...it, time: `[cached] ${now}` })));
+      }
+    }
+  }
 
   // Sort by recency best-effort; group by tag for variety
   // Interleave tags so the ticker shows all categories
@@ -395,6 +420,7 @@ async function fetchNews() {
   STATE.newsItems = interleaved.length > 0 ? interleaved : mockNews();
   renderNews();
   updateTicker();
+  if (typeof renderLeaderboard === 'function') renderLeaderboard();
 }
 
 function mockNews() {

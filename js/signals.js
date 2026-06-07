@@ -290,6 +290,9 @@ function processAI(s, p, chg, ex) {
 
   // ── CHECK ALERT RULES ──
   checkAlertRules(s, DS[s], shock, bias4h);
+
+  // ── REFRESH LEADERBOARD ──
+  if (typeof renderLeaderboard === 'function') renderLeaderboard();
 }
 
 // ── Check configured alert rules ──

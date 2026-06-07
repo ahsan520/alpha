@@ -2,7 +2,7 @@
 // config.js — constants, shared state, CoinGecko ID map
 // ══════════════════════════════════════════════
 
-const APP_VERSION = 'v49.2';
+const APP_VERSION = 'v49.3';
 
 // ── SHARED STATE ──
 window.STATE = {
@@ -26,6 +26,7 @@ window.STATE = {
   wlOpen: false,   // watchlist sidebar starts collapsed on mobile
   alertsOpen: false,  // alert strip hidden by default
   activeNewsTag: 'ALL', // active news sector filter
+  newsCache: {},        // per-tag cache; used as fallback when a feed fails
 };
 
 // ── COINGECKO ID MAP ──
