@@ -27,6 +27,7 @@ window.STATE = {
   alertsOpen: false,  // alert strip hidden by default
   activeNewsTag: 'ALL', // active news sector filter
   newsCache: {},        // per-tag cache; used as fallback when a feed fails
+  marketPulse: {},      // latest market pulse tile data keyed by symbol (SPY, BTC, etc.)
 };
 
 // ── COINGECKO ID MAP ──

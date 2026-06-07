@@ -458,3 +458,94 @@ function toggleAlerts() {
 }
 
 window.onload = init;
+
+// ══════════════════════════════════════════════
+// MOBILE HELPERS — appended by mobile responsive pass
+// ══════════════════════════════════════════════
+
+const isMobile = () => window.innerWidth <= 768;
+
+// ── Mobile news: show only the active tag column ──
+function applyMobileNewsFilter() {
+  if (!isMobile()) return;
+  const wrap = document.querySelector('.nf-cols-wrap');
+  if (!wrap) return;
+  const cols = [...wrap.querySelectorAll('.nf-col')];
+  const visibleTags = COL_ORDER.filter(t => !STATE.collapsedCols[t]);
+  const activeTag = STATE.mobileNewsTag || visibleTags[0] || 'ALL';
+
+  if (activeTag === 'ALL') {
+    wrap.classList.add('show-all');
+    cols.forEach(c => c.classList.remove('mobile-active'));
+  } else {
+    wrap.classList.remove('show-all');
+    cols.forEach((c, i) => {
+      c.classList.toggle('mobile-active', visibleTags[i] === activeTag);
+    });
+  }
+
+  // Update pill highlights
+  document.querySelectorAll('#news-tag-bar .nf-pill').forEach(btn => {
+    const m = btn.getAttribute('onclick')?.match(/'([A-Z]+)'/);
+    if (m) btn.classList.toggle('active', m[1] === activeTag);
+  });
+}
+
+// ── Override pill onclick on mobile to switch single-column view ──
+window.mobilePillClick = function(tag) {
+  if (!isMobile()) { toggleNewsCol(tag); return; }
+  STATE.mobileNewsTag = (STATE.mobileNewsTag === tag) ? 'ALL' : tag;
+  applyMobileNewsFilter();
+};
+
+// ── Leaderboard swipe dot indicators ──
+function renderLeaderboardDots() {
+  if (!isMobile()) return;
+  const body = document.querySelector('.hcl-body');
+  if (!body) return;
+  const old = document.getElementById('hcl-dots');
+  if (old) old.remove();
+  const cards = body.querySelectorAll('.hcl-card');
+  if (cards.length <= 1) return;
+
+  const dots = document.createElement('div');
+  dots.id = 'hcl-dots';
+  dots.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:6px;padding:5px 0 4px;background:var(--bg);border-bottom:1px solid var(--border);';
+  cards.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.dataset.idx = i;
+    d.style.cssText = `display:inline-block;width:${i===0?8:6}px;height:${i===0?8:6}px;border-radius:50%;background:${i===0?'var(--accent)':'var(--border2)'};transition:.2s;cursor:pointer;`;
+    d.onclick = () => body.scrollTo({ left: i * body.clientWidth, behavior: 'smooth' });
+    dots.appendChild(d);
+  });
+  body.parentNode.insertBefore(dots, body.nextSibling);
+
+  // Sync dots to scroll position
+  body.addEventListener('scroll', () => {
+    const idx = Math.round(body.scrollLeft / Math.max(body.clientWidth, 1));
+    dots.querySelectorAll('span').forEach((d, i) => {
+      const active = i === idx;
+      d.style.background = active ? 'var(--accent)' : 'var(--border2)';
+      d.style.width = d.style.height = active ? '8px' : '6px';
+    });
+  }, { passive: true });
+}
+
+// ── Hook into renderNews to apply mobile filter after each render ──
+document.addEventListener('DOMContentLoaded', () => {
+  const newsBody = document.getElementById('bnews-body');
+  if (newsBody) {
+    const obs = new MutationObserver(() => setTimeout(applyMobileNewsFilter, 10));
+    obs.observe(newsBody, { childList: true, subtree: false });
+  }
+  const hclWrap = document.querySelector('.hcl');
+  if (hclWrap) {
+    const obs2 = new MutationObserver(() => setTimeout(renderLeaderboardDots, 10));
+    obs2.observe(hclWrap, { childList: true, subtree: true });
+  }
+});
+
+window.addEventListener('resize', () => {
+  applyMobileNewsFilter();
+  renderLeaderboardDots();
+}, { passive: true });

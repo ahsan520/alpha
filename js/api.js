@@ -531,4 +531,9 @@ function updateMPill(id, price, chgPct) {
   chgEl.className = 'mp-tile-chg ' + (up ? 'up' : dn ? 'dn' : 'flat');
   el.classList.toggle('mp-hot-up', chgPct >  1.5);
   el.classList.toggle('mp-hot-dn', chgPct < -1.5);
+
+  // Store in STATE.marketPulse keyed by sym (strip 'mp-' prefix)
+  const sym = id.replace('mp-', '');
+  if (!STATE.marketPulse) STATE.marketPulse = {};
+  STATE.marketPulse[sym] = { p: price, chg: chgPct };
 }

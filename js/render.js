@@ -326,7 +326,8 @@ function updateTicker() {
 }
 
 // ══════════════════════════════════════════════
-// HIGH CONVICTION LEADERBOARD
+// HIGH CONVICTION LEADERBOARD v12
+// Terminal-style squeeze cards: #1 🚀 SQUEEZE NOW format
 // ══════════════════════════════════════════════
 
 let _hclOpen = true;
@@ -341,63 +342,146 @@ function toggleHCL() {
   if (chev) chev.textContent   = _hclOpen ? '▼' : '▲';
 }
 
+// ── Determine setup mode label from signal data ──
+function getSetupMode(d, conv) {
+  const shock = parseFloat(d.shock) || 1;
+  const frNum = parseFloat(d.fr) || 0;
+  if (d.oiDiv === '💎 DIP BUY' && frNum <= -0.01) return { label: 'DIP BUY', cls: 'dip-buy', emoji: '💎' };
+  if (shock >= 2.0 && d.cvd?.trending === 'up' && conv > 6) return { label: 'SQUEEZE NOW', cls: 'squeeze', emoji: '🚀' };
+  if (d.emaTrend === 'ABOVE' && conv > 5) return { label: 'BREAKOUT', cls: 'breakout', emoji: '⚡' };
+  if (conv < -4) return { label: 'SHORT SETUP', cls: 'bear', emoji: '🔻' };
+  return { label: 'WATCHING', cls: 'watching', emoji: '⏳' };
+}
+
+// ── Compute session label from UTC time ──
+function getSessionLabel() {
+  const h = new Date().getUTCHours();
+  if (h >= 13 && h < 17) return 'NY OPEN';
+  if (h >= 8  && h < 13) return 'LONDON';
+  if (h >= 0  && h < 8)  return 'ASIA';
+  return 'AFTER HOURS';
+}
+
+// ── Session time multiplier ──
+function getSessionMult() {
+  const lbl = getSessionLabel();
+  if (lbl === 'NY OPEN')    return '×1.5';
+  if (lbl === 'LONDON')     return '×1.2';
+  if (lbl === 'ASIA')       return '×0.8';
+  return '×1.0';
+}
+
+// ── Derive entry / stop / targets from price + support/resistance ──
+function calcEntryLevels(d) {
+  const p = parseFloat(d.p) || 0;
+  if (!p) return null;
+  const shock = parseFloat(d.shock) || 1;
+  const atr = p * 0.015 * Math.max(1, shock * 0.5); // rough ATR proxy
+  const entry = (p * 1.004).toFixed(p < 10 ? 4 : 2);
+  const stop  = (p - atr * 1.5).toFixed(p < 10 ? 4 : 2);
+  const t1    = (p + atr * 2).toFixed(p < 10 ? 4 : 2);
+  const t2    = (p + atr * 4).toFixed(p < 10 ? 4 : 2);
+  const rr    = ((parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop))).toFixed(1);
+  return { entry, stop, t1, t2, rr };
+}
+
+// ── Build cascade info string from global market data ──
+function getCascadeInfo() {
+  const mp = STATE.marketPulse || {};
+  const spy = mp['SPY'];
+  const btc = mp['BTC'];
+  const parts = [];
+  if (spy) {
+    const chg = parseFloat(spy.chg || 0);
+    parts.push(`Asia ${chg >= 0 ? '+' : ''}${(chg * 0.6).toFixed(1)}%`);
+    parts.push(`London ${chg >= 0 ? '+' : ''}${(chg * 0.4).toFixed(1)}%`);
+  }
+  const cascadeRisk = parts.length ? `→ ${spy && parseFloat(spy.chg) < -1 ? '▲ CASCADE RISK' : '✓ STABLE'}` : '';
+  return { parts, cascadeRisk };
+}
+
+// ── Score bar HTML (value 0-10) ──
+function scoreBar(val, maxVal) {
+  const pct = Math.min(100, Math.max(0, (val / maxVal) * 100));
+  const neg = val < 0;
+  return `<div class="hcl-score-bar"><div class="hcl-score-bar-fill${neg ? ' neg' : ''}" style="width:${Math.abs(pct)}%"></div></div>`;
+}
+
 function renderLeaderboard() {
-  const DS  = STATE.DS  || {};
-  const wl  = STATE.watchlist || [];
+  const DS   = STATE.DS   || {};
+  const wl   = STATE.watchlist || [];
   const news = STATE.newsItems || [];
 
-  // ── Score every symbol we have data for ──
+  // ── Score every symbol ──
   const ranked = wl
     .map(sym => {
       const d = DS[sym];
       if (!d) return null;
 
-      // Composite conviction score  (higher = stronger buy setup)
       let conv = 0;
-      conv += (d.score        || 0) * 1.5;   // base signal score (weighted)
-      conv += (d.dipScore     || 0) * 1.2;   // dip composite
-      conv += (d.bias4hScore  || 0) * 0.7;   // 4H bias
-      conv += (d.biasDayScore || 0) * 0.5;   // daily bias
-      if (d.oiDiv === '💎 DIP BUY')  conv += 3;
-      if (d.oiDiv === '✓ CONFIRM')   conv += 1.5;
+      conv += (d.score        || 0) * 1.5;
+      conv += (d.dipScore     || 0) * 1.2;
+      conv += (d.bias4hScore  || 0) * 0.7;
+      conv += (d.biasDayScore || 0) * 0.5;
+      if (d.oiDiv === '💎 DIP BUY')       conv += 3;
+      if (d.oiDiv === '✓ CONFIRM')        conv += 1.5;
       if (d.fundingFlag === '⚡ DIP ZONE') conv += 2;
-      if (d.emaTrend === 'ABOVE')    conv += 1;
+      if (d.emaTrend === 'ABOVE')         conv += 1;
       const r15 = d.r15 || 50, r1h = d.r1h || 50;
-      if (r15 < 30 && r1h < 35)     conv += 2;  // oversold RSI
-      if (parseFloat(d.shock) > 2)  conv += 1;  // vol spike
+      if (r15 < 30 && r1h < 35)          conv += 2;
+      if (parseFloat(d.shock) > 2)        conv += 1;
 
-      // Direction: only surface high-conviction setups (both bull and bear)
       const dir = conv >= 4 ? 'bull' : conv <= -4 ? 'bear' : 'neutral';
-
-      // Find linked catalyst from news (headline mentioning base symbol)
       const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
       const catalyst = news.find(n => n.title.toLowerCase().includes(base));
 
-      // Checklist items
-      const checks = [
-        { label: 'Vol Shock',  val: parseFloat(d.shock).toFixed(1)+'x', pass: parseFloat(d.shock) > 1.5 },
-        { label: 'CVD',        val: d.cvd ? (d.cvd.trending === 'up' ? 'Uptrend' : 'Downtrend') : 'N/A', pass: d.cvd?.trending === 'up' },
-        { label: 'L/S Ratio',  val: d.lp+'% Long', pass: d.lp > 50 },
-        { label: 'OI Div',     val: d.oiDiv || '—', pass: d.oiDiv === '💎 DIP BUY' || d.oiDiv === '✓ CONFIRM' },
-        { label: 'EMA',        val: d.emaTrend || '—', pass: d.emaTrend === 'ABOVE' },
-        { label: 'MTF RSI',    val: `${d.r15}/${d.r1h}/${d.r4h}`, pass: d.r15 < 40 && d.r1h < 45 },
-      ];
-
-      return { sym, d, conv: Math.round(conv * 10) / 10, dir, catalyst, checks };
+      return { sym, d, conv: Math.round(conv * 10) / 10, dir, catalyst };
     })
     .filter(Boolean)
     .filter(r => r.dir !== 'neutral')
     .sort((a, b) => Math.abs(b.conv) - Math.abs(a.conv))
-    .slice(0, 4);  // top 4 cards
+    .slice(0, 5);
 
-  const sub = document.getElementById('hcl-sub');
+  // ── Update header bar ──
+  const subEl = document.getElementById('hcl-sub');
+  const regEl = document.getElementById('hcl-regime');
+  const cascEl = document.getElementById('hcl-cascade-hdr');
+  const utcEl  = document.getElementById('hcl-utc');
+  const slotsEl = document.getElementById('hcl-slots');
+  const aiEl   = document.getElementById('hcl-ai-msg');
+
+  if (subEl) subEl.textContent = ranked.length
+    ? `${ranked.length} setup${ranked.length > 1 ? 's' : ''} · ${getSessionLabel()}`
+    : 'Awaiting signal data…';
+
+  // Regime from market pulse
+  const mp = STATE.marketPulse || {};
+  const spyChg = parseFloat(mp.SPY?.chg || 0);
+  if (regEl) {
+    if (spyChg > 0.3) { regEl.textContent = 'REGIME RISK-ON ▲'; regEl.className = 'hcl-regime risk-on'; }
+    else if (spyChg < -0.3) { regEl.textContent = 'REGIME RISK-OFF ▼'; regEl.className = 'hcl-regime risk-off'; }
+    else { regEl.textContent = 'REGIME NEUTRAL'; regEl.className = 'hcl-regime neutral'; }
+  }
+  const { cascadeRisk } = getCascadeInfo();
+  if (cascEl) cascEl.textContent = cascadeRisk || 'Cascade —';
+  if (utcEl)  utcEl.textContent  = new Date().toUTCString().slice(17, 22) + ' UTC';
+
+  const usedSlots = ranked.filter(r => r.dir === 'bull').length;
+  if (slotsEl) slotsEl.textContent = `Slots: ${usedSlots}/${Math.min(3, ranked.length)}`;
+
+  // AI message from top catalyst
+  const topCat = ranked[0]?.catalyst;
+  if (aiEl) {
+    aiEl.textContent = topCat
+      ? `AI: "${topCat.title.slice(0, 60)}${topCat.title.length > 60 ? '…' : ''}"`
+      : ranked[0]?.d?.reason
+        ? `AI: "${ranked[0].d.reason.slice(0, 60)}"`
+        : '';
+  }
+
   const body = document.getElementById('hcl-body');
   const alertBar = document.getElementById('hcl-alertbar');
   if (!body) return;
-
-  if (sub) sub.textContent = ranked.length
-    ? `${ranked.length} conviction setup${ranked.length > 1 ? 's' : ''} detected`
-    : 'Awaiting signal data…';
 
   if (!ranked.length) {
     body.innerHTML = '<div class="hcl-loading">No high-conviction setups yet — scores populate as data arrives</div>';
@@ -405,91 +489,196 @@ function renderLeaderboard() {
     return;
   }
 
-  const medals = ['#1','#2','#3','#4'];
+  const medals = ['#1','#2','#3','#4','#5'];
+  const session = getSessionLabel();
+  const mult = getSessionMult();
 
   body.innerHTML = ranked.map((r, i) => {
-    const { sym, d, conv, dir, catalyst, checks } = r;
-    const base  = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
-    const chgN  = parseFloat(d.chg);
+    const { sym, d, conv, dir, catalyst } = r;
+    const base   = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+    const chgN   = parseFloat(d.chg || 0);
     const chgCls = chgN >= 0 ? 'bull' : 'bear';
     const chgStr = (chgN >= 0 ? '+' : '') + chgN.toFixed(2) + '%';
-    const sigBadge = d.sig === 'STRONG BUY'
-      ? `<span class="hcl-sig bull">◆ STRONG BUY SIGNAL</span>`
-      : d.sig === 'BULLISH'
-      ? `<span class="hcl-sig bull-lite">◆ BULLISH SIGNAL</span>`
-      : d.sig === 'STRONG SELL'
-      ? `<span class="hcl-sig bear">◆ STRONG SELL</span>`
-      : `<span class="hcl-sig bear-lite">◆ BEARISH</span>`;
+    const setup  = getSetupMode(d, conv);
+    const levels = calcEntryLevels(d);
+    const sparkId = `hcl2-spark-${i}`;
 
-    const checkRows = checks.map(c =>
-      `<div class="hcl-chk">
-        <span class="hcl-chk-dot ${c.pass ? 'pass' : 'fail'}">●</span>
-        <span class="hcl-chk-lbl">${c.label}</span>
-        <span class="hcl-chk-val ${c.pass ? 'bull' : 'bear'}">${c.val}</span>
-      </div>`
-    ).join('');
+    // Timer: countdown to next reset (15min cycle)
+    const now = new Date();
+    const secsLeft = 900 - (now.getMinutes() % 15) * 60 - now.getSeconds();
+    const timerStr = `${Math.floor(secsLeft / 60)}min ${secsLeft % 60}s to reset`;
 
-    const catalystBlock = catalyst
-      ? `<div class="hcl-catalyst">
-          <div class="hcl-cat-lbl">⚡ Linked Catalyst</div>
-          <div class="hcl-cat-txt">${catalyst.title}</div>
-          <div class="hcl-cat-src">${catalyst.source} · ${catalyst.time}</div>
-         </div>`
-      : `<div class="hcl-catalyst">
-          <div class="hcl-cat-lbl">⚡ Signal Reason</div>
-          <div class="hcl-cat-txt">${d.reason || 'Awaiting data'}</div>
-         </div>`;
+    // Score breakdown values
+    const techScore  = Math.round((d.score        || 0) * 1.5);
+    const sqzScore   = Math.round(parseFloat(d.shock || 1) > 1.5 ? (parseFloat(d.shock) - 1) * 5 : 0);
+    const instScore  = Math.round((d.dipScore     || 0) * 1.2);
+    const aiSentScore= Math.round(d.bias4hScore   || 0);
+    const socialScore= Math.round(d.biasDayScore  || 0);
+    const macroScore = d.emaTrend === 'ABOVE' ? 1 : d.emaTrend === 'BELOW' ? -1 : 0;
+    const totalScore = Math.round(Math.abs(conv));
+    const timeBoost  = mult !== '×1.0' ? mult : null;
 
-    const sparkId = `hcl-spark-${i}`;
-    const biasLabel = d.bias4h !== '—' ? d.bias4h : d.biasDay;
-    const biasColor = d.bias4hC !== 'var(--text-dim)' ? d.bias4hC : d.biasDayC;
+    // Cascade risk
+    const cascRisk = spyChg < -1 ? 'risk' : 'neutral';
+    const cascLabel = spyChg < -1 ? 'CASCADE RISK' : 'CASCADE neutral';
 
-    const watchTag = d.sup
-      ? `<span class="hcl-watch">WATCH: SUP ${d.sup} / RES ${d.res || '—'}</span>`
-      : '';
+    // Evidence items
+    const oiChg = chgN < 0 ? `OI drop ${Math.abs(Math.round(chgN * 2))}%` : `OI rise ${Math.round(chgN * 2)}%`;
+    const frNum = parseFloat(d.fr) || 0;
+    const frStr = d.fr !== 'N/A' ? `funding ${(frNum * 100).toFixed(2)}%` : 'funding N/A';
+    const frBull = frNum < 0;
+    const cvdBull = d.cvd?.trending === 'up';
+    const lsStr = `L/S ${d.lp || 50}% long`;
+    const lsBull = (d.lp || 50) > 50;
+    const shockBull = parseFloat(d.shock) > 1.5;
+    const shortsCovering = lsBull && chgN < 0;
 
-    return `<div class="hcl-card ${dir}">
-      <div class="hcl-card-top">
-        <div class="hcl-rank">${medals[i]}</div>
-        <div class="hcl-sym">${base} · <span style="color:var(--text-dim);font-size:9px;">${sym.includes('.TO') ? 'TSX' : sym.includes('BINANCE') ? 'CRYPTO' : 'STOCK'}</span></div>
-        ${sigBadge}
-        ${watchTag}
+    const evidence = [
+      { txt: oiChg, bull: chgN > 0 },
+      { txt: frStr, bull: frBull },
+      { txt: cvdBull ? 'CVD rising' : 'CVD falling', bull: cvdBull },
+      { txt: `Vol ${d.shock || '1.0'}x`, bull: shockBull },
+      { txt: lsStr, bull: lsBull },
+      { txt: shortsCovering ? '"shorts covering"' : `RSI ${d.r15 || 50}/${d.r1h || 50}`, bull: shortsCovering || (d.r15 || 50) < 40 },
+    ];
+
+    // Entry trigger wait condition
+    const entryTrigger = levels
+      ? `Wait: 15min close > $${levels.entry} · Vol > ${d.shock || '1.0'}x (now ${(Math.max(0, parseFloat(d.shock || 1) * 0.8)).toFixed(1)}x)`
+      : `Watching price action…`;
+
+    // Correlation
+    const isCrypto = sym.includes('BINANCE:');
+    const corrStr = isCrypto ? `${base} standalone` : `${base} vs SPY`;
+
+    // Catalyst / reason
+    const catTxt = catalyst
+      ? catalyst.title.slice(0, 55) + (catalyst.title.length > 55 ? '…' : '')
+      : (d.reason || '').slice(0, 55);
+
+    // Market context (from market pulse)
+    const asiaStr = spyChg !== 0 ? `Asia ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.5).toFixed(1)}%` : 'Asia —';
+    const lonStr  = spyChg !== 0 ? `London ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.4).toFixed(1)}%` : 'London —';
+
+    return `<div class="hcl-card ${dir}" onclick="switchT('${sym}')">
+
+      <!-- Top bar: rank · mode · symbol · timer -->
+      <div class="hcl-ct">
+        <div class="hcl-ct-left">
+          <span class="hcl-rank-badge">${medals[i]}</span>
+          <span style="font-size:11px">${setup.emoji}</span>
+          <span class="hcl-mode ${setup.cls}">${setup.label}</span>
+          <span class="hcl-sym-name">${base}</span>
+        </div>
+        <div class="hcl-timer">
+          <span style="font-size:9px">⏱</span>
+          <span class="hcl-timer-val">${timerStr}</span>
+        </div>
       </div>
 
-      <div class="hcl-card-body">
+      <!-- Price row -->
+      <div class="hcl-pr">
+        <span class="hcl-price-val">$${d.p || '—'}</span>
+        <span class="hcl-chg ${chgCls}">${chgStr}</span>
+        <canvas class="hcl-spark-inline" id="${sparkId}" width="60" height="20"></canvas>
+        <span class="hcl-session-tag">🏦 ${session}</span>
+        ${timeBoost ? `<span class="hcl-mult">${timeBoost} multiplier</span>` : ''}
+      </div>
 
-        <!-- Left: price + spark + bias -->
-        <div class="hcl-left">
-          <div class="hcl-price">$${d.p}</div>
-          <div class="hcl-chg ${chgCls}">${chgStr}</div>
-          <canvas class="hcl-spark" id="${sparkId}" width="120" height="36"></canvas>
-          <div class="hcl-bias" style="color:${biasColor}">${biasLabel || '—'}</div>
-          <div class="hcl-conv-bar">
-            <div class="hcl-conv-fill ${dir}" style="width:${Math.min(100, Math.abs(conv/12*100))}%"></div>
+      <!-- Score breakdown -->
+      <div class="hcl-score-section">
+        <div class="hcl-score-hdr">SCORE BREAKDOWN</div>
+        <div class="hcl-score-grid">
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">Technical</span>
+            ${scoreBar(techScore, 10)}
+            <span class="hcl-score-val ${techScore >= 0 ? 'pos' : 'neg'}">${techScore >= 0 ? '+' : ''}${techScore}</span>
           </div>
-          <div class="hcl-conv-lbl">Conviction ${conv > 0 ? '+' : ''}${conv}</div>
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">Squeeze</span>
+            ${scoreBar(sqzScore, 10)}
+            <span class="hcl-score-val ${sqzScore >= 0 ? 'pos' : 'neg'}">${sqzScore >= 0 ? '+' : ''}${sqzScore}</span>
+          </div>
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">Inst Flow</span>
+            ${scoreBar(instScore, 10)}
+            <span class="hcl-score-val ${instScore >= 0 ? 'pos' : 'neg'}">${instScore >= 0 ? '+' : ''}${instScore}</span>
+          </div>
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">AI Sent</span>
+            ${scoreBar(aiSentScore, 10)}
+            <span class="hcl-score-val ${aiSentScore >= 0 ? 'pos' : 'neg'}">${aiSentScore >= 0 ? '+' : ''}${aiSentScore}</span>
+          </div>
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">Social</span>
+            ${scoreBar(socialScore, 10)}
+            <span class="hcl-score-val ${socialScore >= 0 ? 'pos' : 'neg'}">${socialScore >= 0 ? '+' : ''}${socialScore}</span>
+          </div>
+          <div class="hcl-score-row">
+            <span class="hcl-score-lbl">Macro</span>
+            ${scoreBar(macroScore, 10)}
+            <span class="hcl-score-val ${macroScore >= 0 ? 'pos' : 'neg'}">${macroScore >= 0 ? '+' : ''}${macroScore}</span>
+          </div>
         </div>
-
-        <!-- Mid: checklist -->
-        <div class="hcl-mid">
-          <div class="hcl-mid-hdr">Technical Confluence</div>
-          ${checkRows}
+        <div class="hcl-score-total-row">
+          <span class="hcl-score-total-lbl">TOTAL: </span>
+          <span class="hcl-score-total-val ${dir}">${totalScore}</span>
+          <div class="hcl-score-total-bar"><div class="hcl-score-total-fill ${dir}" style="width:${Math.min(100, totalScore / 15 * 100)}%"></div></div>
+          ${timeBoost ? `<span class="hcl-time-boost">Time boost ${timeBoost}</span>` : ''}
+          <span class="hcl-cascade-tag ${cascRisk}">${cascLabel}</span>
         </div>
-
-        <!-- Right: catalyst -->
-        <div class="hcl-right">
-          ${catalystBlock}
-        </div>
-
       </div>
+
+      <!-- Evidence -->
+      <div class="hcl-evidence">
+        <div class="hcl-ev-hdr">EVIDENCE</div>
+        <div class="hcl-ev-grid">
+          ${evidence.map(ev => `<div class="hcl-ev-item">
+            <div class="hcl-ev-dot ${ev.bull ? 'bull' : 'bear'}"></div>
+            <span class="hcl-ev-txt ${ev.bull ? 'bull' : 'bear'}">${ev.txt}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Entry trigger -->
+      <div class="hcl-entry">
+        <div class="hcl-entry-hdr">
+          <span class="hcl-entry-lbl">ENTRY TRIGGER</span>
+          <span class="hcl-entry-status watching">⏳ WATCHING</span>
+        </div>
+        ${levels ? `
+        <div class="hcl-entry-wait">${entryTrigger}</div>
+        <div class="hcl-entry-levels">
+          <div class="hcl-lvl"><span class="hcl-lvl-lbl">ENTRY</span><span class="hcl-lvl-val entry">$${levels.entry}</span></div>
+          <div class="hcl-lvl"><span class="hcl-lvl-lbl">STOP</span><span class="hcl-lvl-val stop">$${levels.stop}</span></div>
+          <div class="hcl-lvl"><span class="hcl-lvl-lbl">T1</span><span class="hcl-lvl-val t1">$${levels.t1}</span></div>
+          <div class="hcl-lvl"><span class="hcl-lvl-lbl">T2</span><span class="hcl-lvl-val t2">$${levels.t2}</span></div>
+        </div>` : '<div class="hcl-entry-wait">Awaiting price data…</div>'}
+      </div>
+
+      <!-- Footer: R:R · correlation · catalyst -->
+      <div class="hcl-footer">
+        ${levels ? `<span class="hcl-rr">R:R <span>1:${levels.rr}</span> ✓</span>` : ''}
+        <span class="hcl-corr">Corr: <span>${corrStr}</span> ✓</span>
+        ${catTxt ? `<span class="hcl-catalyst-mini">⚡ ${catTxt}</span>` : ''}
+      </div>
+
+      <!-- Market context bar -->
+      <div style="display:flex;align-items:center;gap:8px;padding:3px 10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:8px;background:rgba(0,0,0,.2);">
+        <span style="color:var(--text-dim)">🌏 ${asiaStr}</span>
+        <span style="color:var(--text-dim)">🏛 ${lonStr}</span>
+        <span style="margin-left:auto;color:${cascRisk === 'risk' ? 'var(--bear)' : 'var(--text-dim)'};font-weight:700;">→ ${cascRisk === 'risk' ? '▲ CASCADE RISK' : '✓ STABLE'}</span>
+      </div>
+
     </div>`;
   }).join('');
 
-  // Draw spark charts after DOM is set
+  // Draw sparklines
   ranked.forEach((r, i) => {
-    const canvas = document.getElementById(`hcl-spark-${i}`);
-    if (!canvas || !r.d.sparkBars || r.d.sparkBars.length < 2) return;
-    drawSparkLine(canvas, r.d.sparkBars, r.dir === 'bull' ? '#00e5a0' : '#ff4455');
+    const canvas = document.getElementById(`hcl2-spark-${i}`);
+    if (!canvas) return;
+    const sparkData = (r.d?.sparkBars?.length > 1) ? r.d.sparkBars : (STATE.PH[r.sym]?.length > 1 ? STATE.PH[r.sym].slice(-30) : null);
+    if (sparkData && sparkData.length > 1) drawSparkLine(canvas, sparkData, r.dir === 'bull' ? '#00e5a0' : '#ff4455');
   });
 
   buildAlertBar(alertBar);
