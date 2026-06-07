@@ -423,9 +423,11 @@ function toggleNews() {
   if (STATE.newsOpen && !STATE._newsFetched) {
     STATE._newsFetched = true;
     fetchNews();
-    // Start the recurring refresh now that the panel has been opened once
     setInterval(fetchNews, 300_000);
   }
+  // Explicit layout call — no MutationObserver needed
+  if (STATE.newsOpen && typeof applyMobileNewsFilter === 'function')
+    setTimeout(applyMobileNewsFilter, 50);
 }
 
 // ── Market feed categories ──
@@ -688,16 +690,12 @@ function renderLeaderboardDots() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const newsBody = document.getElementById('bnews-body');
-  if (newsBody) {
-    const obs = new MutationObserver(() => setTimeout(applyMobileNewsFilter, 10));
-    obs.observe(newsBody, { childList: true, subtree: false });
-  }
-  const hclWrap = document.querySelector('.hcl');
-  if (hclWrap) {
-    const obs2 = new MutationObserver(() => setTimeout(renderLeaderboardDots, 10));
-    obs2.observe(hclWrap, { childList: true, subtree: true });
-  }
+  // v12.5: No MutationObservers on live containers.
+  // MutationObserver on hcl-body fired on EVERY cell textContent write,
+  // creating a renderLeaderboardDots + applyMobileNewsFilter cascade on mobile.
+  // Instead, call these explicitly only after intentional structure changes
+  // (news tab open, leaderboard card set changes). See toggleNews() and
+  // renderLeaderboard() full-rebuild path for the explicit call sites.
 });
 
 window.addEventListener('resize', () => {

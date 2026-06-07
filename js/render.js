@@ -1,60 +1,113 @@
 // ══════════════════════════════════════════════
-// render.js — all DOM rendering functions
+// render.js — v12.5 — zero-flicker DOM strategy
+//
+// RULES:
+//  1. Page loads once. Nothing is ever destroyed and rebuilt during live sync.
+//  2. Table rows are built once on init. Each sync only writes changed values
+//     using textContent / style properties — never innerHTML on a container.
+//  3. Sparklines draw only for rows in the viewport (IntersectionObserver).
+//  4. Leaderboard cards are built once; only text nodes are patched each cycle.
+//  5. WL sidebar patches textContent only — no innerHTML rebuild after init.
+//  6. No MutationObserver on live containers (they fire on every cell write).
 // ══════════════════════════════════════════════
 
-// ══════════════════════════════════════════════════════════════════
-// Stable DOM rendering — patch values in-place, never full rebuild
-// This prevents mobile blank-screens and leaderboard flicker
-// ══════════════════════════════════════════════════════════════════
+// ── Dirty-value cache — keyed by "sym:field" → last rendered string ──
+// Prevents writing to the DOM when the value hasn't actually changed.
+const _dv = Object.create(null); // sym:field → last value string
+function _set(sym, field, el, value, prop) {
+  const key = sym + ':' + field;
+  if (_dv[key] === value) return; // no change — skip DOM write entirely
+  _dv[key] = value;
+  if (prop === 'text') { el.textContent = value; return; }
+  if (prop === 'html') { el.innerHTML   = value; return; }
+  // style object: value is [prop, val] pair
+  if (Array.isArray(prop)) { el.style[prop[0]] = prop[1]; return; }
+}
 
-// Track what's currently rendered so we only touch changed nodes
+// ── IntersectionObserver for viewport-only sparkline draws ──
+// Registers canvas elements; draws only when they enter the viewport.
+const _visibleCanvases = new Set();
+const _sparkQueue      = new Map(); // canvasId → drawFn
+let   _ioReady = false;
+let   _sparkIO;
+
+function _initSparkIO() {
+  if (_ioReady) return;
+  _ioReady = true;
+  _sparkIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        _visibleCanvases.add(e.target.id);
+        const fn = _sparkQueue.get(e.target.id);
+        if (fn) { fn(); _sparkQueue.delete(e.target.id); }
+      } else {
+        _visibleCanvases.delete(e.target.id);
+      }
+    });
+  }, { rootMargin: '120px' }); // slight pre-load buffer
+}
+
+function _registerSpark(canvasEl) {
+  if (!_ioReady) _initSparkIO();
+  _sparkIO.observe(canvasEl);
+}
+
+// Draw sparkline only if canvas is in viewport; otherwise queue it.
+function _drawSparkLazy(canvasId, data, color) {
+  const fn = () => {
+    const c = document.getElementById(canvasId);
+    if (c && data?.length > 1) drawSpark(canvasId, data, color);
+  };
+  if (_visibleCanvases.has(canvasId)) fn();
+  else _sparkQueue.set(canvasId, fn);
+}
+
+// ── Legacy compat ──
 const _rendered = { wl: null, tableSyms: null };
-
-// Debounce renderLeaderboard — only fire once after full sync, not mid-cycle
 let _lbTimer = null;
 function scheduleLeaderboard() {
   clearTimeout(_lbTimer);
   _lbTimer = setTimeout(() => renderLeaderboard(), 800);
 }
-
 function render() { renderWL(); renderTable(); scheduleLeaderboard(); }
 
-// ── Watchlist sidebar — in-place patch ──
+// ── Watchlist sidebar ──
+// Skeleton built once on init / structure change. Live updates = textContent only.
 function renderWL() {
   const { watchlist, DS, currentS } = STATE;
   const cont = document.getElementById('wl-cont');
   if (!cont) return;
 
-  // First load or watchlist structure changed — do a full build
   const wlKey = watchlist.join(',');
   if (_rendered.wl !== wlKey) {
+    // Build skeleton with empty price slots — no prices in innerHTML
     cont.innerHTML = watchlist.map(s => {
-      const d = DS[s] || {};
-      const up = parseFloat(d.chg || 0) >= 0;
-      const name = s.includes(':') ? s.split(':')[1].replace('USDT', '') : s;
-      const hc = Math.abs(parseFloat(d.chg || 0)) > 3 ? (up ? 'var(--bull)' : 'var(--bear)') : 'transparent';
-      const _mktB = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
-      return `<div class="wli ${s === currentS ? 'on' : ''}${_mktB ? ' mkt-closed-wli' : ''}" onclick="switchT('${s}')" data-sym="${s}">
-        <span class="wl-name">${name}${_mktB}</span>
-        <span class="wl-chg" style="color:${up ? 'var(--bull)' : 'var(--bear)'}">${up ? '+' : ''}${d.chg || '0'}%</span>
+      const name = s.includes(':') ? s.split(':')[1].replace('USDT','') : s;
+      const mktB = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
+      return `<div class="wli" onclick="switchT('${s}')" data-sym="${s}">
+        <span class="wl-name">${name}${mktB}</span>
+        <span class="wl-chg">—</span>
       </div>`;
     }).join('');
     _rendered.wl = wlKey;
-    return;
+    watchlist.forEach(s => { delete _dv[s+':wlchg']; delete _dv[s+':wlcolor']; });
   }
 
-  // Patch only changed values
+  // Patch-only: textContent + className, no innerHTML writes
   watchlist.forEach(s => {
     const el = cont.querySelector(`[data-sym="${CSS.escape(s)}"]`);
     if (!el) return;
-    const d = DS[s] || {};
-    const up = parseFloat(d.chg || 0) >= 0;
+    const d   = DS[s] || {};
+    const up  = parseFloat(d.chg || 0) >= 0;
+    const txt = (up ? '+' : '') + (d.chg || '0') + '%';
+    const col = up ? 'var(--bull)' : 'var(--bear)';
     const chgEl = el.querySelector('.wl-chg');
     if (chgEl) {
-      chgEl.textContent = (up ? '+' : '') + (d.chg || '0') + '%';
-      chgEl.style.color = up ? 'var(--bull)' : 'var(--bear)';
+      if (_dv[s+':wlchg']  !== txt) { chgEl.textContent  = txt; _dv[s+':wlchg']  = txt; }
+      if (_dv[s+':wlcolor']!== col) { chgEl.style.color  = col; _dv[s+':wlcolor']= col; }
     }
-    el.classList.toggle('on', s === STATE.currentS);
+    const isOn = s === currentS;
+    if (el.classList.contains('on') !== isOn) el.classList.toggle('on', isOn);
   });
 }
 
@@ -136,59 +189,9 @@ function renderTable() {
     </tr>`;
   }
 
-  // Helper to patch only changed cells in an existing row
-  function patchRow(tr, s, d) {
-    const up = parseFloat(d.chg) >= 0;
-    const frC = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
-    const frStr = d.fr !== 'N/A' ? (parseFloat(d.fr) >= 0 ? '+' : '') + (parseFloat(d.fr) * 100).toFixed(3) + '%' : '—';
-
-    function setCell(k, html, style) {
-      const td = tr.querySelector(`[data-k="${k}"]`);
-      if (!td) return;
-      if (td.innerHTML !== html) td.innerHTML = html;
-      if (style) Object.assign(td.style, style);
-    }
-
-    setCell('p', `$${d.p}`);
-    setCell('chg', `${up?'+':''}${d.chg}%`, { color: up?'var(--bull)':'var(--bear)', fontWeight:'700' });
-
-    const mtfH = `<div class="mtf">${rdot(d.r15,'15m')}${rdot(d.r1h,'1h')}${rdot(d.r4h,'4h')}</div>`;
-    setCell('mtf', mtfH);
-
-    let obiH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
-    if (d.obi) {
-      const bw = parseFloat(d.obi.bidPct), aw = 100-bw;
-      const c = bw>55?'var(--bull)':bw<45?'var(--bear)':'var(--text-dim)';
-      obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
-    }
-    setCell('obi', obiH);
-
-    const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi, '_');
-    let cvdH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
-    if (d.cvd) {
-      const val = d.cvd.value; const up2 = d.cvd.trending==='up';
-      const fv = Math.abs(val)>1e6?(val/1e6).toFixed(2)+'M':Math.abs(val)>1000?(val/1000).toFixed(1)+'K':val.toFixed(0);
-      cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
-    }
-    setCell('cvd', cvdH);
-
-    setCell('shock', `<div class="vbar"><span style="color:var(--gold)">${d.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(d.shock)-.5)*80)}%"></div></div></div>`);
-    setCell('ls', `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${d.lp}%"></div><div class="ls-s" style="width:${d.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${d.lp}%</span><span style="color:var(--bear)">S${d.sp}%</span></div></div>`);
-    setCell('fr', frStr, { color: frC, fontSize:'9px' });
-    setCell('ema', d.emaTrend||'—', { color: d.emaTrend==='ABOVE'?'var(--bull)':d.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)', fontSize:'9px', fontWeight:'700' });
-    setCell('oidiv', d.oiDiv||'—', { color: d.oiDivC, fontSize:'10px', fontWeight:'700' });
-    setCell('dip', d.dipLabel||'—', { color: d.dipLabelC, fontSize:'10px', fontWeight:'700' });
-    setCell('b4h', d.bias4h||'—', { color: d.bias4hC, fontSize:'10px', fontWeight:'700' });
-    setCell('bday', d.biasDay||'—', { color: d.biasDayC, fontSize:'10px', fontWeight:'700' });
-    const sdotC = d.sigC.includes('sb')||d.sigC.includes('-b')?'var(--bull)':d.sigC.includes('ss')||d.sigC.includes('be')?'var(--bear)':'#555';
-    setCell('sig', `<span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span>`);
-    const srH = d.sup||d.res?`<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${d.sup||'—'}</span><span style="color:var(--bear);">R $${d.res||'—'}</span></div>`:'<span style="color:var(--text-dim);">—</span>';
-    setCell('sr', srH);
-    setCell('reason', d.reason);
-
-    const hc = parseFloat(d.chg) > 2.5 ? 'ru' : parseFloat(d.chg) < -2.5 ? 'rd' : '';
-    tr.className = hc;
-  }
+  // Delegate all in-place patching to patchSymbolRow — single code path,
+  // uses dirty-value cache, no innerHTML comparison strings.
+  function patchRow(tr, s, d) { patchSymbolRow(s); }
 
   // Check if rows exist and match current sorted order
   const existingRows = Array.from(tbody.querySelectorAll('tr[data-sym]'));
@@ -196,8 +199,18 @@ function renderTable() {
   const needsRebuild = sorted.join(',') !== existingSyms.join(',');
 
   if (needsRebuild) {
-    // Structure changed (sort or watchlist edit) — full rebuild once
+    // Structure changed — rebuild once, then register all spark canvases with IO
     tbody.innerHTML = sorted.map(s => buildRow(s, { ...def, ...(DS[s]||{}) })).join('');
+    // Register sparkline canvases for viewport-only drawing
+    requestAnimationFrame(() => {
+      _initSparkIO();
+      sorted.forEach(s => {
+        const spEl  = document.getElementById('sp_' + s.replace(/[^a-z0-9]/gi,'_'));
+        const cvEl  = document.getElementById('cv_' + s.replace(/[^a-z0-9]/gi,'_'));
+        if (spEl)  _registerSpark(spEl);
+        if (cvEl)  _registerSpark(cvEl);
+      });
+    });
   } else {
     // Same rows — patch values only (no DOM destruction)
     existingRows.forEach(tr => {
@@ -206,13 +219,15 @@ function renderTable() {
     });
   }
 
-  // Redraw sparklines (canvas — must always repaint)
+  // Sparklines: only draw canvases that are in the viewport
   requestAnimationFrame(() => {
     sorted.forEach(s => {
       const d = DS[s];
-      const sparkData = (d?.sparkBars?.length > 1) ? d.sparkBars : (PH[s]?.length > 1 ? PH[s] : null);
-      if (sparkData) drawSpark('sp_' + s.replace(/[^a-z0-9]/gi, '_'), sparkData);
-      if (d?.cvd?.series?.length > 1) drawSpark('cv_' + s.replace(/[^a-z0-9]/gi, '_'), d.cvd.series);
+      const spId  = 'sp_' + s.replace(/[^a-z0-9]/gi,'_');
+      const cvId  = 'cv_' + s.replace(/[^a-z0-9]/gi,'_');
+      const spData = d?.sparkBars?.length > 1 ? d.sparkBars : (STATE.PH[s]?.length > 1 ? STATE.PH[s] : null);
+      if (spData) _drawSparkLazy(spId, spData, null);
+      if (d?.cvd?.series?.length > 1) _drawSparkLazy(cvId, d.cvd.series, null);
     });
   });
 }
@@ -221,113 +236,176 @@ function renderTable() {
 // Only touches the ONE row for symbol `s`. No sort check, no tbody scan,
 // no other rows involved. Falls back to full renderTable() only if the row
 // doesn't exist yet (new symbol added mid-session).
+// ── patchSymbolRow — the ONLY function the sync loop calls per symbol ──
+// Uses dirty-value cache (_dv) so DOM writes only happen when value changed.
+// Sparklines drawn only if canvas is in the viewport (IntersectionObserver).
 function patchSymbolRow(s) {
   const tbody = document.getElementById('mx-body');
   if (!tbody) return;
-
   const d = STATE.DS[s];
-  if (!d) return; // no data yet — row stays as SYNC placeholder
+  if (!d) return;
 
   const tr = tbody.querySelector(`tr[data-sym="${CSS.escape(s)}"]`);
-  if (!tr) {
-    // Row missing — symbol was just added; trigger a full rebuild once
-    renderTable();
-    return;
-  }
+  if (!tr) { renderTable(); return; } // new symbol — rebuild structure once
 
-  // Reuse the existing patchRow closure by extracting its logic inline.
-  // patchRow is a closure inside renderTable so we duplicate the minimal
-  // version here for direct external access.
   const def = {
-    p:'—',chg:'0',r15:50,r1h:50,r4h:50,shock:'1.0',nf:0,lp:50,sp:50,fr:'N/A',
-    whale:'—',sig:'SYNC',sigC:'s-w',reason:'...',obi:null,cvd:null,
-    emaTrend:'—',fundingFlag:'—',fundingFlagC:'var(--text-dim)',
-    oiDiv:'—',oiDivC:'var(--text-dim)',dipScore:0,dipLabel:'—',dipLabelC:'var(--text-dim)',
-    bias4h:'—',bias4hC:'var(--text-dim)',bias4hScore:0,biasDay:'—',biasDayC:'var(--text-dim)',biasDayScore:0,
+    p:'—',chg:'0',r15:50,r1h:50,r4h:50,shock:'1.0',lp:50,sp:50,fr:'N/A',
+    sig:'SYNC',sigC:'s-w',reason:'...',obi:null,cvd:null,
+    emaTrend:'—',oiDiv:'—',oiDivC:'var(--text-dim)',
+    dipLabel:'—',dipLabelC:'var(--text-dim)',
+    bias4h:'—',bias4hC:'var(--text-dim)',
+    biasDay:'—',biasDayC:'var(--text-dim)',
     sup:null,res:null,sparkBars:null,
   };
   const fd = { ...def, ...d };
-  const up = parseFloat(fd.chg) >= 0;
-  const frC = fd.fr !== 'N/A' ? (parseFloat(fd.fr) >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
-  const frStr = fd.fr !== 'N/A' ? (parseFloat(fd.fr) >= 0 ? '+' : '') + (parseFloat(fd.fr) * 100).toFixed(3) + '%' : '—';
+  const up  = parseFloat(fd.chg) >= 0;
+  const frN = parseFloat(fd.fr);
+  const frC = fd.fr !== 'N/A' ? (frN >= 0 ? 'var(--bull)' : 'var(--bear)') : '#888';
+  const frStr = fd.fr !== 'N/A' ? (frN >= 0 ? '+' : '') + (frN * 100).toFixed(3) + '%' : '—';
 
-  function sc(k, html, style) {
-    const td = tr.querySelector(`[data-k="${k}"]`);
-    if (!td) return;
-    if (td.innerHTML !== html) td.innerHTML = html;
-    if (style) Object.assign(td.style, style);
+  // Helper: write textContent only if value differs from last render
+  const T = (field, el, val) => {
+    if (!el) return;
+    const k = s + ':' + field;
+    if (_dv[k] === val) return;
+    _dv[k] = val;
+    el.textContent = val;
+  };
+  // Helper: write a style property only if changed
+  const S = (field, el, prop, val) => {
+    if (!el) return;
+    const k = s + ':' + field;
+    if (_dv[k] === val) return;
+    _dv[k] = val;
+    el.style[prop] = val;
+  };
+  // Helper: get [data-k] cell
+  const cell = k => tr.querySelector(`[data-k="${k}"]`);
+
+  // ── Price & change ──
+  const pEl = cell('p'); T('p', pEl, `$${fd.p}`);
+  const chgEl = cell('chg');
+  const chgTxt = `${up?'+':''}${fd.chg}%`;
+  T('chg', chgEl, chgTxt);
+  S('chgc', chgEl, 'color', up ? 'var(--bull)' : 'var(--bear)');
+
+  // ── MTF RSI dots — only rewrite if values changed ──
+  const mtfKey = `${fd.r15}|${fd.r1h}|${fd.r4h}`;
+  const mtfEl = cell('mtf');
+  if (mtfEl && _dv[s+':mtf'] !== mtfKey) {
+    _dv[s+':mtf'] = mtfKey;
+    mtfEl.innerHTML = `<div class="mtf">${rdot(fd.r15,'15m')}${rdot(fd.r1h,'1h')}${rdot(fd.r4h,'4h')}</div>`;
   }
 
-  sc('p', `$${fd.p}`);
-  sc('chg', `${up?'+':''}${fd.chg}%`, { color: up?'var(--bull)':'var(--bear)', fontWeight:'700' });
-  sc('mtf', `<div class="mtf">${rdot(fd.r15,'15m')}${rdot(fd.r1h,'1h')}${rdot(fd.r4h,'4h')}</div>`);
-
-  let obiH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
-  if (fd.obi) {
-    const bw = parseFloat(fd.obi.bidPct), aw = 100 - bw;
-    const c = bw > 55 ? 'var(--bull)' : bw < 45 ? 'var(--bear)' : 'var(--text-dim)';
-    obiH = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
+  // ── OBI — rewrite only if bidPct changed ──
+  const obiEl = cell('obi');
+  if (obiEl) {
+    const obiKey = fd.obi ? String(fd.obi.bidPct) : 'null';
+    if (_dv[s+':obi'] !== obiKey) {
+      _dv[s+':obi'] = obiKey;
+      if (!fd.obi) {
+        obiEl.innerHTML = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+      } else {
+        const bw = parseFloat(fd.obi.bidPct), aw = 100 - bw;
+        const c = bw > 55 ? 'var(--bull)' : bw < 45 ? 'var(--bear)' : 'var(--text-dim)';
+        obiEl.innerHTML = `<div class="obi"><span class="obi-v" style="color:${c}">${bw}%</span><div class="obi-track"><div class="obi-bid" style="width:${bw}%"></div><div class="obi-ask" style="width:${aw}%"></div></div></div>`;
+      }
+    }
   }
-  sc('obi', obiH);
 
-  const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi, '_');
-  let cvdH = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
-  if (fd.cvd) {
-    const val = fd.cvd.value, up2 = fd.cvd.trending === 'up';
-    const fv = Math.abs(val)>1e6?(val/1e6).toFixed(2)+'M':Math.abs(val)>1000?(val/1000).toFixed(1)+'K':val.toFixed(0);
-    cvdH = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
+  // ── CVD — rewrite only if value changed ──
+  const cvdEl = cell('cvd');
+  const cvdId = 'cv_' + s.replace(/[^a-z0-9]/gi,'_');
+  if (cvdEl) {
+    const cvdKey = fd.cvd ? String(fd.cvd.value) + fd.cvd.trending : 'null';
+    if (_dv[s+':cvd'] !== cvdKey) {
+      _dv[s+':cvd'] = cvdKey;
+      if (!fd.cvd) {
+        cvdEl.innerHTML = '<span style="color:var(--text-dim);font-size:9px;">—</span>';
+      } else {
+        const val = fd.cvd.value, up2 = fd.cvd.trending === 'up';
+        const fv = Math.abs(val)>1e6?(val/1e6).toFixed(2)+'M':Math.abs(val)>1000?(val/1000).toFixed(1)+'K':val.toFixed(0);
+        cvdEl.innerHTML = `<div class="cvd"><canvas id="${cvdId}" width="55" height="20" class="sp"></canvas><span class="cvd-v" style="color:${up2?'var(--bull)':'var(--bear)'}">${up2?'▲':'▼'}${fv}</span></div>`;
+        // Register new canvas for IO so it draws when visible
+        const cvCanvas = document.getElementById(cvdId);
+        if (cvCanvas) _registerSpark(cvCanvas);
+      }
+    }
   }
-  sc('cvd', cvdH);
 
-  sc('shock', `<div class="vbar"><span style="color:var(--gold)">${fd.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(fd.shock)-.5)*80)}%"></div></div></div>`);
-  sc('ls', `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${fd.lp}%"></div><div class="ls-s" style="width:${fd.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${fd.lp}%</span><span style="color:var(--bear)">S${fd.sp}%</span></div></div>`);
-  sc('fr', frStr, { color: frC, fontSize: '9px' });
-  sc('ema', fd.emaTrend||'—', { color: fd.emaTrend==='ABOVE'?'var(--bull)':fd.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)', fontSize:'9px', fontWeight:'700' });
-  sc('oidiv', fd.oiDiv||'—', { color: fd.oiDivC, fontSize:'10px', fontWeight:'700' });
-  sc('dip', fd.dipLabel||'—', { color: fd.dipLabelC, fontSize:'10px', fontWeight:'700' });
-  sc('b4h', fd.bias4h||'—', { color: fd.bias4hC, fontSize:'10px', fontWeight:'700' });
-  sc('bday', fd.biasDay||'—', { color: fd.biasDayC, fontSize:'10px', fontWeight:'700' });
-  const sdotC = fd.sigC.includes('sb')||fd.sigC.includes('-b')?'var(--bull)':fd.sigC.includes('ss')||fd.sigC.includes('be')?'var(--bear)':'#555';
-  sc('sig', `<span class="sig ${fd.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${fd.sig}</span>`);
-  const srH = fd.sup||fd.res
-    ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${fd.sup||'—'}</span><span style="color:var(--bear);">R $${fd.res||'—'}</span></div>`
-    : '<span style="color:var(--text-dim);">—</span>';
-  sc('sr', srH);
-  sc('reason', fd.reason, {});
+  // ── Simple text cells (shock, FR, EMA, OI div, dip, bias, signal, reason) ──
+  const shockEl = cell('shock');
+  const shockTxt = `${fd.shock}x`;
+  if (shockEl && _dv[s+':shock'] !== shockTxt) {
+    _dv[s+':shock'] = shockTxt;
+    shockEl.innerHTML = `<div class="vbar"><span style="color:var(--gold)">${fd.shock}x</span><div class="vbar-bg"><div class="vbar-fill" style="width:${Math.min(100,(parseFloat(fd.shock)-.5)*80)}%"></div></div></div>`;
+  }
 
-  // Row-level class (flash colour) and market-closed dim
+  // L/S bar
+  const lsKey = `${fd.lp}|${fd.sp}`;
+  const lsEl = cell('ls');
+  if (lsEl && _dv[s+':ls'] !== lsKey) {
+    _dv[s+':ls'] = lsKey;
+    lsEl.innerHTML = `<div class="ls"><div class="ls-track"><div class="ls-l" style="width:${fd.lp}%"></div><div class="ls-s" style="width:${fd.sp}%"></div></div><div class="ls-lbl"><span style="color:var(--bull)">L${fd.lp}%</span><span style="color:var(--bear)">S${fd.sp}%</span></div></div>`;
+  }
+
+  T('fr', cell('fr'), frStr);
+  S('frc', cell('fr'), 'color', frC);
+  T('ema', cell('ema'), fd.emaTrend||'—');
+  S('emac', cell('ema'), 'color', fd.emaTrend==='ABOVE'?'var(--bull)':fd.emaTrend==='BELOW'?'var(--bear)':'var(--text-dim)');
+  T('oidiv', cell('oidiv'), fd.oiDiv||'—');
+  S('oidivc', cell('oidiv'), 'color', fd.oiDivC);
+  T('dip', cell('dip'), fd.dipLabel||'—');
+  S('dipc', cell('dip'), 'color', fd.dipLabelC);
+  T('b4h', cell('b4h'), fd.bias4h||'—');
+  S('b4hc', cell('b4h'), 'color', fd.bias4hC);
+  T('bday', cell('bday'), fd.biasDay||'—');
+  S('bdayc', cell('bday'), 'color', fd.biasDayC);
+  T('reason', cell('reason'), fd.reason||'');
+
+  // Signal pill
+  const sigEl = cell('sig');
+  const sigKey = fd.sigC + '|' + fd.sig;
+  if (sigEl && _dv[s+':sig'] !== sigKey) {
+    _dv[s+':sig'] = sigKey;
+    const sdotC = fd.sigC.includes('sb')||fd.sigC.includes('-b')?'var(--bull)':fd.sigC.includes('ss')||fd.sigC.includes('be')?'var(--bear)':'#555';
+    sigEl.innerHTML = `<span class="sig ${fd.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${fd.sig}</span>`;
+  }
+
+  // S/R levels
+  const srEl = cell('sr');
+  const srKey = (fd.sup||'') + '|' + (fd.res||'');
+  if (srEl && _dv[s+':sr'] !== srKey) {
+    _dv[s+':sr'] = srKey;
+    srEl.innerHTML = fd.sup||fd.res
+      ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${fd.sup||'—'}</span><span style="color:var(--bear);">R $${fd.res||'—'}</span></div>`
+      : '<span style="color:var(--text-dim);">—</span>';
+  }
+
+  // Row class (heat colour + market closed dim)
   const hc = parseFloat(fd.chg) > 2.5 ? 'ru' : parseFloat(fd.chg) < -2.5 ? 'rd' : '';
   const mktClosed = typeof marketStatus === 'function' && marketStatus(s) !== 'open';
-  tr.className = [hc, mktClosed ? 'mkt-closed-row' : ''].filter(Boolean).join(' ');
+  const wantCls = [hc, mktClosed ? 'mkt-closed-row' : ''].filter(Boolean).join(' ');
+  if (tr.className !== wantCls) tr.className = wantCls;
 
-  // Update CLOSED badge in the name cell without rebuilding it
-  const symCell = tr.querySelector('.td-sym');
-  if (symCell) {
-    const badge = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
-    const name = s.includes(':') ? s.split(':')[1].replace('USDT','') : s;
-    const want = name + badge;
-    if (symCell.innerHTML !== want) symCell.innerHTML = want;
-  }
-
-  // Sparklines — only the two canvases for this one symbol
-  requestAnimationFrame(() => {
-    const sparkData = (fd.sparkBars?.length > 1) ? fd.sparkBars : (STATE.PH[s]?.length > 1 ? STATE.PH[s] : null);
-    if (sparkData) drawSpark('sp_' + s.replace(/[^a-z0-9]/gi,'_'), sparkData);
-    if (fd.cvd?.series?.length > 1) drawSpark('cv_' + s.replace(/[^a-z0-9]/gi,'_'), fd.cvd.series);
-  });
+  // Sparklines — viewport-gated, no redundant redraws
+  const spId = 'sp_' + s.replace(/[^a-z0-9]/gi,'_');
+  const spData = fd.sparkBars?.length > 1 ? fd.sparkBars : (STATE.PH[s]?.length > 1 ? STATE.PH[s] : null);
+  if (spData) _drawSparkLazy(spId, spData, null);
+  if (fd.cvd?.series?.length > 1) _drawSparkLazy(cvdId, fd.cvd.series, null);
 }
 
 // ── Sparkline ──
 // ── Sparkline ──
-function drawSpark(id, data) {
-  const c = document.getElementById(id); if (!c || data.length < 2) return;
+function drawSpark(id, data, color) {
+  const c = document.getElementById(id); if (!c || !data || data.length < 2) return;
   const ctx = c.getContext('2d'), w = c.width, h = c.height;
   ctx.clearRect(0, 0, w, h);
   const mn = Math.min(...data), mx = Math.max(...data), rng = mx - mn || 1;
   const pts = data.map((v, i) => [i / (data.length - 1) * w, h - ((v - mn) / rng) * (h - 2) - 1]);
   const up = data[data.length - 1] >= data[0];
   ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.strokeStyle = up ? '#00e5a0' : '#ff4560'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.strokeStyle = color || (up ? '#00e5a0' : '#ff4560'); ctx.lineWidth = 1.5; ctx.stroke();
 }
 
 // ── News ──
@@ -1183,6 +1261,8 @@ function renderLeaderboard() {
   });
 
   buildAlertBar(alertBar);
+  // Call dots only after full card rebuild (structure changed) — not on patch cycles
+  if (typeof renderLeaderboardDots === 'function') renderLeaderboardDots();
 }
 
 function drawSparkLine(canvas, data, color) {
