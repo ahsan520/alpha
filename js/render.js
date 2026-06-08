@@ -1059,6 +1059,11 @@ function renderLeaderboard() {
       if (allowedDir === 'bull' && rawDir === 'bear') dir = 'neutral';
       if (allowedDir === 'bear' && rawDir === 'bull') dir = 'neutral';
 
+      // ── Signal gate: never short a symbol the signal engine flagged bullish ──
+      // Prevents leaderboard from contradicting the BULLISH/STRONG BUY signal
+      // e.g. XRP showing BULLISH in the matrix should not appear as SHORT SETUP
+      if (rawDir === 'bear' && (d.sig === 'BULLISH' || d.sig === 'STRONG BUY')) dir = 'neutral';
+
       // ── Ingestion gate for bull setups ───────────────────────────────────
       if (dir === 'bull' && !passesIngestionGate(d, 'bull')) dir = 'neutral';
 
