@@ -622,15 +622,108 @@ function toggleCard(sym) {
 }
 
 // ── Determine setup mode label from signal data ──
-function getSetupMode(d, conv, isCapitulation) {
+function getSetupMode(d, conv, isCapitulation, lane) {
   const shock = parseFloat(d.shock) || 1;
   const frNum = parseFloat(d.fr) || 0;
-  if (isCapitulation)                                        return { label: 'CAP BUY',    cls: 'cap-buy',  emoji: '💥' };
-  if (d.oiDiv === '💎 DIP BUY' && frNum <= -0.01)           return { label: 'DIP BUY',    cls: 'dip-buy',  emoji: '💎' };
-  if (shock >= 2.0 && d.cvd?.trending === 'up' && conv > 6) return { label: 'SQUEEZE NOW', cls: 'squeeze', emoji: '🚀' };
-  if (d.emaTrend === 'ABOVE' && conv > 5)                   return { label: 'BREAKOUT',   cls: 'breakout', emoji: '⚡' };
-  if (conv < -4)                                             return { label: 'SHORT SETUP', cls: 'bear',   emoji: '🔻' };
+  if (lane === 'trend')                                      return { label: 'TRENDING',    cls: 'trending',  emoji: '📈' };
+  if (isCapitulation)                                        return { label: 'CAP BUY',     cls: 'cap-buy',   emoji: '💥' };
+  if (d.oiDiv === '💎 DIP BUY' && frNum <= -0.01)           return { label: 'DIP BUY',     cls: 'dip-buy',   emoji: '💎' };
+  if (shock >= 2.0 && d.cvd?.trending === 'up' && conv > 6) return { label: 'SQUEEZE NOW', cls: 'squeeze',   emoji: '🚀' };
+  if (d.emaTrend === 'ABOVE' && conv > 5)                   return { label: 'BREAKOUT',    cls: 'breakout',  emoji: '⚡' };
+  if (conv < -4)                                             return { label: 'SHORT SETUP', cls: 'bear',      emoji: '🔻' };
   return { label: 'WATCHING', cls: 'watching', emoji: '⏳' };
+}
+
+// ── Trend-continuation lane scoring ─────────────────────────────────────────
+// Catches assets already in motion where the spark shows an uptrend and there
+// is room left to run before the next resistance. Completely separate from the
+// dip-buy quadrant model — different gates, different score breakdown labels.
+// Returns { score, trendBreakdown } or null if symbol doesn't qualify.
+function calcTrendScore(sym, d, isActive, isOffPeak) {
+  const price  = parseFloat(d.p)   || 0;
+  const res    = parseFloat(d.res) || 0;
+  const r15    = d.r15 || 50;
+  const r1h    = d.r1h || 50;
+  const chg24  = parseFloat(d.chg) || 0;
+
+  // Hard gates — must be macro bullish and above EMA
+  if (!d.bias4h?.match(/BULL 4H|LEAN BULL/)) return null;
+  if (d.emaTrend !== 'ABOVE') return null;
+
+  // Spark slope gate — need an upward trend over available bars
+  const sparkBars = (d.sparkBars?.length >= 4) ? d.sparkBars
+                  : (STATE.PH?.[sym]?.length  >= 4) ? STATE.PH[sym].slice(-7)
+                  : null;
+  if (!sparkBars) return null;
+  const sparkFirst = sparkBars[0];
+  const sparkLast  = sparkBars[sparkBars.length - 1];
+  const sparkSlope = sparkFirst > 0 ? (sparkLast - sparkFirst) / sparkFirst : 0;
+  if (sparkSlope <= 0.005) return null; // < 0.5% rise over window = not trending
+
+  // Don't let dip-buy symbols also qualify for trending (they'd appear twice)
+  // A symbol already near support is a dip-buy candidate, not a trend-continuation
+  const sup = parseFloat(d.sup) || 0;
+  if (sup > 0 && price > 0) {
+    const distToSup = (price - sup) / price;
+    const dipGate = isOffPeak ? 0.06 : 0.04;
+    if (distToSup <= dipGate) return null; // too close to support = dip-buy territory
+  }
+
+  let score = 0;
+  const tb = {};
+
+  // Q1: Spark Slope (+4 max) ─────────────────────────────────────────────────
+  if      (sparkSlope > 0.08) tb.sparkSlope = 4;
+  else if (sparkSlope > 0.04) tb.sparkSlope = 3;
+  else if (sparkSlope > 0.02) tb.sparkSlope = 2;
+  else                        tb.sparkSlope = 1;
+  score += tb.sparkSlope;
+
+  // Q2: EMA + Bias Alignment (+4 max) ──────────────────────────────────────
+  tb.emaTrend = 0;
+  if (d.emaTrend === 'ABOVE')              tb.emaTrend += 2;
+  if (d.bias4h?.includes('BULL 4H'))       tb.emaTrend += 2;
+  else if (d.bias4h?.includes('LEAN BULL'))tb.emaTrend += 1;
+  if (d.biasDay?.includes('BULL DAY'))     tb.emaTrend += 1;
+  else if (d.biasDay?.includes('BEAR DAY'))tb.emaTrend -= 2; // daily headwind
+  tb.emaTrend = Math.max(-2, Math.min(4, tb.emaTrend));
+  score += tb.emaTrend;
+
+  // Q3: RSI Health (+4 max) ─────────────────────────────────────────────────
+  // Sweet spot 45-68: healthy trend with room to run. Penalise overbought.
+  const rsiAvg = (r15 + r1h) / 2;
+  if      (rsiAvg >= 45 && rsiAvg <= 60) tb.rsiHealth = 4;
+  else if (rsiAvg >  60 && rsiAvg <= 68) tb.rsiHealth = 3;
+  else if (rsiAvg >  68 && rsiAvg <= 75) tb.rsiHealth = 1; // getting extended
+  else if (rsiAvg >  75)                 tb.rsiHealth = -2; // overbought — late entry
+  else if (rsiAvg >= 38 && rsiAvg <  45) tb.rsiHealth = 2; // healthy pullback
+  else                                   tb.rsiHealth = 0;
+  score += tb.rsiHealth;
+
+  // Q4: Room to Resistance (+4 max) ─────────────────────────────────────────
+  // Key anti-chasing check: don't surface if price is already near resistance.
+  if (res > 0 && price > 0 && res > price) {
+    const roomPct = (res - price) / price * 100;
+    if      (roomPct >= 12) tb.roomToRes = 4;
+    else if (roomPct >= 8)  tb.roomToRes = 3;
+    else if (roomPct >= 5)  tb.roomToRes = 2;
+    else if (roomPct >= 3)  tb.roomToRes = 1;
+    else                    tb.roomToRes = 0; // too close to resistance
+  } else {
+    tb.roomToRes = 2; // no resistance data = benefit of doubt
+  }
+  score += tb.roomToRes;
+
+  // Bonuses
+  if (d.cvd?.trending === 'up')                        score += 1; // CVD confirming
+  if (chg24 > 0.5 && chg24 <= 5)                      score += 1; // momentum without chasing
+  if (chg24 > 5)                                       score -= 1; // already ran hard today
+  if (d.oiDiv === '✓ CONFIRM' || d.oiDiv === '💎 DIP BUY') score += 1;
+
+  // Sticky buffer
+  if (isActive) score += 3;
+
+  return { score: Math.round(score * 10) / 10, trendBreakdown: tb };
 }
 
 // ── Compute session label from UTC time ──
@@ -1014,13 +1107,61 @@ function renderLeaderboard() {
       const catalyst = freshNews.find(n => n.title.toLowerCase().includes(base))
                     || news.find(n => n.title.toLowerCase().includes(base));
 
-      // Use V2 bull score for ranking, bear score for bears
-      const conv = activeDir === 'bull' ? bullScore : bearScore;
+      // ── Trend-continuation lane check ────────────────────────────────────
+      // Run AFTER persistence/eviction so we only evaluate symbols that
+      // cleared all standard gates. A symbol qualifies for trend lane if
+      // calcTrendScore returns a result AND it didn't qualify for dip-buy
+      // (mutual exclusion: dip-buy gate rejects symbols near support,
+      //  trend gate rejects symbols that ARE near support).
+      // Trend lane overrides dir only if the standard scoring gives 'neutral'.
+      let lane = 'dip'; // default — dip-buy / bear scoring model
+      let trendBreakdown = null;
+      if (activeDir === 'neutral' || activeDir === 'bull') {
+        const trendResult = calcTrendScore(sym, d, isActive, isOffPeak);
+        if (trendResult && trendResult.score >= (isOffPeak ? 6 : 8)) {
+          // Qualifies for trend lane — check persistence separately
+          const tp = STATE.hclPersist[sym + ':trend'] ||
+            { enterCount: 0, exitCount: 0, active: false };
+          tp.enterCount = Math.min(tp.enterCount + 1, ENTER_THRESHOLD);
+          tp.exitCount  = 0;
+          if (tp.enterCount >= ENTER_THRESHOLD) tp.active = true;
+          STATE.hclPersist[sym + ':trend'] = tp;
+
+          if (tp.active) {
+            lane          = 'trend';
+            trendBreakdown = trendResult.trendBreakdown;
+            // Override dir to bull and use trend score for ranking
+            if (activeDir === 'neutral') {
+              // Patch persistence to reflect this as an active bull slot
+              p.active = true; p.dir = 'bull'; p.enterCount = ENTER_THRESHOLD;
+              STATE.hclPersist[sym] = p;
+            }
+          }
+        } else {
+          // Didn't qualify for trend — decay its persistence
+          const tp = STATE.hclPersist[sym + ':trend'] ||
+            { enterCount: 0, exitCount: 0, active: false };
+          tp.exitCount++;
+          if (tp.exitCount >= EXIT_THRESHOLD) { tp.active = false; tp.enterCount = 0; }
+          STATE.hclPersist[sym + ':trend'] = tp;
+        }
+      }
+
+      // Final direction — trend lane can rescue a neutral symbol
+      const finalDir = lane === 'trend' && activeDir === 'neutral' ? 'bull' : activeDir;
+
+      // Use V2 bull score for ranking, bear score for bears, trend score for trend lane
+      const trendResult2 = lane === 'trend' ? calcTrendScore(sym, d, isActive, isOffPeak) : null;
+      const conv = lane === 'trend' ? (trendResult2?.score || bullScore)
+                 : finalDir === 'bull' ? bullScore : bearScore;
+
       return {
         sym, d, conv,
-        breakdown, // 4-quadrant breakdown for card display
-        dir: activeDir,
-        isCapitulation: isCapitulation && activeDir === 'bull',
+        breakdown,        // dip-buy 4-quadrant breakdown
+        trendBreakdown,   // trend lane 4-quadrant breakdown (null for dip/bear)
+        lane,             // 'dip' | 'trend'
+        dir: lane === 'trend' ? 'bull' : finalDir,
+        isCapitulation: isCapitulation && finalDir === 'bull',
         capScore, catalyst
       };
     })
@@ -1139,7 +1280,7 @@ function renderLeaderboard() {
   // ── Diff check: only rebuild cards when the ranked set / order changes ──
   // The "fingerprint" is the ordered list of symbols + their direction.
   // If it matches the DOM, we patch visible text nodes in-place instead.
-  const newFingerprint = ranked.map(r => r.sym + ':' + r.dir).join('|');
+  const newFingerprint = ranked.map(r => r.sym + ':' + r.dir + ':' + (r.lane||'dip')).join('|');
   const existingCards  = [...body.querySelectorAll('.hcl-card[data-sym]')];
   const oldFingerprint = existingCards.map(c =>
     c.getAttribute('data-sym') + ':' + (c.classList.contains('bull') ? 'bull' : 'bear')
@@ -1197,7 +1338,8 @@ function renderLeaderboard() {
     const chgN   = parseFloat(d.chg || 0);
     const chgCls = chgN >= 0 ? 'bull' : 'bear';
     const chgStr = (chgN >= 0 ? '+' : '') + chgN.toFixed(2) + '%';
-    const setup  = getSetupMode(d, conv, isCap);
+    const lane     = r.lane || 'dip';
+    const setup    = getSetupMode(d, conv, isCap, lane);
     const levels = calcEntryLevels(d);
     const sparkId = `hcl2-spark-${i}`;
 
@@ -1206,13 +1348,19 @@ function renderLeaderboard() {
     const secsLeft = 900 - (now.getMinutes() % 15) * 60 - now.getSeconds();
     const timerStr = `${Math.floor(secsLeft / 60)}min ${secsLeft % 60}s to reset`;
 
-    // ── SPEC V2.0: 4-Quadrant Score Breakdown ──
-    // Uses the breakdown computed during scoring: Support Prox / CVD Slope / Compression / Bid Imbal
-    const bd = r.breakdown || {};
-    const q1 = bd.technical ?? 0;   // Support Proximity  (max +4)
-    const q2 = bd.instFlow  ?? 0;   // CVD Slope 30m      (max +6 / min -5)
-    const q3 = bd.squeeze   ?? 0;   // Compression        (max +4)
-    const q4 = bd.obSent    ?? 0;   // OB + Sentiment     (max +6)
+    // ── Score Breakdown — switches between dip-buy and trend quadrants ──
+    const isTrend = (r.lane === 'trend');
+    const bd  = isTrend ? (r.trendBreakdown || {}) : (r.breakdown || {});
+    // Dip-buy quadrants
+    const q1 = isTrend ? (bd.sparkSlope ?? 0) : (bd.technical ?? 0);
+    const q2 = isTrend ? (bd.emaTrend  ?? 0) : (bd.instFlow  ?? 0);
+    const q3 = isTrend ? (bd.rsiHealth ?? 0) : (bd.squeeze   ?? 0);
+    const q4 = isTrend ? (bd.roomToRes ?? 0) : (bd.obSent    ?? 0);
+    // Labels differ by lane
+    const qlabels = isTrend
+      ? ['Spark Slope', 'EMA Trend', 'RSI Health', 'Room to Res']
+      : ['Support Prox', 'CVD Slope 30m', 'Compression', 'Bid Imbal'];
+    const qmaxes  = isTrend ? [4, 4, 4, 4] : [4, 6, 4, 6];
     const totalScore = Math.round(Math.abs(conv));
     const timeBoost  = sessionMult !== '×1.0' ? sessionMult : null;
 
@@ -1232,6 +1380,16 @@ function renderLeaderboard() {
     const shockBull = parseFloat(d.shock) > 1.5;
     const shortsCovering = lsBull && chgN < 0;
 
+    // Spark slope for trend evidence
+    const sparkBarsEv  = (d.sparkBars?.length >= 2) ? d.sparkBars : (STATE.PH?.[r.sym]?.slice(-7) || []);
+    const sparkSlopeEv = sparkBarsEv.length >= 2
+      ? ((sparkBarsEv[sparkBarsEv.length-1] - sparkBarsEv[0]) / sparkBarsEv[0] * 100).toFixed(1)
+      : null;
+    const resPrice = parseFloat(d.res) || 0;
+    const roomPct  = resPrice > 0 && parseFloat(d.p) > 0
+      ? ((resPrice - parseFloat(d.p)) / parseFloat(d.p) * 100).toFixed(1)
+      : null;
+
     const evidence = isCap ? [
       // Capitulation buy — show exhaustion signals, not normal bull evidence
       { txt: `RSI ${d.r15||50}/${d.r1h||50} — extreme oversold`, bull: true },
@@ -1240,6 +1398,14 @@ function renderLeaderboard() {
       { txt: `Vol ${d.shock||'1.0'}x${parseFloat(d.shock)>2.5?' — climactic sell':' — elevated'}`, bull: true },
       { txt: `Down ${Math.abs(chgN).toFixed(1)}% today — washout`, bull: true },
       { txt: `⚠ Counter-trend · tight stop · short hold`, bull: false },
+    ] : isTrend ? [
+      // Trend-continuation lane — show momentum evidence
+      { txt: sparkSlopeEv !== null ? `Spark: +${sparkSlopeEv}% ${Number(sparkSlopeEv)>4?'strong':'steady'} uptrend` : 'Spark: uptrend confirmed', bull: true },
+      { txt: `EMA: price above${d.bias4h?.includes('BULL 4H') ? ' · 4H bull aligned' : ' · lean bull'}`, bull: true },
+      { txt: `RSI ${d.r15||50}/${d.r1h||50}${(((d.r15||50)+(d.r1h||50))/2) <= 68 ? ' — healthy, room to run' : ' — extended, size carefully'}`, bull: ((d.r15||50)+(d.r1h||50))/2 <= 68 },
+      { txt: roomPct !== null ? `Room: +${roomPct}% to resistance $${d.res}` : 'Room: resistance clear', bull: Number(roomPct) >= 5 },
+      { txt: cvdBull ? 'CVD confirming ▲ — institutional support' : 'CVD flat — momentum driven', bull: cvdBull },
+      { txt: `⚠ Do not chase — wait for pullback or 15m close confirm`, bull: false },
     ] : [
       { txt: oiChg, bull: chgN > 0 },
       { txt: frStr, bull: frBull },
@@ -1249,9 +1415,11 @@ function renderLeaderboard() {
       { txt: shortsCovering ? '"shorts covering"' : `RSI ${d.r15 || 50}/${d.r1h || 50}`, bull: shortsCovering || (d.r15 || 50) < 40 },
     ];
 
-    // Entry trigger wait condition
+    // Entry trigger wait condition — trend lane waits for pullback, not breakout
     const entryTrigger = levels
-      ? `Wait: 15min close > $${levels.entry} · Vol > ${d.shock || '1.0'}x (now ${(Math.max(0, parseFloat(d.shock || 1) * 0.8)).toFixed(1)}x)`
+      ? isTrend
+        ? `Wait: 15min close > $${levels.entry} · Vol > ${d.shock || '1.0'}x (now ${(Math.max(0, parseFloat(d.shock || 1) * 0.8)).toFixed(1)}x)`
+        : `Wait: 15min close > $${levels.entry} · Vol > ${d.shock || '1.0'}x (now ${(Math.max(0, parseFloat(d.shock || 1) * 0.8)).toFixed(1)}x)`
       : `Watching price action…`;
 
     // Correlation
@@ -1302,23 +1470,23 @@ function renderLeaderboard() {
         <div class="hcl-score-hdr">SCORE BREAKDOWN <span style="font-size:8px;color:var(--text-dim);font-weight:400;">V2.0 · max 20pts</span></div>
         <div class="hcl-score-grid">
           <div class="hcl-score-row">
-            <span class="hcl-score-lbl" title="Distance to structural 4H support">Support Prox</span>
-            ${scoreBar(q1, 4)}
+            <span class="hcl-score-lbl">${qlabels[0]}</span>
+            ${scoreBar(q1, qmaxes[0])}
             <span class="hcl-score-val ${q1 >= 0 ? 'pos' : 'neg'}">${q1 >= 0 ? '+' : ''}${q1}</span>
           </div>
           <div class="hcl-score-row">
-            <span class="hcl-score-lbl" title="30m CVD slope — whale limit-order absorption">CVD Slope 30m</span>
-            ${scoreBar(q2, 6)}
+            <span class="hcl-score-lbl">${qlabels[1]}</span>
+            ${scoreBar(q2, qmaxes[1])}
             <span class="hcl-score-val ${q2 >= 0 ? 'pos' : 'neg'}">${q2 >= 0 ? '+' : ''}${q2}</span>
           </div>
           <div class="hcl-score-row">
-            <span class="hcl-score-lbl" title="Squeeze compression — Bollinger inside Keltner proxy">Compression</span>
-            ${scoreBar(q3, 4)}
+            <span class="hcl-score-lbl">${qlabels[2]}</span>
+            ${scoreBar(q3, qmaxes[2])}
             <span class="hcl-score-val ${q3 >= 0 ? 'pos' : 'neg'}">${q3 >= 0 ? '+' : ''}${q3}</span>
           </div>
           <div class="hcl-score-row">
-            <span class="hcl-score-lbl" title="Order book bid imbalance + inverted retail sentiment">Bid Imbal</span>
-            ${scoreBar(q4, 6)}
+            <span class="hcl-score-lbl">${qlabels[3]}</span>
+            ${scoreBar(q4, qmaxes[3])}
             <span class="hcl-score-val ${q4 >= 0 ? 'pos' : 'neg'}">${q4 >= 0 ? '+' : ''}${q4}</span>
           </div>
         </div>
