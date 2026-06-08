@@ -1287,7 +1287,7 @@ function renderLeaderboard() {
   const newFingerprint = ranked.map(r => r.sym + ':' + r.dir + ':' + (r.lane||'dip')).join('|');
   const existingCards  = [...body.querySelectorAll('.hcl-card[data-sym]')];
   const oldFingerprint = existingCards.map(c =>
-    c.getAttribute('data-sym') + ':' + (c.classList.contains('bull') ? 'bull' : 'bear')
+    c.getAttribute('data-sym') + ':' + (c.classList.contains('bull') ? 'bull' : 'bear') + ':' + (c.getAttribute('data-lane') || 'dip')
   ).join('|');
 
   const sessionMult = getSessionMult();
@@ -1439,7 +1439,7 @@ function renderLeaderboard() {
     const lonStr  = spyChg !== 0 ? `London ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.4).toFixed(1)}%` : 'London —';
 
     const isExpanded = STATE.expandedCards.has(sym);
-    return `<div class="hcl-card ${dir}" data-sym="${sym}">
+    return `<div class="hcl-card ${dir}" data-sym="${sym}" data-lane="${lane}">
 
       <!-- Always-visible collapsed header — tap to expand -->
       <div class="hcl-ct" onclick="toggleCard('${sym}')">
