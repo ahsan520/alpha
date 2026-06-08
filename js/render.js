@@ -646,9 +646,11 @@ function calcTrendScore(sym, d, isActive, isOffPeak) {
   const r1h    = d.r1h || 50;
   const chg24  = parseFloat(d.chg) || 0;
 
-  // Hard gates — must be macro bullish and above EMA
+  // Hard gates — must be macro bullish; EMA can be ABOVE or unknown (—)
+  // We don't hard-reject on EMA=dash because stock/TSX symbols often
+  // don't return EMA data — the quadrant score handles it gracefully.
+  if (d.emaTrend === 'BELOW') return null; // explicitly below EMA = not trending up
   if (!d.bias4h?.match(/BULL 4H|LEAN BULL/)) return null;
-  if (d.emaTrend !== 'ABOVE') return null;
 
   // Spark slope gate — need an upward trend over available bars
   const sparkBars = (d.sparkBars?.length >= 4) ? d.sparkBars
@@ -681,11 +683,13 @@ function calcTrendScore(sym, d, isActive, isOffPeak) {
 
   // Q2: EMA + Bias Alignment (+4 max) ──────────────────────────────────────
   tb.emaTrend = 0;
-  if (d.emaTrend === 'ABOVE')              tb.emaTrend += 2;
-  if (d.bias4h?.includes('BULL 4H'))       tb.emaTrend += 2;
-  else if (d.bias4h?.includes('LEAN BULL'))tb.emaTrend += 1;
-  if (d.biasDay?.includes('BULL DAY'))     tb.emaTrend += 1;
-  else if (d.biasDay?.includes('BEAR DAY'))tb.emaTrend -= 2; // daily headwind
+  if (d.emaTrend === 'ABOVE')                  tb.emaTrend += 2;
+  else if (!d.emaTrend || d.emaTrend === '—')  tb.emaTrend += 1; // unknown = neutral
+  if (d.bias4h?.includes('BULL 4H'))           tb.emaTrend += 2;
+  else if (d.bias4h?.includes('LEAN BULL'))    tb.emaTrend += 1;
+  if (d.biasDay?.includes('BULL DAY'))         tb.emaTrend += 1;
+  else if (d.biasDay?.includes('LEAN BEAR'))   tb.emaTrend -= 1; // soft penalty — daily lags 4H
+  else if (d.biasDay?.includes('BEAR DAY'))    tb.emaTrend -= 2; // confirmed bear day = harder
   tb.emaTrend = Math.max(-2, Math.min(4, tb.emaTrend));
   score += tb.emaTrend;
 
