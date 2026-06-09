@@ -5,6 +5,8 @@
 const PROXIES = [
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
 
 async function fetchProxy(url) {
@@ -518,17 +520,18 @@ async function fetchFG() {
 // ── Market Pulse instrument map ──
 // INDEX: Stooq index symbols (^spx etc.) — 24h, not ETF-dependent
 // SECTOR: ETFs — only meaningful during NY session; show stale gracefully
-// MACRO: 24h instruments — gold spot, DXY forex, 10Y yield, WTI futures
-//   GOLD  → XAU/USD spot via frankfurter proxy or stooq gc.f
-//   DXY   → stooq dx-y.nyb (ICE DXY index, ~24h)
-//   BONDS → stooq ^tnx (10Y Treasury yield — more useful than TLT ETF price)
-//   OIL   → stooq cl.f (WTI front-month futures, nearly 24h)
+// MACRO: 24h instruments — gold/silver spot, DXY forex, 10Y yield, WTI + Brent futures
+//   GOLD   → XAU/USD spot via stooq xauusd
+//   SILVER → XAG/USD spot via stooq xagusd
+//   DXY    → stooq dx-y.nyb (ICE DXY index, ~24h)
+//   BONDS  → stooq ^tnx (10Y Treasury yield — more useful than TLT ETF price)
+//   WTI    → stooq cl.f (WTI front-month futures, nearly 24h)
+//   BRENT  → stooq lco.f (Brent crude front-month futures, nearly 24h)
 const MPULSE_STOCKS = [
   // INDEX — stooq index tickers, available outside US hours
   { id: 'mp-SPY', sym: '^spx',     stooq: true },
   { id: 'mp-QQQ', sym: '^ndx',     stooq: true },
   { id: 'mp-DIA', sym: '^dji',     stooq: true },
-  { id: 'mp-IWM', sym: '^vix',     stooq: true },   // replaced RUSSELL with VIX — more useful cross-session
   // SECTOR — US ETFs, NY session only; stooq .us suffix
   { id: 'mp-XLK', sym: 'XLK',      stooq: false },
   { id: 'mp-XLE', sym: 'XLE',      stooq: false },
@@ -536,9 +539,11 @@ const MPULSE_STOCKS = [
   { id: 'mp-XLV', sym: 'XLV',      stooq: false },
   // MACRO — 24h instruments via stooq
   { id: 'mp-GLD', sym: 'xauusd',   stooq: true },   // Gold spot XAU/USD
+  { id: 'mp-SLV', sym: 'xagusd',   stooq: true },   // Silver spot XAG/USD
   { id: 'mp-UUP', sym: 'dx-y.nyb', stooq: true },   // ICE DXY index
   { id: 'mp-TLT', sym: '^tnx',     stooq: true },   // 10Y Treasury yield
   { id: 'mp-USO', sym: 'cl.f',     stooq: true },   // WTI crude futures
+  { id: 'mp-BRT', sym: 'lco.f',    stooq: true },   // Brent crude futures
 ];
 
 const MPULSE_CRYPTO = [
@@ -557,12 +562,20 @@ async function fetchStooq(sym) {
   const s = /^[A-Z]{2,5}$/.test(sym) ? sym.toLowerCase() + '.us' : sym.toLowerCase();
   const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(s)}&i=d`;
   let txt = null;
+  // Try direct first (works in some environments)
   try { const r = await fetch(url, { signal: AbortSignal.timeout(9000) }); if (r.ok) txt = await r.text(); } catch {}
+  // Cycle through all proxies until one works
   if (!txt) {
-    try {
-      const r = await fetch(PROXIES[0](url), { signal: AbortSignal.timeout(9000) });
-      if (r.ok) { const raw = await r.text(); try { txt = JSON.parse(raw).contents ?? raw; } catch { txt = raw; } }
-    } catch {}
+    for (const proxyFn of PROXIES) {
+      try {
+        const r = await fetch(proxyFn(url), { signal: AbortSignal.timeout(9000) });
+        if (!r.ok) continue;
+        const raw = await r.text();
+        try { txt = JSON.parse(raw).contents ?? raw; } catch { txt = raw; }
+        if (txt && !txt.includes('No data') && txt.trim().split('\n').length >= 3) break;
+        txt = null; // proxy returned something useless, try next
+      } catch {}
+    }
   }
   if (!txt || txt.includes('No data') || txt.trim().split('\n').length < 3) throw new Error('stooq:nodata:' + sym);
   const rows = txt.trim().split('\n').slice(1).filter(Boolean);
@@ -620,15 +633,35 @@ async function fetchMarketPulse() {
     } catch {}
   }));
 
+  // ── Gold & Silver via Binance (most reliable, no CORS, 24h) ──
+  const BINANCE_SPOT_MAP = { 'xauusd': 'XAUUSDT', 'xagusd': 'XAGUSDT' };
+  const spotPills = MPULSE_STOCKS.filter(p => BINANCE_SPOT_MAP[p.sym]);
+  if (spotPills.length) {
+    try {
+      const symbols = JSON.stringify(spotPills.map(p => BINANCE_SPOT_MAP[p.sym]));
+      const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbols)}`;
+      let data = null;
+      try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) data = await r.json(); } catch {}
+      if (!data) data = await fetchProxy(url);
+      if (Array.isArray(data)) {
+        const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
+        for (const pill of spotPills) {
+          const t = byPair[BINANCE_SPOT_MAP[pill.sym]];
+          if (t) updateMPill(pill.id, parseFloat(t.lastPrice), parseFloat(t.priceChangePercent));
+        }
+      }
+    } catch {}
+  }
+
   // ── Stocks / Indices / Macro ──
-  // stooq:true  → 24h instruments (indices, gold, DXY, yield, oil) — always available
+  // stooq:true  → 24h instruments (indices, DXY, yield, oil) — always available
   // stooq:false → US ETFs (sectors) — Yahoo cascade, honest — during off-hours
-  await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
+  await Promise.allSettled(MPULSE_STOCKS.filter(p => !BINANCE_SPOT_MAP[p.sym]).map(async pill => {
     if (pill.stooq) {
       // Primary: Stooq (24h, no rate limit)
       try { const { p, chg } = await fetchStooq(pill.sym); if (p != null) { updateMPill(pill.id, p, chg); return; } } catch {}
-      // Fallback: Yahoo for any index that Stooq misses (e.g. VIX)
-      const yahooMap = { '^vix': '%5EVIX', '^spx': '%5EGSPC', '^ndx': '%5EIXIC', '^dji': '%5EDJI', '^tnx': '%5ETNX' };
+      // Fallback: Yahoo for any index that Stooq misses
+      const yahooMap = { '^spx': '%5EGSPC', '^ndx': '%5EIXIC', '^dji': '%5EDJI', '^tnx': '%5ETNX' };
       const yTicker = yahooMap[pill.sym] || pill.sym;
       try { const { p, chg } = await fetchStock(yTicker); if (p != null) updateMPill(pill.id, p, chg); } catch {}
     } else {
