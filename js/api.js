@@ -5,8 +5,6 @@
 const PROXIES = [
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-  u => `https://thingproxy.freeboard.io/fetch/${u}`,
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
 ];
 
 async function fetchProxy(url) {
@@ -562,20 +560,12 @@ async function fetchStooq(sym) {
   const s = /^[A-Z]{2,5}$/.test(sym) ? sym.toLowerCase() + '.us' : sym.toLowerCase();
   const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(s)}&i=d`;
   let txt = null;
-  // Try direct first (works in some environments)
   try { const r = await fetch(url, { signal: AbortSignal.timeout(9000) }); if (r.ok) txt = await r.text(); } catch {}
-  // Cycle through all proxies until one works
   if (!txt) {
-    for (const proxyFn of PROXIES) {
-      try {
-        const r = await fetch(proxyFn(url), { signal: AbortSignal.timeout(9000) });
-        if (!r.ok) continue;
-        const raw = await r.text();
-        try { txt = JSON.parse(raw).contents ?? raw; } catch { txt = raw; }
-        if (txt && !txt.includes('No data') && txt.trim().split('\n').length >= 3) break;
-        txt = null; // proxy returned something useless, try next
-      } catch {}
-    }
+    try {
+      const r = await fetch(PROXIES[0](url), { signal: AbortSignal.timeout(9000) });
+      if (r.ok) { const raw = await r.text(); try { txt = JSON.parse(raw).contents ?? raw; } catch { txt = raw; } }
+    } catch {}
   }
   if (!txt || txt.includes('No data') || txt.trim().split('\n').length < 3) throw new Error('stooq:nodata:' + sym);
   const rows = txt.trim().split('\n').slice(1).filter(Boolean);
@@ -633,30 +623,10 @@ async function fetchMarketPulse() {
     } catch {}
   }));
 
-  // ── Gold & Silver via Binance (most reliable, no CORS, 24h) ──
-  const BINANCE_SPOT_MAP = { 'xauusd': 'XAUUSDT', 'xagusd': 'XAGUSDT' };
-  const spotPills = MPULSE_STOCKS.filter(p => BINANCE_SPOT_MAP[p.sym]);
-  if (spotPills.length) {
-    try {
-      const symbols = JSON.stringify(spotPills.map(p => BINANCE_SPOT_MAP[p.sym]));
-      const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbols)}`;
-      let data = null;
-      try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) data = await r.json(); } catch {}
-      if (!data) data = await fetchProxy(url);
-      if (Array.isArray(data)) {
-        const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
-        for (const pill of spotPills) {
-          const t = byPair[BINANCE_SPOT_MAP[pill.sym]];
-          if (t) updateMPill(pill.id, parseFloat(t.lastPrice), parseFloat(t.priceChangePercent));
-        }
-      }
-    } catch {}
-  }
-
   // ── Stocks / Indices / Macro ──
-  // stooq:true  → 24h instruments (indices, DXY, yield, oil) — always available
+  // stooq:true  → 24h instruments (indices, gold, DXY, yield, oil) — always available
   // stooq:false → US ETFs (sectors) — Yahoo cascade, honest — during off-hours
-  await Promise.allSettled(MPULSE_STOCKS.filter(p => !BINANCE_SPOT_MAP[p.sym]).map(async pill => {
+  await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
     if (pill.stooq) {
       // Primary: Stooq (24h, no rate limit)
       try { const { p, chg } = await fetchStooq(pill.sym); if (p != null) { updateMPill(pill.id, p, chg); return; } } catch {}
