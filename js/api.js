@@ -83,18 +83,42 @@ async function batchCrypto(syms) {
     }
   } catch {}
 
-  // Fallback: CoinGecko for any pairs Binance didn't cover (price + stale 24h%)
+  // Fallback: for delisted pairs use Kraken ticker; for others try CoinGecko
   const missing = pairs.filter(p => !res['BINANCE:' + p]);
   if (missing.length) {
-    try {
-      const idMap = {};
-      await Promise.all(missing.map(async p => { idMap[await cgId(p)] = p; }));
-      const ids = Object.keys(idMap).join(',');
-      const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-      for (const [id, pair] of Object.entries(idMap)) {
-        if (d[id]) res['BINANCE:' + pair] = { p: d[id].usd, chg: d[id].usd_24h_change || 0 };
-      }
-    } catch {}
+    // Kraken-first for known delisted pairs
+    const krakenMissing = missing.filter(p => KRAKEN_PAIR[p]);
+    await Promise.allSettled(krakenMissing.map(async p => {
+      try {
+        const kPair = KRAKEN_PAIR[p];
+        const url = `https://api.kraken.com/0/public/Ticker?pair=${kPair}`;
+        let d = null;
+        try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) d = await r.json(); } catch {}
+        if (!d) d = await fetchProxy(url);
+        const key = Object.keys(d.result || {})[0];
+        if (key) {
+          const t = d.result[key];
+          const last = parseFloat(t.c[0]);
+          const open = parseFloat(t.o);
+          const chg  = open > 0 ? parseFloat(((last - open) / open * 100).toFixed(2)) : 0;
+          res['BINANCE:' + p] = { p: last, chg };
+        }
+      } catch {}
+    }));
+
+    // CoinGecko for any still-missing non-Kraken pairs
+    const cgMissing = missing.filter(p => !res['BINANCE:' + p]);
+    if (cgMissing.length) {
+      try {
+        const idMap = {};
+        await Promise.all(cgMissing.map(async p => { idMap[await cgId(p)] = p; }));
+        const ids = Object.keys(idMap).join(',');
+        const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+        for (const [id, pair] of Object.entries(idMap)) {
+          if (d[id]) res['BINANCE:' + pair] = { p: d[id].usd, chg: d[id].usd_24h_change || 0 };
+        }
+      } catch {}
+    }
   }
   return res;
 }
@@ -306,27 +330,34 @@ function calcRSI(closes, p = 14) {
   return al === 0 ? 100 : parseFloat((100 - 100 / (1 + ag / al)).toFixed(1));
 }
 
-// ── CoinGecko OHLC fallback for Binance-delisted pairs (e.g. XMRUSDT) ──
-// CoinGecko /ohlc returns [[timestamp,o,h,l,c], ...] for 14 days at daily granularity.
-// We use this to reconstruct kDay, k4h (approximated), CVD, MTF RSI, and sup/res bars
-// so all columns compute correctly even without Binance data.
-async function fetchCoinGeckoExtra(pair) {
-  const cgid = CG[pair];
-  if (!cgid) return null;
-  try {
-    // 14-day daily OHLC — sufficient for RSI-14, EMA-7, sup/res pivots
-    const url = `https://api.coingecko.com/api/v3/coins/${cgid}/ohlc?vs_currency=usd&days=14`;
-    let raw = null;
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) raw = await r.json();
-    } catch {}
-    if (!raw) raw = await fetchProxy(url);
-    if (!Array.isArray(raw) || raw.length < 8) return null;
+// ── Kraken extra data for Binance-delisted pairs (e.g. XMRUSDT) ──
+// Kraken has XMR/USD listed, public API, no key required, CORS-friendly via proxy.
+// Provides real OHLC at daily + 4h intervals, real volume, and a live ticker.
+//
+// Kraken pair map for delisted symbols:
+const KRAKEN_PAIR = { 'XMRUSDT': 'XMRUSD' };
 
-    // raw rows: [timestamp_ms, open, high, low, close]
-    const bars = raw.map(r => ({ t: r[0], o: r[1], h: r[2], l: r[3], c: r[4] }));
-    const closes  = bars.map(b => b.c);
+async function fetchKrakenExtra(pair) {
+  const kPair = KRAKEN_PAIR[pair];
+  if (!kPair) return null;
+
+  try {
+    // ── Daily OHLC (interval=1440) — 20 bars ──
+    const dayUrl = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=1440&count=20`;
+    let dayRaw = null;
+    try { const r = await fetch(dayUrl, { signal: AbortSignal.timeout(8000) }); if (r.ok) dayRaw = await r.json(); } catch {}
+    if (!dayRaw) dayRaw = await fetchProxy(dayUrl);
+    // Kraken response: { error:[], result: { XMRUSD: [[time,o,h,l,c,vwap,vol,count], ...], last: N } }
+    const dayKey = Object.keys(dayRaw.result || {}).find(k => k !== 'last');
+    if (!dayKey) return null;
+    const dayBars = dayRaw.result[dayKey].map(r => ({
+      t: r[0] * 1000, o: parseFloat(r[1]), h: parseFloat(r[2]),
+      l: parseFloat(r[3]), c: parseFloat(r[4]), v: parseFloat(r[6]),
+    }));
+    if (dayBars.length < 8) return null;
+
+    const closes  = dayBars.map(b => b.c);
+    const volumes = dayBars.map(b => b.v);
     const n = closes.length;
 
     // ── kDay ──
@@ -335,52 +366,112 @@ async function fetchCoinGeckoExtra(pair) {
     for (let i = 1; i < n; i++) ema7 = closes[i] * k2 + ema7 * (1 - k2);
     const chg7d  = closes[n - 7] > 0 ? parseFloat(((closes[n-1] - closes[n-7]) / closes[n-7] * 100).toFixed(1)) : 0;
     const chg1d  = closes[n - 2] > 0 ? parseFloat(((closes[n-1] - closes[n-2]) / closes[n-2] * 100).toFixed(2)) : null;
-    // CoinGecko OHLC has no volume; approximate CVD from candle direction
+    const avgVol  = volumes.slice(0, n - 1).reduce((a, b) => a + b, 0) / (n - 1);
+    const volSurge = volumes[n - 1] > avgVol * 1.4;
     let cvdDaily = 0;
-    for (let i = n - 7; i < n; i++) cvdDaily += bars[i].c >= bars[i].o ? 1 : -1;
-    // volSurge: use body size of last candle vs avg of prior 6 as a proxy
-    const bodySize = i => Math.abs(bars[i].c - bars[i].o);
-    const avgBody = bars.slice(n - 7, n - 1).reduce((s, _, ii, a) => s + bodySize(n - 7 + ii), 0) / 6;
-    const volSurge = bodySize(n - 1) > avgBody * 1.5;
-    const dailyBars = bars.map(b => ({ h: b.h, l: b.l, c: b.c }));
+    for (let i = n - 7; i < n; i++) cvdDaily += dayBars[i].c >= dayBars[i].o ? 1 : -1;
+    const dailyBars = dayBars.map(b => ({ h: b.h, l: b.l, c: b.c }));
     const kDay = { rsiDaily, aboveEma7: closes[n-1] > ema7, volSurge, chg7d, chg1d, cvdDaily, _barsDay: dailyBars };
 
-    // ── k4h proxy — use last 8 daily bars split into pseudo-4h segments ──
-    // (CoinGecko free tier doesn't offer 4h OHLC without a paid plan)
-    const recent = bars.slice(-8);
-    const rClose = recent.map(b => b.c);
-    const rn = rClose.length;
-    const rsi4h = calcRSI(rClose, Math.min(7, rn - 1));
-    const k3 = 2 / (8 + 1); let ema8 = rClose[0];
-    for (let i = 1; i < rn; i++) ema8 = rClose[i] * k3 + ema8 * (1 - k3);
-    const recentUp = rClose[rn-1] > rClose[rn-4];
-    // vol proxy: last candle body vs prior 3 average
-    const recentBodies = recent.map(b => Math.abs(b.c - b.o));
-    const volUp = recentBodies[rn-1] > (recentBodies.slice(-4, -1).reduce((a, b) => a + b, 0) / 3);
-    let cvd4h = 0;
-    for (let i = rn - 4; i < rn; i++) cvd4h += recent[i].c >= recent[i].o ? 1 : -1;
-    const k4h = { rsi4h, recentUp, volUp, aboveEma8: rClose[rn-1] > ema8, cvd4h, lastClose: rClose[rn-1], prevClose: rClose[rn-4] };
+    // ── 4h OHLC (interval=240) — 20 bars ──
+    let k4h = null;
+    try {
+      const h4Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=240&count=20`;
+      let h4Raw = null;
+      try { const r = await fetch(h4Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) h4Raw = await r.json(); } catch {}
+      if (!h4Raw) h4Raw = await fetchProxy(h4Url);
+      const h4Key = Object.keys(h4Raw.result || {}).find(k => k !== 'last');
+      if (h4Key) {
+        const h4Bars = h4Raw.result[h4Key].map(r => ({
+          o: parseFloat(r[1]), h: parseFloat(r[2]), l: parseFloat(r[3]),
+          c: parseFloat(r[4]), v: parseFloat(r[6]),
+        }));
+        const rClose = h4Bars.map(b => b.c);
+        const rVols  = h4Bars.map(b => b.v);
+        const rn = rClose.length;
+        const rsi4h = calcRSI(rClose, Math.min(14, rn - 1));
+        const k3 = 2 / (8 + 1); let ema8 = rClose[0];
+        for (let i = 1; i < rn; i++) ema8 = rClose[i] * k3 + ema8 * (1 - k3);
+        const recentUp = rClose[rn-1] > rClose[Math.max(0, rn-4)];
+        const avgVol4h = rVols.slice(0, rn - 1).reduce((a, b) => a + b, 0) / (rn - 1);
+        const volUp = rVols[rn - 1] > avgVol4h * 1.3;
+        let cvd4h = 0;
+        for (let i = Math.max(0, rn - 4); i < rn; i++) cvd4h += h4Bars[i].c >= h4Bars[i].o ? 1 : -1;
+        k4h = { rsi4h, recentUp, volUp, aboveEma8: rClose[rn-1] > ema8, cvd4h, lastClose: rClose[rn-1], prevClose: rClose[Math.max(0, rn-4)] };
+      }
+    } catch {}
 
-    // ── MTF RSI — derived from the same daily bar series at different lookbacks ──
-    // True 15m/1h/4h bars aren't available from CoinGecko free tier.
-    // We approximate using different RSI periods on daily closes:
-    //   r15 (≈ short-term) → RSI-3 on last 6 bars
-    //   r1h (≈ mid-term)   → RSI-5 on last 10 bars
-    //   r4h (≈ swing)      → RSI-7 on last 12 bars
-    const r15 = calcRSI(closes.slice(-6),  3);
-    const r1h = calcRSI(closes.slice(-10), 5);
-    const r4h = calcRSI(closes.slice(-12), 7);
-    const mtf = [r15, r1h, r4h];
+    // Fallback k4h from daily bars if 4h fetch failed
+    if (!k4h) {
+      const recent = dayBars.slice(-8);
+      const rClose = recent.map(b => b.c);
+      const rn = rClose.length;
+      const rsi4h = calcRSI(rClose, Math.min(7, rn - 1));
+      const k3 = 2 / (8 + 1); let ema8 = rClose[0];
+      for (let i = 1; i < rn; i++) ema8 = rClose[i] * k3 + ema8 * (1 - k3);
+      const recentUp = rClose[rn-1] > rClose[Math.max(0, rn-4)];
+      const recentBodies = recent.map(b => Math.abs(b.c - b.o));
+      const volUp = recentBodies[rn-1] > (recentBodies.slice(-4, -1).reduce((a, b) => a + b, 0) / 3);
+      let cvd4h = 0;
+      for (let i = Math.max(0, rn - 4); i < rn; i++) cvd4h += recent[i].c >= recent[i].o ? 1 : -1;
+      k4h = { rsi4h, recentUp, volUp, aboveEma8: rClose[rn-1] > ema8, cvd4h, lastClose: rClose[rn-1], prevClose: rClose[Math.max(0, rn-4)] };
+    }
 
-    // ── CVD approximation (candle-direction proxy) ──
-    let cvdAcc = 0;
-    const cvdSeries = bars.slice(-20).map(b => { cvdAcc += b.c >= b.o ? 1 : -1; return cvdAcc; });
-    const cvdLast = cvdSeries[cvdSeries.length - 1];
-    const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
-    const cvd = { value: cvdLast, series: cvdSeries, trending: cvdLast > cvdPrev ? 'up' : 'down' };
+    // ── MTF RSI from 15m klines (interval=15) ──
+    let mtf = [null, null, null];
+    try {
+      const m15Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=15&count=60`;
+      let m15Raw = null;
+      try { const r = await fetch(m15Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) m15Raw = await r.json(); } catch {}
+      if (!m15Raw) m15Raw = await fetchProxy(m15Url);
+      const m15Key = Object.keys(m15Raw.result || {}).find(k => k !== 'last');
+      if (m15Key) {
+        const m15Closes = m15Raw.result[m15Key].map(r => parseFloat(r[4]));
+        const r15 = calcRSI(m15Closes.slice(-20),  14);
+        const r1h = calcRSI(m15Closes.slice(-30),  14); // ~7.5h of 15m bars
+        const r4h = calcRSI(m15Closes,             14); // full 15h window
+        mtf = [r15, r1h, r4h];
+      }
+    } catch {}
+    // Fallback MTF from daily closes at different lookbacks
+    if (mtf.every(v => v === null)) {
+      mtf = [
+        calcRSI(closes.slice(-6),  3),
+        calcRSI(closes.slice(-10), 5),
+        calcRSI(closes.slice(-12), 7),
+      ];
+    }
 
-    // ── OBI: not available without Binance order book — return null ──
-    // (will show — in the OBI column, which is correct)
+    // ── CVD from 15m volume-weighted direction ──
+    let cvd = null;
+    try {
+      const m15Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=15&count=48`;
+      let m15Raw = null;
+      try { const r = await fetch(m15Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) m15Raw = await r.json(); } catch {}
+      if (!m15Raw) m15Raw = await fetchProxy(m15Url);
+      const m15Key = Object.keys(m15Raw.result || {}).find(k => k !== 'last');
+      if (m15Key) {
+        let cvdAcc = 0;
+        const cvdSeries = m15Raw.result[m15Key].map(r => {
+          const vol = parseFloat(r[6]), o = parseFloat(r[1]), c = parseFloat(r[4]);
+          cvdAcc += c >= o ? vol : -vol;
+          return cvdAcc;
+        });
+        const cvdLast = cvdSeries[cvdSeries.length - 1];
+        const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
+        cvd = { value: cvdLast, series: cvdSeries.slice(-20), trending: cvdLast > cvdPrev ? 'up' : 'down' };
+      }
+    } catch {}
+    // Fallback CVD from daily candle direction
+    if (!cvd) {
+      let cvdAcc = 0;
+      const cvdSeries = dayBars.slice(-20).map(b => { cvdAcc += b.c >= b.o ? 1 : -1; return cvdAcc; });
+      const cvdLast = cvdSeries[cvdSeries.length - 1];
+      const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
+      cvd = { value: cvdLast, series: cvdSeries, trending: cvdLast > cvdPrev ? 'up' : 'down' };
+    }
+
+    // OBI not available without Binance order book
     const obi = null;
 
     return { obi, cvd, mtf, k4h, kDay, _barsDay: dailyBars };
@@ -472,35 +563,34 @@ async function fetchMarketPulse() {
     }
   } catch {}
 
-  // XMR and other delisted: CoinGecko simple/price
+  // XMR and other delisted: Kraken ticker (no API key, real-time, CORS via proxy)
   const delistedCrypto = MPULSE_CRYPTO.filter(p => BINANCE_DELISTED.has(p.sym));
-  if (delistedCrypto.length) {
+  await Promise.allSettled(delistedCrypto.map(async pill => {
+    const kPair = KRAKEN_PAIR[pill.sym];
+    if (!kPair) return;
     try {
-      const ids = delistedCrypto.map(p => CG[p.sym]).filter(Boolean).join(',');
-      const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-      for (const pill of delistedCrypto) {
-        const cgid = CG[pill.sym];
-        if (d[cgid]) updateMPill(pill.id, d[cgid].usd, d[cgid].usd_24h_change || 0);
+      const url = `https://api.kraken.com/0/public/Ticker?pair=${kPair}`;
+      let d = null;
+      try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) d = await r.json(); } catch {}
+      if (!d) d = await fetchProxy(url);
+      const key = Object.keys(d.result || {})[0];
+      if (key) {
+        const t = d.result[key];
+        const last = parseFloat(t.c[0]);
+        const open = parseFloat(t.o);
+        const chg  = open > 0 ? parseFloat(((last - open) / open * 100).toFixed(2)) : 0;
+        updateMPill(pill.id, last, chg);
       }
     } catch {}
-  }
+  }));
 
-  // ── Stocks/ETFs: 2 batched Yahoo v7 calls instead of 12 parallel ──
-  const stockBatches = [
-    MPULSE_STOCKS.slice(0, 6),   // SPY QQQ DIA IWM XLK XLE
-    MPULSE_STOCKS.slice(6),      // XLF XLV GLD UUP TLT USO
-  ];
-  await Promise.allSettled(stockBatches.map(async batch => {
+  // ── Stocks/ETFs: parallel per-symbol fetch with full v7→v8→query2 cascade ──
+  // Batched v7 calls fail silently during NY hours (Yahoo rate-limits/anti-scrape).
+  // Using the same 3-level cascade as fetchStock() ensures tiles populate reliably.
+  await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
     try {
-      const syms = batch.map(p => p.sym).join(',');
-      const d = await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}`);
-      const results = d?.quoteResponse?.result || [];
-      for (const q of results) {
-        const pill = batch.find(p => p.sym === q.symbol);
-        if (pill && q.regularMarketPrice != null && q.regularMarketChangePercent != null) {
-          updateMPill(pill.id, q.regularMarketPrice, q.regularMarketChangePercent);
-        }
-      }
+      const { p, chg } = await fetchStock(pill.sym);
+      if (p != null) updateMPill(pill.id, p, chg);
     } catch {}
   }));
 

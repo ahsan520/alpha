@@ -232,7 +232,7 @@ async function syncOne(s) {
 
       let extra;
       if (isDelisted) {
-        extra = await fetchCoinGeckoExtra(pair).catch(() => ({})) || {};
+        extra = await fetchKrakenExtra(pair).catch(() => ({})) || {};
       } else {
         const obi  = await fetchOBI(pair).catch(() => null);
         const cvd  = await fetchCVD(pair).catch(() => null);
