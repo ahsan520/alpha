@@ -515,19 +515,30 @@ async function fetchFG() {
 }
 
 // ── Market Pulse Panel — indices, sectors, macro, crypto ──
+// ── Market Pulse instrument map ──
+// INDEX: Stooq index symbols (^spx etc.) — 24h, not ETF-dependent
+// SECTOR: ETFs — only meaningful during NY session; show stale gracefully
+// MACRO: 24h instruments — gold spot, DXY forex, 10Y yield, WTI futures
+//   GOLD  → XAU/USD spot via frankfurter proxy or stooq gc.f
+//   DXY   → stooq dx-y.nyb (ICE DXY index, ~24h)
+//   BONDS → stooq ^tnx (10Y Treasury yield — more useful than TLT ETF price)
+//   OIL   → stooq cl.f (WTI front-month futures, nearly 24h)
 const MPULSE_STOCKS = [
-  { id: 'mp-SPY', sym: 'SPY'  },
-  { id: 'mp-QQQ', sym: 'QQQ'  },
-  { id: 'mp-DIA', sym: 'DIA'  },
-  { id: 'mp-IWM', sym: 'IWM'  },
-  { id: 'mp-XLK', sym: 'XLK'  },
-  { id: 'mp-XLE', sym: 'XLE'  },
-  { id: 'mp-XLF', sym: 'XLF'  },
-  { id: 'mp-XLV', sym: 'XLV'  },
-  { id: 'mp-GLD', sym: 'GLD'  },
-  { id: 'mp-UUP', sym: 'UUP'  },
-  { id: 'mp-TLT', sym: 'TLT'  },
-  { id: 'mp-USO', sym: 'USO'  },
+  // INDEX — stooq index tickers, available outside US hours
+  { id: 'mp-SPY', sym: '^spx',     stooq: true },
+  { id: 'mp-QQQ', sym: '^ndx',     stooq: true },
+  { id: 'mp-DIA', sym: '^dji',     stooq: true },
+  { id: 'mp-IWM', sym: '^vix',     stooq: true },   // replaced RUSSELL with VIX — more useful cross-session
+  // SECTOR — US ETFs, NY session only; stooq .us suffix
+  { id: 'mp-XLK', sym: 'XLK',      stooq: false },
+  { id: 'mp-XLE', sym: 'XLE',      stooq: false },
+  { id: 'mp-XLF', sym: 'XLF',      stooq: false },
+  { id: 'mp-XLV', sym: 'XLV',      stooq: false },
+  // MACRO — 24h instruments via stooq
+  { id: 'mp-GLD', sym: 'xauusd',   stooq: true },   // Gold spot XAU/USD
+  { id: 'mp-UUP', sym: 'dx-y.nyb', stooq: true },   // ICE DXY index
+  { id: 'mp-TLT', sym: '^tnx',     stooq: true },   // 10Y Treasury yield
+  { id: 'mp-USO', sym: 'cl.f',     stooq: true },   // WTI crude futures
 ];
 
 const MPULSE_CRYPTO = [
@@ -536,6 +547,31 @@ const MPULSE_CRYPTO = [
   { id: 'mp-SOL', sym: 'SOLUSDT' },
   { id: 'mp-XMR', sym: 'XMRUSDT' },
 ];
+
+
+// ── Stooq fetch — no API key, no rate limits, 24h for index/forex/futures ──
+// sym examples: '^spx', 'xauusd', 'cl.f', 'dx-y.nyb', 'XLK.us'
+// Returns { p, chg } where chg = day% vs previous close.
+async function fetchStooq(sym) {
+  // Stooq appends .us for plain uppercase ETF tickers; others pass through
+  const s = /^[A-Z]{2,5}$/.test(sym) ? sym.toLowerCase() + '.us' : sym.toLowerCase();
+  const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(s)}&i=d`;
+  let txt = null;
+  try { const r = await fetch(url, { signal: AbortSignal.timeout(9000) }); if (r.ok) txt = await r.text(); } catch {}
+  if (!txt) {
+    try {
+      const r = await fetch(PROXIES[0](url), { signal: AbortSignal.timeout(9000) });
+      if (r.ok) { const raw = await r.text(); try { txt = JSON.parse(raw).contents ?? raw; } catch { txt = raw; } }
+    } catch {}
+  }
+  if (!txt || txt.includes('No data') || txt.trim().split('\n').length < 3) throw new Error('stooq:nodata:' + sym);
+  const rows = txt.trim().split('\n').slice(1).filter(Boolean);
+  const parse = row => parseFloat(row.split(',')[4]);
+  const last = parse(rows[rows.length - 1]);
+  const prev = parse(rows[rows.length - 2]);
+  if (!last || !prev) throw new Error('stooq:parse:' + sym);
+  return { p: last, chg: ((last - prev) / prev) * 100 };
+}
 
 async function fetchMarketPulse() {
   const btn = document.querySelector('.mp-refresh-btn');
@@ -584,14 +620,21 @@ async function fetchMarketPulse() {
     } catch {}
   }));
 
-  // ── Stocks/ETFs: parallel per-symbol fetch with full v7→v8→query2 cascade ──
-  // Batched v7 calls fail silently during NY hours (Yahoo rate-limits/anti-scrape).
-  // Using the same 3-level cascade as fetchStock() ensures tiles populate reliably.
+  // ── Stocks / Indices / Macro ──
+  // stooq:true  → 24h instruments (indices, gold, DXY, yield, oil) — always available
+  // stooq:false → US ETFs (sectors) — Yahoo cascade, honest — during off-hours
   await Promise.allSettled(MPULSE_STOCKS.map(async pill => {
-    try {
-      const { p, chg } = await fetchStock(pill.sym);
-      if (p != null) updateMPill(pill.id, p, chg);
-    } catch {}
+    if (pill.stooq) {
+      // Primary: Stooq (24h, no rate limit)
+      try { const { p, chg } = await fetchStooq(pill.sym); if (p != null) { updateMPill(pill.id, p, chg); return; } } catch {}
+      // Fallback: Yahoo for any index that Stooq misses (e.g. VIX)
+      const yahooMap = { '^vix': '%5EVIX', '^spx': '%5EGSPC', '^ndx': '%5EIXIC', '^dji': '%5EDJI', '^tnx': '%5ETNX' };
+      const yTicker = yahooMap[pill.sym] || pill.sym;
+      try { const { p, chg } = await fetchStock(yTicker); if (p != null) updateMPill(pill.id, p, chg); } catch {}
+    } else {
+      // US sector ETFs — Yahoo cascade (only meaningful in NY session)
+      try { const { p, chg } = await fetchStock(pill.sym); if (p != null) updateMPill(pill.id, p, chg); } catch {}
+    }
   }));
 
   // Timestamp + stop spinner
