@@ -519,12 +519,12 @@ async function fetchFG() {
 // INDEX: Stooq index symbols (^spx etc.) — 24h, not ETF-dependent
 // SECTOR: ETFs — only meaningful during NY session; show stale gracefully
 // MACRO: 24h instruments — gold/silver spot, DXY forex, 10Y yield, WTI + Brent futures
-//   GOLD   → XAU/USD spot via stooq xauusd
-//   SILVER → XAG/USD spot via stooq xagusd
-//   DXY    → stooq dx-y.nyb (ICE DXY index, ~24h)
+//   GOLD   → XAU/USD spot via stooq xauusd (Yahoo GC=F fallback)
+//   SILVER → XAG/USD spot via stooq xagusd (Yahoo SI=F fallback)
+//   DXY    → stooq dx-y.nyb (ICE DXY index, ~24h; Yahoo DX-Y.NYB fallback)
 //   BONDS  → stooq ^tnx (10Y Treasury yield — more useful than TLT ETF price)
-//   WTI    → stooq cl.f (WTI front-month futures, nearly 24h)
-//   BRENT  → stooq lco.f (Brent crude front-month futures, nearly 24h)
+//   WTI    → Yahoo CL=F (stooq cl.f was returning stale/wrong prices)
+//   BRENT  → Yahoo BZ=F (stooq lco.f was returning stale/wrong prices)
 const MPULSE_STOCKS = [
   // INDEX — stooq index tickers, available outside US hours
   { id: 'mp-SPY', sym: '^spx',     stooq: true },
@@ -536,12 +536,12 @@ const MPULSE_STOCKS = [
   { id: 'mp-XLF', sym: 'XLF',      stooq: false },
   { id: 'mp-XLV', sym: 'XLV',      stooq: false },
   // MACRO — 24h instruments via stooq
-  { id: 'mp-GLD', sym: 'xauusd',   stooq: true },   // Gold spot XAU/USD
-  { id: 'mp-SLV', sym: 'xagusd',   stooq: true },   // Silver spot XAG/USD
-  { id: 'mp-UUP', sym: 'dx-y.nyb', stooq: true },   // ICE DXY index
-  { id: 'mp-TLT', sym: '^tnx',     stooq: true },   // 10Y Treasury yield
-  { id: 'mp-USO', sym: 'cl.f',     stooq: true },   // WTI crude futures
-  { id: 'mp-BRT', sym: 'lco.f',    stooq: true },   // Brent crude futures
+  { id: 'mp-GLD', sym: 'xauusd',   stooq: true,  yahoo: 'GC=F'      },   // Gold spot XAU/USD
+  { id: 'mp-SLV', sym: 'xagusd',   stooq: true,  yahoo: 'SI=F'      },   // Silver spot XAG/USD
+  { id: 'mp-UUP', sym: 'dx-y.nyb', stooq: true,  yahoo: 'DX-Y.NYB'  },   // ICE DXY index
+  { id: 'mp-TLT', sym: '^tnx',     stooq: true,  yahoo: '%5ETNX'    },   // 10Y Treasury yield
+  { id: 'mp-USO', sym: 'CL=F',     stooq: false, yahoo: 'CL=F'      },   // WTI crude — Yahoo primary (stooq cl.f stale)
+  { id: 'mp-BRT', sym: 'BZ=F',     stooq: false, yahoo: 'BZ=F'      },   // Brent crude — Yahoo primary (stooq lco.f stale)
 ];
 
 const MPULSE_CRYPTO = [
@@ -630,9 +630,17 @@ async function fetchMarketPulse() {
     if (pill.stooq) {
       // Primary: Stooq (24h, no rate limit)
       try { const { p, chg } = await fetchStooq(pill.sym); if (p != null) { updateMPill(pill.id, p, chg); return; } } catch {}
-      // Fallback: Yahoo for any index that Stooq misses
-      const yahooMap = { '^spx': '%5EGSPC', '^ndx': '%5EIXIC', '^dji': '%5EDJI', '^tnx': '%5ETNX' };
-      const yTicker = yahooMap[pill.sym] || pill.sym;
+      // Fallback: Yahoo for any index/macro that Stooq misses
+      const yahooMap = {
+        '^spx':     '%5EGSPC',
+        '^ndx':     '%5EIXIC',
+        '^dji':     '%5EDJI',
+        '^tnx':     '%5ETNX',
+        'xauusd':   'GC=F',       // Gold spot → Yahoo gold futures (close enough)
+        'xagusd':   'SI=F',       // Silver spot → Yahoo silver futures
+        'dx-y.nyb': 'DX-Y.NYB',  // DXY index
+      };
+      const yTicker = pill.yahoo || yahooMap[pill.sym] || pill.sym;
       try { const { p, chg } = await fetchStock(yTicker); if (p != null) updateMPill(pill.id, p, chg); } catch {}
     } else {
       // US sector ETFs — Yahoo cascade (only meaningful in NY session)

@@ -758,7 +758,8 @@ function calcEntryLevels(d) {
   const stop  = (p - atr * 1.5).toFixed(p < 10 ? 4 : 2);
   const t1    = (p + atr * 2).toFixed(p < 10 ? 4 : 2);
   const t2    = (p + atr * 4).toFixed(p < 10 ? 4 : 2);
-  const rr    = ((parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop))).toFixed(1);
+  const rrDenom = parseFloat(entry) - parseFloat(stop);
+  const rr = rrDenom === 0 ? '∞' : (((parseFloat(t1) - parseFloat(entry)) / rrDenom).toFixed(1));
   return { entry, stop, t1, t2, rr };
 }
 
@@ -875,8 +876,9 @@ function renderLeaderboard() {
     //    Off-peak sessions get 6% — thinner liquidity = wider normal ranges
     if (sup > 0 && price > 0 && sup < price) {
       const distToSup = (price - sup) / price;
-      const maxDist   = isOffPeak ? 0.06 : 0.04;
-      if (distToSup > maxDist) return false;
+      // Reject if price is dangerously close to support (stop-hunt risk)
+      // < 0.5% = essentially at support = bad entry
+      if (distToSup < 0.005) return false;
     }
 
     // 2. Daily pump rejection — symbol already had its retail expansion move
@@ -1006,8 +1008,13 @@ function renderLeaderboard() {
     if (d.emaTrend === 'BELOW')           score -= 1.5;
     if (d.bias4h?.includes('BEAR 4H'))    score -= 2;
     if (d.bias4h?.includes('LEAN BEAR'))  score -= 1;
-    if (d.biasDay?.includes('BEAR DAY'))  score -= 2;
-    if (d.biasDay?.includes('LEAN BEAR')) score -= 1;
+    // Skip daily bias penalties when signal engine says BULLISH/STRONG BUY —
+    // the signal already accounts for daily context; double-penalising causes
+    // BTCsui/ETH/SUI to never exit neutral despite clear bull alignment
+    if (d.sig !== 'BULLISH' && d.sig !== 'STRONG BUY') {
+      if (d.biasDay?.includes('BEAR DAY'))  score -= 2;
+      if (d.biasDay?.includes('LEAN BEAR')) score -= 1;
+    }
     if (d.dipScore <= -2)                 score -= 1;
     if (r15 > 70 && r1h > 65)            score -= 2;
     if (shock > 2 && d.cvd?.trending === 'down') score -= 2;
@@ -1052,17 +1059,28 @@ function renderLeaderboard() {
       // Direction from scores — off-peak sessions use lower threshold (fewer signals active)
       const bullThresh = isOffPeak ? 3 : 4;
       const bearThresh = isOffPeak ? -3 : -4;
-      let rawDir = bullScore >= bullThresh ? 'bull' : bearScore <= bearThresh ? 'bear' : 'neutral';
+      // BULLISH/STRONG BUY signal gets -0.5 threshold discount (signal engine confirmation)
+      const effectiveBullThresh = (d.sig === 'BULLISH' || d.sig === 'STRONG BUY')
+        ? bullThresh - 0.5 : bullThresh;
+      let rawDir = bullScore >= effectiveBullThresh ? 'bull' : bearScore <= bearThresh ? 'bear' : 'neutral';
 
       // Apply 4H gate
       let dir = rawDir;
       if (allowedDir === 'bull' && rawDir === 'bear') dir = 'neutral';
       if (allowedDir === 'bear' && rawDir === 'bull') dir = 'neutral';
 
-      // ── Signal gate: never short a symbol the signal engine flagged bullish ──
-      // Prevents leaderboard from contradicting the BULLISH/STRONG BUY signal
-      // e.g. XRP showing BULLISH in the matrix should not appear as SHORT SETUP
+      // ── Signal gate: never short a BULLISH/STRONG BUY signal ──
       if (rawDir === 'bear' && (d.sig === 'BULLISH' || d.sig === 'STRONG BUY')) dir = 'neutral';
+
+      // ── EMA breakout override: allow bull even if price is below EMA ──
+      // When signal=BULLISH + 4H=BULL/LEAN BULL + CVD rising, EMA reclaim IS the trade.
+      // Without this, breakout entries (XMR-style) are permanently blocked.
+      if (dir === 'neutral' && rawDir === 'bull'
+          && (d.sig === 'BULLISH' || d.sig === 'STRONG BUY')
+          && (allowedDir === 'bull')
+          && d.cvd?.trending === 'up') {
+        dir = 'bull'; // reinstate bull — breakout confirmation
+      }
 
       // ── Ingestion gate for bull setups ───────────────────────────────────
       if (dir === 'bull' && !passesIngestionGate(d, 'bull')) dir = 'neutral';
@@ -1374,8 +1392,8 @@ function renderLeaderboard() {
     const timeBoost  = sessionMult !== '×1.0' ? sessionMult : null;
 
     // Cascade risk
-    const cascRisk = spyChg < -1 ? 'risk' : 'neutral';
-    const cascLabel = spyChg < -1 ? 'CASCADE RISK' : 'CASCADE neutral';
+    const cascRisk = spyChg < -1.5 ? 'risk' : 'neutral';
+    const cascLabel = spyChg < -1.5 ? 'CASCADE RISK' : 'CASCADE neutral';
 
     // Evidence items
     const isCrypto = sym.includes('BINANCE:');
