@@ -759,7 +759,7 @@ function calcEntryLevels(d) {
   const t1    = (p + atr * 2).toFixed(p < 10 ? 4 : 2);
   const t2    = (p + atr * 4).toFixed(p < 10 ? 4 : 2);
   const rrDenom = parseFloat(entry) - parseFloat(stop);
-  const rr = rrDenom === 0 ? '∞' : (((parseFloat(t1) - parseFloat(entry)) / rrDenom).toFixed(1));
+  const rr = (rrDenom === 0 || Math.abs(rrDenom) < 0.000001) ? '—' : (((parseFloat(t1) - parseFloat(entry)) / rrDenom).toFixed(1));
   return { entry, stop, t1, t2, rr };
 }
 

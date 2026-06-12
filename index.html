@@ -108,7 +108,8 @@
       <div class="mp-tile" id="mp-XMR"><div class="mp-tile-name">XMR</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
     </div>
     <div class="mp-refresh-wrap">
-      <div class="mp-updated" id="mp-updated">—</div>
+      <div class="mp-updated" id="mp-updated">PAUSED</div>
+      <button class="mp-pause-btn" id="mpulse-pause-btn" onclick="toggleMpulsePause()" title="Pause/resume market bar updates" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
       <button class="mp-refresh-btn" onclick="fetchMarketPulse()" title="Refresh market pulse">↺</button>
     </div>
   </div><!-- /mbar-pulse -->
@@ -177,6 +178,7 @@
   <div class="bnews-hdr" onclick="toggleNews()">
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="pt">◆ NEWS FEED</span>
+      <button id="news-pause-btn" onclick="event.stopPropagation();toggleNewsPause()" title="Pause/resume news feed" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
       <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
       <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
       <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>

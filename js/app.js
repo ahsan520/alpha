@@ -82,6 +82,39 @@ function syncIntervalFor(sym) {
 }
 
 // ── INIT ──
+// ── PAUSE / PLAY state for market bar + news ──
+// Default: PAUSED — only table and leaderboard load on boot.
+// User clicks ▶ to start fetching index/sector/macro/crypto/news.
+window.MPULSE_PAUSED = true;
+window.NEWS_PAUSED   = true;
+
+function toggleMpulsePause() {
+  window.MPULSE_PAUSED = !window.MPULSE_PAUSED;
+  const btn = document.getElementById('mpulse-pause-btn');
+  if (btn) btn.textContent = window.MPULSE_PAUSED ? '▶' : '⏸';
+  if (!window.MPULSE_PAUSED) fetchMarketPulse(); // immediate fetch on resume
+}
+
+function toggleNewsPause() {
+  window.NEWS_PAUSED = !window.NEWS_PAUSED;
+  const btn = document.getElementById('news-pause-btn');
+  if (btn) btn.textContent = window.NEWS_PAUSED ? '▶' : '⏸';
+  if (!window.NEWS_PAUSED && !STATE._newsFetched) {
+    STATE._newsFetched = true;
+    fetchNews();
+  } else if (!window.NEWS_PAUSED) {
+    fetchNews();
+  }
+}
+
+// Guarded wrappers — silently skip when paused
+function fetchMarketPulseIfActive() {
+  if (!window.MPULSE_PAUSED) fetchMarketPulse();
+}
+function fetchNewsIfActive() {
+  if (!window.NEWS_PAUSED && STATE.newsOpen) fetchNews();
+}
+
 async function init() {
   // v12.4: news starts collapsed — no data fetched until tab is opened
   STATE.newsOpen = false;
@@ -125,8 +158,8 @@ async function init() {
 
   fetchGlobal();
   fetchFG();
-  // v12.4: news NOT fetched here — deferred to first toggleNews() call
-  fetchMarketPulse();
+  // Market pulse + news start PAUSED — user clicks ▶ to activate
+  // fetchMarketPulse() intentionally NOT called here (paused by default)
 
   // Start the sync engine
   sync();
@@ -134,7 +167,7 @@ async function init() {
 
   setInterval(fetchFG, 300_000);
   setInterval(fetchGlobal, 60_000);
-  setInterval(fetchMarketPulse, 300_000);
+  setInterval(fetchMarketPulseIfActive, 300_000);
 
   // ── Independent UI refresh timers ────────────────────────────────────────
   // These run completely separately from the data sync loop.
@@ -195,7 +228,7 @@ async function _adaptiveTick() {
   document.getElementById('sdot').style.background = 'var(--gold)';
 
   let ok = 0, fail = 0;
-  const STAGGER_MS = 300;
+  const STAGGER_MS = 100; // reduced from 300ms — 15 symbols now complete in ~1.5s not 4.5s
 
   for (const s of toSync) {
     const success = await syncOne(s);
@@ -273,7 +306,7 @@ async function sync() {
   document.getElementById('sdot').style.background = 'var(--gold)';
 
   let ok = 0, fail = 0;
-  const STAGGER_MS = 300;
+  const STAGGER_MS = 100; // reduced — faster initial table population
 
   for (const s of STATE.watchlist) {
     const success = await syncOne(s);
@@ -419,11 +452,11 @@ function toggleNews() {
   if (body) body.classList.toggle('hide', !STATE.newsOpen);
   if (chev) chev.textContent = STATE.newsOpen ? '▲ COLLAPSE' : '▼ EXPAND';
 
-  // v12.4 lazy load: fetch news only on first open
-  if (STATE.newsOpen && !STATE._newsFetched) {
+  // v12.4 lazy load: fetch news only on first open AND not paused
+  if (STATE.newsOpen && !STATE._newsFetched && !window.NEWS_PAUSED) {
     STATE._newsFetched = true;
     fetchNews();
-    setInterval(fetchNews, 300_000);
+    setInterval(fetchNewsIfActive, 300_000);
   }
   // Explicit layout call — no MutationObserver needed
   if (STATE.newsOpen && typeof applyMobileNewsFilter === 'function')

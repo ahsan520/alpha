@@ -866,6 +866,9 @@ canvas.sp{display:block;}
 .mp-refresh-btn.spinning { animation: mp-spin 0.7s linear infinite; }
 @keyframes mp-spin { to { transform: rotate(360deg); } }
 
+.mp-pause-btn { transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.mp-pause-btn:hover { background: rgba(255,165,0,.25) !important; }
+
 /* mbar is always visible — not toggled with news body */
 
 @media (max-width: 600px) {
