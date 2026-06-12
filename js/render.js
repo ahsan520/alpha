@@ -675,15 +675,19 @@ function calcTrendScore(sym, d, isActive, isOffPeak) {
   if (d.emaTrend === 'BELOW') return null; // explicitly below EMA = not trending up
   if (!d.bias4h?.match(/BULL 4H|LEAN BULL/)) return null;
 
-  // Spark slope gate — need an upward trend over available bars
+  // Spark slope gate — need an upward trend over available bars.
+  // v12.9.2: relaxed from 0.5% to 0.1% minimum slope, and large chg24 movers
+  // (>5%) bypass the slope gate entirely — the 24h% IS the spark evidence.
   const sparkBars = (d.sparkBars?.length >= 4) ? d.sparkBars
                   : (STATE.PH?.[sym]?.length  >= 4) ? STATE.PH[sym].slice(-7)
                   : null;
-  if (!sparkBars) return null;
-  const sparkFirst = sparkBars[0];
-  const sparkLast  = sparkBars[sparkBars.length - 1];
-  const sparkSlope = sparkFirst > 0 ? (sparkLast - sparkFirst) / sparkFirst : 0;
-  if (sparkSlope <= 0.005) return null; // < 0.5% rise over window = not trending
+  const chg24ForSlope = parseFloat(d.chg || 0);
+  if (!sparkBars && chg24ForSlope <= 5) return null; // no bars and not a big mover = skip
+  const sparkFirst = sparkBars?.[0] ?? 0;
+  const sparkLast  = sparkBars?.[sparkBars.length - 1] ?? 0;
+  const sparkSlope = (sparkBars && sparkFirst > 0) ? (sparkLast - sparkFirst) / sparkFirst : chg24ForSlope / 100;
+  // Gate: need positive slope OR a strong 24h move (big moves ARE the trend signal)
+  if (sparkSlope <= 0.001 && chg24ForSlope <= 3) return null;
 
   // Don't let dip-buy symbols also qualify for trending (they'd appear twice)
   // A symbol already near support is a dip-buy candidate, not a trend-continuation
@@ -744,7 +748,12 @@ function calcTrendScore(sym, d, isActive, isOffPeak) {
   // Bonuses
   if (d.cvd?.trending === 'up')                        score += 1; // CVD confirming
   if (chg24 > 0.5 && chg24 <= 5)                      score += 1; // momentum without chasing
-  if (chg24 > 5)                                       score -= 1; // already ran hard today
+  // v12.9.2: large movers get a graduated penalty, not a flat -1.
+  // A +25% move with CVD up and CONFIRM OI is still a valid trend — score reflects
+  // that the easy money is gone but the direction is real.
+  if (chg24 > 5  && chg24 <= 10)                      score -= 1; // extended but not blown off
+  else if (chg24 > 10 && chg24 <= 20)                 score -= 2; // late entry risk
+  else if (chg24 > 20)                                 score -= 3; // very extended — penalise hard
   if (d.oiDiv === '✓ CONFIRM' || d.oiDiv === '💎 DIP BUY') score += 1;
 
   // Sticky buffer
@@ -883,31 +892,25 @@ function renderLeaderboard() {
   const EXIT_THRESHOLD  = isOffPeak ? 4 : 5;
   const STICKY_BUFFER   = 3; // bonus pts for already-active slots (spec §5)
 
-  // ── SPEC V2.0: Ingestion Gate (§1) — calibrated to real price-to-support distances ──
+  // ── SPEC V2.0: Ingestion Gate (§1) ───────────────────────────────────────
   // Hard binary gateway — rejects over-extended and post-breakout candidates.
-  // Support distance relaxed from spec's 1.5% → 4% because our sup values are
-  // calculated from recent swing lows which sit 2-5% below price in normal conditions.
-  // Gate only fires when d.sup is a reliable fresh value (>0 and <price).
+  // pumpLimit: 12% active / 20% off-peak. A 10-25% XMR move with CVD+CONFIRM
+  // is a trend, not a blow-off — it should appear. Only reject genuinely
+  // parabolic moves where late entry risk is extreme.
   function passesIngestionGate(d, dir) {
-    if (dir !== 'bull') return true; // gate only applies to long candidates
+    if (dir !== 'bull') return true;
     const price = parseFloat(d.p   || 0);
     const sup   = parseFloat(d.sup || 0);
     const chg24 = parseFloat(d.chg || 0);
 
-    // 1. Support proximity gate — only apply when sup data is available and sane
-    //    Relaxed to 4% (spec's 1.5% was too strict for our swing-low sup calc)
-    //    Off-peak sessions get 6% — thinner liquidity = wider normal ranges
+    // Reject if price is sitting ON support (stop-hunt risk)
     if (sup > 0 && price > 0 && sup < price) {
       const distToSup = (price - sup) / price;
-      // Reject if price is dangerously close to support (stop-hunt risk)
-      // < 0.5% = essentially at support = bad entry
       if (distToSup < 0.005) return false;
     }
 
-    // 2. Daily pump rejection — symbol already had its retail expansion move
-    //    Off-peak: allow up to 5% (crypto moves bigger overnight)
-    //    Active session: strict 3.5% per spec
-    const pumpLimit = isOffPeak ? 5.0 : 3.5;
+    // Blow-off top rejection only — scoring already penalises big movers
+    const pumpLimit = isOffPeak ? 20.0 : 12.0;
     if (chg24 > pumpLimit) return false;
 
     return true;
@@ -1133,13 +1136,21 @@ function renderLeaderboard() {
       }
 
       // ── STABILISER 3: Persistence debounce ───────────────────────────────
+      // v12.9.2: strong movers (>8% chg24 + CVD up) bypass the entry threshold
+      // so they appear immediately rather than waiting 2-3 refresh cycles.
+      const chg24ForPersist = parseFloat(d.chg || 0);
+      const isStrongMover = chg24ForPersist > 8
+        && d.cvd?.trending === 'up'
+        && (d.oiDiv === '✓ CONFIRM' || d.oiDiv === '💎 DIP BUY' || d.sig === 'BULLISH' || d.sig === 'STRONG BUY');
+
       const p = STATE.hclPersist[sym] || { dir: 'neutral', enterCount: 0, exitCount: 0, active: false };
       if (dir !== 'neutral') {
         if (!p.active || p.dir !== dir) {
           p.enterCount = (p.dir === dir) ? p.enterCount + 1 : 1;
           p.exitCount  = 0;
           p.dir        = dir;
-          if (p.enterCount >= ENTER_THRESHOLD) p.active = true;
+          // Strong movers skip the debounce — they're confirmed by price action
+          if (p.enterCount >= ENTER_THRESHOLD || isStrongMover) p.active = true;
         } else {
           p.enterCount = Math.min(p.enterCount + 1, ENTER_THRESHOLD);
           p.exitCount  = 0;
