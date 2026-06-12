@@ -283,7 +283,18 @@ function patchSymbolRow(s) {
   const cell = k => tr.querySelector(`[data-k="${k}"]`);
 
   // ── Price & change ──
-  const pEl = cell('p'); T('p', pEl, `$${fd.p}`);
+  const mktStatus = typeof marketStatus === 'function' ? marketStatus(s) : 'open';
+  const isFrozen  = !s.includes('BINANCE:') && mktStatus === 'closed';
+  const pEl = cell('p');
+  const priceStr = `$${fd.p}`;
+  if (pEl && _dv[s+':p'] !== priceStr) {
+    _dv[s+':p'] = priceStr;
+    if (isFrozen) {
+      pEl.innerHTML = `<span>${priceStr}</span><span style="display:block;font-size:7px;color:var(--text-dim);letter-spacing:.3px;margin-top:1px;">AT CLOSE</span>`;
+    } else {
+      pEl.textContent = priceStr;
+    }
+  }
   const chgEl = cell('chg');
   const chgTxt = `${up?'+':''}${fd.chg}%`;
   T('chg', chgEl, chgTxt);
@@ -382,11 +393,23 @@ function patchSymbolRow(s) {
       : '<span style="color:var(--text-dim);">—</span>';
   }
 
-  // Row class (heat colour + market closed dim)
+  // Row class (heat colour + market status dim)
   const hc = parseFloat(fd.chg) > 2.5 ? 'ru' : parseFloat(fd.chg) < -2.5 ? 'rd' : '';
-  const mktClosed = typeof marketStatus === 'function' && marketStatus(s) !== 'open';
+  const mktClosed = mktStatus !== 'open';
   const wantCls = [hc, mktClosed ? 'mkt-closed-row' : ''].filter(Boolean).join(' ');
   if (tr.className !== wantCls) tr.className = wantCls;
+
+  // Update symbol name badge (market status can change while page is open)
+  const symTd = tr.querySelector('.td-sym');
+  if (symTd && typeof marketStatusBadge === 'function') {
+    const name = s.includes('BINANCE:') ? s.split(':')[1].replace('USDT','') : s.replace('.TO','');
+    const badge = marketStatusBadge(s);
+    const badgeKey = s + ':badge:' + mktStatus;
+    if (_dv[badgeKey] !== badge) {
+      _dv[badgeKey] = badge;
+      symTd.innerHTML = name + badge;
+    }
+  }
 
   // Sparklines — viewport-gated, no redundant redraws
   const spId = 'sp_' + s.replace(/[^a-z0-9]/gi,'_');

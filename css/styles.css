@@ -1429,9 +1429,9 @@ canvas.sp{display:block;}
 }
 
 /* ══════════════════════════════════════════
-   v12.4 — Market hours badge
-   Injected into td-sym cells and wl-name spans
-   for closed/pre-post symbols.
+   v12.9.1 — Market hours badge + frozen row
+   Stocks/ETFs show 🔒 FROZEN when market closed (no live fetches).
+   Crypto rows never get this treatment — always live.
    ══════════════════════════════════════════ */
 .mkt-badge {
   display: inline-block;
@@ -1446,24 +1446,29 @@ canvas.sp{display:block;}
   white-space: nowrap;
 }
 .mkt-badge.closed {
-  background: rgba(255,60,60,.12);
-  color: #ff6060;
-  border: 1px solid rgba(255,60,60,.3);
+  background: rgba(110,126,148,.12);
+  color: #6e7e94;
+  border: 1px solid rgba(110,126,148,.25);
 }
 .mkt-badge.prepost {
   background: rgba(240,165,0,.10);
   color: #f0a500;
   border: 1px solid rgba(240,165,0,.25);
 }
-/* Dim the row text slightly for closed symbols — still readable */
+/* Frozen rows: dim everything except the symbol name cell */
 tr.mkt-closed-row td {
-  opacity: .72;
+  opacity: .55;
+  transition: opacity .3s;
 }
 tr.mkt-closed-row td.td-sym {
   opacity: 1; /* keep name + badge crisp */
 }
+/* Desaturate signal pill colour for frozen rows so it doesn't mislead */
+tr.mkt-closed-row .sig {
+  filter: saturate(0.25);
+}
 .mkt-closed-wli {
-  opacity: .72;
+  opacity: .65;
 }
 .mkt-closed-wli .wl-name {
   opacity: 1;

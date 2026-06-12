@@ -1,15 +1,15 @@
 // ══════════════════════════════════════════════
-// app.js — v12.4 — init, sync loop, nav, misc UI
-// Changes from v12.3:
-//   • Market hours gate: stocks/ETFs (.TO, US) frozen after 4pm ET Mon-Fri
-//   • Leaderboard excludes closed-market symbols from conv scoring
-//   • 🔒 CLOSED badge on table rows and watchlist entries for after-hours symbols
-//   • Sync interval for closed symbols downgraded from 15s → 60s
-//   • Lazy init: no symbol pre-selected → TradingView iframe deferred until click
-//   • News feed collapsed by default, data fetched only on first open
-//   • Sparklines skipped until row is hovered/clicked (viewport-only draw)
-//   • Watchlist sidebar shows names only — no price polling until symbol selected
-//   • Score breakdown in leaderboard only computed when card is expanded
+// app.js — v12.9.1 — init, sync loop, nav, misc UI
+// Changes from v12.9:
+//   • Market-hours gate in syncOne(): stocks/ETFs (TSX + US) are fully skipped
+//     when closed — no network calls, cached DS data served as-is, row shows
+//     a 🔒 FROZEN badge and dimmed "as of close" price.
+//   • syncIntervalFor() now returns Infinity for closed non-crypto symbols so
+//     the adaptive tick never queues them at all.
+//   • Crypto (BINANCE:*) always fetches — 24/7 market, no gate applied.
+//   • Manual per-row refresh (↺ button) bypasses the gate so users can force
+//     a fetch if they know the market just opened.
+//   • refreshSymbol() shows "(CLOSED)" label instead of "↺" when market is shut.
 // ══════════════════════════════════════════════
 
 // ── DEFAULT WATCHLIST (fallback if watchlist.json cannot be fetched) ──
@@ -73,12 +73,14 @@ function isLeaderboardEligible(sym) {
   return marketStatus(sym) === 'open'; // only live session qualifies
 }
 
-// Returns sync interval ms for a symbol based on its market status
+// Returns sync interval ms for a symbol based on its market status.
+// Infinity means the adaptive tick will never queue it — no wasted calls.
 function syncIntervalFor(sym) {
+  if (sym.includes('BINANCE:')) return 15_000; // crypto: always live
   const s = marketStatus(sym);
-  if (s === 'open')    return 15_000;   // 15s — live data
-  if (s === 'prepost') return 60_000;   // 60s — extended hours, light polling
-  return                       60_000;  // 60s — closed, minimal refresh
+  if (s === 'open')    return 15_000;   // live session
+  if (s === 'prepost') return 60_000;   // extended hours, light polling
+  return Infinity;                       // closed — skip entirely, serve cache
 }
 
 // ── INIT ──
@@ -250,36 +252,63 @@ async function _adaptiveTick() {
   _syncRunning = false;
 }
 
-// ── SINGLE SYMBOL FETCH ──
-// Fetches and processes one symbol; used by both sync() and per-row refresh buttons.
-async function syncOne(s) {
+// ── SINGLE SYMBOL FETCH — v12.9.1 two-phase load + market-hours gate ──
+// Crypto (BINANCE:*): always fetches — 24/7, no gate.
+// Stocks/ETFs (TSX + US):
+//   open    → Phase 1 price immediately, Phase 2 extras async (same as v12.9)
+//   prepost → same flow but row badge shows EXT HRS
+//   closed  → NO network call; cached DS data served as-is; row shows FROZEN badge.
+//             Returns true so the caller counts it as a non-error.
+async function syncOne(s, { forceRefresh = false } = {}) {
   const isCrypto = s.includes('BINANCE:');
+
+  // ── Market-hours gate (stocks/ETFs only) ──
+  if (!isCrypto && !forceRefresh) {
+    const status = marketStatus(s);
+    if (status === 'closed') {
+      // Serve cached data — patch row so FROZEN badge & dim are applied
+      if (typeof patchSymbolRow === 'function') patchSymbolRow(s);
+      return true; // not an error — just frozen
+    }
+  }
+
   try {
     if (isCrypto) {
       const pair = s.split(':')[1];
       const isDelisted = BINANCE_DELISTED.has(pair);
 
+      // ── Phase 1: price only ──
       let pd;
       try { pd = (await batchCrypto([s]))[s]; } catch {}
       if (!pd && !isDelisted) pd = await binanceFallback(s);
-
-      let extra;
-      if (isDelisted) {
-        extra = await fetchKrakenExtra(pair).catch(() => ({})) || {};
-      } else {
-        const obi  = await fetchOBI(pair).catch(() => null);
-        const cvd  = await fetchCVD(pair).catch(() => null);
-        const mtf  = await fetchMTF(pair).catch(() => [null, null, null]);
-        const k4h  = await fetch4hKlines(pair).catch(() => null);
-        const kDay = await fetchDailyKlines(pair).catch(() => null);
-        extra = { obi, cvd, mtf, k4h, kDay };
-      }
+      if (!pd) return false;
 
       if (!STATE.PH[s]) STATE.PH[s] = [];
       STATE.PH[s].push(pd.p);
       if (STATE.PH[s].length > 200) STATE.PH[s].shift();
-      processAI(s, pd.p, pd.chg, extra);
+
+      // Render the row immediately with whatever data we have (extras = {})
+      processAI(s, pd.p, pd.chg, {});
+      if (typeof patchSymbolRow === 'function') patchSymbolRow(s);
+
+      // ── Phase 2: extras — fire-and-forget, patches the row when done ──
+      const extraFetch = isDelisted
+        ? fetchKrakenExtra(pair).catch(() => ({}))
+        : fetchCryptoExtra(pair).catch(() => ({}));
+
+      extraFetch.then(extra => {
+        if (!extra) return;
+        processAI(s, pd.p, pd.chg, extra);
+        if (typeof patchSymbolRow === 'function') patchSymbolRow(s);
+        // Persist after extras land so kDay / sparkBars are included
+        try {
+          localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
+          localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
+        } catch {}
+      });
+
     } else {
+      // ── Stocks: price + extras parallel, only runs when open/prepost ──
       const [{ p, chg: rawChg }, stockExtra] = await Promise.all([
         fetchStock(s),
         fetchStockExtra(s).catch(() => ({})),
@@ -327,14 +356,27 @@ async function sync() {
 }
 
 // ── PER-ROW REFRESH — called from the refresh button on each table row ──
+// Passes forceRefresh:true so the user can manually fetch even when closed.
+// When the market is closed for a stock, button shows "(CLOSED)" label — the user
+// can still click it to force a network call if they believe the market just opened.
 async function refreshSymbol(s, btnEl) {
-  if (btnEl) { btnEl.textContent = '⟳'; btnEl.style.opacity = '0.4'; btnEl.disabled = true; }
-  const ok = await syncOne(s);
+  const isCrypto = s.includes('BINANCE:');
+  const closed = !isCrypto && marketStatus(s) === 'closed';
+  if (btnEl) {
+    btnEl.textContent = closed ? '⟳' : '⟳';
+    btnEl.style.opacity = '0.4';
+    btnEl.disabled = true;
+  }
+  const ok = await syncOne(s, { forceRefresh: true });
   _lastSyncTime[s] = Date.now();
-  if (btnEl) { btnEl.textContent = '↺'; btnEl.style.opacity = ok ? '1' : '0.3'; btnEl.disabled = false; }
+  if (btnEl) {
+    btnEl.textContent = closed ? '🔒' : '↺';
+    btnEl.title = closed ? 'Market closed — showing last close price' : '';
+    btnEl.style.opacity = ok ? '1' : '0.3';
+    btnEl.disabled = false;
+  }
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
   localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
-  // Patch only this row's cells — nothing else on the page changes
   if (typeof patchSymbolRow === 'function') patchSymbolRow(s); else renderTable();
   updateLastUpdBar();
 }
@@ -647,12 +689,16 @@ window.onload = init;
 // ══════════════════════════════════════════════
 
 // Returns HTML badge for a symbol's current market status.
-// render.js calls this to inject the 🔒 CLOSED tag into row headers.
+// render.js calls this to inject status tags into row headers.
+//   open    → no badge (live data)
+//   prepost → 🕐 EXT HRS (extended hours, data still updating)
+//   closed  → 🔒 FROZEN (market shut, showing last close price — no new fetches)
 function marketStatusBadge(sym) {
+  if (sym.includes('BINANCE:')) return ''; // crypto is always live
   const s = marketStatus(sym);
   if (s === 'open') return '';
-  if (s === 'prepost') return '<span class="mkt-badge prepost" title="Pre/post market — excluded from leaderboard">🕐 EXT HRS</span>';
-  return '<span class="mkt-badge closed" title="Market closed — queued for tomorrow\'s open">🔒 CLOSED</span>';
+  if (s === 'prepost') return '<span class="mkt-badge prepost" title="Extended hours — data still updating, excluded from leaderboard">🕐 EXT HRS</span>';
+  return '<span class="mkt-badge closed" title="Market closed — displaying last close price, no live fetches">🔒 FROZEN</span>';
 }
 
 // ══════════════════════════════════════════════
