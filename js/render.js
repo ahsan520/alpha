@@ -1304,7 +1304,10 @@ function renderLeaderboard() {
     return;
   }
 
-  // ── Diff check: only rebuild cards when the ranked set / order changes ──
+  // ── Leaderboard alert engine: detect new cards, monitor exits ──
+  if (typeof checkLeaderboardAlerts === 'function') {
+    checkLeaderboardAlerts(ranked).catch(() => {});
+  }
   // The "fingerprint" is the ordered list of symbols + their direction.
   // If it matches the DOM, we patch visible text nodes in-place instead.
   const newFingerprint = ranked.map(r => r.sym + ':' + r.dir + ':' + (r.lane||'dip')).join('|');
@@ -1582,6 +1585,7 @@ function renderLeaderboard() {
   buildAlertBar(alertBar);
   // Call dots only after full card rebuild (structure changed) — not on patch cycles
   if (typeof renderLeaderboardDots === 'function') renderLeaderboardDots();
+  if (typeof renderPositionTracker === 'function') renderPositionTracker();
 }
 
 function drawSparkLine(canvas, data, color) {

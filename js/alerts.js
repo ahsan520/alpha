@@ -721,6 +721,20 @@ function renderAlertCfgPage() {
       ${cfg.rules.filter(r => r.group === 'signals').map(signalRuleRow).join('')}
     </div>
 
+    <!-- Leaderboard Alerts -->
+    ${typeof renderLbAlertCard === 'function' ? renderLbAlertCard() : ''}
+
+    <!-- Position Tracker -->
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ffd700;border-radius:8px;padding:16px;">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ffd700;letter-spacing:2px;margin-bottom:8px;">
+        📍 POSITION TRACKER
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:10px;">
+        Auto-populated when leaderboard buy alert fires. Shows live P&L and exit signal progress.
+      </div>
+      <div id="position-tracker-panel"></div>
+    </div>
+
     <!-- Overnight Buy -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--bull);letter-spacing:2px;margin-bottom:4px;">🌙 ▲ OVERNIGHT BUY</div>
@@ -761,6 +775,7 @@ function renderAlertCfgPage() {
   </div>`;
 
   renderAlertLog();
+  if (typeof renderPositionTracker === 'function') setTimeout(renderPositionTracker, 0);
 }
 
 function renderAlertLog() {
