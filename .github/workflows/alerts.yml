@@ -6,6 +6,12 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:   # allow manual trigger from GitHub UI
 
+# Only one run at a time — prevents concurrent runs from racing on
+# .alert-state.json and defeating suppression.
+concurrency:
+  group: alert-check
+  cancel-in-progress: false   # queue, don't cancel — every run should persist state
+
 jobs:
   check-alerts:
     runs-on: ubuntu-latest
@@ -26,12 +32,18 @@ jobs:
 
       - name: Run alert checker
         env:
+          # ── REQUIRED GitHub Secrets (Settings → Secrets → Actions) ──────────
+          # TELEGRAM_BOT_TOKEN  : your bot token from @BotFather  e.g. 123456:ABC-xyz
+          # TELEGRAM_CHAT_ID    : your chat/channel ID            e.g. -1001234567890
+          #   Get chat ID: message your bot then call
+          #   https://api.telegram.org/bot<TOKEN>/getUpdates and read result[0].message.chat.id
+          # ────────────────────────────────────────────────────────────────────
           TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
           ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '4' }}
           DIGEST_MODE:          ${{ vars.DIGEST_MODE || 'true' }}
           # Optional — override the default watchlist with a JSON array string
-          # WATCHLIST: '["ETHY.TO","KILO.TO","BTCUSDT"]'
+          # WATCHLIST: '["TXF.TO","CRWD.TO","GOOG.TO","BTCUSDT"]'
         run: node scripts/alert-runner.js
 
       - name: Persist alert state
@@ -39,5 +51,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add scripts/.alert-state.json
-          git diff --cached --quiet && echo "No state changes." || git commit -m "chore: update alert state [skip ci]"
-          git push
+          git diff --cached --quiet && echo "No state changes." && exit 0
+          git commit -m "chore: update alert state [skip ci]"
+          # Retry push up to 3 times with a pull --rebase in between,
+          # so concurrent runs don't silently drop state.
+          for i in 1 2 3; do
+            git push && exit 0
+            echo "Push failed (attempt $i) — rebasing and retrying…"
+            git pull --rebase
+          done
+          echo "ERROR: could not push alert state after 3 attempts" >&2
+          exit 1
