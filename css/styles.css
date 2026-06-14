@@ -1200,6 +1200,56 @@ canvas.sp{display:block;}
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
 }
 
+/* ── News hint row (v12.9.5) ─────────────────────────────────────────────── */
+/* Sits directly below the collapsed header, always visible on every card.    */
+.hcl-news-row {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 10px 4px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 8px;
+  background: rgba(0,0,0,.12);
+  min-height: 18px;
+  line-height: 1.3;
+}
+.hcl-news-row.none { opacity: .55; }
+.hcl-news-lbl {
+  flex-shrink: 0;
+  font-size: 7px; font-weight: 700; letter-spacing: .8px;
+  color: var(--text-dim); margin-right: 2px;
+}
+.hcl-news-dot {
+  flex-shrink: 0; font-size: 8px;
+}
+.hcl-news-dot.bull { color: var(--bull); }
+.hcl-news-dot.bear { color: var(--bear); }
+.hcl-news-dot.neu  { color: var(--text-dim); }
+.hcl-news-sector {
+  flex-shrink: 0; font-size: 7px; color: var(--text-dim);
+  border: 1px solid var(--border2); border-radius: 2px; padding: 0 3px;
+}
+.hcl-news-title {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text);
+}
+.hcl-news-none {
+  color: var(--text-dim); font-style: italic;
+}
+.hcl-news-meta {
+  flex-shrink: 0; font-size: 7px; color: var(--text-dim); margin-left: 4px;
+}
+/* Sentiment tint on the row background */
+.hcl-news-row.bull { background: rgba(0,229,160,.06); border-top-color: rgba(0,229,160,.15); }
+.hcl-news-row.bear { background: rgba(255,75,75,.06);  border-top-color: rgba(255,75,75,.15); }
+/* Expanded variant — slightly more padding, full headline */
+.hcl-card-detail .hcl-news-row {
+  padding: 5px 10px 6px;
+  border-top: none;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  margin-bottom: 2px;
+}
+.hcl-card-detail .hcl-news-title { white-space: normal; line-height: 1.4; }
+
 /* Alert bar */
 .hcl-alertbar {
   border-top: 1px solid var(--border); background: rgba(0,0,0,.3); overflow: hidden;

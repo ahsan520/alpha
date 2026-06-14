@@ -15,7 +15,14 @@
 // ══════════════════════════════════════════════
 
 // ── DEFAULT WATCHLIST (fallback if watchlist.json cannot be fetched) ──
-const DEFAULT_WATCHLIST = ["ETHY.TO","KILO.TO","GE.TO","XRPP.TO","ETHH.TO","SVR.TO","XBM.TO","XEG.TO","T.TO","CGL.TO","GLCC.TO","ENCC.TO","TXF.TO","HTAE.TO","QMAX.TO"];
+// v12.9.4: updated to reflect reviewed watchlist — dropped ESTC.TO (thin TSX volume),
+// GE.TO, SVR.TO, T.TO, CGL.TO, ETHH.TO; added CRWD.TO, GOOG.TO, DELL.TO, TSLA.TO,
+// SPCX (SpaceX Nasdaq IPO), ENB.TO. SPCX is Nasdaq-listed (no .TO).
+const DEFAULT_WATCHLIST = [
+  "TXF.TO","HTAE.TO","ENCC.TO","GLCC.TO","ETHY.TO",
+  "KILO.TO","XBM.TO","CRWD.TO","GOOG.TO","DELL.TO",
+  "TSLA.TO","XRPP.TO","SPCX","ENB.TO","QMAX.TO"
+];
 
 // ══════════════════════════════════════════════
 // MARKET HOURS ENGINE

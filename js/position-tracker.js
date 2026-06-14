@@ -20,13 +20,24 @@ const POSITION_KEY  = 'a49_positions';
 const LB_ALERT_KEY  = 'a49_lb_alert_cfg';
 
 // ── Default leaderboard alert config ──
+// conv scale reference (calcV2Score max pts):
+//   Q1 Technical     0–4
+//   Q2 Inst Flow    -5–6
+//   Q3 Squeeze       0–4
+//   Q4 OB/Sentiment  0–6
+//   Sticky buffer   +3 (active slots only)
+//   Penalties       -2 to -5 (RSI overbought)
+//   Funding bonus   +1.5, News ±3
+// Typical active qualifying score: 6–12. 14 was unreachable for most symbols.
+// New default: 7 — requires positive flow + squeeze + some OB confirmation.
 const DEFAULT_LB_ALERT_CFG = {
   enabled:           true,
   squeezeEnabled:    true,
   breakoutEnabled:   true,
+  capBuyEnabled:     true,    // CAP BUY — capitulation bounce, fire immediately (no minScore gate)
   trendingEnabled:   false,   // too slow-moving for actionable alerts
   shortEnabled:      false,   // off by default — noisy in crypto uptrends
-  minScore:          14,      // min conv score to alert (out of 20)
+  minScore:          7,       // min conv score (out of ~14 realistic max, not 20)
   cooldownMins:      60,      // 1hr buy cooldown per symbol
   holdLockMins:      20,      // no exit alerts in first 20min after entry
   exitCvdCycles:     3,       // CVD must decline this many consecutive cycles
@@ -116,16 +127,20 @@ async function checkLeaderboardAlerts(ranked) {
     const base  = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
 
     // Setup type gate
+    // CAP BUY bypasses minScore — capitulation bounces are time-critical;
+    // conv here is a flipped bear score, not comparable to bull conv scale.
+    const isCapBuy = setup.label === 'CAP BUY';
     const isAlertableSetup =
-      (cfg.squeezeEnabled  && setup.label === 'SQUEEZE NOW') ||
-      (cfg.breakoutEnabled && setup.label === 'BREAKOUT')    ||
-      (cfg.trendingEnabled && setup.label === 'TRENDING')    ||
+      (cfg.capBuyEnabled   && isCapBuy)                                       ||
+      (cfg.squeezeEnabled  && setup.label === 'SQUEEZE NOW')                  ||
+      (cfg.breakoutEnabled && setup.label === 'BREAKOUT')                     ||
+      (cfg.trendingEnabled && setup.label === 'TRENDING')                     ||
       (cfg.shortEnabled    && setup.label === 'SHORT SETUP' && dir === 'bear');
 
     if (!isAlertableSetup) continue;
 
-    // Min score gate
-    if (conv < cfg.minScore) continue;
+    // Min score gate — CAP BUY skips (different score scale, time-critical)
+    if (!isCapBuy && conv < cfg.minScore) continue;
 
     // Cooldown gate
     if (_lbIsOnCooldown(sym, cfg.cooldownMins)) {
@@ -557,10 +572,11 @@ function renderLbAlertCard() {
     <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:6px;letter-spacing:1px;">ALERT ON SETUP TYPE</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
       ${[
-        ['lb-squeeze', 'squeezeEnabled', '🚀 SQUEEZE NOW', 'Compression + vol spike — highest urgency'],
-        ['lb-breakout', 'breakoutEnabled', '⚡ BREAKOUT', 'EMA reclaim + momentum — strong entry'],
-        ['lb-trending', 'trendingEnabled', '📈 TRENDING', 'Sustained bull — slower, less urgent'],
-        ['lb-short', 'shortEnabled', '🔻 SHORT SETUP', 'Bear setups — only enable in bear markets'],
+        ['lb-cap-buy',  'capBuyEnabled',  '💥 CAP BUY',     'Capitulation bounce — fires immediately, no min-score gate'],
+        ['lb-squeeze',  'squeezeEnabled', '🚀 SQUEEZE NOW', 'Compression + vol spike — highest urgency'],
+        ['lb-breakout', 'breakoutEnabled','⚡ BREAKOUT',     'EMA reclaim + momentum — strong entry'],
+        ['lb-trending', 'trendingEnabled','📈 TRENDING',     'Sustained bull — slower, less urgent'],
+        ['lb-short',    'shortEnabled',   '🔻 SHORT SETUP',  'Bear setups — only enable in bear markets'],
       ].map(([id, key, label, tip]) => `
         <label title="${tip}" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);
                         font-size:8px;color:var(--text);padding:7px 10px;background:var(--bg2);
@@ -573,8 +589,8 @@ function renderLbAlertCard() {
     <!-- Numeric settings -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
       ${[
-        ['lb-min-score', 'Min Score (0–20)', cfg.minScore, 0, 20, 1,
-         'Minimum conviction score to alert. 14+ = high conviction only.'],
+        ['lb-min-score', 'Min Score (0–14)', cfg.minScore, 0, 14, 1,
+         'Min conv score. Typical range 6–12. 7 = recommended. CAP BUY ignores this gate.'],
         ['lb-cooldown', 'Buy Cooldown (min)', cfg.cooldownMins, 15, 480, 15,
          'Min minutes between buy alerts for the same symbol. 60 = 1hr.'],
         ['lb-holdlock', 'Hold Lock (min)', cfg.holdLockMins, 5, 60, 5,
@@ -616,12 +632,13 @@ function renderLbAlertCard() {
 
 function saveLbAlertCfgFromUI() {
   const cfg = {
-    enabled:        document.getElementById('lb-enabled')?.checked  ?? true,
-    squeezeEnabled: document.getElementById('lb-squeeze')?.checked  ?? true,
-    breakoutEnabled:document.getElementById('lb-breakout')?.checked ?? true,
-    trendingEnabled:document.getElementById('lb-trending')?.checked ?? false,
-    shortEnabled:   document.getElementById('lb-short')?.checked    ?? false,
-    minScore:       parseInt(document.getElementById('lb-min-score')?.value)  || 14,
+    enabled:        document.getElementById('lb-enabled')?.checked   ?? true,
+    capBuyEnabled:  document.getElementById('lb-cap-buy')?.checked   ?? true,
+    squeezeEnabled: document.getElementById('lb-squeeze')?.checked   ?? true,
+    breakoutEnabled:document.getElementById('lb-breakout')?.checked  ?? true,
+    trendingEnabled:document.getElementById('lb-trending')?.checked  ?? false,
+    shortEnabled:   document.getElementById('lb-short')?.checked     ?? false,
+    minScore:       parseInt(document.getElementById('lb-min-score')?.value)  || 7,
     cooldownMins:   parseInt(document.getElementById('lb-cooldown')?.value)   || 60,
     holdLockMins:   parseInt(document.getElementById('lb-holdlock')?.value)   || 20,
     exitCvdCycles:  parseInt(document.getElementById('lb-cvd-cycles')?.value) || 3,

@@ -1164,9 +1164,38 @@ function renderLeaderboard() {
       STATE.hclPersist[sym] = p;
       const activeDir = p.active ? p.dir : 'neutral';
 
-      const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
-      const catalyst = freshNews.find(n => n.title.toLowerCase().includes(base))
-                    || news.find(n => n.title.toLowerCase().includes(base));
+      const baseLC = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
+
+      // ── News matching — find ALL relevant items (fresh first, then any) ──
+      // Primary: direct symbol name match in headline (most relevant)
+      // Secondary: sector-tag match (CRYPTO/TECH/ENERGY/METAL) for watchlist items
+      const symTag = sym.includes('BINANCE:')
+        ? 'CRYPTO'
+        : (sym.includes('XBM') || sym.includes('GLCC') || sym.includes('GLD') || sym.includes('SLV'))
+        ? 'METAL'
+        : (sym.includes('ENCC') || sym.includes('XEG') || sym.includes('ENB'))
+        ? 'ENERGY'
+        : (sym.includes('TXF') || sym.includes('HTAE') || sym.includes('CRWD') || sym.includes('GOOG') ||
+           sym.includes('DELL') || sym.includes('TSLA') || sym.includes('SPCX') || sym.includes('QMAX'))
+        ? 'TECH'
+        : 'TSX';
+
+      // All fresh direct-match news for this symbol (title includes ticker name)
+      const symNewsItems = freshNews.filter(n => n.title.toLowerCase().includes(baseLC));
+      // Sector news: fresh items matching the symbol's sector tag (for context)
+      const sectorNewsItems = freshNews.filter(n => n.tag === symTag && !n.title.toLowerCase().includes(baseLC));
+
+      // Best single catalyst (for footer chip — unchanged)
+      const catalyst = symNewsItems[0]
+                    || news.find(n => n.title.toLowerCase().includes(baseLC));
+
+      // News hint for the leaderboard card:
+      // Priority: direct fresh match > sector news > none
+      const newsHint = symNewsItems.length
+        ? { item: symNewsItems[0], type: 'direct', allItems: symNewsItems }
+        : sectorNewsItems.length
+        ? { item: sectorNewsItems[0], type: 'sector', allItems: sectorNewsItems }
+        : null;
 
       // ── Trend-continuation lane check ────────────────────────────────────
       // Run AFTER persistence/eviction so we only evaluate symbols that
@@ -1223,7 +1252,7 @@ function renderLeaderboard() {
         lane,             // 'dip' | 'trend'
         dir: lane === 'trend' ? 'bull' : finalDir,
         isCapitulation: isCapitulation && finalDir === 'bull',
-        capScore, catalyst
+        capScore, catalyst, newsHint
       };
     })
     .filter(Boolean)
@@ -1394,7 +1423,7 @@ function renderLeaderboard() {
   const medals = ['#1','#2','#3','#4','#5','#6'];
 
   body.innerHTML = ranked.map((r, i) => {
-    const { sym, d, conv, dir, catalyst } = r;
+    const { sym, d, conv, dir, catalyst, newsHint } = r;
     if (dir === 'bull') bullRank++; else bearRank++;
     const isCap    = r.isCapitulation || false;
     const rankLabel = isCap ? `💥` : dir === 'bull' ? `B${bullRank}` : `S${bearRank}`;
@@ -1494,6 +1523,40 @@ function renderLeaderboard() {
       ? catalyst.title.slice(0, 55) + (catalyst.title.length > 55 ? '…' : '')
       : (d.reason || '').slice(0, 55);
 
+    // ── News hint (v12.9.5) ──────────────────────────────────────────────────
+    // Show the most relevant news headline for this symbol directly on the card.
+    // Direct match (symbol in headline) > sector news > "none".
+    // Sentiment dot: green = bullish, red = bearish, grey = neutral.
+    function buildNewsHintHtml(hint, collapsed) {
+      if (!hint) {
+        // Always show "none" so the user knows news was checked
+        return collapsed
+          ? `<div class="hcl-news-row none"><span class="hcl-news-lbl">NEWS</span><span class="hcl-news-none">none</span></div>`
+          : `<div class="hcl-news-row none" style="padding:4px 10px 6px;"><span class="hcl-news-lbl">NEWS</span><span class="hcl-news-none">none</span></div>`;
+      }
+      const n = hint.item;
+      const sentClass = n.sent === 'bullish' ? 'bull' : n.sent === 'bearish' ? 'bear' : 'neu';
+      const sentDot   = n.sent === 'bullish' ? '●' : n.sent === 'bearish' ? '●' : '●';
+      const isSector  = hint.type === 'sector';
+      const count     = hint.allItems.length;
+      const countStr  = count > 1 ? ` +${count - 1}` : '';
+      const sectorPfx = isSector ? `<span class="hcl-news-sector">[${n.tag}]</span> ` : '';
+      const ageMin    = Math.floor((Date.now() - n.ts) / 60000);
+      const ageStr    = ageMin < 60 ? `${ageMin}m` : `${Math.floor(ageMin/60)}h`;
+      const headline  = collapsed
+        ? (n.title.slice(0, 52) + (n.title.length > 52 ? '…' : ''))
+        : (n.title.slice(0, 90) + (n.title.length > 90 ? '…' : ''));
+      const clickAttr = n.url ? `onclick="event.stopPropagation();window.open('${n.url.replace(/'/g,"\\'")}','_blank')" style="cursor:pointer"` : '';
+      return `<div class="hcl-news-row ${sentClass}" ${clickAttr}>
+        <span class="hcl-news-lbl">NEWS</span>
+        <span class="hcl-news-dot ${sentClass}">${sentDot}</span>
+        ${sectorPfx}<span class="hcl-news-title">${headline}</span>
+        <span class="hcl-news-meta">${ageStr}${countStr}</span>
+      </div>`;
+    }
+    const newsRowCollapsed = buildNewsHintHtml(newsHint, true);
+    const newsRowExpanded  = buildNewsHintHtml(newsHint, false);
+
     // Market context (from market pulse)
     const asiaStr = spyChg !== 0 ? `Asia ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.5).toFixed(1)}%` : 'Asia —';
     const lonStr  = spyChg !== 0 ? `London ${spyChg >= 0 ? '+' : ''}${(spyChg * 0.4).toFixed(1)}%` : 'London —';
@@ -1516,6 +1579,7 @@ function renderLeaderboard() {
           <span class="hcl-card-chev" style="font-size:9px;color:var(--text-dim);margin-left:4px">${isExpanded ? '▲' : '▼'}</span>
         </div>
       </div>
+      ${newsRowCollapsed}
 
       <!-- Expandable detail — hidden by default, shown on tap -->
       <div class="hcl-card-detail" style="display:${isExpanded ? '' : 'none'}">
@@ -1574,6 +1638,9 @@ function renderLeaderboard() {
         </div>
       </div>
 
+      <!-- News (expanded — full headline, clickable) -->
+      ${newsRowExpanded}
+
       <!-- Entry trigger -->
       <div class="hcl-entry">
         <div class="hcl-entry-hdr">
@@ -1590,11 +1657,10 @@ function renderLeaderboard() {
         </div>` : '<div class="hcl-entry-wait">Awaiting price data…</div>'}
       </div>
 
-      <!-- Footer: R:R · correlation · catalyst -->
+      <!-- Footer: R:R · correlation -->
       <div class="hcl-footer">
         ${levels ? `<span class="hcl-rr">R:R <span>1:${levels.rr}</span> ✓</span>` : ''}
         <span class="hcl-corr">Corr: <span>${corrStr}</span> ✓</span>
-        ${catTxt ? `<span class="hcl-catalyst-mini">⚡ ${catTxt}</span>` : ''}
       </div>
 
       <!-- Market context bar -->
