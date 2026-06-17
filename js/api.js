@@ -8,8 +8,9 @@
 // ══════════════════════════════════════════════
 
 const PROXIES = [
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  // corsproxy.io removed — returns 451 "Unavailable For Legal Reasons" for Binance
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,
 ];
 
 async function fetchProxy(url) {
@@ -31,6 +32,17 @@ async function fetchDirect(url) {
   return r.json();
 }
 
+// fetchWithFallback: tries direct first; on CORS/rate-limit failure falls back to proxy.
+// Use this for CoinGecko and any other APIs that block direct browser requests.
+async function fetchWithFallback(url) {
+  try {
+    return await fetchDirect(url);
+  } catch {
+    return await fetchProxy(url);
+  }
+}
+}
+
 async function fetchBinance(url) {
   try {
     const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
@@ -46,7 +58,7 @@ async function cgId(pair) {
   if (cgCache[pair]) return cgCache[pair];
   const base = pair.replace(/USDT|BUSD|USDC$/i, '').toLowerCase();
   try {
-    const d = await fetchDirect(`https://api.coingecko.com/api/v3/search?query=${base}`);
+    const d = await fetchWithFallback(`https://api.coingecko.com/api/v3/search?query=${base}`);
     if (d.coins && d.coins[0]) {
       cgCache[pair] = d.coins[0].id;
       localStorage.setItem('a49_cgc', JSON.stringify(cgCache));
@@ -118,7 +130,7 @@ async function batchCrypto(syms) {
         const idMap = {};
         await Promise.all(cgMissing.map(async p => { idMap[await cgId(p)] = p; }));
         const ids = Object.keys(idMap).join(',');
-        const d = await fetchDirect(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+        const d = await fetchWithFallback(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
         for (const [id, pair] of Object.entries(idMap)) {
           if (d[id]) res['BINANCE:' + pair] = { p: d[id].usd, chg: d[id].usd_24h_change || 0 };
         }
@@ -351,6 +363,55 @@ async function fetchCryptoExtra(pair) {
   return { obi, cvd, mtf, k4h: k4hBias, kDay: kDayBias };
 }
 
+// ── batchCryptoExtras — fetch extras for ALL crypto symbols in parallel ──
+// Instead of N serial syncOne() calls each firing 4 Binance requests one-after-another,
+// this fires all N×4 requests simultaneously via Promise.allSettled, then resolves
+// in one pass. Wall-clock time ≈ single slowest request regardless of watchlist size.
+//
+// Returns: { [sym]: { obi, cvd, mtf, k4h, kDay } }
+async function batchCryptoExtras(cryptoSyms) {
+  if (!cryptoSyms.length) return {};
+  const pairs = cryptoSyms.map(s => s.split(':')[1]);
+  const BASE = 'https://api.binance.com/api/v3';
+
+  async function fetchOne(url) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (r.ok) { const d = await r.json(); if (d && !d.code) return d; }
+    } catch {}
+    return fetchProxy(url);
+  }
+
+  // Build one flat array of all requests in a deterministic order,
+  // then fire them all at once.
+  const requests = pairs.flatMap(pair => [
+    fetchOne(`${BASE}/depth?symbol=${pair}&limit=20`),
+    fetchOne(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
+    fetchOne(`${BASE}/klines?symbol=${pair}&interval=4h&limit=20`),
+    fetchOne(`${BASE}/klines?symbol=${pair}&interval=1d&limit=14`),
+  ]);
+
+  const results = await Promise.allSettled(requests);
+  const val = r => r.status === 'fulfilled' ? r.value : null;
+
+  const out = {};
+  pairs.forEach((pair, i) => {
+    const base = i * 4;
+    const depth = val(results[base]);
+    const k15m  = val(results[base + 1]);
+    const k4h   = val(results[base + 2]);
+    const kDay  = val(results[base + 3]);
+
+    const obi            = _computeOBI(depth);
+    const { cvd, mtf }  = _computeCVDandMTF(k15m);
+    const k4hBias        = _compute4hBias(k4h);
+    const kDayBias       = _computeDailyBias(kDay);
+
+    out['BINANCE:' + pair] = { obi, cvd, mtf, k4h: k4hBias, kDay: kDayBias };
+  });
+  return out;
+}
+
 // ── Legacy single-endpoint stubs kept for any external callers ──
 // (Not used by syncOne in v12.9 — fetchCryptoExtra replaces them all)
 async function fetchOBI(pair) {
@@ -551,7 +612,7 @@ function liqEstimate(price, fr, lp) {
 // ── Global market stats ──
 async function fetchGlobal() {
   try {
-    const d = await fetchDirect('https://api.coingecko.com/api/v3/global');
+    const d = await fetchWithFallback('https://api.coingecko.com/api/v3/global');
     document.getElementById('h-btcdom').textContent = d.data.market_cap_percentage.btc.toFixed(1) + '%';
     document.getElementById('h-mcap').textContent = '$' + (d.data.total_market_cap.usd / 1e12).toFixed(2) + 'T';
     document.getElementById('h-vol').textContent = '$' + (d.data.total_volume.usd / 1e9).toFixed(1) + 'B';

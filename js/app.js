@@ -239,15 +239,52 @@ async function _adaptiveTick() {
   document.getElementById('sdot').style.background = 'var(--gold)';
 
   let ok = 0, fail = 0;
-  const STAGGER_MS = 100; // reduced from 300ms — 15 symbols now complete in ~1.5s not 4.5s
 
-  for (const s of toSync) {
+  // ── Split: standard crypto (batched) vs delisted/stocks (per-symbol syncOne) ──
+  const cryptoToSync = toSync.filter(s => s.includes('BINANCE:') && !BINANCE_DELISTED.has(s.split(':')[1]));
+  const otherToSync  = toSync.filter(s => !cryptoToSync.includes(s));
+
+  // ── Phase 1: single Binance batch request covers all crypto prices at once ──
+  let priceBatch = {};
+  if (cryptoToSync.length) {
+    try { priceBatch = await batchCrypto(cryptoToSync); } catch {}
+  }
+
+  // Apply prices immediately so rows show data right away
+  for (const s of cryptoToSync) {
+    const pd = priceBatch[s];
+    if (!pd) { fail++; _lastSyncTime[s] = Date.now(); continue; }
+    if (!STATE.PH[s]) STATE.PH[s] = [];
+    STATE.PH[s].push(pd.p);
+    if (STATE.PH[s].length > 200) STATE.PH[s].shift();
+    processAI(s, pd.p, pd.chg, {}); // price-only first pass
+    patchSymbolRow(s);
+    ok++;
+    _lastSyncTime[s] = Date.now();
+  }
+
+  // ── Phase 2: all kline/depth extras fired in parallel (one shot for every symbol) ──
+  if (cryptoToSync.length) {
+    batchCryptoExtras(cryptoToSync).then(extrasMap => {
+      for (const s of cryptoToSync) {
+        const pd = priceBatch[s];
+        if (!pd) continue;
+        processAI(s, pd.p, pd.chg, extrasMap[s] || {});
+        patchSymbolRow(s);
+      }
+      try {
+        localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
+        localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
+      } catch {}
+    }).catch(() => {});
+  }
+
+  // ── Stocks + delisted: keep per-symbol syncOne (low volume, not worth batching) ──
+  for (const s of otherToSync) {
     const success = await syncOne(s);
     _lastSyncTime[s] = Date.now();
     if (success) ok++; else fail++;
-    // Touch only the one row that just updated — no table-wide repaint
     patchSymbolRow(s);
-    await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));

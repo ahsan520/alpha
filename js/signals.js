@@ -303,7 +303,7 @@ function processAI(s, p, chg, ex) {
   // PDF FEATURE 3: SIGNAL STABILITY (uses score history in PH)
   // Tracks score variance over recent cycles — lower variance = more stable
   // ══════════════════════════════════════════════════════════════
-  const ph = PH[s] || [];
+  // ph is already declared above (line ~103) — reuse it here
   if (!STATE.scoreHistory) STATE.scoreHistory = {};
   if (!STATE.scoreHistory[s]) STATE.scoreHistory[s] = [];
   STATE.scoreHistory[s].push({ t: Date.now(), score });
