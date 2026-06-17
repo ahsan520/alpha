@@ -174,12 +174,14 @@ async function checkLeaderboardAlerts(ranked) {
       t1:           t1P,
       t2:           t2P,
       score:        conv,
+      spikeScore:   (typeof calcSpikeScore === 'function') ? calcSpikeScore(sym, d) : 0,
       session:      getSessionLabel?.() || '—',
       exitAlertedAt: null,
       tier1AlertedAt: null,
       status:       'watching',  // watching | tp1_hit | tp2_hit | stopped | exiting
     };
     savePositions(positions);
+    if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
     _lbMarkBuyFired(sym);
 
     buyAlerts.push({ r, setup, levels, entryP, stopP, t1P, t2P, conv, base });
@@ -266,6 +268,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
     // ── TIER 3: Hard price-based exits (immediate, no lock) ──
     if (isBull && stop > 0 && price <= stop && pos.status !== 'stopped') {
       pos.status        = 'stopped';
+      pos.statusChangedAt = now;
       pos.exitAlertedAt = now;
       changed = true;
       const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
@@ -284,6 +287,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
 
     if (isBull && t1 > 0 && price >= t1 && pos.status === 'watching') {
       pos.status        = 'tp1_hit';
+      pos.statusChangedAt = now;
       pos.exitAlertedAt = now;
       changed = true;
       const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
@@ -302,6 +306,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
 
     if (isBull && t2 > 0 && price >= t2 && pos.status === 'tp1_hit') {
       pos.status        = 'tp2_hit';
+      pos.statusChangedAt = now;
       pos.exitAlertedAt = now;
       changed = true;
       const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
@@ -389,6 +394,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
         && pos.status !== 'exiting'
         && (!pos.exitAlertedAt || (now - pos.exitAlertedAt) > tier2Cooldown)) {
       pos.status        = 'exiting';
+      pos.statusChangedAt = now;
       pos.exitAlertedAt = now;
       changed = true;
       const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
@@ -410,6 +416,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
   }
 
   if (changed) savePositions(positions);
+  if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
 
   // ── Send Tier 3 immediate alerts (one per event) ──
   for (const a of tier3Alerts) {
@@ -459,9 +466,52 @@ async function _sendSellDigest(alerts) {
 // ══════════════════════════════════════════════════════════════════
 // UI — Position tracker panel rendered inside Alerts tab
 // ══════════════════════════════════════════════════════════════════
+
+// Auto-eviction delays (ms) — how long a terminal-state position stays visible
+// before being automatically removed. Long enough to read, short enough to clean up.
+const AUTO_EVICT_MS = {
+  stopped:  5 * 60 * 1000,   //  5 min — stop was hit, position closed, remove quickly
+  tp2_hit:  8 * 60 * 1000,   //  8 min — full target hit, celebrate briefly then clear
+  tp1_hit: 20 * 60 * 1000,   // 20 min — partial target, still watching for T2
+  exiting: 10 * 60 * 1000,   // 10 min — distribution confirmed, should be closing
+};
+
+// ── Auto-eviction sweep — called on every renderPositionTracker() tick ──
+// Removes positions that have been in a terminal state longer than AUTO_EVICT_MS.
+// Preserves 'watching' forever — only auto-removes after a status change.
+function sweepExpiredPositions() {
+  const positions = loadPositions();
+  const now = Date.now();
+  let changed = false;
+
+  for (const [sym, pos] of Object.entries(positions)) {
+    const delay = AUTO_EVICT_MS[pos.status];
+    if (!delay) continue; // 'watching' has no auto-evict
+
+    // statusChangedAt is set when status changes (see checkPositionTracker)
+    // Fall back to alertedAt if missing (positions created before v12.9.7)
+    const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
+    if (now - changedAt >= delay) {
+      delete positions[sym];
+      if (window._cvdDeclineCount) delete window._cvdDeclineCount[sym];
+      const base = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','');
+      logAlertItem('info', `🗑 Auto-removed ${base} (${pos.status}) after ${Math.round(delay/60000)}min`);
+      changed = true;
+    }
+  }
+
+  if (changed) savePositions(positions);
+  if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
+  return changed;
+}
+
 function renderPositionTracker() {
   const el = document.getElementById('position-tracker-panel');
   if (!el) return;
+
+  // Sweep expired positions first — may remove entries before render
+  sweepExpiredPositions();
+
   const positions = loadPositions();
   const cfg       = loadLbAlertCfg();
   const entries   = Object.values(positions);
@@ -488,8 +538,24 @@ function renderPositionTracker() {
     stopped:  '🔴 STOPPED',
   }[s] || s);
 
+  // Countdown to auto-eviction for terminal states
+  function evictCountdown(pos) {
+    const delay = AUTO_EVICT_MS[pos.status];
+    if (!delay) return ''; // watching = stays forever
+    const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
+    const remaining = Math.max(0, delay - (Date.now() - changedAt));
+    const remMins   = Math.ceil(remaining / 60000);
+    const remSecs   = Math.ceil(remaining / 1000);
+    const txt = remaining <= 0
+      ? 'removing…'
+      : remaining < 60000 ? `auto-remove in ${remSecs}s`
+      :                     `auto-remove in ${remMins}min`;
+    return `<span style="color:var(--text-dim);font-size:7px;font-family:var(--mono);opacity:.7;">⏳ ${txt}</span>`;
+  }
+
   el.innerHTML = entries.map(pos => {
-    const price   = parseFloat(STATE.DS?.[pos.sym]?.p || pos.entryPrice);
+    const liveD   = STATE.DS?.[pos.sym] || {};
+    const price   = parseFloat(liveD.p || pos.entryPrice);
     const pnlPct  = pos.entryPrice > 0
       ? ((price - pos.entryPrice) / pos.entryPrice * 100).toFixed(2)
       : '—';
@@ -498,12 +564,27 @@ function renderPositionTracker() {
     const locked  = Date.now() < pos.holdLockUntil;
     const lockRem = locked ? Math.ceil((pos.holdLockUntil - Date.now()) / 60000) : 0;
 
+    // Live spike potential — recalculated on every render tick
+    const liveSpikeScore = (typeof calcSpikeScore === 'function' && liveD.p)
+      ? calcSpikeScore(pos.sym, liveD) : pos.spikeScore || 0;
+    const spikeInfo = typeof spikeLabelFromScore === 'function'
+      ? spikeLabelFromScore(liveSpikeScore) : { label: '—', cls: 'spike-none' };
+
+    // Spike colour inline (position-tracker has no class stylesheet loaded)
+    const spikeColor = spikeInfo.cls === 'spike-high' ? '#ffa000'
+                     : spikeInfo.cls === 'spike-med'  ? '#00c8ff'
+                     : 'var(--text-dim)';
+
     return `
     <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${statusColor(pos.status)};
                 border-radius:6px;padding:10px 12px;margin-bottom:8px;font-family:var(--mono);font-size:9px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <span style="color:var(--text-bright);font-weight:700;font-size:10px;">${pos.base}</span>
         <span style="color:${statusColor(pos.status)};font-size:8px;letter-spacing:1px;">${statusLabel(pos.status)}</span>
+        ${evictCountdown(pos)}
+        <span title="Live spike potential: ${liveSpikeScore}/100 — resistance room + vol + funding + short squeeze fuel"
+              style="color:${spikeColor};font-size:7px;font-weight:700;border:1px solid ${spikeColor};
+                     padding:1px 5px;border-radius:3px;opacity:.8;">SPIKE ${liveSpikeScore}</span>
         <button onclick="removePosition('${pos.sym}')"
           style="background:none;border:1px solid var(--border2);color:var(--text-dim);
                  padding:1px 7px;border-radius:3px;cursor:pointer;font-size:8px;">✕</button>
@@ -531,6 +612,7 @@ function removePosition(sym) {
   const positions = loadPositions();
   delete positions[sym];
   savePositions(positions);
+  if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
   // Clear CVD counter
   if (window._cvdDeclineCount) delete window._cvdDeclineCount[sym];
   renderPositionTracker();

@@ -795,6 +795,97 @@ function calcEntryLevels(d) {
   return { entry, stop, t1, t2, rr };
 }
 
+// ── SPIKE POTENTIAL SCORE ─────────────────────────────────────────────────────
+// Answers: "if this moves, how far and how violently?"
+// Distinct from conviction (which measures setup quality).
+// Used as primary sort key within the bull pool so we buy the one likely
+// to move the most, not just the one with the cleanest pattern.
+//
+// Factors (0–100 scale):
+//   Resistance room      — how far to the next wall (from res vs price)
+//   Vol shock            — current vs average volume (more shock = more fuel)
+//   Funding squeeze fuel — negative funding = shorts paying, squeeze pending
+//   CVD slope            — is buying pressure building right now
+//   OI divergence        — CONFIRM = real flow, not just noise
+//   Beta proxy           — smaller caps spike harder (XMR/ZEC vs BTC)
+//   Short interest       — high L/S short side = more covering fuel
+function calcSpikeScore(sym, d) {
+  const p      = parseFloat(d.p   || 0);
+  const res    = parseFloat(d.res || 0);
+  const sup    = parseFloat(d.sup || 0);
+  const shock  = parseFloat(d.shock || 1);
+  const frNum  = parseFloat(d.fr  || 0);
+  const lp     = parseFloat(d.lp  || 50); // L/S long %
+  const chg24  = parseFloat(d.chg || 0);
+  let score = 0;
+
+  // 1. Resistance room (0–30 pts)
+  // More room to resistance = more upside before hitting a wall
+  if (res > 0 && p > 0) {
+    const roomPct = ((res - p) / p) * 100;
+    if      (roomPct >= 10) score += 30;
+    else if (roomPct >= 6)  score += 22;
+    else if (roomPct >= 3)  score += 14;
+    else if (roomPct >= 1)  score += 6;
+    else                    score += 0;  // price is near resistance — no room
+  } else {
+    score += 10; // no res data → neutral
+  }
+
+  // 2. Vol shock / fuel (0–20 pts)
+  // High vol shock means real momentum, not just a drift
+  if      (shock >= 3.0) score += 20;
+  else if (shock >= 2.0) score += 14;
+  else if (shock >= 1.5) score += 8;
+  else if (shock >= 1.2) score += 4;
+  else                   score += 0;
+
+  // 3. Funding squeeze fuel (0–20 pts)
+  // Negative funding = shorts paying longs → squeeze likely if price holds
+  // Very negative = aggressive short positioning = violent squeeze potential
+  if      (frNum <= -0.05) score += 20; // extreme short squeeze fuel
+  else if (frNum <= -0.02) score += 15;
+  else if (frNum <= -0.01) score += 10;
+  else if (frNum <=  0.00) score += 5;
+  else if (frNum >=  0.05) score += 0;  // longs already paying = no squeeze fuel
+  else                     score += 2;
+
+  // 4. CVD slope (0–10 pts)
+  // Rising CVD = buyers are absorbing, move has backing
+  if (d.cvd?.trending === 'up') score += 10;
+
+  // 5. OI divergence quality (0–10 pts)
+  // CONFIRM = institutional flow validated the direction
+  if      (d.oiDiv === '✓ CONFIRM')    score += 10;
+  else if (d.oiDiv === '💎 DIP BUY')   score += 10;
+  else if (d.oiDiv === '⚠ OI DROP')    score += 3;  // ambiguous
+  else if (d.oiDiv === '↑ BEAR OI')    score += 0;
+
+  // 6. Short interest (L/S) squeeze fuel (0–10 pts)
+  // Low long % = more shorts to cover when price moves up
+  const shortPct = 100 - lp;
+  if      (shortPct >= 55) score += 10; // heavily shorted
+  else if (shortPct >= 50) score += 7;
+  else if (shortPct >= 45) score += 4;
+  else                     score += 0;
+
+  // 7. Already-moved penalty — avoid chasing (0 to -10 pts)
+  // A symbol up 5%+ today already had its spike; penalise
+  if      (chg24 > 10) score -= 10;
+  else if (chg24 > 5)  score -= 5;
+  else if (chg24 > 3)  score -= 2;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+// Spike label for card display
+function spikeLabelFromScore(s) {
+  if (s >= 70) return { label: '🔥 HIGH',   cls: 'spike-high' };
+  if (s >= 45) return { label: '⚡ MED',    cls: 'spike-med'  };
+  if (s >= 20) return { label: '〰 LOW',    cls: 'spike-low'  };
+  return               { label: '— NONE',   cls: 'spike-none' };
+}
+
 // ── Build cascade info string from global market data ──
 function getCascadeInfo() {
   const mp = STATE.marketPulse || {};
@@ -1166,6 +1257,9 @@ function renderLeaderboard() {
 
       const baseLC = sym.replace('BINANCE:','').replace('USDT','').replace('.TO','').toLowerCase();
 
+      // ── Spike potential (v12.9.6) — how far/fast could this move ──────────
+      const spikeScore = calcSpikeScore(sym, d);
+
       // ── News matching — find ALL relevant items (fresh first, then any) ──
       // Primary: direct symbol name match in headline (most relevant)
       // Secondary: sector-tag match (CRYPTO/TECH/ENERGY/METAL) for watchlist items
@@ -1247,20 +1341,30 @@ function renderLeaderboard() {
 
       return {
         sym, d, conv,
-        breakdown,        // dip-buy 4-quadrant breakdown
-        trendBreakdown,   // trend lane 4-quadrant breakdown (null for dip/bear)
-        lane,             // 'dip' | 'trend'
+        breakdown,
+        trendBreakdown,
+        lane,
         dir: lane === 'trend' ? 'bull' : finalDir,
         isCapitulation: isCapitulation && finalDir === 'bull',
-        capScore, catalyst, newsHint
+        capScore, catalyst, newsHint, spikeScore
       };
     })
     .filter(Boolean)
     .filter(r => r.dir !== 'neutral');
 
-  // ── Split into bull/bear pools, interleave B1 S1 B2 S2 B3 S3 ─────────────
-  const bullPool = allScored.filter(r => r.dir === 'bull').sort((a,b) => b.conv - a.conv).slice(0,3);
-  const bearPool = allScored.filter(r => r.dir === 'bear').sort((a,b) => a.conv - b.conv).slice(0,3);
+  // ── Split into bull/bear pools ────────────────────────────────────────────
+  // Bull pool: primary sort = spikeScore (who will move the most),
+  //            tiebreaker  = conv (setup quality).
+  // This ensures we buy the one LIKELY TO SPIKE, not just the cleanest pattern.
+  // Bear pool: sorted by conv (lowest = most bearish) as before.
+  const bullPool = allScored
+    .filter(r => r.dir === 'bull')
+    .sort((a, b) => (b.spikeScore - a.spikeScore) || (b.conv - a.conv))
+    .slice(0, 3);
+  const bearPool = allScored
+    .filter(r => r.dir === 'bear')
+    .sort((a, b) => a.conv - b.conv)
+    .slice(0, 3);
 
   let ranked;
   if (bullPool.length && bearPool.length) {
@@ -1423,7 +1527,8 @@ function renderLeaderboard() {
   const medals = ['#1','#2','#3','#4','#5','#6'];
 
   body.innerHTML = ranked.map((r, i) => {
-    const { sym, d, conv, dir, catalyst, newsHint } = r;
+    const { sym, d, conv, dir, catalyst, newsHint, spikeScore } = r;
+    const spikeInfo = spikeLabelFromScore(spikeScore ?? 0);
     if (dir === 'bull') bullRank++; else bearRank++;
     const isCap    = r.isCapitulation || false;
     const rankLabel = isCap ? `💥` : dir === 'bull' ? `B${bullRank}` : `S${bearRank}`;
@@ -1573,6 +1678,7 @@ function renderLeaderboard() {
           <span class="hcl-sym-name">${base}</span>
         </div>
         <div class="hcl-ct-right">
+          <span class="hcl-spike-pill ${spikeInfo.cls}" title="Spike potential: ${spikeScore}/100 — resistance room + vol + funding + short squeeze fuel">${spikeInfo.label}</span>
           <span class="hcl-price-val" style="font-size:11px">$${d.p || '—'}</span>
           <span class="hcl-chg ${chgCls}" style="font-size:10px">${chgStr}</span>
           <span class="hcl-timer-val" style="font-size:9px;color:var(--text-dim)">⏱${timerStr}</span>
@@ -1624,6 +1730,7 @@ function renderLeaderboard() {
           <div class="hcl-score-total-bar"><div class="hcl-score-total-fill ${dir}" style="width:${Math.min(100, totalScore / 20 * 100)}%"></div></div>
           ${timeBoost ? `<span class="hcl-time-boost">Time boost ${timeBoost}</span>` : ''}
           <span class="hcl-cascade-tag ${cascRisk}">${cascLabel}</span>
+          <span class="hcl-spike-detail ${spikeInfo.cls}" title="Spike potential: resistance room + vol + funding squeeze + CVD + OI + short interest — used to rank which bull scores highest spike priority">SPIKE ${spikeScore}/100</span>
         </div>
       </div>
 
