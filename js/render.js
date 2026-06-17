@@ -183,6 +183,11 @@ function renderTable() {
       <td data-k="b4h" style="font-size:10px;font-weight:700;color:${d.bias4hC};">${d.bias4h||'—'}</td>
       <td data-k="bday" style="font-size:10px;font-weight:700;color:${d.biasDayC};">${d.biasDay||'—'}</td>
       <td data-k="sig"><span class="sig ${d.sigC}"><span class="sig-dot" style="background:${sdotC}"></span>${d.sig}</span></td>
+      <td data-k="whale" style="font-family:var(--mono);font-size:10px;font-weight:700;color:${d.whaleZoneC||'var(--text-dim)'};min-width:72px;">
+        <span title="${d.whaleZone||''}">${d.whaleZoneEmoji||''}${d.whaleScore??'—'}</span>
+        <span style="font-size:8px;font-weight:400;color:var(--text-dim);"> /100</span>
+      </td>
+      <td data-k="conf" style="font-family:var(--mono);font-size:10px;font-weight:700;color:${(d.bullConfirmCount||0)>=7?'var(--bull)':(d.bullConfirmCount||0)>=4?'#f5c518':'var(--bear)'};min-width:50px;" title="Bull confirmations: ${(d.confirmChecks||[]).filter(c=>c.pass).map(c=>c.label).join(', ')}">${d.bullConfirmCount??0}/10</td>
       <td data-k="sr" style="font-size:9px;min-width:90px;">${d.sup||d.res?`<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${d.sup||'—'}</span><span style="color:var(--bear);">R $${d.res||'—'}</span></div>`:'<span style="color:var(--text-dim);">—</span>'}</td>
       <td><button class="rbtn" onclick="event.stopPropagation();refreshSymbol('${s}',this)">↺</button></td>
       <td class="td-reason" data-k="reason" title="${d.reason}">${d.reason}</td>
@@ -373,6 +378,26 @@ function patchSymbolRow(s) {
   T('bday', cell('bday'), fd.biasDay||'—');
   S('bdayc', cell('bday'), 'color', fd.biasDayC);
   T('reason', cell('reason'), fd.reason||'');
+
+  // Whale Score cell
+  const whaleEl = cell('whale');
+  const whaleKey = (fd.whaleScore??'') + '|' + (fd.whaleZone||'');
+  if (whaleEl && _dv[s+':whale'] !== whaleKey) {
+    _dv[s+':whale'] = whaleKey;
+    whaleEl.style.color = fd.whaleZoneC || 'var(--text-dim)';
+    whaleEl.title = fd.whaleZone || '';
+    whaleEl.innerHTML = `<span>${fd.whaleZoneEmoji||''}${fd.whaleScore??'—'}</span><span style="font-size:8px;font-weight:400;color:var(--text-dim);"> /100</span>`;
+  }
+
+  // Confirmation counter cell
+  const confEl = cell('conf');
+  const confKey = fd.bullConfirmCount ?? 0;
+  if (confEl && _dv[s+':conf'] !== confKey) {
+    _dv[s+':conf'] = confKey;
+    confEl.style.color = confKey >= 7 ? 'var(--bull)' : confKey >= 4 ? '#f5c518' : 'var(--bear)';
+    confEl.textContent = `${confKey}/10`;
+    confEl.title = `Bull confirmations: ${(fd.confirmChecks||[]).filter(c=>c.pass).map(c=>c.label).join(', ')}`;
+  }
 
   // Signal pill
   const sigEl = cell('sig');
@@ -1733,6 +1758,71 @@ function renderLeaderboard() {
           <span class="hcl-spike-detail ${spikeInfo.cls}" title="Spike potential: resistance room + vol + funding squeeze + CVD + OI + short interest — used to rank which bull scores highest spike priority">SPIKE ${spikeScore}/100</span>
         </div>
       </div>
+
+      <!-- ═══ PDF ENHANCEMENTS PANEL ═══ -->
+      <div class="hcl-whale-panel">
+
+        <!-- Row 1: Whale Score + Smart Money + Trade Grade -->
+        <div class="hcl-wp-row" style="display:flex;gap:6px;align-items:stretch;margin-bottom:6px;">
+
+          <!-- Whale Score -->
+          <div class="hcl-wp-block" style="flex:2;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:7px 9px;">
+            <div style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;margin-bottom:3px;">🐋 WHALE SCORE</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:20px;font-weight:700;color:${d.whaleZoneC || 'var(--text)'};font-family:var(--mono);">${d.whaleScore ?? '—'}</span>
+              <span style="font-size:8px;color:var(--text-dim);">/100</span>
+              <span style="margin-left:auto;font-size:10px;font-weight:600;color:${d.whaleZoneC || 'var(--text-dim)'};">${d.whaleZoneEmoji || ''} ${d.whaleZone || '—'}</span>
+            </div>
+            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
+              <div style="height:100%;width:${d.whaleScore ?? 0}%;background:${d.whaleZoneC || '#444'};border-radius:2px;transition:width .4s;"></div>
+            </div>
+          </div>
+
+          <!-- Smart Money vs Retail -->
+          <div class="hcl-wp-block" style="flex:1.5;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:7px 9px;">
+            <div style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;margin-bottom:3px;">💡 FLOW</div>
+            <div style="font-size:11px;font-weight:600;color:${d.smartMoneyC || 'var(--text-dim)'};">${d.smartMoneyLabel || '—'}</div>
+            ${d.earlyEntryDetected ? `<div style="margin-top:4px;font-size:8px;color:var(--bull);font-weight:700;letter-spacing:.5px;">⚡ EARLY ENTRY</div>` : ''}
+          </div>
+
+          <!-- Trade Grade + Setup Type -->
+          <div class="hcl-wp-block" style="flex:1.5;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:7px 9px;text-align:center;">
+            <div style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;margin-bottom:3px;">GRADE</div>
+            <div style="font-size:22px;font-weight:700;color:${d.tradeGradeC || 'var(--text)'};font-family:var(--mono);line-height:1;">${d.tradeGrade || '—'}</div>
+            <div style="font-size:8px;color:${d.tradeGradeC || 'var(--text-dim)'};margin-top:2px;">${d.successProb ?? '—'}% win rate</div>
+          </div>
+        </div>
+
+        <!-- Row 2: Signal Stability + Setup Archetype -->
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+          <div style="flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:6px 9px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;">📊 STABILITY</span>
+            <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+              <div style="height:100%;width:${d.signalStability ?? 50}%;background:${d.signalStability >= 80 ? 'var(--bull)' : d.signalStability >= 55 ? '#f5c518' : 'var(--bear)'};border-radius:3px;transition:width .3s;"></div>
+            </div>
+            <span style="font-size:10px;font-weight:600;color:${d.signalStability >= 80 ? 'var(--bull)' : d.signalStability >= 55 ? '#f5c518' : 'var(--bear)'};">${d.signalStability ?? '—'}% <span style="font-size:8px;font-weight:400;">${d.stabilityLabel || ''}</span></span>
+          </div>
+          <div style="flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:6px 9px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;">🔍 SETUP</span>
+            <span style="font-size:10px;font-weight:600;color:var(--accent);">${d.setupArchetype || '—'}</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Bull Confirmation Counter -->
+        <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:7px 9px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:8px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.8px;">✅ BULL CONFIRMATIONS</span>
+            <span style="font-size:12px;font-weight:700;font-family:var(--mono);color:${(d.bullConfirmCount||0) >= 7 ? 'var(--bull)' : (d.bullConfirmCount||0) >= 4 ? '#f5c518' : 'var(--bear)'};">${d.bullConfirmCount ?? 0}/10</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;">
+            ${(d.confirmChecks || []).map(c => `
+              <div style="display:flex;align-items:center;gap:4px;font-size:8px;font-family:var(--mono);">
+                <span style="color:${c.pass ? 'var(--bull)' : 'var(--bear)'};font-size:9px;">${c.pass ? '✔' : '✖'}</span>
+                <span style="color:${c.pass ? 'var(--text)' : 'var(--text-dim)'};">${c.label}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div><!-- end hcl-whale-panel -->
 
       <!-- Evidence -->
       <div class="hcl-evidence">

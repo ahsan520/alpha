@@ -135,32 +135,16 @@ async function init() {
   STATE.collapsedCols = {};
 
   // ── Watchlist source of truth ──
-  // Watchlist source priority:
-  //   1. watchlist.json (fetched from server) — authoritative
-  //   2. localStorage 'a49_wl' — cached from last successful load; survives file://
-  //   3. DEFAULT_WATCHLIST — hardcoded last resort
+  // ONLY two valid sources:
+  //   1. watchlist.json (fetched from server)
+  //   2. Tickers added in THIS tab's session via the GUI (STATE._sessionAdded)
+  //
+  // a49_wl_added (localStorage) is intentionally NOT read here.
   let base = DEFAULT_WATCHLIST;
-  let _wlSource = 'default';
   try {
-    const r = await fetch('watchlist.json', { cache: 'no-store' });
-    if (r.ok) {
-      const parsed = await r.json();
-      if (Array.isArray(parsed) && parsed.length) {
-        base = parsed;
-        _wlSource = 'watchlist.json';
-        try { localStorage.setItem('a49_wl', JSON.stringify(base)); } catch {}
-      }
-    }
-  } catch {
-    try {
-      const saved = localStorage.getItem('a49_wl');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length) { base = parsed; _wlSource = 'localStorage'; }
-      }
-    } catch {}
-  }
-  console.info('[watchlist] source:', _wlSource, base.length, 'symbols');
+    const r = await fetch('watchlist.json');
+    if (r.ok) base = await r.json();
+  } catch {}
 
   if (!STATE._sessionAdded) STATE._sessionAdded = [];
   const merged = [...base, ...STATE._sessionAdded.filter(s => !base.includes(s))];
@@ -255,48 +239,15 @@ async function _adaptiveTick() {
   document.getElementById('sdot').style.background = 'var(--gold)';
 
   let ok = 0, fail = 0;
-  // ── Split: standard crypto (batched) vs delisted/stocks (per-symbol syncOne) ──
-  const cryptoToSync = toSync.filter(s => s.includes('BINANCE:') && !BINANCE_DELISTED.has(s.split(':')[1]));
-  const otherToSync  = toSync.filter(s => !cryptoToSync.includes(s));
+  const STAGGER_MS = 100; // reduced from 300ms — 15 symbols now complete in ~1.5s not 4.5s
 
-  // Phase 1 — single Binance request covers all crypto prices at once
-  let priceBatch = {};
-  if (cryptoToSync.length) {
-    try { priceBatch = await batchCrypto(cryptoToSync); } catch {}
-  }
-  for (const s of cryptoToSync) {
-    const pd = priceBatch[s];
-    if (!pd) { fail++; _lastSyncTime[s] = Date.now(); continue; }
-    if (!STATE.PH[s]) STATE.PH[s] = [];
-    STATE.PH[s].push(pd.p);
-    if (STATE.PH[s].length > 200) STATE.PH[s].shift();
-    processAI(s, pd.p, pd.chg, {});
-    patchSymbolRow(s);
-    ok++; _lastSyncTime[s] = Date.now();
-  }
-
-  // Phase 2 — all kline/depth extras in parallel, fire-and-forget
-  if (cryptoToSync.length) {
-    batchCryptoExtras(cryptoToSync).then(extrasMap => {
-      for (const s of cryptoToSync) {
-        const pd = priceBatch[s];
-        if (!pd) continue;
-        processAI(s, pd.p, pd.chg, extrasMap[s] || {});
-        patchSymbolRow(s);
-      }
-      try {
-        localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
-        localStorage.setItem('a49_ph', JSON.stringify(STATE.PH));
-      } catch {}
-    }).catch(() => {});
-  }
-
-  // Stocks + delisted: keep per-symbol syncOne
-  for (const s of otherToSync) {
+  for (const s of toSync) {
     const success = await syncOne(s);
     _lastSyncTime[s] = Date.now();
     if (success) ok++; else fail++;
+    // Touch only the one row that just updated — no table-wide repaint
     patchSymbolRow(s);
+    await new Promise(r => setTimeout(r, STAGGER_MS));
   }
 
   localStorage.setItem('a49_ds', JSON.stringify(STATE.DS));
@@ -529,7 +480,6 @@ function addTicker() {
     if (!STATE._sessionAdded) STATE._sessionAdded = [];
     if (!STATE._sessionAdded.includes(e)) STATE._sessionAdded.push(e);
     logAlertItem('info', 'Added: ' + e);
-    try { localStorage.setItem('a49_wl', JSON.stringify(STATE.watchlist)); } catch {}
     sync();
     if (STATE._newsFetched) fetchNews();
   }
@@ -538,7 +488,6 @@ function addTicker() {
 
 function delT(s) {
   STATE.watchlist = STATE.watchlist.filter(x => x !== s);
-  try { localStorage.setItem('a49_wl', JSON.stringify(STATE.watchlist)); } catch {}
   if (STATE._sessionAdded) STATE._sessionAdded = STATE._sessionAdded.filter(x => x !== s);
   delete STATE.DS[s];
   delete STATE.PH[s];
@@ -564,7 +513,7 @@ function exportWL() {
 
 function importWL(inp) {
   const r = new FileReader();
-  r.onload = () => { try { STATE.watchlist = JSON.parse(r.result); try { localStorage.setItem('a49_wl', JSON.stringify(STATE.watchlist)); } catch {} sync(); } catch { alert('Invalid file.'); } };
+  r.onload = () => { try { STATE.watchlist = JSON.parse(r.result); sync(); } catch { alert('Invalid file.'); } };
   r.readAsText(inp.files[0]);
 }
 

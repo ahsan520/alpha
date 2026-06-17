@@ -724,6 +724,9 @@ function renderAlertCfgPage() {
     <!-- Leaderboard Alerts -->
     ${typeof renderLbAlertCard === 'function' ? renderLbAlertCard() : ''}
 
+    <!-- GitHub Position Sync -->
+    ${typeof renderGithubSyncCard === 'function' ? renderGithubSyncCard() : ''}
+
     <!-- Position Tracker -->
     <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ffd700;border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ffd700;letter-spacing:2px;margin-bottom:8px;">
