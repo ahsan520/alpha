@@ -181,7 +181,6 @@ async function checkLeaderboardAlerts(ranked) {
       status:       'watching',  // watching | tp1_hit | tp2_hit | stopped | exiting
     };
     savePositions(positions);
-    if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
     _lbMarkBuyFired(sym);
 
     buyAlerts.push({ r, setup, levels, entryP, stopP, t1P, t2P, conv, base });
@@ -416,7 +415,6 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
   }
 
   if (changed) savePositions(positions);
-  if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
 
   // ── Send Tier 3 immediate alerts (one per event) ──
   for (const a of tier3Alerts) {
@@ -501,7 +499,6 @@ function sweepExpiredPositions() {
   }
 
   if (changed) savePositions(positions);
-  if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
   return changed;
 }
 
@@ -612,7 +609,6 @@ function removePosition(sym) {
   const positions = loadPositions();
   delete positions[sym];
   savePositions(positions);
-  if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
   // Clear CVD counter
   if (window._cvdDeclineCount) delete window._cvdDeclineCount[sym];
   renderPositionTracker();

@@ -240,176 +240,13 @@ function processAI(s, p, chg, ex) {
   if (bias4h !== '—' && bias4h !== '◎ NEUTRAL') reasonParts.push(`4H: ${bias4h.replace(/[🟢🔴]/g, '').trim()}`);
   if (biasDay !== '—' && biasDay !== '◎ NEUTRAL') reasonParts.push(`Day: ${biasDay.replace(/[🟢🔴]/g, '').trim()}`);
 
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 1: WHALE ACCUMULATION SCORE (0–100)
-  // Combines OI Change, CVD, OB Imbalance, Funding, Vol Shock, L/S
-  // Weights: OI 25% | CVD 20% | OBI 15% | Funding 15% | Vol 15% | L/S 10%
-  // ══════════════════════════════════════════════════════════════
-  let whaleRaw = 50; // baseline neutral
-
-  // OI contribution (25 pts max)
-  if      (oiDiv === '✓ CONFIRM')  whaleRaw += 25;
-  else if (oiDiv === '💎 DIP BUY') whaleRaw += 18;
-  else if (oiDiv === '⚠ OI DROP')  whaleRaw -= 15;
-  else if (oiDiv === '↓ BEAR OI')  whaleRaw -= 25;
-
-  // CVD contribution (20 pts max)
-  if      (cvdScore > 0)  whaleRaw += 20;
-  else if (cvdScore < 0)  whaleRaw -= 20;
-
-  // OBI contribution (15 pts max)
-  if      (obiScore > 0)  whaleRaw += 15;
-  else if (obiScore < 0)  whaleRaw -= 15;
-
-  // Funding contribution (15 pts max) — negative funding = whale fuel
-  if      (frNum <= -0.03) whaleRaw += 15;
-  else if (frNum <= -0.01) whaleRaw += 8;
-  else if (frNum >= 0.05)  whaleRaw -= 15;
-  else if (frNum >= 0.025) whaleRaw -= 8;
-
-  // Vol Shock contribution (15 pts max)
-  const shockNum = parseFloat(shock) || 1;
-  if      (shockNum >= 2.5) whaleRaw += 15;
-  else if (shockNum >= 1.8) whaleRaw += 10;
-  else if (shockNum >= 1.3) whaleRaw += 5;
-  else if (shockNum < 0.7)  whaleRaw -= 8;
-
-  // L/S contribution (10 pts max) — more shorts = more squeeze fuel
-  if      (sp > 55) whaleRaw += 10; // short-heavy = squeeze potential
-  else if (lp > 70) whaleRaw -= 10; // retail long-heavy = distribution risk
-
-  const whaleScore = Math.max(0, Math.min(100, Math.round(whaleRaw)));
-  let whaleZone, whaleZoneC, whaleZoneEmoji;
-  if      (whaleScore >= 80) { whaleZone = 'Aggressive Accum'; whaleZoneC = 'var(--bull)';  whaleZoneEmoji = '🐋'; }
-  else if (whaleScore >= 60) { whaleZone = 'Smart Money Buy';  whaleZoneC = '#00cc8a';      whaleZoneEmoji = '💚'; }
-  else if (whaleScore >= 40) { whaleZone = 'Neutral';          whaleZoneC = 'var(--text-dim)'; whaleZoneEmoji = '⚪'; }
-  else if (whaleScore >= 20) { whaleZone = 'Distribution';     whaleZoneC = '#ff8c00';      whaleZoneEmoji = '🟠'; }
-  else                       { whaleZone = 'Heavy Dist';        whaleZoneC = 'var(--bear)';  whaleZoneEmoji = '🔴'; }
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 2: EARLY ENTRY (Institutional) DETECTION
-  // OI increasing + CVD rising + Funding neutral/negative + Vol rising
-  // ══════════════════════════════════════════════════════════════
-  const earlyEntryChecks = {
-    oiRising:      oiDiv === '✓ CONFIRM' || oiDiv === '💎 DIP BUY',
-    cvdRising:     cvdScore > 0,
-    fundingHealthy: frNum <= 0.01,  // not overheated
-    volExpanding:  shockNum >= 1.3,
-  };
-  const earlyEntryCount = Object.values(earlyEntryChecks).filter(Boolean).length;
-  const earlyEntryDetected = earlyEntryCount >= 3; // 3/4 = institutional entry detected
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 3: SIGNAL STABILITY (uses score history in PH)
-  // Tracks score variance over recent cycles — lower variance = more stable
-  // ══════════════════════════════════════════════════════════════
-  // ph is already declared above (line ~103) — reuse it here
-  if (!STATE.scoreHistory) STATE.scoreHistory = {};
-  if (!STATE.scoreHistory[s]) STATE.scoreHistory[s] = [];
-  STATE.scoreHistory[s].push({ t: Date.now(), score });
-  // Keep last 30 min of history (each cycle ~15s → ~120 entries)
-  const cutoff30m = Date.now() - 30 * 60 * 1000;
-  STATE.scoreHistory[s] = STATE.scoreHistory[s].filter(x => x.t > cutoff30m);
-
-  const scoreHist = STATE.scoreHistory[s].map(x => x.score);
-  let signalStability = 80; // default
-  if (scoreHist.length >= 5) {
-    const avg = scoreHist.reduce((a, b) => a + b, 0) / scoreHist.length;
-    const variance = scoreHist.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / scoreHist.length;
-    const stdDev = Math.sqrt(variance);
-    // stdDev 0 = 100% stable, stdDev 6+ = very unstable
-    signalStability = Math.max(10, Math.min(100, Math.round(100 - (stdDev / 6) * 90)));
-  }
-  let stabilityLabel, stabilityCls;
-  if      (signalStability >= 80) { stabilityLabel = 'Stable';    stabilityCls = 'stab-stable'; }
-  else if (signalStability >= 55) { stabilityLabel = 'Moderate';  stabilityCls = 'stab-moderate'; }
-  else                            { stabilityLabel = 'Unstable';  stabilityCls = 'stab-unstable'; }
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 4: BULL CONFIRMATION COUNTER (10 checks)
-  // ══════════════════════════════════════════════════════════════
-  const confirmChecks = [
-    { label: 'Daily Bias Bull',    pass: biasDay.includes('BULL') || biasDay.includes('LEAN BULL') },
-    { label: '4H Bias Bull',       pass: bias4h.includes('BULL') || bias4h.includes('LEAN BULL')  },
-    { label: 'Above EMA',          pass: emaTrend === 'ABOVE' },
-    { label: 'OI Rising',          pass: earlyEntryChecks.oiRising },
-    { label: 'CVD Rising',         pass: cvdScore > 0 },
-    { label: 'Vol Expansion',      pass: shockNum >= 1.3 },
-    { label: 'Funding Healthy',    pass: earlyEntryChecks.fundingHealthy },
-    { label: 'OBI Bid Heavy',      pass: obiScore > 0 },
-    { label: 'RSI Not OB',         pass: r15 < 70 && r1h < 68 },
-    { label: 'Whale Score ≥60',    pass: whaleScore >= 60 },
-  ];
-  const bullConfirmCount = confirmChecks.filter(c => c.pass).length;
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 5: SMART MONEY vs RETAIL
-  // ══════════════════════════════════════════════════════════════
-  let smartMoneyLabel, smartMoneyC;
-  if (earlyEntryDetected && whaleScore >= 65) {
-    smartMoneyLabel = 'Whales Buying';   smartMoneyC = 'var(--bull)';
-  } else if (shockNum >= 2.0 && lp > 65 && frNum >= 0.03) {
-    smartMoneyLabel = 'Retail FOMO';     smartMoneyC = '#ff8c00';
-  } else if (whaleScore <= 35) {
-    smartMoneyLabel = 'Institutional↓'; smartMoneyC = 'var(--bear)';
-  } else if (whaleScore >= 55 && earlyEntryCount >= 2) {
-    smartMoneyLabel = 'Smart Accum';    smartMoneyC = '#00cc8a';
-  } else {
-    smartMoneyLabel = 'Mixed Flow';     smartMoneyC = 'var(--text-dim)';
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 6: TRADE QUALITY + SETUP TYPE
-  // ══════════════════════════════════════════════════════════════
-  let tradeGrade, tradeGradeC;
-  const gradeScore = bullConfirmCount * 10 + (whaleScore - 50) * 0.3 + (signalStability - 50) * 0.2;
-  if      (gradeScore >= 85) { tradeGrade = 'A+'; tradeGradeC = '#00e5a0'; }
-  else if (gradeScore >= 70) { tradeGrade = 'A';  tradeGradeC = 'var(--bull)'; }
-  else if (gradeScore >= 50) { tradeGrade = 'B';  tradeGradeC = '#00cc8a'; }
-  else if (gradeScore >= 30) { tradeGrade = 'C';  tradeGradeC = '#ff8c00'; }
-  else                       { tradeGrade = 'D';  tradeGradeC = 'var(--bear)'; }
-
-  // Setup archetype
-  let setupArchetype;
-  if (whaleScore >= 75 && earlyEntryDetected) {
-    setupArchetype = 'Whale Accumulation';
-  } else if (shockNum >= 2.0 && score >= 4 && emaTrend === 'ABOVE') {
-    setupArchetype = 'Momentum Breakout';
-  } else if (sp > 55 && frNum <= -0.01) {
-    setupArchetype = 'Short Squeeze';
-  } else if (dipScore >= 3 && parseFloat(chg) < -1) {
-    setupArchetype = 'Mean Reversion';
-  } else if (lp > 65 && shockNum >= 1.5) {
-    setupArchetype = 'Retail Chase';
-  } else {
-    setupArchetype = 'Developing';
-  }
-
-  // Success probability (simple — based on grade + whale + stability)
-  const successProb = Math.max(20, Math.min(92, Math.round(
-    bullConfirmCount * 6 + (whaleScore - 50) * 0.25 + (signalStability - 50) * 0.1 + 30
-  )));
-
-  // ══════════════════════════════════════════════════════════════
-  // PDF FEATURE 8: EARLY WARNING ZONES (Building → Accumulating → Ready → BULLISH)
-  // Replaces the binary WAIT → BULLISH jump with a 4-stage pipeline
-  // ══════════════════════════════════════════════════════════════
-  let earlyWarnZone = null, earlyWarnC = 'var(--text-dim)';
-  if (score > 0 && score < 3) {
-    if      (whaleScore >= 60 && earlyEntryCount >= 2) { earlyWarnZone = '🟡 READY';       earlyWarnC = '#f5c518'; }
-    else if (whaleScore >= 50 || earlyEntryCount >= 2)  { earlyWarnZone = '🔵 ACCUMULATING'; earlyWarnC = '#4da6ff'; }
-    else                                                 { earlyWarnZone = '⚪ BUILDING';    earlyWarnC = '#8888aa'; }
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // FINAL SIGNAL — now with early warning zones
-  // ══════════════════════════════════════════════════════════════
+  // ── FINAL SIGNAL ──
   const reason = reasonParts.length ? reasonParts.join(' · ') : 'Awaiting data';
   let sig, sigC, whale = 'Quiet';
   if (score >= 6) {
     sig = 'STRONG BUY'; sigC = 's-sb'; whale = '🐋 ACCUM';
     playAlertSound();
-    logAlertItem('buy', `STRONG BUY: ${s.replace('BINANCE:', '').replace('USDT', '')} — ${reason} | Whale:${whaleScore} Conf:${bullConfirmCount}/10`);
+    logAlertItem('buy', `STRONG BUY: ${s.replace('BINANCE:', '').replace('USDT', '')} — ${reason}`);
   } else if (score >= 3) {
     sig = 'BULLISH'; sigC = 's-b';
   } else if (score <= -6) {
@@ -418,7 +255,7 @@ function processAI(s, p, chg, ex) {
   } else if (score <= -3) {
     sig = 'BEARISH'; sigC = 's-be';
   } else {
-    sig = earlyWarnZone ? `${earlyWarnZone}` : 'WAIT'; sigC = 's-w';
+    sig = 'WAIT'; sigC = 's-w';
   }
 
   // ── SUPPORT / RESISTANCE ──
@@ -449,14 +286,6 @@ function processAI(s, p, chg, ex) {
     emaTrend, emaVal, fundingFlag, fundingFlagC, oiDiv, oiDivC, dipScore, dipLabel, dipLabelC,
     bias4h, bias4hC, bias4hScore, biasDay, biasDayC, biasDayScore,
     sup, res, sparkBars,
-    // ── PDF Enhancement Fields ──
-    whaleScore, whaleZone, whaleZoneC, whaleZoneEmoji,
-    earlyEntryDetected, earlyEntryChecks, earlyEntryCount,
-    signalStability, stabilityLabel, stabilityCls,
-    confirmChecks, bullConfirmCount,
-    smartMoneyLabel, smartMoneyC,
-    tradeGrade, tradeGradeC, setupArchetype, successProb,
-    earlyWarnZone, earlyWarnC,
   };
 
   // ── CHECK ALERT RULES ──

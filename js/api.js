@@ -8,7 +8,7 @@
 // ══════════════════════════════════════════════
 
 const PROXIES = [
-  // corsproxy.io removed — returns 451 "Unavailable For Legal Reasons" for Binance
+  // corsproxy.io removed — returns 451 for Binance
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
   u => `https://thingproxy.freeboard.io/fetch/${u}`,
 ];
@@ -31,17 +31,11 @@ async function fetchDirect(url) {
   if (!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
 }
-
-// fetchWithFallback: tries direct first; on CORS/rate-limit failure falls back to proxy.
-// Use this for CoinGecko and any other APIs that block direct browser requests.
 async function fetchWithFallback(url) {
-  try {
-    return await fetchDirect(url);
-  } catch {
-    return await fetchProxy(url);
-  }
+  try { return await fetchDirect(url); } catch {}
+  return fetchProxy(url);
 }
-}
+
 
 async function fetchBinance(url) {
   try {
@@ -363,12 +357,8 @@ async function fetchCryptoExtra(pair) {
   return { obi, cvd, mtf, k4h: k4hBias, kDay: kDayBias };
 }
 
+
 // ── batchCryptoExtras — fetch extras for ALL crypto symbols in parallel ──
-// Instead of N serial syncOne() calls each firing 4 Binance requests one-after-another,
-// this fires all N×4 requests simultaneously via Promise.allSettled, then resolves
-// in one pass. Wall-clock time ≈ single slowest request regardless of watchlist size.
-//
-// Returns: { [sym]: { obi, cvd, mtf, k4h, kDay } }
 async function batchCryptoExtras(cryptoSyms) {
   if (!cryptoSyms.length) return {};
   const pairs = cryptoSyms.map(s => s.split(':')[1]);
@@ -382,8 +372,6 @@ async function batchCryptoExtras(cryptoSyms) {
     return fetchProxy(url);
   }
 
-  // Build one flat array of all requests in a deterministic order,
-  // then fire them all at once.
   const requests = pairs.flatMap(pair => [
     fetchOne(`${BASE}/depth?symbol=${pair}&limit=20`),
     fetchOne(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
@@ -397,16 +385,10 @@ async function batchCryptoExtras(cryptoSyms) {
   const out = {};
   pairs.forEach((pair, i) => {
     const base = i * 4;
-    const depth = val(results[base]);
-    const k15m  = val(results[base + 1]);
-    const k4h   = val(results[base + 2]);
-    const kDay  = val(results[base + 3]);
-
-    const obi            = _computeOBI(depth);
-    const { cvd, mtf }  = _computeCVDandMTF(k15m);
-    const k4hBias        = _compute4hBias(k4h);
-    const kDayBias       = _computeDailyBias(kDay);
-
+    const obi           = _computeOBI(val(results[base]));
+    const { cvd, mtf } = _computeCVDandMTF(val(results[base + 1]));
+    const k4hBias       = _compute4hBias(val(results[base + 2]));
+    const kDayBias      = _computeDailyBias(val(results[base + 3]));
     out['BINANCE:' + pair] = { obi, cvd, mtf, k4h: k4hBias, kDay: kDayBias };
   });
   return out;

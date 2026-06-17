@@ -36,24 +36,6 @@ const WATCHLIST = process.env.WATCHLIST
       }
     })();
 
-// Positions — written by the GUI (js/github-sync.js) via the GitHub Contents
-// API, read here so we can monitor stop/T1/T2 even while the GUI is closed.
-// One-directional: this file is the GUI's source of truth, the runner only reads it.
-const POSITIONS_JSON_PATH = path.join(__dirname, 'positions.json');
-
-function loadPositions() {
-  try {
-    const raw = JSON.parse(fs.readFileSync(POSITIONS_JSON_PATH, 'utf8'));
-    return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
-  } catch {
-    return {};
-  }
-}
-
-function stripExchangePrefix(sym) {
-  return sym.startsWith('BINANCE:') ? sym.slice('BINANCE:'.length) : sym;
-}
-
 // ── Overnight checklist conditions ──
 const OVN_BUY_CONDITIONS = [
   { id:'ovn_buy_4h',     required:true,  enabled:true,  label:'4H Bias',    desc:'BULL 4H or LEAN BULL' },
@@ -307,19 +289,9 @@ async function fetchAll(sym) {
   }
 }
 
-// Lightweight price-only lookup for GUI-tracked positions — we only need
-// the current price to evaluate stop/T1/T2, not the full bias computation.
-async function fetchPositionPrice(sym) {
-  const bare = stripExchangePrefix(sym);
-  if (isCrypto(bare)) {
-    const t = await fetchCryptoTicker(bare);
-    return t ? t.price : null;
-  }
-  const t = await fetchStockTicker(bare);
-  return t ? t.price : null;
-}
-
-
+// ════════════════════════════════════════════════════
+// SIGNAL COMPUTATION (mirrors v8 signals.js)
+// ════════════════════════════════════════════════════
 function computeSignals(ticker, k4h, kDay) {
   const chg = ticker.chgPct;
 
@@ -487,108 +459,6 @@ function clearFired(state, ruleId, sym) {
   delete state[`alert_state_${ruleId}_${sym}`];
 }
 
-// ── Position-instance suppression (separate from the cooldown system above) ──
-// Stop/T1/T2 are discrete one-time events for a *specific* open position, not
-// a recurring signal — so unlike isSuppressed() there's no time-based expiry.
-// Keying on alertedAt means a brand-new position opened later on the same
-// symbol (after the old one closed) gets a clean slate automatically.
-function posFireKey(sym, alertedAt, tag) {
-  return `pos_fired_${sym}_${alertedAt}_${tag}`;
-}
-function isPosFired(state, key)   { return state[key] === true; }
-function markPosFired(state, key) { state[key] = true; }
-
-// ════════════════════════════════════════════════════
-// POSITION MONITOR — stop/T1/T2 on GUI-synced positions.json
-// Mirrors the browser's monitorOpenPositions() Tier-3 (hard price) logic.
-// The softer CVD/funding/OI "exit signal" tier stays GUI-only — it depends
-// on the live leaderboard's V2 conviction score, which isn't reproduced here.
-// ════════════════════════════════════════════════════
-async function checkPositions(state) {
-  const positions = loadPositions();
-  const entries   = Object.entries(positions);
-
-  if (!entries.length) {
-    console.log('\n📍  positions.json — no open positions to monitor.');
-    return;
-  }
-
-  console.log(`\n📍  Monitoring ${entries.length} GUI-tracked position(s)...`);
-
-  for (const [sym, pos] of entries) {
-    // Terminal states are already resolved — nothing left to watch.
-    if (pos.status === 'stopped' || pos.status === 'tp2_hit') continue;
-
-    // Matches the GUI exactly: hard price exits are only evaluated for
-    // bull positions (shorts are skipped client-side too).
-    const isBull = pos.dir === 'bull' || pos.dir !== 'bear';
-    if (!isBull) continue;
-
-    const base      = pos.base || sym;
-    const entry     = parseFloat(pos.entryPrice || 0);
-    const stop      = parseFloat(pos.stop || 0);
-    const t1        = parseFloat(pos.t1 || 0);
-    const t2        = parseFloat(pos.t2 || 0);
-    const alertedAt = pos.alertedAt || 0;
-
-    let price = null;
-    try { price = await fetchPositionPrice(sym); }
-    catch (e) { console.log(`  ⚠  ${sym} — price fetch failed: ${e.message}`); }
-
-    if (price == null || !isFinite(price)) {
-      console.log(`  ⚠  ${sym} — no price data, skipping`);
-      continue;
-    }
-
-    const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
-    console.log(`  ${sym} [${pos.status}] price=${price} entry=${entry} stop=${stop} t1=${t1} t2=${t2} pnl=${pnlPct}%`);
-
-    // ── STOP HIT — checked first, takes priority over T1/T2 ──
-    if (stop > 0 && price <= stop) {
-      const key = posFireKey(sym, alertedAt, 'stop');
-      if (!isPosFired(state, key)) {
-        markPosFired(state, key);
-        console.log(`  🔴  STOP HIT — ${base} @ ${price}`);
-        await sendTelegram(
-          `🔴 *STOP HIT* — ${base}\n` +
-          `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
-          `  P&L ${pnlPct}%  Setup was: ${pos.setup || '—'}\n` +
-          `  _Detected server-side — GUI may still show "watching" until reopened_`
-        );
-      }
-      continue;
-    }
-
-    // ── T1 HIT ──
-    if (t1 > 0 && price >= t1 && pos.status === 'watching') {
-      const key = posFireKey(sym, alertedAt, 't1');
-      if (!isPosFired(state, key)) {
-        markPosFired(state, key);
-        console.log(`  ✅  T1 HIT — ${base} @ ${price}`);
-        await sendTelegram(
-          `✅ *T1 HIT* — ${base}\n` +
-          `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
-          `  P&L +${pnlPct}%  → Trail stop, watch for T2 $${t2}`
-        );
-      }
-    }
-
-    // ── T2 HIT ──
-    if (t2 > 0 && price >= t2 && (pos.status === 'watching' || pos.status === 'tp1_hit')) {
-      const key = posFireKey(sym, alertedAt, 't2');
-      if (!isPosFired(state, key)) {
-        markPosFired(state, key);
-        console.log(`  🏆  T2 HIT — ${base} @ ${price}`);
-        await sendTelegram(
-          `🏆 *T2 HIT* — ${base}\n` +
-          `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
-          `  P&L +${pnlPct}%  → Full target reached`
-        );
-      }
-    }
-  }
-}
-
 // ════════════════════════════════════════════════════
 // MAIN
 // ════════════════════════════════════════════════════
@@ -599,11 +469,8 @@ async function main() {
   console.log(`Cooldown: ${COOLDOWN_HOURS}h | Digest: ${DIGEST_MODE} | Dry-run: ${DRY_RUN}`);
   console.log('═'.repeat(60));
 
-  // Init Yahoo Finance session if we have any non-crypto tickers — check both
-  // the watchlist and any GUI-synced positions, since a position symbol may
-  // not be in watchlist.json at all.
-  const positionSyms = Object.keys(loadPositions()).map(stripExchangePrefix);
-  const hasStocks = WATCHLIST.some(s => !isCrypto(s)) || positionSyms.some(s => !isCrypto(s));
+  // Init Yahoo Finance session if we have any non-crypto tickers
+  const hasStocks = WATCHLIST.some(s => !isCrypto(s));
   if (hasStocks) {
     console.log('\n📡  Initialising Yahoo Finance session...');
     await initYahoo();
@@ -730,9 +597,6 @@ async function main() {
     console.log(`\n📋  Sending digest: ${header}`);
     await sendTelegram(`${header}\n\n${rows}`);
   }
-
-  // ── Monitor GUI-synced positions for stop/T1/T2 ──
-  await checkPositions(state);
 
   saveState(state);
   console.log('\n✅  Run complete.\n');
