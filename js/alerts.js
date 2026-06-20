@@ -19,10 +19,13 @@ const OVN_SELL_CONDITIONS = [
 ];
 
 // ── Signal rules ──
+// All signal and overnight rules are OFF by default.
+// Only the position tracker (leaderboard buy/exit alerts) sends Telegram by default.
+// Enable rules manually in the Alert Configuration panel and click Save All.
 const DEFAULT_RULES = [
-  { id: 'vol_bull_4h', label: 'Vol Shock > 1.5× AND 4H Bias = Bullish', group: 'signals', action: 'buy',  enabled: true,  channels: ['email','telegram'] },
-  { id: 'strong_buy',  label: 'Signal = STRONG BUY',                     group: 'signals', action: 'buy',  enabled: true,  channels: ['email','telegram'] },
-  { id: 'strong_sell', label: 'Signal = STRONG SELL / BEARISH',          group: 'signals', action: 'sell', enabled: true,  channels: ['email','telegram'] },
+  { id: 'vol_bull_4h', label: 'Vol Shock > 1.5× AND 4H Bias = Bullish', group: 'signals', action: 'buy',  enabled: false, channels: ['email','telegram'] },
+  { id: 'strong_buy',  label: 'Signal = STRONG BUY',                     group: 'signals', action: 'buy',  enabled: false, channels: ['email','telegram'] },
+  { id: 'strong_sell', label: 'Signal = STRONG SELL / BEARISH',          group: 'signals', action: 'sell', enabled: false, channels: ['email','telegram'] },
   { id: 'bearish_day', label: '4H = BEAR + Daily = BEAR DAY',            group: 'signals', action: 'sell', enabled: false, channels: ['telegram'] },
   { id: 'dip_buy',     label: 'Dip Score = BUY DIP (score ≥ 5)',        group: 'signals', action: 'buy',  enabled: false, channels: ['telegram'] },
 
@@ -32,7 +35,7 @@ const DEFAULT_RULES = [
     label: 'Overnight BUY — all must-have conditions met',
     group: 'overnight_buy',
     action: 'buy',
-    enabled: true,
+    enabled: false,
     channels: ['telegram'],
     minRequired: 2,   // both MUST HAVE conditions
     minOptional: 1,   // at least 1 of the optional confirmations
@@ -42,18 +45,25 @@ const DEFAULT_RULES = [
     label: 'Overnight SELL — all must-have conditions met',
     group: 'overnight_sell',
     action: 'sell',
-    enabled: true,
+    enabled: false,
     channels: ['telegram'],
     minRequired: 2,
     minOptional: 1,
   },
 ];
 
-function mergeRules(saved) {
+// ── Config version — bump this whenever DEFAULT_RULES enabled states change. ──
+// On load, if the saved version doesn't match, rule enabled states are reset
+// to the new defaults. Credentials (bot token, chat ID, email) are always kept.
+const ALERT_CFG_VERSION = 2; // bumped: all signal/overnight rules now off by default
+
+function mergeRules(saved, resetEnabled) {
+  // resetEnabled=true: ignore saved enabled states, use DEFAULT_RULES as-is.
+  // resetEnabled=false: normal merge — saved enabled wins (user explicitly changed it).
   const savedMap = Object.fromEntries((saved || []).map(r => [r.id, r]));
   return DEFAULT_RULES.map(def => {
     const s = savedMap[def.id];
-    if (!s) return def;
+    if (!s || resetEnabled) return { ...def };
     return { ...def, enabled: s.enabled, channels: s.channels,
       minRequired: s.minRequired ?? def.minRequired,
       minOptional: s.minOptional ?? def.minOptional };
@@ -71,15 +81,30 @@ function mergeConditions(defaults, saved) {
 
 function initAlertCfg() {
   const raw = JSON.parse(localStorage.getItem('a49_alertcfg') || '{}');
+
+  // Version check — if saved config is from an older version, reset rule
+  // enabled states to current defaults but keep all credentials intact.
+  const savedVersion  = raw._version || 0;
+  const versionMismatch = savedVersion < ALERT_CFG_VERSION;
+  if (versionMismatch) {
+    console.log(`[alerts] Config version ${savedVersion} → ${ALERT_CFG_VERSION}: resetting rule enabled states to defaults`);
+  }
+
   STATE.alertCfg = {
     email:    { enabled: false, address: '', emailjsServiceId: '', emailjsTemplateId: '', emailjsPublicKey: '', ...(raw.email    || {}) },
     telegram: { enabled: false, botToken: '', chatId: '',                                                       ...(raw.telegram || {}) },
-    rules:    mergeRules(raw.rules || []),
+    rules:    mergeRules(raw.rules || [], versionMismatch),
     digestMode: raw.digestMode !== false,
     cooldownHours: raw.cooldownHours ?? 4,
     ovnBuyConditions:  mergeConditions(OVN_BUY_CONDITIONS,  raw.ovnBuyConditions),
     ovnSellConditions: mergeConditions(OVN_SELL_CONDITIONS, raw.ovnSellConditions),
+    _version: ALERT_CFG_VERSION,
   };
+
+  // Persist the migrated config immediately so the next load sees the new version
+  if (versionMismatch) {
+    localStorage.setItem('a49_alertcfg', JSON.stringify(STATE.alertCfg));
+  }
 }
 
 // ── Alert log ──
@@ -365,6 +390,7 @@ function saveAlertCfg() {
     if (tgCb    && tgCb.checked)    rule.channels.push('telegram');
   });
 
+  cfg._version = ALERT_CFG_VERSION;
   localStorage.setItem('a49_alertcfg', JSON.stringify(cfg));
   logAlertItem('info', '💾 Alert config saved.');
   renderAlertCfgPage();
