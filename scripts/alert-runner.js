@@ -74,14 +74,17 @@ const OVN_SELL_CONDITIONS = [
   { id:'ovn_sell_ls',    required:false, enabled:false, label:'L/S Ratio',  desc:'≥65% Longs' },
 ];
 
+// ── Signal & overnight rules — ALL disabled by default. ──────────────────────
+// Only the position tracker (checkPositions) sends Telegram alerts by default.
+// Enable individual rules here or via repo Variables (ENABLED_RULES) if needed.
 const DEFAULT_RULES = [
-  { id:'vol_bull_4h',    group:'signals',       action:'buy',  enabled:true  },
-  { id:'strong_buy',     group:'signals',       action:'buy',  enabled:true  },
-  { id:'strong_sell',    group:'signals',       action:'sell', enabled:true  },
+  { id:'vol_bull_4h',    group:'signals',       action:'buy',  enabled:false },
+  { id:'strong_buy',     group:'signals',       action:'buy',  enabled:false },
+  { id:'strong_sell',    group:'signals',       action:'sell', enabled:false },
   { id:'bearish_day',    group:'signals',       action:'sell', enabled:false },
   { id:'dip_buy',        group:'signals',       action:'buy',  enabled:false },
-  { id:'overnight_buy',  group:'overnight_buy', action:'buy',  enabled:true, minRequired:2, minOptional:1 },
-  { id:'overnight_sell', group:'overnight_sell',action:'sell', enabled:true, minRequired:2, minOptional:1 },
+  { id:'overnight_buy',  group:'overnight_buy', action:'buy',  enabled:false, minRequired:2, minOptional:1 },
+  { id:'overnight_sell', group:'overnight_sell',action:'sell', enabled:false, minRequired:2, minOptional:1 },
 ];
 
 // ════════════════════════════════════════════════════
@@ -499,11 +502,63 @@ function isPosFired(state, key)   { return state[key] === true; }
 function markPosFired(state, key) { state[key] = true; }
 
 // ════════════════════════════════════════════════════
-// POSITION MONITOR — stop/T1/T2 on GUI-synced positions.json
-// Mirrors the browser's monitorOpenPositions() Tier-3 (hard price) logic.
-// The softer CVD/funding/OI "exit signal" tier stays GUI-only — it depends
-// on the live leaderboard's V2 conviction score, which isn't reproduced here.
+// POSITION MONITOR — headless exit scoring for GUI-synced positions.json
+//
+// Tier 3 (hard price): stop hit, T1, T2 — fires immediately, no lock
+// Tier 2 (distribution): CVD + OI + funding + RSI exit score ≥ 3
+// Tier 1 (overheating): funding hot + RSI extended, no CVD yet
+//
+// CVD is approximated server-side from Binance klines: count of recent
+// 15-min candles where close < open (bearish pressure). Not identical to
+// the GUI's real-time CVD stream but close enough for exit detection.
 // ════════════════════════════════════════════════════
+
+// Per-run in-memory CVD decline counter (mirrors GUI window._cvdDeclineCount)
+const _cvdDeclineCount = {};
+
+async function fetchCvdTrending(sym) {
+  // Approximate CVD trend from last 6 × 15-min candles.
+  // Returns 'down' if majority of recent candles are bearish (close < open).
+  const bare = stripExchangePrefix(sym);
+  try {
+    if (isCrypto(bare)) {
+      const k = await fetchJSON(
+        \`https://api.binance.com/api/v3/klines?symbol=\${bare}&interval=15m&limit=6\`
+      );
+      if (!Array.isArray(k) || k.length < 3) return 'up';
+      const bearCount = k.filter(c => parseFloat(c[4]) < parseFloat(c[1])).length;
+      return bearCount >= 4 ? 'down' : 'up';
+    }
+  } catch {}
+  return 'up'; // conservative default for stocks (no 15m data from Yahoo)
+}
+
+async function fetchFundingRate(sym) {
+  const bare = stripExchangePrefix(sym);
+  if (!isCrypto(bare)) return 0;
+  try {
+    const d = await fetchJSON(
+      \`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=\${bare}\`
+    );
+    return parseFloat(d.lastFundingRate || 0) * 100; // convert to % like GUI
+  } catch { return 0; }
+}
+
+async function fetchRsi15(sym) {
+  const bare = stripExchangePrefix(sym);
+  try {
+    if (isCrypto(bare)) {
+      const k = await fetchJSON(
+        \`https://api.binance.com/api/v3/klines?symbol=\${bare}&interval=15m&limit=30\`
+      );
+      if (!Array.isArray(k) || k.length < 15) return 50;
+      const closes = k.map(c => parseFloat(c[4]));
+      return calcRSI(closes, 14) || 50;
+    }
+  } catch {}
+  return 50;
+}
+
 async function checkPositions(state) {
   const positions = loadPositions();
   const entries   = Object.entries(positions);
@@ -513,15 +568,17 @@ async function checkPositions(state) {
     return;
   }
 
-  console.log(`\n📍  Monitoring ${entries.length} GUI-tracked position(s)...`);
+  console.log(\`\n📍  Monitoring \${entries.length} GUI-tracked position(s) [headless]...\`);
+
+  const EXIT_CVD_CYCLES  = 3;   // mirrors GUI default exitCvdCycles
+  const HOLD_LOCK_MINS   = 20;  // mirrors GUI default holdLockMins
+  const TIER1_COOLDOWN   = 2 * 60 * 60 * 1000;
+  const TIER2_COOLDOWN   = 2 * 60 * 60 * 1000;
 
   for (const [sym, pos] of entries) {
-    // Terminal states are already resolved — nothing left to watch.
     if (pos.status === 'stopped' || pos.status === 'tp2_hit') continue;
 
-    // Matches the GUI exactly: hard price exits are only evaluated for
-    // bull positions (shorts are skipped client-side too).
-    const isBull = pos.dir === 'bull' || pos.dir !== 'bear';
+    const isBull    = pos.dir === 'bull' || pos.dir !== 'bear';
     if (!isBull) continue;
 
     const base      = pos.base || sym;
@@ -530,61 +587,145 @@ async function checkPositions(state) {
     const t1        = parseFloat(pos.t1 || 0);
     const t2        = parseFloat(pos.t2 || 0);
     const alertedAt = pos.alertedAt || 0;
+    const now       = Date.now();
 
     let price = null;
     try { price = await fetchPositionPrice(sym); }
-    catch (e) { console.log(`  ⚠  ${sym} — price fetch failed: ${e.message}`); }
+    catch (e) { console.log(\`  ⚠  \${sym} price fetch failed: \${e.message}\`); }
 
     if (price == null || !isFinite(price)) {
-      console.log(`  ⚠  ${sym} — no price data, skipping`);
+      console.log(\`  ⚠  \${sym} — no price, skipping\`);
       continue;
     }
 
     const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
-    console.log(`  ${sym} [${pos.status}] price=${price} entry=${entry} stop=${stop} t1=${t1} t2=${t2} pnl=${pnlPct}%`);
+    console.log(\`  \${sym} [\${pos.status}] price=\${price} entry=\${entry} stop=\${stop} t1=\${t1} t2=\${t2} pnl=\${pnlPct}%\`);
 
-    // ── STOP HIT — checked first, takes priority over T1/T2 ──
+    // ── TIER 3: Hard price exits — no hold lock, highest priority ──
     if (stop > 0 && price <= stop) {
       const key = posFireKey(sym, alertedAt, 'stop');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(`  🔴  STOP HIT — ${base} @ ${price}`);
+        console.log(\`  🔴  STOP HIT — \${base} @ \${price}\`);
         await sendTelegram(
-          `🔴 *STOP HIT* — ${base}\n` +
-          `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
-          `  P&L ${pnlPct}%  Setup was: ${pos.setup || '—'}\n` +
-          `  _Detected server-side — GUI may still show "watching" until reopened_`
+          \`🔴 *STOP HIT* — \${base}\n\` +
+          \`  Entry $\${entry}  Stop $\${stop}  Current $\${price}\n\` +
+          \`  P&L \${pnlPct}%  Setup: \${pos.setup || '—'}\n\` +
+          \`  _Headless — reopen GUI to update position status_\`
         );
       }
       continue;
     }
 
-    // ── T1 HIT ──
     if (t1 > 0 && price >= t1 && pos.status === 'watching') {
       const key = posFireKey(sym, alertedAt, 't1');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(`  ✅  T1 HIT — ${base} @ ${price}`);
+        console.log(\`  ✅  T1 HIT — \${base} @ \${price}\`);
         await sendTelegram(
-          `✅ *T1 HIT* — ${base}\n` +
-          `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
-          `  P&L +${pnlPct}%  → Trail stop, watch for T2 $${t2}`
+          \`✅ *T1 HIT* — \${base}\n\` +
+          \`  T1 $\${t1}  Current $\${price}  Entry $\${entry}\n\` +
+          \`  P&L +\${pnlPct}%  → Trail stop, watch T2 $\${t2}\`
         );
       }
     }
 
-    // ── T2 HIT ──
     if (t2 > 0 && price >= t2 && (pos.status === 'watching' || pos.status === 'tp1_hit')) {
       const key = posFireKey(sym, alertedAt, 't2');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(`  🏆  T2 HIT — ${base} @ ${price}`);
+        console.log(\`  🏆  T2 HIT — \${base} @ \${price}\`);
         await sendTelegram(
-          `🏆 *T2 HIT* — ${base}\n` +
-          `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
-          `  P&L +${pnlPct}%  → Full target reached`
+          \`🏆 *T2 HIT* — \${base}\n\` +
+          \`  T2 $\${t2}  Current $\${price}  Entry $\${entry}\n\` +
+          \`  P&L +\${pnlPct}%  → Full target reached\`
         );
       }
+    }
+
+    // ── Hold lock: no Tier 1/2 in first N minutes after entry ──
+    const holdLockUntil = (pos.holdLockUntil) || (alertedAt + HOLD_LOCK_MINS * 60000);
+    if (now < holdLockUntil) {
+      const remMins = Math.ceil((holdLockUntil - now) / 60000);
+      console.log(\`  ⏳  \${base} — hold lock \${remMins}min remaining, skip exit scoring\`);
+      continue;
+    }
+
+    // ── Fetch indicators for Tier 1/2 scoring ──
+    const [cvdTrending, fr, r15] = await Promise.all([
+      fetchCvdTrending(sym),
+      fetchFundingRate(sym),
+      fetchRsi15(sym),
+    ]);
+
+    // CVD decline counter (in-memory per run, resets each GitHub Actions run)
+    if (cvdTrending === 'down') {
+      _cvdDeclineCount[sym] = (_cvdDeclineCount[sym] || 0) + 1;
+    } else {
+      _cvdDeclineCount[sym] = 0;
+    }
+    const cvdDeclines  = _cvdDeclineCount[sym];
+    const cvdConfirmed = cvdDeclines >= EXIT_CVD_CYCLES;
+
+    const priceFlat    = Math.abs(((price - entry) / entry) * 100) < 0.5;
+    const priceFalling = price < entry * 1.005;
+    const fundingHot   = fr > 0.08;
+    const rsiExtended  = r15 > 75;
+    // OI divergence approximated: funding hot + price flat/falling = distribution signal
+    const oiExiting    = fundingHot && (priceFlat || priceFalling);
+
+    let exitScore = 0;
+    if (cvdConfirmed) exitScore += 2;
+    if (oiExiting)    exitScore += 2;
+    if (fundingHot)   exitScore += 1;
+    if (rsiExtended && cvdDeclines >= 1) exitScore += 1;
+
+    console.log(\`  📊  \${base} exit score=\${exitScore}/6 cvd=\${cvdTrending}(\${cvdDeclines}) fr=\${fr.toFixed(3)}% rsi15=\${Math.round(r15)}\`);
+
+    // ── TIER 1: Overheating — tighten stop warning ──
+    const tier1Key    = posFireKey(sym, alertedAt, 'tier1');
+    const tier1FiredAt = state[\`\${tier1Key}_ts\`] || 0;
+    const tier1Cooldownok = (now - tier1FiredAt) > TIER1_COOLDOWN;
+
+    if (fundingHot && rsiExtended && !cvdConfirmed
+        && pos.status === 'watching'
+        && tier1Cooldownok) {
+      state[\`\${tier1Key}_ts\`] = now;
+      console.log(\`  ⚠  TIER1 WATCH — \${base} FR=\${fr.toFixed(3)}% RSI=\${Math.round(r15)}\`);
+      await sendTelegram(
+        \`⚠ *WATCH — Overheating* — \${base}\n\` +
+        \`  Funding \${fr.toFixed(3)}%  RSI 15m \${Math.round(r15)}\n\` +
+        \`  CVD still up — no exit yet, tighten stop\n\` +
+        \`  Current $\${price}  Entry $\${entry}  P&L \${pnlPct}%\n\` +
+        \`  _Headless monitor — CVD decline will trigger exit alert_\`
+      );
+    }
+
+    // ── TIER 2: Distribution confirmed — exit signal ──
+    const tier2Key     = posFireKey(sym, alertedAt, 'tier2');
+    const tier2FiredAt = state[\`\${tier2Key}_ts\`] || 0;
+    const tier2Cooldownok = (now - tier2FiredAt) > TIER2_COOLDOWN;
+
+    if (cvdConfirmed && exitScore >= 3
+        && pos.status !== 'exiting'
+        && tier2Cooldownok) {
+      state[\`\${tier2Key}_ts\`] = now;
+      const signals = [
+        cvdConfirmed ? \`CVD ↓ \${cvdDeclines} cycles\` : null,
+        oiExiting    ? 'OI distributing'              : null,
+        fundingHot   ? \`FR \${fr.toFixed(3)}%\`         : null,
+        rsiExtended  ? \`RSI \${Math.round(r15)}\`        : null,
+      ].filter(Boolean).join(' · ');
+
+      console.log(\`  🟡  EXIT SIGNAL — \${base} score:\${exitScore}/6 [\${signals}]\`);
+      await sendTelegram(
+        \`🟡 *EXIT SIGNAL* — \${base}\n\` +
+        \`  Exit score \${exitScore}/6\n\` +
+        \`  ⚠ \${signals}\n\` +
+        \`  Current $\${price}  Entry $\${entry}  P&L \${pnlPct}%\n\` +
+        (t2 > price ? \`  T2 $\${t2} not yet hit — consider partial exit or trail stop\` : \`  → Consider full exit\`) + \`\n\` +
+        \`  _Headless — CVD decline confirmed server-side_\`
+      );
     }
   }
 }

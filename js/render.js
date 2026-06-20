@@ -1497,6 +1497,9 @@ function renderLeaderboard() {
   }
 
   // ── Leaderboard alert engine: detect new cards, monitor exits ──
+  // Store ranked on STATE so renderPositionTracker can read live prices
+  // from the correct symbol without falling back to STATE.DS (which bleeds).
+  STATE._ranked = ranked;
   if (typeof checkLeaderboardAlerts === 'function') {
     checkLeaderboardAlerts(ranked).catch(() => {});
   }

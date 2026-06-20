@@ -255,7 +255,9 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
 
     // Find current data for this symbol
     const lbEntry = ranked.find(r => r.sym === sym);
-    const d       = lbEntry?.d || STATE.DS?.[sym];
+    // NOTE: Only use data from ranked (keyed by correct sym).
+    // STATE.DS can bleed symbols from other tabs — never fall back to it here.
+    const d       = lbEntry?.d;
     if (!d) continue;
 
     const price    = parseFloat(d.p || 0);
@@ -554,7 +556,10 @@ function renderPositionTracker() {
   }
 
   el.innerHTML = entries.map(pos => {
-    const liveD   = STATE.DS?.[pos.sym] || {};
+    // Pull live data from the leaderboard ranked array (STATE._ranked) instead
+    // of STATE.DS — STATE.DS is shared across tabs and bleeds wrong symbols.
+    const lbEntry = (STATE._ranked || []).find(r => r.sym === pos.sym);
+    const liveD   = lbEntry?.d || {};
     const price   = parseFloat(liveD.p || pos.entryPrice);
     const pnlPct  = pos.entryPrice > 0
       ? ((price - pos.entryPrice) / pos.entryPrice * 100).toFixed(2)
@@ -566,7 +571,8 @@ function renderPositionTracker() {
 
     // Live spike potential — recalculated on every render tick
     const liveSpikeScore = (typeof calcSpikeScore === 'function' && liveD.p)
-      ? calcSpikeScore(pos.sym, liveD) : pos.spikeScore || 0;
+      ? calcSpikeScore(pos.sym, liveD)
+      : (pos.spikeScore || 0);
     const spikeInfo = typeof spikeLabelFromScore === 'function'
       ? spikeLabelFromScore(liveSpikeScore) : { label: '—', cls: 'spike-none' };
 
