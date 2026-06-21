@@ -575,7 +575,7 @@ async function fetchCvdTrending(sym) {
   try {
     if (isCrypto(bare)) {
       const k = await fetchJSON(
-        \`https://api.binance.com/api/v3/klines?symbol=\${bare}&interval=15m&limit=6\`
+        `https://api.binance.com/api/v3/klines?symbol=${bare}&interval=15m&limit=6`
       );
       if (!Array.isArray(k) || k.length < 3) return 'up';
       const bearCount = k.filter(c => parseFloat(c[4]) < parseFloat(c[1])).length;
@@ -590,7 +590,7 @@ async function fetchFundingRate(sym) {
   if (!isCrypto(bare)) return 0;
   try {
     const d = await fetchJSON(
-      \`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=\${bare}\`
+      `https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${bare}`
     );
     return parseFloat(d.lastFundingRate || 0) * 100; // convert to % like GUI
   } catch { return 0; }
@@ -601,7 +601,7 @@ async function fetchRsi15(sym) {
   try {
     if (isCrypto(bare)) {
       const k = await fetchJSON(
-        \`https://api.binance.com/api/v3/klines?symbol=\${bare}&interval=15m&limit=30\`
+        `https://api.binance.com/api/v3/klines?symbol=${bare}&interval=15m&limit=30`
       );
       if (!Array.isArray(k) || k.length < 15) return 50;
       const closes = k.map(c => parseFloat(c[4]));
@@ -620,7 +620,7 @@ async function checkPositions(state) {
     return;
   }
 
-  console.log(\`\n📍  Monitoring \${entries.length} GUI-tracked position(s) [headless]...\`);
+  console.log(`\n📍  Monitoring ${entries.length} GUI-tracked position(s) [headless]...`);
 
   const EXIT_CVD_CYCLES  = 3;   // mirrors GUI default exitCvdCycles
   const HOLD_LOCK_MINS   = 20;  // mirrors GUI default holdLockMins
@@ -667,27 +667,27 @@ async function checkPositions(state) {
 
     let price = null;
     try { price = await fetchPositionPrice(sym); }
-    catch (e) { console.log(\`  ⚠  \${sym} price fetch failed: \${e.message}\`); }
+    catch (e) { console.log(`  ⚠  ${sym} price fetch failed: ${e.message}`); }
 
     if (price == null || !isFinite(price)) {
-      console.log(\`  ⚠  \${sym} — no price, skipping\`);
+      console.log(`  ⚠  ${sym} — no price, skipping`);
       continue;
     }
 
     const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
-    console.log(\`  \${sym} [\${pos.status}] price=\${price} entry=\${entry} stop=\${stop} t1=\${t1} t2=\${t2} pnl=\${pnlPct}%\`);
+    console.log(`  ${sym} [${pos.status}] price=${price} entry=${entry} stop=${stop} t1=${t1} t2=${t2} pnl=${pnlPct}%`);
 
     // ── TIER 3: Hard price exits — no hold lock, highest priority ──
     if (stop > 0 && price <= stop) {
       const key = posFireKey(sym, alertedAt, 'stop');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(\`  🔴  STOP HIT — \${base} @ \${price}\`);
+        console.log(`  🔴  STOP HIT — ${base} @ ${price}`);
         await sendTelegram(
-          \`🔴 *STOP HIT* — \${base}\n\` +
-          \`  Entry $\${entry}  Stop $\${stop}  Current $\${price}\n\` +
-          \`  P&L \${pnlPct}%  Setup: \${pos.setup || '—'}\n\` +
-          \`  _Headless — reopen GUI to update position status_\`
+          `🔴 *STOP HIT* — ${base}\n` +
+          `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
+          `  P&L ${pnlPct}%  Setup: ${pos.setup || '—'}\n` +
+          `  _Headless — reopen GUI to update position status_`
         );
       }
       continue;
@@ -697,11 +697,11 @@ async function checkPositions(state) {
       const key = posFireKey(sym, alertedAt, 't1');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(\`  ✅  T1 HIT — \${base} @ \${price}\`);
+        console.log(`  ✅  T1 HIT — ${base} @ ${price}`);
         await sendTelegram(
-          \`✅ *T1 HIT* — \${base}\n\` +
-          \`  T1 $\${t1}  Current $\${price}  Entry $\${entry}\n\` +
-          \`  P&L +\${pnlPct}%  → Trail stop, watch T2 $\${t2}\`
+          `✅ *T1 HIT* — ${base}\n` +
+          `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
+          `  P&L +${pnlPct}%  → Trail stop, watch T2 $${t2}`
         );
       }
     }
@@ -710,11 +710,11 @@ async function checkPositions(state) {
       const key = posFireKey(sym, alertedAt, 't2');
       if (!isPosFired(state, key)) {
         markPosFired(state, key);
-        console.log(\`  🏆  T2 HIT — \${base} @ \${price}\`);
+        console.log(`  🏆  T2 HIT — ${base} @ ${price}`);
         await sendTelegram(
-          \`🏆 *T2 HIT* — \${base}\n\` +
-          \`  T2 $\${t2}  Current $\${price}  Entry $\${entry}\n\` +
-          \`  P&L +\${pnlPct}%  → Full target reached\`
+          `🏆 *T2 HIT* — ${base}\n` +
+          `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
+          `  P&L +${pnlPct}%  → Full target reached`
         );
       }
     }
@@ -723,7 +723,7 @@ async function checkPositions(state) {
     const holdLockUntil = (pos.holdLockUntil) || (alertedAt + HOLD_LOCK_MINS * 60000);
     if (now < holdLockUntil) {
       const remMins = Math.ceil((holdLockUntil - now) / 60000);
-      console.log(\`  ⏳  \${base} — hold lock \${remMins}min remaining, skip exit scoring\`);
+      console.log(`  ⏳  ${base} — hold lock ${remMins}min remaining, skip exit scoring`);
       continue;
     }
 
@@ -756,51 +756,51 @@ async function checkPositions(state) {
     if (fundingHot)   exitScore += 1;
     if (rsiExtended && cvdDeclines >= 1) exitScore += 1;
 
-    console.log(\`  📊  \${base} exit score=\${exitScore}/6 cvd=\${cvdTrending}(\${cvdDeclines}) fr=\${fr.toFixed(3)}% rsi15=\${Math.round(r15)}\`);
+    console.log(`  📊  ${base} exit score=${exitScore}/6 cvd=${cvdTrending}(${cvdDeclines}) fr=${fr.toFixed(3)}% rsi15=${Math.round(r15)}`);
 
     // ── TIER 1: Overheating — tighten stop warning ──
     const tier1Key    = posFireKey(sym, alertedAt, 'tier1');
-    const tier1FiredAt = state[\`\${tier1Key}_ts\`] || 0;
+    const tier1FiredAt = state[`${tier1Key}_ts`] || 0;
     const tier1Cooldownok = (now - tier1FiredAt) > TIER1_COOLDOWN;
 
     if (fundingHot && rsiExtended && !cvdConfirmed
         && pos.status === 'watching'
         && tier1Cooldownok) {
-      state[\`\${tier1Key}_ts\`] = now;
-      console.log(\`  ⚠  TIER1 WATCH — \${base} FR=\${fr.toFixed(3)}% RSI=\${Math.round(r15)}\`);
+      state[`${tier1Key}_ts`] = now;
+      console.log(`  ⚠  TIER1 WATCH — ${base} FR=${fr.toFixed(3)}% RSI=${Math.round(r15)}`);
       await sendTelegram(
-        \`⚠ *WATCH — Overheating* — \${base}\n\` +
-        \`  Funding \${fr.toFixed(3)}%  RSI 15m \${Math.round(r15)}\n\` +
-        \`  CVD still up — no exit yet, tighten stop\n\` +
-        \`  Current $\${price}  Entry $\${entry}  P&L \${pnlPct}%\n\` +
-        \`  _Headless monitor — CVD decline will trigger exit alert_\`
+        `⚠ *WATCH — Overheating* — ${base}\n` +
+        `  Funding ${fr.toFixed(3)}%  RSI 15m ${Math.round(r15)}\n` +
+        `  CVD still up — no exit yet, tighten stop\n` +
+        `  Current $${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
+        `  _Headless monitor — CVD decline will trigger exit alert_`
       );
     }
 
     // ── TIER 2: Distribution confirmed — exit signal ──
     const tier2Key     = posFireKey(sym, alertedAt, 'tier2');
-    const tier2FiredAt = state[\`\${tier2Key}_ts\`] || 0;
+    const tier2FiredAt = state[`${tier2Key}_ts`] || 0;
     const tier2Cooldownok = (now - tier2FiredAt) > TIER2_COOLDOWN;
 
     if (cvdConfirmed && exitScore >= 3
         && pos.status !== 'exiting'
         && tier2Cooldownok) {
-      state[\`\${tier2Key}_ts\`] = now;
+      state[`${tier2Key}_ts`] = now;
       const signals = [
-        cvdConfirmed ? \`CVD ↓ \${cvdDeclines} cycles\` : null,
+        cvdConfirmed ? `CVD ↓ ${cvdDeclines} cycles` : null,
         oiExiting    ? 'OI distributing'              : null,
-        fundingHot   ? \`FR \${fr.toFixed(3)}%\`         : null,
-        rsiExtended  ? \`RSI \${Math.round(r15)}\`        : null,
+        fundingHot   ? `FR ${fr.toFixed(3)}%`         : null,
+        rsiExtended  ? `RSI ${Math.round(r15)}`        : null,
       ].filter(Boolean).join(' · ');
 
-      console.log(\`  🟡  EXIT SIGNAL — \${base} score:\${exitScore}/6 [\${signals}]\`);
+      console.log(`  🟡  EXIT SIGNAL — ${base} score:${exitScore}/6 [${signals}]`);
       await sendTelegram(
-        \`🟡 *EXIT SIGNAL* — \${base}\n\` +
-        \`  Exit score \${exitScore}/6\n\` +
-        \`  ⚠ \${signals}\n\` +
-        \`  Current $\${price}  Entry $\${entry}  P&L \${pnlPct}%\n\` +
-        (t2 > price ? \`  T2 $\${t2} not yet hit — consider partial exit or trail stop\` : \`  → Consider full exit\`) + \`\n\` +
-        \`  _Headless — CVD decline confirmed server-side_\`
+        `🟡 *EXIT SIGNAL* — ${base}\n` +
+        `  Exit score ${exitScore}/6\n` +
+        `  ⚠ ${signals}\n` +
+        `  Current $${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
+        (t2 > price ? `  T2 $${t2} not yet hit — consider partial exit or trail stop` : `  → Consider full exit`) + `\n` +
+        `  _Headless — CVD decline confirmed server-side_`
       );
     }
   }
