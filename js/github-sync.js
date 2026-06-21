@@ -199,35 +199,23 @@ function _refreshGhSyncStatusDOM() {
 }
 
 function renderGithubSyncCard() {
-  const cfg = loadGhSyncCfg();
-  return `
-  <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #8957e5;
-              border-radius:8px;padding:16px;" id="github-sync-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#8957e5;letter-spacing:2px;">
-        ☁ GITHUB POSITION SYNC
-      </div>
-      <span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;
-        background:${cfg.enabled ? 'rgba(137,87,229,.15)' : 'rgba(100,100,100,.12)'};
-        color:${cfg.enabled ? '#8957e5' : '#555'};
-        border:1px solid ${cfg.enabled ? 'rgba(137,87,229,.35)' : '#2a2a2a'};">
-        ${cfg.enabled ? 'ACTIVE' : 'OFF'}
-      </span>
-    </div>
+  const cfg  = loadGhSyncCfg();
+  const mode = cfg.mode || 'pat'; // 'pat' | 'secrets'
+
+  const tabStyle = (m) => [
+    'cursor:pointer;font-family:var(--mono);font-size:8px;font-weight:700;padding:4px 14px;',
+    'border-radius:3px;',
+    `border:1px solid ${mode===m ? '#8957e5' : 'var(--border2)'};`,
+    `background:${mode===m ? 'rgba(137,87,229,.18)' : 'transparent'};`,
+    `color:${mode===m ? '#8957e5' : 'var(--text-dim)'};`,
+  ].join('');
+
+  const patPanel = `
     <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.7;">
-      Pushes open positions to <code style="color:var(--accent);">${cfg.path}</code> in your repo so
-      <b>alert-runner.js</b> can watch stops/T1/T2 even when this tab is closed.<br>
-      ⚠ The token is stored only in this browser's localStorage. Use a
-      <b>fine-grained PAT</b> scoped to just this repo with <b>Contents: Read and write</b> —
-      never a token with broader access.
+      Browser pushes <code style="color:var(--accent);">${cfg.path}</code> via your PAT whenever a position changes.<br>
+      ⚠ Token stored in <b>localStorage only</b>. Use a fine-grained PAT scoped to this repo,
+      <b>Contents: Read and write</b> — never a token with broader access.
     </div>
-
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;
-                  color:var(--text);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
-      <input type="checkbox" id="gh-sync-enabled" ${cfg.enabled ? 'checked' : ''}
-        style="width:auto;margin:0;accent-color:#8957e5;"> Enable GitHub Sync
-    </label>
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
       <div>
         <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">OWNER/REPO</label>
@@ -242,12 +230,10 @@ function renderGithubSyncCard() {
                  padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
       </div>
     </div>
-
     <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">PERSONAL ACCESS TOKEN</label>
     <input type="password" id="gh-sync-token" value="${cfg.token}" placeholder="github_pat_…"
       style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
              padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;margin-bottom:8px;box-sizing:border-box;">
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <div>
         <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">FILE PATH</label>
@@ -261,7 +247,55 @@ function renderGithubSyncCard() {
           style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
                  padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
       </div>
+    </div>`;
+
+  const secretsPanel = `
+    <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.9;">
+      <b style="color:var(--text);">No PAT stored in the browser.</b>
+      The GitHub Actions workflow manages <code style="color:var(--accent);">positions.json</code>
+      directly using its built-in <code style="color:var(--accent);">GITHUB_TOKEN</code>.<br><br>
+      Add these in your repo → <b>Settings → Secrets and variables → Actions</b>:<br><br>
+      <b style="color:#8957e5;">Secrets</b> (encrypted):<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">TELEGRAM_BOT_TOKEN</code> — your bot token<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">TELEGRAM_CHAT_ID</code> — your chat ID<br><br>
+      <b style="color:#8957e5;">Variables</b> (plain text, optional):<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">GH_REPO</code> — owner/repo (e.g. <code>ahsan520/alpha-terminal</code>)<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">GH_BRANCH</code> — branch (default: <code>main</code>)<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">GH_POSITIONS_PATH</code> — file path (default: <code>scripts/positions.json</code>)<br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">ALERT_COOLDOWN_HOURS</code> — cooldown hrs (default: <code>4</code>)<br><br>
+      <span style="color:var(--bull);">✓ Recommended for headless-first setups</span> — workflow
+      reads and monitors positions via repo file; no token in browser.
+    </div>`;
+
+  return `
+  <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #8957e5;
+              border-radius:8px;padding:16px;" id="github-sync-card">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#8957e5;letter-spacing:2px;">
+        ☁ GITHUB POSITION SYNC
+      </div>
+      <span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;font-weight:700;
+        background:${cfg.enabled ? 'rgba(137,87,229,.15)' : 'rgba(100,100,100,.12)'};
+        color:${cfg.enabled ? '#8957e5' : '#555'};
+        border:1px solid ${cfg.enabled ? 'rgba(137,87,229,.35)' : '#2a2a2a'};">
+        ${cfg.enabled ? 'ACTIVE' : 'OFF'}
+      </span>
     </div>
+
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:9px;
+                  color:var(--text);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+      <input type="checkbox" id="gh-sync-enabled" ${cfg.enabled ? 'checked' : ''}
+        style="width:auto;margin:0;accent-color:#8957e5;"> Enable GitHub Sync
+    </label>
+
+    <!-- Mode selector -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;">
+      <button onclick="setGhSyncMode('pat')"     style="${tabStyle('pat')}">⬡ OPTION A — Browser PAT</button>
+      <button onclick="setGhSyncMode('secrets')" style="${tabStyle('secrets')}">⬡ OPTION B — GitHub Secrets</button>
+    </div>
+
+    ${mode === 'pat' ? patPanel : secretsPanel}
 
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <button onclick="saveGithubSyncCfgFromUI()"
@@ -269,27 +303,41 @@ function renderGithubSyncCard() {
                border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:700;">
         💾 SAVE
       </button>
-      <button onclick="syncPositionsToGitHub(true)"
+      ${mode === 'pat' ? `<button onclick="syncPositionsToGitHub(true)"
         style="background:none;border:1px solid #8957e5;color:#8957e5;padding:7px 16px;
                border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;">
         🔄 SYNC NOW
-      </button>
+      </button>` : ''}
       <span id="gh-sync-status-line" style="font-family:var(--mono);font-size:8px;">${_ghSyncStatusLine()}</span>
     </div>
   </div>`;
 }
 
-function saveGithubSyncCfgFromUI() {
-  const cfg = {
-    enabled:      document.getElementById('gh-sync-enabled')?.checked ?? false,
-    token:        document.getElementById('gh-sync-token')?.value.trim()   || '',
-    repo:         document.getElementById('gh-sync-repo')?.value.trim()    || '',
-    branch:       document.getElementById('gh-sync-branch')?.value.trim()  || 'main',
-    path:         document.getElementById('gh-sync-path')?.value.trim()    || 'scripts/positions.json',
-    intervalMins: parseInt(document.getElementById('gh-sync-interval')?.value) || 3,
-  };
+function setGhSyncMode(mode) {
+  const cfg = loadGhSyncCfg();
+  cfg.mode = mode;
   saveGhSyncCfg(cfg);
-  logAlertItem('info', '💾 GitHub Sync config saved.');
   renderAlertCfgPage();
-  if (cfg.enabled && cfg.token && cfg.repo) syncPositionsToGitHub(true);
+}
+
+function saveGithubSyncCfgFromUI() {
+  const existing = loadGhSyncCfg();
+  const mode = existing.mode || 'pat';
+  const cfg = {
+    ...existing,
+    mode,
+    enabled: document.getElementById('gh-sync-enabled')?.checked ?? false,
+  };
+  if (mode === 'pat') {
+    cfg.token        = document.getElementById('gh-sync-token')?.value.trim()    || '';
+    cfg.repo         = document.getElementById('gh-sync-repo')?.value.trim()     || '';
+    cfg.branch       = document.getElementById('gh-sync-branch')?.value.trim()   || 'main';
+    cfg.path         = document.getElementById('gh-sync-path')?.value.trim()     || 'scripts/positions.json';
+    cfg.intervalMins = parseInt(document.getElementById('gh-sync-interval')?.value) || 3;
+  }
+  // Option B: no fields to read from UI — config comes from repo secrets/variables
+  saveGhSyncCfg(cfg);
+  logAlertItem('info', `💾 GitHub Sync config saved (${mode === 'secrets' ? 'Option B — Secrets' : 'Option A — Browser PAT'}).`);
+  renderAlertCfgPage();
+  if (mode === 'pat' && cfg.enabled && cfg.token && cfg.repo) syncPositionsToGitHub(true);
 }

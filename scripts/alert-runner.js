@@ -36,18 +36,70 @@ const WATCHLIST = process.env.WATCHLIST
       }
     })();
 
-// Positions — written by the GUI (js/github-sync.js) via the GitHub Contents
-// API, read here so we can monitor stop/T1/T2 even while the GUI is closed.
-// One-directional: this file is the GUI's source of truth, the runner only reads it.
+// ── Position loading — Option A or Option B ─────────────────────────────────
+//
+// Option A (Browser PAT): GUI pushes positions.json to the repo via localStorage
+//   PAT. The runner reads the local file (checked out by actions/checkout).
+//   Nothing extra needed — loadPositions() reads the file directly.
+//
+// Option B (GitHub Secrets): No PAT in the browser. The runner fetches
+//   positions.json from the GitHub Contents API using GITHUB_TOKEN + GH_REPO.
+//   Set GH_REPO (and optionally GH_BRANCH / GH_POSITIONS_PATH) as repo Variables.
+//
 const POSITIONS_JSON_PATH = path.join(__dirname, 'positions.json');
 
-function loadPositions() {
+async function loadPositionsFromGitHub() {
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH || 'main';
+  const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
+  const token  = process.env.GITHUB_TOKEN;
+  if (!repo || !token) return null;
+
+  const url = `https://api.github.com/repos/${repo}/contents/${fpath}?ref=${encodeURIComponent(branch)}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Authorization':        `Bearer ${token}`,
+        'Accept':               'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+    if (!res.ok) {
+      if (res.status === 404) return {}; // no positions file yet = no open positions
+      throw new Error(`GitHub API ${res.status}`);
+    }
+    const j    = await res.json();
+    const raw  = JSON.parse(Buffer.from(j.content, 'base64').toString('utf8'));
+    return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  } catch (e) {
+    console.warn(`[Option B] Failed to fetch positions from GitHub: ${e.message}`);
+    return null; // fall through to local file
+  }
+}
+
+function loadPositionsLocal() {
   try {
     const raw = JSON.parse(fs.readFileSync(POSITIONS_JSON_PATH, 'utf8'));
     return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
   } catch {
     return {};
   }
+}
+
+async function loadPositions() {
+  // Option B: GH_REPO set → fetch from GitHub API (headless, no browser PAT needed)
+  if (process.env.GH_REPO) {
+    const remote = await loadPositionsFromGitHub();
+    if (remote !== null) {
+      console.log(`[positions] Loaded from GitHub API (Option B) — ${Object.keys(remote).length} position(s)`);
+      return remote;
+    }
+    console.warn('[positions] GitHub API fetch failed — falling back to local file');
+  }
+  // Option A: read local checkout (default)
+  const local = loadPositionsLocal();
+  console.log(`[positions] Loaded from local file (Option A) — ${Object.keys(local).length} position(s)`);
+  return local;
 }
 
 function stripExchangePrefix(sym) {
@@ -560,7 +612,7 @@ async function fetchRsi15(sym) {
 }
 
 async function checkPositions(state) {
-  const positions = loadPositions();
+  const positions = await loadPositions();
   const entries   = Object.entries(positions);
 
   if (!entries.length) {
@@ -575,6 +627,8 @@ async function checkPositions(state) {
   const TIER1_COOLDOWN   = 2 * 60 * 60 * 1000;
   const TIER2_COOLDOWN   = 2 * 60 * 60 * 1000;
 
+  const STALE_HOURS = 48; // positions older than this with no close = warn once then skip
+
   for (const [sym, pos] of entries) {
     if (pos.status === 'stopped' || pos.status === 'tp2_hit') continue;
 
@@ -588,6 +642,28 @@ async function checkPositions(state) {
     const t2        = parseFloat(pos.t2 || 0);
     const alertedAt = pos.alertedAt || 0;
     const now       = Date.now();
+
+    // ── Stale position guard ──────────────────────────────────────────────
+    // If a position has been open longer than STALE_HOURS with no status
+    // update, it was likely closed manually without using the GUI close button.
+    // Fire a one-time warning then skip — prevents infinite hourly noise.
+    const ageHours = alertedAt > 0 ? (now - alertedAt) / 3_600_000 : 0;
+    if (ageHours > STALE_HOURS) {
+      const staleKey = posFireKey(sym, alertedAt, 'stale_warn');
+      if (!isPosFired(state, staleKey)) {
+        markPosFired(state, staleKey);
+        console.log(`  ⚠  ${sym} — stale (${Math.round(ageHours)}h open), sending one-time warning`);
+        await sendTelegram(
+          `⚠ *Stale Position* — ${base}\n` +
+          `  Open for ${Math.round(ageHours)}h with no close recorded.\n` +
+          `  If you already exited this trade, open the GUI and click Close\n` +
+          `  to remove it from positions.json — otherwise monitoring continues.`
+        );
+      } else {
+        console.log(`  ⏭  ${sym} — stale (${Math.round(ageHours)}h), warning already sent, skipping`);
+      }
+      continue;
+    }
 
     let price = null;
     try { price = await fetchPositionPrice(sym); }
@@ -743,7 +819,7 @@ async function main() {
   // Init Yahoo Finance session if we have any non-crypto tickers — check both
   // the watchlist and any GUI-synced positions, since a position symbol may
   // not be in watchlist.json at all.
-  const positionSyms = Object.keys(loadPositions()).map(stripExchangePrefix);
+  const positionSyms = Object.keys(await loadPositions()).map(stripExchangePrefix);
   const hasStocks = WATCHLIST.some(s => !isCrypto(s)) || positionSyms.some(s => !isCrypto(s));
   if (hasStocks) {
     console.log('\n📡  Initialising Yahoo Finance session...');
