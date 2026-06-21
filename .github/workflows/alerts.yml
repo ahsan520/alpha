@@ -38,21 +38,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          # Fetch the latest commit so positions.json is up to date
           fetch-depth: 1
 
       # ── 2. Node setup ──────────────────────────────────────────
+      # Node 22 LTS — no cache since there is no package-lock.json in the repo.
+      # npm install is fast enough (<5s) for this single dependency.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: scripts/package-lock.json
+          node-version: '22'
 
       # ── 3. Install dependencies ─────────────────────────────────
       - name: Install dependencies
         working-directory: scripts
-        run: npm ci --prefer-offline || npm install
+        run: npm install
 
       # ── 4. Run alert runner ─────────────────────────────────────
       - name: Run alert runner
@@ -79,8 +78,8 @@ jobs:
           fi
 
       # ── 5. Persist alert state ──────────────────────────────────
-      # .alert-state.json tracks cooldowns between runs.
-      # We commit it back so the next scheduled run sees the right suppression state.
+      # .alert-state.json tracks cooldowns between runs so duplicate
+      # alerts are suppressed across the hourly heartbeats.
       - name: Commit alert state
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +87,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Only commit if .alert-state.json changed — avoids empty commits
+          # Only commit if .alert-state.json actually changed
           if git diff --quiet scripts/.alert-state.json 2>/dev/null; then
             echo "No state changes — skipping commit"
           else
