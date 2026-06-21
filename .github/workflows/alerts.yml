@@ -1,18 +1,9 @@
 name: Alpha Terminal Alert Runner
 
 on:
-  # ── Scheduled runs ──────────────────────────────────────────────
-  # Runs at :15 past every hour (e.g. 00:15, 01:15, 02:15 … 23:15 UTC).
-  # This is the position tracker heartbeat — checks stop/T1/T2 and exit
-  # scoring for all open positions synced from the GUI.
-  #
-  # To run more frequently (e.g. every 15 min), change to: '*/15 * * * *'
-  # To run at a specific hour only (e.g. 09:15 UTC): '15 9 * * *'
   schedule:
     - cron: '15 * * * *'   # :15 past every hour — position tracker heartbeat
 
-  # ── Manual trigger ──────────────────────────────────────────────
-  # Useful for testing or firing an immediate check without waiting.
   workflow_dispatch:
     inputs:
       dry_run:
@@ -21,53 +12,56 @@ on:
         default: 'false'
         type: boolean
 
-# Only allow one run at a time — prevents duplicate alerts if a slow
-# run overlaps the next scheduled trigger.
 concurrency:
   group: alert-runner
-  cancel-in-progress: false   # let the running job finish; queue the next
+  cancel-in-progress: false
 
 jobs:
   run-alerts:
     name: Check alerts & positions
     runs-on: ubuntu-latest
-    timeout-minutes: 8        # hard cap — Binance/Yahoo calls should finish well within this
+    timeout-minutes: 8
 
     steps:
-      # ── 1. Checkout ────────────────────────────────────────────
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      # ── 2. Node setup ──────────────────────────────────────────
-      # Node 22 LTS — no cache since there is no package-lock.json in the repo.
-      # npm install is fast enough (<5s) for this single dependency.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      # ── 3. Install dependencies ─────────────────────────────────
       - name: Install dependencies
         working-directory: scripts
         run: npm install
 
-      # ── 4. Run alert runner ─────────────────────────────────────
       - name: Run alert runner
         working-directory: scripts
         env:
-          # Required — add these in: Settings → Secrets → Actions
+          # ── Required secrets (Settings → Secrets and variables → Actions → Secrets) ──
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
 
-          # Optional tuning (override defaults without code changes)
+          # ── Option B: GitHub Secrets/Variables sync ──────────────────────────────────
+          # If you use Option B in the GUI (no browser PAT), set these variables so the
+          # runner knows where positions.json lives. GITHUB_TOKEN is automatic — no setup.
+          #
+          # Settings → Secrets and variables → Actions → Variables:
+          #   GH_REPO           = yourname/alpha-terminal   (required for Option B)
+          #   GH_BRANCH         = main                      (optional, default: main)
+          #   GH_POSITIONS_PATH = scripts/positions.json    (optional, default shown)
+          #
+          GITHUB_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO:              ${{ vars.GH_REPO }}
+          GH_BRANCH:            ${{ vars.GH_BRANCH || 'main' }}
+          GH_POSITIONS_PATH:    ${{ vars.GH_POSITIONS_PATH || 'scripts/positions.json' }}
+
+          # ── Optional tuning ──────────────────────────────────────────────────────────
           ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '4' }}
           DIGEST_MODE:          ${{ vars.DIGEST_MODE || 'true' }}
-
-          # Dry-run: set to 'true' via workflow_dispatch or repo variable
-          # to test without sending Telegram messages.
-          DRY_RUN: ${{ inputs.dry_run || vars.DRY_RUN || 'false' }}
+          DRY_RUN:              ${{ inputs.dry_run || vars.DRY_RUN || 'false' }}
 
         run: |
           if [ "$DRY_RUN" = "true" ]; then
@@ -77,17 +71,12 @@ jobs:
             node alert-runner.js
           fi
 
-      # ── 5. Persist alert state ──────────────────────────────────
-      # .alert-state.json tracks cooldowns between runs so duplicate
-      # alerts are suppressed across the hourly heartbeats.
       - name: Commit alert state
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Only commit if .alert-state.json actually changed
           if git diff --quiet scripts/.alert-state.json 2>/dev/null; then
             echo "No state changes — skipping commit"
           else
