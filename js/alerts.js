@@ -95,9 +95,14 @@ function initAlertCfg() {
   STATE.alertCfg = {
     email:    { enabled: false, address: '', emailjsServiceId: '', emailjsTemplateId: '', emailjsPublicKey: '', ...(raw.email || {}) },
     telegram: {
-      enabled:  versionMismatch ? true : (tgBase.enabled ?? true),
-      botToken: tgBase.botToken || '',
-      chatId:   tgBase.chatId   || '',
+      // Always default enabled to true. On version mismatch force it true.
+      // On normal load, respect saved value but default to true if never set.
+      enabled:  versionMismatch ? true : (tgBase.enabled !== false ? true : false),
+      // Fall back to window.__TG_TOKEN / __TG_CHAT injected by env.js (GitHub Actions).
+      // This means leaderboard + position tracker alerts work from GitHub secrets alone
+      // without the user ever having to paste credentials into the GUI.
+      botToken: tgBase.botToken || window.__TG_TOKEN || '',
+      chatId:   tgBase.chatId   || window.__TG_CHAT  || '',
     },
     rules:        mergeRules(raw.rules || [], versionMismatch),
     digestMode:   raw.digestMode !== false,
@@ -163,11 +168,14 @@ async function sendEmailAlert(msg) {
 // ── Telegram ──
 async function sendTelegramAlert(msg) {
   const { telegram } = STATE.alertCfg;
-  if (!telegram.enabled || !telegram.botToken || !telegram.chatId) return;
+  // Fall back to window globals injected by env.js (GitHub Actions secrets)
+  const token  = telegram.botToken || window.__TG_TOKEN || '';
+  const chatId = telegram.chatId   || window.__TG_CHAT  || '';
+  if ((!telegram.enabled && !window.__TG_TOKEN) || !token || !chatId) return;
   try {
-    const r = await fetch(`https://api.telegram.org/bot${telegram.botToken}/sendMessage`, {
+    const r = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: telegram.chatId,
+      body: JSON.stringify({ chat_id: chatId,
         text: `🔔 *Alpha Terminal*\n\n${msg}\n\n_${new Date().toLocaleString()}_`,
         parse_mode: 'Markdown' })
     });
@@ -403,7 +411,42 @@ function saveAlertCfg() {
 }
 
 async function testEmail()    { logAlertItem('info','📤 Sending test email…');    await sendEmailAlert('🧪 Test — Alpha Terminal email channel OK!'); }
-async function testTelegram() { logAlertItem('info','📤 Sending test Telegram…'); await sendTelegramAlert('🧪 Test — Alpha Terminal Telegram OK!\n\n🌙🟢 OVERNIGHT BUY — BTCUSDT\n\n✅ 4H Bias: BULL 4H or LEAN BULL\n✅ Daily Bias: LEAN BULL\n✅ Signal: STRONG BUY or BULLISH\n⬜ OI / Funding: OI DROP or CONFIRM\n\n✅ 2/2 must-have · 1 confirmation(s)'); }
+async function testTelegram() {
+  // Read directly from the form fields so the test works even before Save All is clicked
+  const token  = document.getElementById('al-tg-token')?.value.trim() || STATE.alertCfg?.telegram?.botToken || '';
+  const chatId = document.getElementById('al-tg-chat')?.value.trim()  || STATE.alertCfg?.telegram?.chatId   || '';
+  if (!token || !chatId) {
+    logAlertItem('info', '⚠ Telegram test — enter Bot Token and Chat ID first, then test.');
+    return;
+  }
+  logAlertItem('info', '📤 Sending test Telegram…');
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: `🔔 *Alpha Terminal*\n\n🧪 Test message — Telegram connected OK!\n\n_${new Date().toLocaleString()}_`,
+        parse_mode: 'Markdown'
+      })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      logAlertItem('info', '✅ Telegram test sent successfully! Check your chat.');
+      // Auto-save token/chatId into STATE if test passes
+      if (STATE.alertCfg) {
+        STATE.alertCfg.telegram.botToken = token;
+        STATE.alertCfg.telegram.chatId   = chatId;
+        STATE.alertCfg.telegram.enabled  = true;
+        localStorage.setItem(`${_REPO_NS}_alertcfg`, JSON.stringify(STATE.alertCfg));
+        renderAlertCfgPage();
+      }
+    } else {
+      logAlertItem('info', `❌ Telegram test FAILED: ${d.description || JSON.stringify(d)}`);
+    }
+  } catch(e) {
+    logAlertItem('info', `❌ Telegram test error: ${e.message}`);
+  }
+}
 
 function toggleRule(id) {
   const rule = STATE.alertCfg.rules.find(r => r.id === id);

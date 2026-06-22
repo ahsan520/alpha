@@ -107,10 +107,11 @@ async function checkLeaderboardAlerts(ranked) {
   const cfg = loadLbAlertCfg();
   if (!cfg.enabled) return;
 
-  // Check if Telegram is configured at all
-  const tgReady = STATE.alertCfg?.telegram?.enabled
-    && STATE.alertCfg?.telegram?.botToken
-    && STATE.alertCfg?.telegram?.chatId;
+  // Check if Telegram is configured — either via localStorage or env.js (GitHub secrets)
+  const _tg = STATE.alertCfg?.telegram || {};
+  const tgReady = (_tg.enabled !== false || window.__TG_TOKEN)
+    && (_tg.botToken || window.__TG_TOKEN)
+    && (_tg.chatId   || window.__TG_CHAT);
 
   const currentSyms = new Set(ranked.map(r => r.sym));
 
