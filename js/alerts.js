@@ -55,6 +55,14 @@ const DEFAULT_RULES = [
 // ── Config version — bump this whenever DEFAULT_RULES enabled states change. ──
 // On load, if the saved version doesn't match, rule enabled states are reset
 // to the new defaults. Credentials (bot token, chat ID, email) are always kept.
+// ── Repo-scoped localStorage namespace ──────────────────────────────────────
+// GitHub Pages serves multiple repos on the same domain (username.github.io).
+// Without namespacing, a49_positions bleeds between /alpha and /alpha-terminal.
+// We derive the prefix from the first path segment so each repo is isolated.
+const _REPO_NS = (function() {
+  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
+  return `a49_${seg}`;
+})();
 const ALERT_CFG_VERSION = 3; // bumped: telegram enabled=true, cooldown=1h by default
 
 function mergeRules(saved, resetEnabled) {
@@ -80,7 +88,7 @@ function mergeConditions(defaults, saved) {
 }
 
 function initAlertCfg() {
-  const raw = JSON.parse(localStorage.getItem('a49_alertcfg') || '{}');
+  const raw = JSON.parse(localStorage.getItem(`${_REPO_NS}_alertcfg`) || '{}');
 
   // Version check — if saved config is from an older version, reset rule
   // enabled states to current defaults but keep all credentials intact.
@@ -109,7 +117,7 @@ function initAlertCfg() {
 
   // Persist the migrated config immediately so the next load sees the new version
   if (versionMismatch) {
-    localStorage.setItem('a49_alertcfg', JSON.stringify(STATE.alertCfg));
+    localStorage.setItem(`${_REPO_NS}_alertcfg`, JSON.stringify(STATE.alertCfg));
   }
 }
 
@@ -397,7 +405,7 @@ function saveAlertCfg() {
   });
 
   cfg._version = ALERT_CFG_VERSION;
-  localStorage.setItem('a49_alertcfg', JSON.stringify(cfg));
+  localStorage.setItem(`${_REPO_NS}_alertcfg`, JSON.stringify(cfg));
   logAlertItem('info', '💾 Alert config saved.');
   renderAlertCfgPage();
 }
@@ -408,7 +416,7 @@ async function testTelegram() { logAlertItem('info','📤 Sending test Telegram�
 function toggleRule(id) {
   const rule = STATE.alertCfg.rules.find(r => r.id === id);
   if (rule) rule.enabled = !rule.enabled;
-  localStorage.setItem('a49_alertcfg', JSON.stringify(STATE.alertCfg));
+  localStorage.setItem(`${_REPO_NS}_alertcfg`, JSON.stringify(STATE.alertCfg));
   renderAlertCfgPage();
 }
 

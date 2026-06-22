@@ -16,8 +16,16 @@
 //          └─ Overheating only → Tier 1 watch alert
 // ══════════════════════════════════════════════════════════════════
 
-const POSITION_KEY  = 'a49_positions';
-const LB_ALERT_KEY  = 'a49_lb_alert_cfg';
+// ── Repo-scoped localStorage namespace ──────────────────────────────────────
+// GitHub Pages serves multiple repos on the same domain (username.github.io).
+// Without namespacing, a49_positions bleeds between /alpha and /alpha-terminal.
+// We derive the prefix from the first path segment so each repo is isolated.
+const _REPO_NS = (function() {
+  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
+  return `a49_${seg}`;
+})();
+const POSITION_KEY  = `${_REPO_NS}_positions`;
+const LB_ALERT_KEY  = `${_REPO_NS}_lb_alert_cfg`;
 
 // ── Default leaderboard alert config ──
 // conv scale reference (calcV2Score max pts):
@@ -66,7 +74,7 @@ function savePositions(pos) {
 }
 
 // ── Buy cooldown (separate from overnight alert cooldown) ──
-function _lbBuyCooldownKey(sym) { return `a49_lb_buy_${sym}`; }
+function _lbBuyCooldownKey(sym) { return `${_REPO_NS}_lb_buy_${sym}`; }
 
 function _lbIsOnCooldown(sym, cooldownMins) {
   const ts = parseInt(localStorage.getItem(_lbBuyCooldownKey(sym)) || '0');

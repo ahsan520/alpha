@@ -142,3 +142,88 @@ After the warning fires, that position is silenced permanently until you close i
 | `js/position-tracker.js` | Browser-side position tracker and exit scoring |
 | `js/github-sync.js` | Browser-side GitHub sync (Option A PAT push) |
 | `js/alerts.js` | Browser-side alert rules and config |
+
+---
+
+## Understanding Buy / Sell Alerts
+
+### Leaderboard Alerts — Entry (BUY side)
+
+Fires when a new card appears on the leaderboard with sufficient conviction. This is your **entry signal** — it means a setup just formed worth acting on.
+
+```
+New card appears on leaderboard
+        ↓
+Setup type check (CAP BUY / SQUEEZE NOW / BREAKOUT)
+        ↓
+Conviction score ≥ 9 (default min score)
+        ↓
+Not on cooldown (60 min per symbol)
+        ↓
+🟢 Telegram: LEADERBOARD BUY ALERT
+   Includes: Entry price · Stop · T1 · T2
+   Position auto-added to Position Tracker
+```
+
+**You decide whether to enter** — the alert gives you the levels, you execute at your broker.
+
+---
+
+### Position Tracker Alerts — Exit (SELL side)
+
+Once you're in a trade, the headless runner monitors it every `:15` against `positions.json`. It never fires a fresh buy — it only tells you when and how to get out.
+
+| Alert | Trigger | What to do |
+|---|---|---|
+| 🔴 **STOP HIT** | Price ≤ stop level | Exit immediately — loss is capped |
+| ✅ **T1 HIT** | Price reaches T1 | Take 50% profit, move stop to entry (risk-free) |
+| 🏆 **T2 HIT** | Price reaches T2 | Full target hit — close remaining position |
+| ⚠️ **TIER 1 — Overheating** | Funding > 0.08% + RSI 15m > 75, CVD still up | Tighten stop — don't exit yet, but be ready |
+| 🟡 **TIER 2 — EXIT SIGNAL** | CVD declining 3 cycles + exit score ≥ 3 | Distribution confirmed — consider partial or full exit *before* stop hits |
+
+---
+
+### Why Tier 2 is the most valuable alert
+
+Most traders only react to T1/T2/Stop. But by then price has already moved.
+
+**Tier 2 fires earlier** — it detects smart money exiting before price rolls over:
+
+- **CVD declining** — cumulative volume delta falling = buyers exhausted, sellers taking over
+- **OI distributing** — open interest dropping while price is flat/falling = longs unwinding
+- **Funding elevated** — longs overleveraged, vulnerable to a flush
+
+In a fast market the difference between a Tier 2 alert and a stop hit can be **2–5% of the position**. This is the alert you want to act on decisively.
+
+---
+
+### Full Trade Lifecycle
+
+```
+🟢 LEADERBOARD BUY ALERT fires
+        ↓
+You enter at broker · Position Tracker auto-created
+        ↓
+Position monitored headlessly every :15
+        ↓
+        ├─ ⚠️ TIER 1   → tighten stop, stay in
+        ├─ 🟡 TIER 2   → exit near top (before stop hits)
+        ├─ ✅ T1 HIT   → take 50% off, move stop to entry
+        ├─ 🏆 T2 HIT   → close rest, trade complete
+        └─ 🔴 STOP HIT → exit, loss taken (last resort)
+        ↓
+Click Close in GUI → removes from positions.json → monitoring stops
+```
+
+---
+
+### What you do NOT need
+
+| Feature | Status | Why |
+|---|---|---|
+| Signal Rules (vol shock, strong buy/sell) | ❌ Disabled | Lower quality than leaderboard, more noise |
+| Overnight rules | ❌ Disabled | Superseded by leaderboard buy alerts |
+| Email alerts | ❌ Disabled | Redundant if Telegram is working |
+| Trending setup type | ❌ Off | Alerts come too late — trend already extended |
+| Short Setup | ❌ Off | Enable only if actively trading shorts |
+| Digest mode | ✅ On | Batches multiple alerts into one message per cycle |
