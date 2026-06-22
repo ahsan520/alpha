@@ -59,9 +59,25 @@ jobs:
           GH_POSITIONS_PATH:    ${{ vars.GH_POSITIONS_PATH || 'scripts/positions.json' }}
 
           # ── Optional tuning ──────────────────────────────────────────────────────────
-          ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '4' }}
+          # Settings → Secrets and variables → Actions → Variables:
+          #   TELEGRAM_ENABLED     = true   (set 'false' to silence without removing secrets)
+          #   ALERT_COOLDOWN_HOURS = 1      (hrs between repeated rule alerts, default 1h)
+          #   DIGEST_MODE          = true   (batch alerts into one message per cycle)
+          #   DRY_RUN              = false  (set 'true' to test without sending Telegram)
+          #
+          # ── Leaderboard / position tracker tuning ────────────────────────────────────
+          #   LB_MIN_SCORE    = 9    (min conviction score to fire buy alert, 0-14)
+          #   LB_COOLDOWN_MIN = 60   (min minutes between buy alerts per symbol)
+          #   LB_HOLD_LOCK    = 20   (min minutes after entry before exit scoring starts)
+          #   LB_CVD_CYCLES   = 3    (consecutive CVD decline cycles to confirm exit)
+          TELEGRAM_ENABLED:     ${{ vars.TELEGRAM_ENABLED || 'true' }}
+          ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '1' }}
           DIGEST_MODE:          ${{ vars.DIGEST_MODE || 'true' }}
           DRY_RUN:              ${{ inputs.dry_run || vars.DRY_RUN || 'false' }}
+          LB_MIN_SCORE:         ${{ vars.LB_MIN_SCORE || '9' }}
+          LB_COOLDOWN_MIN:      ${{ vars.LB_COOLDOWN_MIN || '60' }}
+          LB_HOLD_LOCK:         ${{ vars.LB_HOLD_LOCK || '20' }}
+          LB_CVD_CYCLES:        ${{ vars.LB_CVD_CYCLES || '3' }}
 
         run: |
           if [ "$DRY_RUN" = "true" ]; then
