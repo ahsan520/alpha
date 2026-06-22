@@ -55,14 +55,6 @@ const DEFAULT_RULES = [
 // ── Config version — bump this whenever DEFAULT_RULES enabled states change. ──
 // On load, if the saved version doesn't match, rule enabled states are reset
 // to the new defaults. Credentials (bot token, chat ID, email) are always kept.
-// ── Repo-scoped localStorage namespace ──────────────────────────────────────
-// GitHub Pages serves multiple repos on the same domain (username.github.io).
-// Without namespacing, a49_positions bleeds between /alpha and /alpha-terminal.
-// We derive the prefix from the first path segment so each repo is isolated.
-const _REPO_NS = (function() {
-  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
-  return `a49_${seg}`;
-})();
 const ALERT_CFG_VERSION = 3; // bumped: telegram enabled=true, cooldown=1h by default
 
 function mergeRules(saved, resetEnabled) {

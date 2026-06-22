@@ -68,3 +68,13 @@ window.BINANCE_DELISTED = new Set(['XMRUSDT']);
 function defWL() {
   return ['BINANCE:BTCUSDT','BINANCE:ETHUSDT','BINANCE:SOLUSDT','XEG.TO','KILO.TO'];
 }
+
+// ── Repo-scoped localStorage namespace ──────────────────────────────────────
+// Declared ONCE here (config.js loads first) so all other scripts can use it
+// without re-declaring. Prevents "cannot redeclare const" errors across files.
+// Isolates localStorage between repos on the same GitHub Pages domain so
+// position data never bleeds between /alpha and /alpha-terminal tabs.
+const _REPO_NS = (function() {
+  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
+  return `a49_${seg}`;
+})();

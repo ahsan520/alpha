@@ -16,14 +16,6 @@
 //          └─ Overheating only → Tier 1 watch alert
 // ══════════════════════════════════════════════════════════════════
 
-// ── Repo-scoped localStorage namespace ──────────────────────────────────────
-// GitHub Pages serves multiple repos on the same domain (username.github.io).
-// Without namespacing, a49_positions bleeds between /alpha and /alpha-terminal.
-// We derive the prefix from the first path segment so each repo is isolated.
-const _REPO_NS = (function() {
-  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
-  return `a49_${seg}`;
-})();
 const POSITION_KEY  = `${_REPO_NS}_positions`;
 const LB_ALERT_KEY  = `${_REPO_NS}_lb_alert_cfg`;
 

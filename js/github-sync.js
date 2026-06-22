@@ -21,14 +21,6 @@
 // so the browser's localStorage stays the single source of truth.
 // ══════════════════════════════════════════════════════════════════
 
-// ── Repo-scoped localStorage namespace ──────────────────────────────────────
-// GitHub Pages serves multiple repos on the same domain (username.github.io).
-// Without namespacing, a49_positions bleeds between /alpha and /alpha-terminal.
-// We derive the prefix from the first path segment so each repo is isolated.
-const _REPO_NS = (function() {
-  const seg = window.location.pathname.split('/').filter(Boolean)[0] || 'default';
-  return `a49_${seg}`;
-})();
 const GH_SYNC_KEY = `${_REPO_NS}_gh_sync_cfg`;
 
 // Bump this version whenever defaults change — triggers a one-time migration
