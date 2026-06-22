@@ -23,18 +23,40 @@
 
 const GH_SYNC_KEY = 'a49_gh_sync_cfg';
 
+// Bump this version whenever defaults change — triggers a one-time migration
+// that resets mode/enabled to new defaults while keeping PAT credentials intact.
+const GH_SYNC_CFG_VERSION = 2; // v2: enabled=true, mode='secrets' by default
+
 const DEFAULT_GH_SYNC_CFG = {
-  enabled:      false,
+  _version:     GH_SYNC_CFG_VERSION,
+  enabled:      true,      // ON by default — sync starts immediately when repo is configured
+  mode:         'secrets', // Option B by default — no PAT needed in browser
   token:        '',        // GitHub PAT — fine-grained, "Contents: Read and write" on this repo
   repo:         '',        // "yourname/your-repo"
   branch:       'main',
   path:         'scripts/positions.json',
-  intervalMins: 3,         // periodic safety-net push interval
+  intervalMins: 3,         // periodic safety-net push interval (Option A only)
 };
 
 function loadGhSyncCfg() {
   try {
     const raw = JSON.parse(localStorage.getItem(GH_SYNC_KEY) || '{}');
+    const savedVersion = raw._version || 0;
+    // Version migration — reset mode and enabled to new defaults, keep credentials
+    if (savedVersion < GH_SYNC_CFG_VERSION) {
+      console.log(`[github-sync] Config v${savedVersion} → v${GH_SYNC_CFG_VERSION}: resetting mode/enabled to defaults`);
+      const migrated = {
+        ...DEFAULT_GH_SYNC_CFG,
+        // Preserve any PAT/repo/branch the user already entered
+        token:        raw.token        || '',
+        repo:         raw.repo         || '',
+        branch:       raw.branch       || 'main',
+        path:         raw.path         || 'scripts/positions.json',
+        intervalMins: raw.intervalMins || 3,
+      };
+      localStorage.setItem(GH_SYNC_KEY, JSON.stringify(migrated));
+      return migrated;
+    }
     return { ...DEFAULT_GH_SYNC_CFG, ...raw };
   } catch { return { ...DEFAULT_GH_SYNC_CFG }; }
 }
@@ -200,7 +222,7 @@ function _refreshGhSyncStatusDOM() {
 
 function renderGithubSyncCard() {
   const cfg  = loadGhSyncCfg();
-  const mode = cfg.mode || 'pat'; // 'pat' | 'secrets'
+  const mode = cfg.mode || 'secrets'; // 'pat' | 'secrets'
 
   const tabStyle = (m) => [
     'cursor:pointer;font-family:var(--mono);font-size:8px;font-weight:700;padding:4px 14px;',
@@ -322,7 +344,7 @@ function setGhSyncMode(mode) {
 
 function saveGithubSyncCfgFromUI() {
   const existing = loadGhSyncCfg();
-  const mode = existing.mode || 'pat';
+  const mode = existing.mode || 'secrets';
   const cfg = {
     ...existing,
     mode,
@@ -336,6 +358,7 @@ function saveGithubSyncCfgFromUI() {
     cfg.intervalMins = parseInt(document.getElementById('gh-sync-interval')?.value) || 3;
   }
   // Option B: no fields to read from UI — config comes from repo secrets/variables
+  cfg._version = GH_SYNC_CFG_VERSION;
   saveGhSyncCfg(cfg);
   logAlertItem('info', `💾 GitHub Sync config saved (${mode === 'secrets' ? 'Option B — Secrets' : 'Option A — Browser PAT'}).`);
   renderAlertCfgPage();

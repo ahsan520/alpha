@@ -29,7 +29,7 @@ const LB_ALERT_KEY  = 'a49_lb_alert_cfg';
 //   Penalties       -2 to -5 (RSI overbought)
 //   Funding bonus   +1.5, News ±3
 // Typical active qualifying score: 6–12. 14 was unreachable for most symbols.
-// New default: 7 — requires positive flow + squeeze + some OB confirmation.
+// New default: 9 — requires strong flow + squeeze + OB confirmation (less noise).
 const DEFAULT_LB_ALERT_CFG = {
   enabled:           true,
   squeezeEnabled:    true,
@@ -37,7 +37,7 @@ const DEFAULT_LB_ALERT_CFG = {
   capBuyEnabled:     true,    // CAP BUY — capitulation bounce, fire immediately (no minScore gate)
   trendingEnabled:   false,   // too slow-moving for actionable alerts
   shortEnabled:      false,   // off by default — noisy in crypto uptrends
-  minScore:          7,       // min conv score (out of ~14 realistic max, not 20)
+  minScore:          9,       // min conv score (out of ~14 realistic max, not 20)
   cooldownMins:      60,      // 1hr buy cooldown per symbol
   holdLockMins:      20,      // no exit alerts in first 20min after entry
   exitCvdCycles:     3,       // CVD must decline this many consecutive cycles
@@ -726,7 +726,7 @@ function saveLbAlertCfgFromUI() {
     breakoutEnabled:document.getElementById('lb-breakout')?.checked  ?? true,
     trendingEnabled:document.getElementById('lb-trending')?.checked  ?? false,
     shortEnabled:   document.getElementById('lb-short')?.checked     ?? false,
-    minScore:       parseInt(document.getElementById('lb-min-score')?.value)  || 7,
+    minScore:       parseInt(document.getElementById('lb-min-score')?.value)  || 9,
     cooldownMins:   parseInt(document.getElementById('lb-cooldown')?.value)   || 60,
     holdLockMins:   parseInt(document.getElementById('lb-holdlock')?.value)   || 20,
     exitCvdCycles:  parseInt(document.getElementById('lb-cvd-cycles')?.value) || 3,

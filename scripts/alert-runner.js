@@ -15,8 +15,22 @@ const STATE_FILE = path.join(__dirname, '.alert-state.json');
 // ── Config from environment ──
 const TG_TOKEN        = process.env.TELEGRAM_BOT_TOKEN  || '';
 const TG_CHAT         = process.env.TELEGRAM_CHAT_ID    || '';
-const COOLDOWN_HOURS  = parseFloat(process.env.ALERT_COOLDOWN_HOURS || '4');
+// TELEGRAM_ENABLED — set as a repo Variable (plain text 'true'/'false').
+// Defaults to true when token + chat are present so existing setups keep working.
+// Set to 'false' to silence all Telegram without removing the secrets.
+const TG_ENABLED      = (process.env.TELEGRAM_ENABLED ?? 'true') === 'true';
+// ALERT_COOLDOWN_HOURS — min hours between repeated alerts for the same symbol/rule.
+// Default 1h — position tracker fires at most once per hour per event type.
+const COOLDOWN_HOURS  = parseFloat(process.env.ALERT_COOLDOWN_HOURS || '1');
 const DIGEST_MODE     = (process.env.DIGEST_MODE || 'true') === 'true';
+
+// ── Leaderboard / position tracker tuning (override via repo Variables) ──
+// These mirror the GUI leaderboard alert config so the headless runner
+// uses the same thresholds without needing the browser open.
+const LB_MIN_SCORE    = parseInt(process.env.LB_MIN_SCORE    || '9');   // min conviction score
+const LB_COOLDOWN_MIN = parseInt(process.env.LB_COOLDOWN_MIN || '60');  // min between buy alerts (min)
+const LB_HOLD_LOCK    = parseInt(process.env.LB_HOLD_LOCK    || '20');  // hold lock after entry (min)
+const LB_CVD_CYCLES   = parseInt(process.env.LB_CVD_CYCLES   || '3');   // CVD decline cycles for exit
 
 // Watchlist — reads from watchlist.json at repo root (single source of truth).
 // Override via WATCHLIST env var as a JSON array string (useful for testing).
@@ -492,7 +506,8 @@ function evalSignalRule(ruleId, d) {
 // TELEGRAM
 // ════════════════════════════════════════════════════
 async function sendTelegram(msg) {
-  if (DRY_RUN) { console.log('[DRY-RUN] Telegram:', msg); return; }
+  if (DRY_RUN)    { console.log('[DRY-RUN] Telegram:', msg); return; }
+  if (!TG_ENABLED){ console.log('[TG DISABLED] Skipped:', msg.slice(0, 60)); return; }
   if (!TG_TOKEN || !TG_CHAT) {
     console.warn('⚠  Telegram not configured (set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID)');
     return;
@@ -622,8 +637,8 @@ async function checkPositions(state) {
 
   console.log(`\n📍  Monitoring ${entries.length} GUI-tracked position(s) [headless]...`);
 
-  const EXIT_CVD_CYCLES  = 3;   // mirrors GUI default exitCvdCycles
-  const HOLD_LOCK_MINS   = 20;  // mirrors GUI default holdLockMins
+  const EXIT_CVD_CYCLES  = LB_CVD_CYCLES;   // override via LB_CVD_CYCLES repo Variable
+  const HOLD_LOCK_MINS   = LB_HOLD_LOCK;  // override via LB_HOLD_LOCK repo Variable
   const TIER1_COOLDOWN   = 2 * 60 * 60 * 1000;
   const TIER2_COOLDOWN   = 2 * 60 * 60 * 1000;
 
