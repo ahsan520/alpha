@@ -101,8 +101,13 @@ async function syncPositionsToGitHub(manual = false) {
 
   if (!cfg.enabled && !manual) return { ok: false, reason: 'disabled' };
 
-  if (!cfg.token || !cfg.repo) {
-    if (manual) logAlertItem('info', '⚠ GitHub Sync — set a token and owner/repo first, then Save.');
+  // Token resolution: Option A (browser localStorage PAT) or Option B (GH_PAT secret
+  // injected as window.__GH_PAT via a <meta> tag written by the GitHub Actions workflow).
+  const resolvedToken = cfg.token || window.__GH_PAT || '';
+  const resolvedRepo  = cfg.repo  || window.__GH_REPO || '';
+
+  if (!resolvedToken || !resolvedRepo) {
+    if (manual) logAlertItem('info', '⚠ GitHub Sync — no token found. Set GH_PAT secret (Option B) or enter a PAT (Option A).');
     return { ok: false, reason: 'not configured' };
   }
 
@@ -123,9 +128,9 @@ async function syncPositionsToGitHub(manual = false) {
     }
 
     const branch  = cfg.branch || 'main';
-    const apiBase = `https://api.github.com/repos/${cfg.repo}/contents/${cfg.path}`;
+    const apiBase = `https://api.github.com/repos/${resolvedRepo}/contents/${cfg.path}`;
     const headers = {
-      'Authorization':        `Bearer ${cfg.token}`,
+      'Authorization':        `Bearer ${resolvedToken}`,
       'Accept':               'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
     };

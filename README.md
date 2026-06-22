@@ -33,6 +33,7 @@ Go to **Settings → Secrets and variables → Actions → Secrets (New reposito
 |--------|----------|-------------|
 | `TELEGRAM_BOT_TOKEN` | ✅ Yes | Your Telegram bot token from [@BotFather](https://t.me/BotFather) |
 | `TELEGRAM_CHAT_ID` | ✅ Yes | Your Telegram chat ID (message your bot, then visit `api.telegram.org/bot<TOKEN>/getUpdates`) |
+| `GH_PAT` | ✅ Yes (Option B) | Fine-grained PAT with **Contents: Read and write** on this repo. Used by the browser to push `positions.json` without storing a token in localStorage. Create at github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens |
 
 ### 2. GitHub Variables
 Go to **Settings → Secrets and variables → Actions → Variables (New repository variable)**

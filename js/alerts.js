@@ -55,7 +55,7 @@ const DEFAULT_RULES = [
 // ── Config version — bump this whenever DEFAULT_RULES enabled states change. ──
 // On load, if the saved version doesn't match, rule enabled states are reset
 // to the new defaults. Credentials (bot token, chat ID, email) are always kept.
-const ALERT_CFG_VERSION = 2; // bumped: all signal/overnight rules now off by default
+const ALERT_CFG_VERSION = 3; // bumped: telegram enabled=true, cooldown=1h by default
 
 function mergeRules(saved, resetEnabled) {
   // resetEnabled=true: ignore saved enabled states, use DEFAULT_RULES as-is.
@@ -90,12 +90,18 @@ function initAlertCfg() {
     console.log(`[alerts] Config version ${savedVersion} → ${ALERT_CFG_VERSION}: resetting rule enabled states to defaults`);
   }
 
+  // On version mismatch: keep credentials but reset enabled states and cooldown
+  const tgBase = raw.telegram || {};
   STATE.alertCfg = {
-    email:    { enabled: false, address: '', emailjsServiceId: '', emailjsTemplateId: '', emailjsPublicKey: '', ...(raw.email    || {}) },
-    telegram: { enabled: false, botToken: '', chatId: '',                                                       ...(raw.telegram || {}) },
-    rules:    mergeRules(raw.rules || [], versionMismatch),
-    digestMode: raw.digestMode !== false,
-    cooldownHours: raw.cooldownHours ?? 4,
+    email:    { enabled: false, address: '', emailjsServiceId: '', emailjsTemplateId: '', emailjsPublicKey: '', ...(raw.email || {}) },
+    telegram: {
+      enabled:  versionMismatch ? true : (tgBase.enabled ?? true),
+      botToken: tgBase.botToken || '',
+      chatId:   tgBase.chatId   || '',
+    },
+    rules:        mergeRules(raw.rules || [], versionMismatch),
+    digestMode:   raw.digestMode !== false,
+    cooldownHours: versionMismatch ? 1 : (raw.cooldownHours ?? 1),
     ovnBuyConditions:  mergeConditions(OVN_BUY_CONDITIONS,  raw.ovnBuyConditions),
     ovnSellConditions: mergeConditions(OVN_SELL_CONDITIONS, raw.ovnSellConditions),
     _version: ALERT_CFG_VERSION,
@@ -357,7 +363,7 @@ function saveAlertCfg() {
   cfg.telegram.enabled        = document.getElementById('al-tg-on').checked;
   cfg.telegram.botToken       = document.getElementById('al-tg-token').value.trim();
   cfg.telegram.chatId         = document.getElementById('al-tg-chat').value.trim();
-  cfg.cooldownHours           = parseFloat(document.getElementById('al-cooldown').value) || 4;
+  cfg.cooldownHours           = parseFloat(document.getElementById('al-cooldown').value) || 1;
   cfg.digestMode              = document.getElementById('al-digest').checked;
 
   // Save per-condition enabled state + rule channels
