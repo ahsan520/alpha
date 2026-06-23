@@ -1048,7 +1048,7 @@ async function main() {
   }
 
   // ── Headless leaderboard buy scanner ──
-  // v10.1: superseded by leaderboard-decider.js (Job B, runs every 15 min
+  // v10.2: superseded by leaderboard-decider.js (Job B, runs every 15 min
   // against market-fetcher.js's data). Disabled here to avoid two
   // independent scanners with separate cooldown stores both deciding
   // whether to open the same position. Set LB_LEGACY_SCAN=true to restore
