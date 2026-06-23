@@ -416,6 +416,8 @@ async function testTelegram() {
   const token  = document.getElementById('al-tg-token')?.value.trim() || STATE.alertCfg?.telegram?.botToken || '';
   const chatId = document.getElementById('al-tg-chat')?.value.trim()  || STATE.alertCfg?.telegram?.chatId   || '';
   if (!token || !chatId) {
+    const rd0 = document.getElementById('tg-test-result');
+    if (rd0) rd0.innerHTML = '<span style="color:#ff9800">⚠ Enter Bot Token and Chat ID first</span>';
     logAlertItem('info', '⚠ Telegram test — enter Bot Token and Chat ID first, then test.');
     return;
   }
@@ -431,7 +433,9 @@ async function testTelegram() {
     });
     const d = await r.json();
     if (d.ok) {
-      logAlertItem('info', '✅ Telegram test sent successfully! Check your chat.');
+      const rd = document.getElementById('tg-test-result');
+    if (rd) rd.innerHTML = '<span style="color:var(--bull)">✅ Sent! Check your Telegram.</span>';
+    logAlertItem('info', '✅ Telegram test sent successfully! Check your chat.');
       // Auto-save token/chatId into STATE if test passes
       if (STATE.alertCfg) {
         STATE.alertCfg.telegram.botToken = token;
@@ -441,9 +445,13 @@ async function testTelegram() {
         renderAlertCfgPage();
       }
     } else {
-      logAlertItem('info', `❌ Telegram test FAILED: ${d.description || JSON.stringify(d)}`);
+      const rd2 = document.getElementById('tg-test-result');
+    if (rd2) rd2.innerHTML = `<span style="color:var(--bear)">❌ Failed: ${d.description || 'check token/chatId'}</span>`;
+    logAlertItem('info', `❌ Telegram test FAILED: ${d.description || JSON.stringify(d)}`);
     }
   } catch(e) {
+    const rd3 = document.getElementById('tg-test-result');
+    if (rd3) rd3.innerHTML = `<span style="color:var(--bear)">❌ Error: ${e.message}</span>`;
     logAlertItem('info', `❌ Telegram test error: ${e.message}`);
   }
 }
@@ -539,6 +547,23 @@ async function flushDigest() {
       await sendEmailAlert(header + '\n\n' + rows);
     }
   }
+}
+
+function switchCfgTab(tab) {
+  STATE._cfgTab = tab;
+  ['telegram','rules','leaderboard','sync','positions'].forEach(t => {
+    const panel = document.getElementById('cfg-panel-' + t);
+    if (panel) panel.style.display = t === tab ? 'flex' : 'none';
+    panel && (panel.style.flexDirection = 'column');
+  });
+  // Update tab highlight without full re-render
+  document.querySelectorAll('#cfg-tabs button').forEach((btn, i) => {
+    const tabs = ['telegram','rules','leaderboard','sync','positions'];
+    const active = tabs[i] === tab;
+    btn.style.borderBottomColor = active ? 'var(--accent)' : 'transparent';
+    btn.style.color             = active ? 'var(--accent)' : 'var(--text-dim)';
+    btn.style.fontWeight        = active ? '700' : '400';
+  });
 }
 
 function resetSuppression() {
@@ -721,99 +746,121 @@ function renderAlertCfgPage() {
     </div>
   </div>
 
+  <!-- ── Mobile tab bar ───────────────────────────────────────────────────── -->
+  <div id="cfg-tabs" style="display:flex;border-bottom:1px solid var(--border);background:var(--bg);overflow-x:auto;flex-shrink:0;">
+    ${['telegram','rules','leaderboard','sync','positions'].map((t,i) => {
+      const labels = ['✈ Telegram','📡 Rules','🏆 Leaderboard','☁ Sync','📍 Tracker'];
+      const active = (STATE._cfgTab || 'telegram') === t;
+      return `<button onclick="switchCfgTab('${t}')"
+        style="flex:1;min-width:70px;padding:10px 6px;border:none;border-bottom:2px solid ${active ? 'var(--accent)' : 'transparent'};
+               background:transparent;color:${active ? 'var(--accent)' : 'var(--text-dim)'};
+               font-family:var(--mono);font-size:9px;font-weight:${active ? '700' : '400'};
+               cursor:pointer;white-space:nowrap;letter-spacing:.5px;transition:color .15s;">${labels[i]}</button>`;
+    }).join('')}
+  </div>
+
   <div style="padding:14px 16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
 
-    <!-- ① ACCOUNTS -->
-    <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:2px;">① ACCOUNT SETUP</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-
-      <!-- TELEGRAM -->
-      <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #29b6f6;border-radius:8px;padding:16px;">
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#29b6f6;letter-spacing:2px;margin-bottom:10px;">✈ TELEGRAM</div>
-        <div class="info-box" style="font-size:7.5px;line-height:1.8;margin-bottom:12px;">
-          <b>1.</b> Message <a href="https://t.me/BotFather" target="_blank">@BotFather</a> → /newbot → copy <b>Token</b><br>
-          <b>2.</b> Start chat with your bot, then visit:<br>
-          <code style="color:var(--accent);word-break:break-all;font-size:7px;">api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code><br>
-          and copy the <b>chat_id</b> from the response
-        </div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:9px;color:var(--text);margin-bottom:10px;">
-          <input type="checkbox" id="al-tg-on" ${cfg.telegram.enabled ? 'checked' : ''} style="width:auto;margin:0;accent-color:#29b6f6;"> Enable Telegram Alerts
-        </label>
-        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);display:block;margin-bottom:3px;">BOT TOKEN</label>
-        <input type="password" id="al-tg-token" value="${cfg.telegram.botToken}" placeholder="123456789:ABCDef…"
-          style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
-                 padding:7px 10px;border-radius:4px;font-size:10px;font-family:var(--mono);outline:none;margin-bottom:10px;box-sizing:border-box;">
-        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);display:block;margin-bottom:3px;">CHAT ID</label>
-        <input type="text" id="al-tg-chat" value="${cfg.telegram.chatId}" placeholder="-100xxxxxxxxxx"
-          style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
-                 padding:7px 10px;border-radius:4px;font-size:10px;font-family:var(--mono);outline:none;margin-bottom:12px;box-sizing:border-box;">
+  <!-- ══ TAB: TELEGRAM ══ -->
+  <div id="cfg-panel-telegram" style="display:${(STATE._cfgTab||'telegram')==='telegram'?'flex':'none'};flex-direction:column;gap:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #29b6f6;border-radius:8px;padding:16px;">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#29b6f6;letter-spacing:2px;margin-bottom:10px;">✈ TELEGRAM</div>
+      <div class="info-box" style="font-size:8px;line-height:1.9;margin-bottom:14px;">
+        <b>1.</b> Message <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent);">@BotFather</a> → /newbot → copy <b>Token</b><br>
+        <b>2.</b> Start chat with your bot, then visit:<br>
+        <code style="color:var(--accent);font-size:7.5px;word-break:break-all;">api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code><br>
+        copy the <b>chat_id</b> from the response
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--text);margin-bottom:14px;">
+        <input type="checkbox" id="al-tg-on" ${cfg.telegram.enabled ? 'checked' : ''} style="width:16px;height:16px;margin:0;accent-color:#29b6f6;"> Enable Telegram Alerts
+      </label>
+      <label style="font-family:var(--mono);font-size:9px;color:var(--text-dim);display:block;margin-bottom:4px;">BOT TOKEN</label>
+      <input type="password" id="al-tg-token" value="${cfg.telegram.botToken}" placeholder="123456789:ABCDef…"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+               padding:10px 12px;border-radius:6px;font-size:13px;font-family:var(--mono);outline:none;margin-bottom:12px;box-sizing:border-box;">
+      <label style="font-family:var(--mono);font-size:9px;color:var(--text-dim);display:block;margin-bottom:4px;">CHAT ID</label>
+      <input type="text" id="al-tg-chat" value="${cfg.telegram.chatId}" placeholder="-100xxxxxxxxxx"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+               padding:10px 12px;border-radius:6px;font-size:13px;font-family:var(--mono);outline:none;margin-bottom:16px;box-sizing:border-box;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button onclick="testTelegram()"
-          style="background:none;border:1px solid #29b6f6;color:#29b6f6;padding:6px 14px;
-                 border-radius:4px;cursor:pointer;font-size:9px;font-family:var(--mono);">
+          style="flex:1;background:#29b6f6;border:none;color:#000;padding:12px;font-weight:700;
+                 border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--mono);">
           📤 Send Test Message
         </button>
-      </div>
-
-      <!-- EMAIL -->
-      <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ff9800;border-radius:8px;padding:16px;">
-        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ff9800;letter-spacing:2px;margin-bottom:10px;">✉ EMAIL (EmailJS)</div>
-        <div class="info-box" style="font-size:7.5px;line-height:1.8;margin-bottom:12px;">
-          <b>1.</b> <a href="https://www.emailjs.com" target="_blank">emailjs.com</a> → Email Services → connect Gmail/Outlook → copy <b>Service ID</b><br>
-          <b>2.</b> Email Templates → use vars <code style="color:var(--accent);">{{message}}</code> <code style="color:var(--accent);">{{time}}</code> → copy <b>Template ID</b><br>
-          <b>3.</b> Account → API Keys → copy <b>Public Key</b>
-        </div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:9px;color:var(--text);margin-bottom:10px;">
-          <input type="checkbox" id="al-email-on" ${cfg.email.enabled ? 'checked' : ''} style="width:auto;margin:0;accent-color:#ff9800;"> Enable Email Alerts
-        </label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          ${[['al-email-addr','RECIPIENT EMAIL','email',cfg.email.address,'you@example.com'],
-             ['al-ejs-pubkey','PUBLIC KEY','password',cfg.email.emailjsPublicKey,'user_xxxxxxx'],
-             ['al-ejs-svc','SERVICE ID','text',cfg.email.emailjsServiceId,'service_xxxxxxx'],
-             ['al-ejs-tpl','TEMPLATE ID','text',cfg.email.emailjsTemplateId,'template_xxxxxxx']
-            ].map(([id,lbl,type,val,ph]) => `
-            <div>
-              <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);display:block;margin-bottom:3px;">${lbl}</label>
-              <input type="${type}" id="${id}" value="${val}" placeholder="${ph}"
-                style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
-                       padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
-            </div>`).join('')}
-        </div>
-        <button onclick="testEmail()"
-          style="background:none;border:1px solid #ff9800;color:#ff9800;padding:6px 14px;
-                 border-radius:4px;cursor:pointer;font-size:9px;font-family:var(--mono);margin-top:12px;">
-          📤 Send Test Email
+        <button onclick="saveAlertCfg()"
+          style="flex:1;background:var(--accent);border:none;color:#000;padding:12px;font-weight:700;
+                 border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--mono);">
+          💾 Save
         </button>
       </div>
+      <div id="tg-test-result" style="font-family:var(--mono);font-size:10px;margin-top:10px;min-height:18px;"></div>
     </div>
 
-    <!-- ② RULES -->
-    <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:2px;padding-top:6px;border-top:1px solid var(--border);">② RULE SETUP — BUY / SELL CONDITIONS</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ff9800;border-radius:8px;padding:16px;">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ff9800;letter-spacing:2px;margin-bottom:10px;">✉ EMAIL (EmailJS)</div>
+      <div class="info-box" style="font-size:8px;line-height:1.9;margin-bottom:14px;">
+        <b>1.</b> <a href="https://www.emailjs.com" target="_blank" style="color:var(--accent);">emailjs.com</a> → Email Services → connect Gmail/Outlook → copy <b>Service ID</b><br>
+        <b>2.</b> Templates → use vars <code style="color:var(--accent);">{{message}}</code> <code style="color:var(--accent);">{{time}}</code> → copy <b>Template ID</b><br>
+        <b>3.</b> Account → API Keys → copy <b>Public Key</b>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--text);margin-bottom:14px;">
+        <input type="checkbox" id="al-email-on" ${cfg.email.enabled ? 'checked' : ''} style="width:16px;height:16px;margin:0;accent-color:#ff9800;"> Enable Email Alerts
+      </label>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        ${[['al-email-addr','RECIPIENT EMAIL','email',cfg.email.address,'you@example.com'],
+           ['al-ejs-pubkey','PUBLIC KEY','password',cfg.email.emailjsPublicKey,'user_xxxxxxx'],
+           ['al-ejs-svc','SERVICE ID','text',cfg.email.emailjsServiceId,'service_xxxxxxx'],
+           ['al-ejs-tpl','TEMPLATE ID','text',cfg.email.emailjsTemplateId,'template_xxxxxxx']
+          ].map(([id,lbl,type,val,ph]) => `
+          <div>
+            <label style="font-family:var(--mono);font-size:9px;color:var(--text-dim);display:block;margin-bottom:4px;">${lbl}</label>
+            <input type="${type}" id="${id}" value="${val}" placeholder="${ph}"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                     padding:10px 12px;border-radius:6px;font-size:13px;font-family:var(--mono);outline:none;box-sizing:border-box;">
+          </div>`).join('')}
+      </div>
+      <button onclick="testEmail()"
+        style="width:100%;background:none;border:1px solid #ff9800;color:#ff9800;padding:12px;
+               border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--mono);font-weight:700;">
+        📤 Send Test Email
+      </button>
+    </div>
+  </div>
 
-    <!-- Signal Rules -->
+  <!-- ══ TAB: SIGNAL RULES ══ -->
+  <div id="cfg-panel-rules" style="display:${(STATE._cfgTab||'telegram')==='rules'?'flex':'none'};flex-direction:column;gap:12px;">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:2px;margin-bottom:12px;">📡 SIGNAL RULES</div>
       ${cfg.rules.filter(r => r.group === 'signals').map(signalRuleRow).join('')}
     </div>
+  </div>
 
-    <!-- Leaderboard Alerts -->
+  <!-- ══ TAB: LEADERBOARD ══ -->
+  <div id="cfg-panel-leaderboard" style="display:${(STATE._cfgTab||'telegram')==='leaderboard'?'flex':'none'};flex-direction:column;gap:12px;">
     ${typeof renderLbAlertCard === 'function' ? renderLbAlertCard() : ''}
+  </div>
 
-    <!-- GitHub Position Sync -->
+  <!-- ══ TAB: GITHUB SYNC ══ -->
+  <div id="cfg-panel-sync" style="display:${(STATE._cfgTab||'telegram')==='sync'?'flex':'none'};flex-direction:column;gap:12px;">
     ${typeof renderGithubSyncCard === 'function' ? renderGithubSyncCard() : ''}
+  </div>
 
-    <!-- Position Tracker -->
+  <!-- ══ TAB: POSITION TRACKER ══ -->
+  <div id="cfg-panel-positions" style="display:${(STATE._cfgTab||'telegram')==='positions'?'flex':'none'};flex-direction:column;gap:12px;">
     <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ffd700;border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ffd700;letter-spacing:2px;margin-bottom:8px;">
         📍 POSITION TRACKER
       </div>
-      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:10px;">
-        Auto-populated when leaderboard buy alert fires. Shows live P&L and exit signal progress.
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
+        Auto-populated when a leaderboard buy alert fires.<br>
+        Shows live P&L, stop/T1/T2 levels, and exit signal progress.<br>
+        <span style="color:#ffd700;">Headless runner monitors these 24/7 via GitHub Actions.</span>
       </div>
       <div id="position-tracker-panel"></div>
     </div>
 
-    <!-- Overnight Buy -->
+    <!-- Overnight Buy — kept in Tracker tab since it feeds positions -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--bull);letter-spacing:2px;margin-bottom:4px;">🌙 ▲ OVERNIGHT BUY</div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;">All conditions evaluated together → fires <b style="color:var(--bull)">1 combined alert</b> with a full checklist summary</div>

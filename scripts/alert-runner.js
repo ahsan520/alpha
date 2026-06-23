@@ -963,6 +963,9 @@ async function main() {
     await sendTelegram(`${header}\n\n${rows}`);
   }
 
+  // ── Headless leaderboard buy scanner ──
+  await checkLeaderboardBuys(state);
+
   // ── Monitor GUI-synced positions for stop/T1/T2 ──
   await checkPositions(state);
 
@@ -971,3 +974,258 @@ async function main() {
 }
 
 main().catch(err => { console.error('Fatal:', err); process.exit(1); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HEADLESS LEADERBOARD BUY SCANNER
+// Scores all crypto symbols in watchlist.json every :15 using Binance public
+// APIs — no browser needed. Sends Telegram buy alerts when conv >= LB_MIN_SCORE.
+// Mirrors the browser leaderboard scoring logic from render.js + signals.js.
+// ══════════════════════════════════════════════════════════════════════════════
+
+function calcEMA(closes, period) {
+  if (!closes || closes.length < period) return null;
+  const k = 2 / (period + 1);
+  let ema = closes.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  for (let i = period; i < closes.length; i++) ema = closes[i] * k + ema * (1 - k);
+  return ema;
+}
+
+function calcOBI(depth) {
+  if (!depth) return 0;
+  const bid = (depth.bids || []).slice(0, 10).reduce((s, b) => s + parseFloat(b[1]), 0);
+  const ask = (depth.asks || []).slice(0, 10).reduce((s, a) => s + parseFloat(a[1]), 0);
+  const tot = bid + ask;
+  return tot > 0 ? ((bid - ask) / tot * 100) : 0;
+}
+
+function calcCvdTrend(k15m) {
+  if (!k15m || k15m.length < 6) return 'up';
+  const bearCount = k15m.slice(-6).filter(c => parseFloat(c[4]) < parseFloat(c[1])).length;
+  return bearCount >= 4 ? 'down' : 'up';
+}
+
+function calc4hBias(k4h) {
+  if (!k4h || k4h.length < 10) return '—';
+  const closes = k4h.map(c => parseFloat(c[4]));
+  const ema20  = calcEMA(closes, 20);
+  const ema50  = calcEMA(closes, Math.min(50, closes.length));
+  const price  = closes.at(-1);
+  const r4h    = calcRSI(closes);
+  if (!ema20) return '—';
+  if (price > ema20 && r4h > 55)   return 'BULL 4H';
+  if (price < ema20 && r4h < 45)   return 'BEAR 4H';
+  if (price > ema20)                return 'LEAN BULL';
+  return 'LEAN BEAR';
+}
+
+function calcDayBias(kDay) {
+  if (!kDay || kDay.length < 5) return '—';
+  const closes = kDay.map(c => parseFloat(c[4]));
+  const ema10  = calcEMA(closes, Math.min(10, closes.length));
+  const price  = closes.at(-1);
+  const r1d    = calcRSI(closes);
+  if (!ema10) return '—';
+  if (price > ema10 && r1d > 55)  return 'BULL DAY';
+  if (price < ema10 && r1d < 45)  return 'BEAR DAY';
+  if (price > ema10)              return 'LEAN BULL';
+  return 'LEAN BEAR';
+}
+
+function calcConviction(d) {
+  // Mirrors signals.js calcSpikeScore — same weights, same gates
+  let s = 0;
+  const { chg, shock, obi, cvd, r15, r4h, fr, oiDiv, bias4h, biasDay, emaTrend } = d;
+
+  // Price momentum
+  if (chg > 1.5) s += 2; else if (chg > 0.5) s += 1;
+  else if (chg < -1.5) s -= 2; else if (chg < -0.5) s -= 1;
+
+  // Vol shock
+  if (shock >= 2.0) s += 2; else if (shock >= 1.5) s += 1;
+
+  // Order book
+  if (obi > 20) s += 2; else if (obi > 5) s += 1;
+  else if (obi < -20) s -= 2; else if (obi < -5) s -= 1;
+
+  // CVD
+  if (cvd === 'up') s += 2; else s -= 1;
+
+  // RSI
+  if (r15 < 30 && r4h < 35) s += 1;  // oversold — bounce setup
+  if (r15 > 72 && r4h > 68) s -= 1;  // overbought
+
+  // EMA trend
+  if (emaTrend === 'ABOVE') s += 1; else if (emaTrend === 'BELOW') s -= 1;
+
+  // Funding
+  if (fr <= -0.03) s += 2; else if (fr <= -0.01) s += 1;
+  else if (fr >= 0.08) s -= 2; else if (fr >= 0.04) s -= 1;
+
+  // OI divergence
+  if (oiDiv === 'DIP_BUY')  s += 2;
+  else if (oiDiv === 'CONF') s += 1;
+  else if (oiDiv === 'DROP') s -= 1;
+
+  // 4H bias
+  if (bias4h === 'BULL 4H')   s += 2; else if (bias4h === 'LEAN BULL') s += 1;
+  else if (bias4h === 'BEAR 4H') s -= 2; else if (bias4h === 'LEAN BEAR') s -= 1;
+
+  // Daily bias
+  if (biasDay === 'BULL DAY') s += 1; else if (biasDay === 'BEAR DAY') s -= 1;
+
+  return Math.round(s);
+}
+
+function lbSetupLabel(d) {
+  // Mirrors render.js getSetupMode
+  if (d.oiDiv === 'DIP_BUY' && d.fr <= -0.01) return { label: 'CAP BUY',     emoji: '⭐' };
+  if (d.shock >= 2.0 && d.cvd === 'up')        return { label: 'SQUEEZE NOW', emoji: '🚀' };
+  if (d.emaTrend === 'ABOVE' && d.conv > 5)    return { label: 'BREAKOUT',    emoji: '⚡' };
+  if (d.conv < -4)                              return { label: 'SHORT SETUP', emoji: '🔻' };
+  return { label: 'WATCHING', emoji: '👁' };
+}
+
+function calcEntryLevels(price, shock) {
+  // Mirrors render.js calcEntryLevels
+  const p   = parseFloat(price) || 0;
+  if (!p) return null;
+  const atr = p * 0.015 * Math.max(1, shock * 0.5);
+  const dp  = p < 0.01 ? 6 : p < 1 ? 4 : p < 100 ? 3 : 2;
+  const entry = (p * 1.004).toFixed(dp);
+  const stop  = (p - atr * 1.5).toFixed(dp);
+  const t1    = (p + atr * 2).toFixed(dp);
+  const t2    = (p + atr * 4).toFixed(dp);
+  const rr    = (parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop));
+  return { entry, stop, t1, t2, rr: isFinite(rr) ? rr.toFixed(1) : '—' };
+}
+
+function lbBuyCooldownKey(sym) { return `lb_buy_${sym}`; }
+function isLbOnCooldown(state, sym) {
+  return (Date.now() - (state[lbBuyCooldownKey(sym)] || 0)) < LB_COOLDOWN_MIN * 60000;
+}
+function markLbCooldown(state, sym) { state[lbBuyCooldownKey(sym)] = Date.now(); }
+
+async function scoreCryptoSymbol(pair) {
+  const BASE = 'https://api.binance.com/api/v3';
+  const FAPI = 'https://fapi.binance.com/fapi/v1';
+  try {
+    const [ticker, k15r, k4r, kDr, depr, premr, oiCurr, oiPrevr] = await Promise.allSettled([
+      fetchJSON(`${BASE}/ticker/24hr?symbol=${pair}`),
+      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
+      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=4h&limit=60`),
+      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=1d&limit=14`),
+      fetchJSON(`${BASE}/depth?symbol=${pair}&limit=20`),
+      fetchJSON(`${FAPI}/premiumIndex?symbol=${pair}`),
+      fetchJSON(`${FAPI}/openInterest?symbol=${pair}`),
+      fetchJSON(`${FAPI}/openInterest?symbol=${pair}`), // placeholder for prev OI
+    ]);
+
+    const v = r => r.status === 'fulfilled' ? r.value : null;
+    const t = v(ticker); if (!t || t.code) return null;
+
+    const k15  = v(k15r) || [];
+    const k4   = v(k4r)  || [];
+    const kD   = v(kDr)  || [];
+    const dep  = v(depr);
+    const prem = v(premr);
+    const oiNow = v(oiCurr);
+
+    const price = parseFloat(t.lastPrice);
+    const chg   = parseFloat(t.priceChangePercent);
+
+    // Vol shock: last 15m candle vol vs avg of previous 4
+    const recentVols = k15.slice(-5).map(c => parseFloat(c[5]));
+    const avgVol  = recentVols.slice(0, 4).reduce((a, b) => a + b, 0) / 4 || 1;
+    const shock   = recentVols[4] ? recentVols[4] / avgVol : 1;
+
+    const k15c = k15.map(c => parseFloat(c[4]));
+    const k4c  = k4.map(c => parseFloat(c[4]));
+    const kDc  = kD.map(c => parseFloat(c[4]));
+
+    const r15      = calcRSI(k15c);
+    const r4h      = calcRSI(k4c);
+    const cvd      = calcCvdTrend(k15);
+    const obi      = calcOBI(dep);
+    const fr       = prem ? parseFloat(prem.lastFundingRate) * 100 : 0;
+    const bias4h   = calc4hBias(k4);
+    const biasDay  = calcDayBias(kD);
+    const ema20    = calcEMA(k4c, Math.min(20, k4c.length));
+    const emaTrend = ema20 ? (price > ema20 ? 'ABOVE' : 'BELOW') : '—';
+
+    // OI divergence
+    let oiDiv = 'NEUTRAL';
+    if (fr <= -0.01 && chg > 0)    oiDiv = 'DIP_BUY';
+    else if (fr <= 0 && chg > 0.5)  oiDiv = 'CONF';
+    else if (fr > 0.05 && chg < 0)  oiDiv = 'DROP';
+
+    const d    = { chg, shock, obi, cvd, r15, r4h, fr, oiDiv, bias4h, biasDay, emaTrend };
+    d.conv     = calcConviction(d);
+    const setup = lbSetupLabel(d);
+    const levels = calcEntryLevels(price, shock);
+
+    return { pair, price, chg, conv: d.conv, setup, levels, d };
+  } catch (e) {
+    console.log(`  ⚠  ${pair} score error: ${e.message}`);
+    return null;
+  }
+}
+
+async function checkLeaderboardBuys(state) {
+  // Filter crypto-only from watchlist
+  const cryptoPairs = WATCHLIST
+    .filter(s => isCrypto(stripExchangePrefix(s)))
+    .map(stripExchangePrefix);
+
+  if (!cryptoPairs.length) {
+    console.log('\n📡  Leaderboard scanner — no crypto in watchlist, skipping');
+    return;
+  }
+
+  console.log(`\n📡  Leaderboard scanner — scoring ${cryptoPairs.length} symbol(s) [min score: ${LB_MIN_SCORE}]...`);
+
+  // Score all symbols concurrently
+  const results = (await Promise.all(cryptoPairs.map(scoreCryptoSymbol))).filter(Boolean);
+
+  // Filter: score >= min, not SHORT/WATCHING, not on cooldown
+  const SKIP_SETUPS = new Set(['SHORT SETUP', 'WATCHING']);
+  const alerts = [];
+
+  for (const r of results.sort((a, b) => b.conv - a.conv)) {
+    if (r.conv < LB_MIN_SCORE)              { console.log(`  ⏭  ${r.pair} score:${r.conv} below min:${LB_MIN_SCORE}`); continue; }
+    if (SKIP_SETUPS.has(r.setup.label))     { console.log(`  ⏭  ${r.pair} setup:${r.setup.label} skipped`); continue; }
+    if (isLbOnCooldown(state, r.pair))      { console.log(`  🔕  ${r.pair} [${r.setup.label}] score:${r.conv} — cooldown`); continue; }
+
+    markLbCooldown(state, r.pair);
+    alerts.push(r);
+    console.log(`  🟢  ${r.pair} [${r.setup.label}] score:${r.conv} price:$${r.price}`);
+  }
+
+  if (!alerts.length) {
+    console.log('  ✓  No new leaderboard buy signals this cycle');
+    return;
+  }
+
+  // Build and send Telegram message
+  const utc   = new Date().toUTCString().replace(/.*(\d{2}:\d{2}).*/, '$1') + ' UTC';
+  const lines = alerts.map(a => {
+    const l = a.levels;
+    return [
+      `${a.setup.emoji} *${a.pair.replace('USDT', '')}* — ${a.setup.label}  [${a.conv} pts]`,
+      `  Price $${a.price}  Chg ${a.chg > 0 ? '+' : ''}${a.chg.toFixed(2)}%`,
+      `  Entry $${l?.entry || '—'}  Stop $${l?.stop || '—'}`,
+      `  T1 $${l?.t1 || '—'}  T2 $${l?.t2 || '—'}  R:R ${l?.rr || '—'}`,
+      `  4H: ${a.d.bias4h}  Day: ${a.d.biasDay}  CVD: ${a.d.cvd}  FR: ${a.d.fr.toFixed(3)}%`,
+    ].join('\n');
+  });
+
+  const msg = [
+    `🔔 *Leaderboard BUY Alert* — ${utc}`,
+    `_${alerts.length} signal(s) · headless scan · min score ${LB_MIN_SCORE}_`,
+    '',
+    lines.join('\n\n'),
+    '',
+    `_Open GUI for live leaderboard · Stop/T1/T2 monitored automatically_`,
+  ].join('\n');
+
+  await sendTelegram(msg);
+}
