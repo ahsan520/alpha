@@ -12,7 +12,7 @@ on:
     # positions on qualifying setups) + position tracker sell-side check
     # (stop/T1/T2 on open positions). This is the new fast buy-detection
     # path from v10.1.
-    - cron: '*/15 * * * *'       # every 15 minutes
+    - cron: '2,19,36,53 * * * *'       # every 15 minutes
 
     # Full scan — watchlist signal/overnight rules. Hourly matches the
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
