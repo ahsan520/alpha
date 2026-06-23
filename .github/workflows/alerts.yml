@@ -2,7 +2,24 @@ name: Alpha Terminal Alert Runner
 
 on:
   schedule:
-    - cron: '15 * * * *'   # :15 past every hour — position tracker heartbeat
+    # Job A — market data fetch only. No alerts, no Telegram, no position
+    # writes. Just refreshes market-data.json (with peak shock/obi tracking)
+    # so Job B always has fresh-ish data without needing to call Binance
+    # itself on its own 15-min cycle.
+    - cron: '*/5 * * * *'        # every 5 minutes
+
+    # Job B — leaderboard buy decision (reads market-data.json, opens
+    # positions on qualifying setups) + position tracker sell-side check
+    # (stop/T1/T2 on open positions). This is the new fast buy-detection
+    # path from v10.1.
+    - cron: '*/15 * * * *'       # every 15 minutes
+
+    # Full scan — watchlist signal/overnight rules. Hourly matches the
+    # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
+    # scanner inside alert-runner.js is disabled by default here (see
+    # LB_LEGACY_SCAN) since Job B now owns the buy side on a faster cycle.
+    - cron: '15 * * * *'         # :15 past every hour
+
   workflow_dispatch:
     inputs:
       dry_run:
@@ -10,6 +27,16 @@ on:
         required: false
         default: 'false'
         type: boolean
+      mode:
+        description: 'Run mode (manual runs only — scheduled runs pick this automatically)'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - positions
+          - fetch
+          - decide
 
 concurrency:
   group: alert-runner
@@ -36,6 +63,33 @@ jobs:
         working-directory: scripts
         run: npm install
 
+      # ── Determine run mode ──────────────────────────────────────────────
+      # */5      → fetch     (market-fetcher.js — Job A, data only)
+      # */15     → decide    (leaderboard-decider.js + positions check — Job B)
+      # :15 hourly → full    (alert-runner.js full watchlist/overnight scan)
+      # workflow_dispatch    → whatever the "mode" input says (default: full)
+      #
+      # NOTE: */15 and */5 both fire at minute 0/15/30/45 — github.event.schedule
+      # tells us exactly which cron string triggered this run, so there's no
+      # ambiguity even when two schedules coincide.
+      - name: Determine run mode
+        id: mode
+        run: |
+          SCHEDULE="${{ github.event.schedule }}"
+          if [ "$SCHEDULE" = "*/5 * * * *" ]; then
+            VALUE="fetch"
+          elif [ "$SCHEDULE" = "*/15 * * * *" ]; then
+            VALUE="decide"
+          elif [ "$SCHEDULE" = "15 * * * *" ]; then
+            VALUE="full"
+          elif [ -n "${{ inputs.mode }}" ]; then
+            VALUE="${{ inputs.mode }}"
+          else
+            VALUE="full"
+          fi
+          echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+          echo "Resolved mode: $VALUE (schedule: '${SCHEDULE:-manual}')"
+
       # ── Write env.js with real credentials (runtime only — never committed) ──
       # This file is written to disk for GitHub Pages to serve to the browser.
       # It is reset to blanks BEFORE any git commit so secrets never enter git history.
@@ -59,8 +113,8 @@ jobs:
           echo "  GH_PAT:  $([ -n "$GH_PAT"             ] && echo '✓' || echo '✗ MISSING')"
           echo "  TG:      $([ -n "$TELEGRAM_BOT_TOKEN"  ] && echo '✓' || echo '✗ MISSING')"
 
-      # ── Ensure positions.json exists ──
-      - name: Ensure positions.json exists
+      # ── Ensure positions.json / market-data.json / lb-alert-state.json exist ──
+      - name: Ensure tracking files exist
         run: |
           if [ ! -f scripts/positions.json ]; then
             echo '{}' > scripts/positions.json
@@ -70,8 +124,18 @@ jobs:
             echo "positions.json exists: ${COUNT} position(s)"
           fi
 
-      # ── Run the alert runner ──
-      - name: Run alert runner
+          if [ ! -f scripts/market-data.json ]; then
+            echo '{"fetchedAt":0,"symbols":{}}' > scripts/market-data.json
+            echo "Created empty market-data.json"
+          fi
+
+          if [ ! -f scripts/lb-alert-state.json ]; then
+            echo '{}' > scripts/lb-alert-state.json
+            echo "Created empty lb-alert-state.json"
+          fi
+
+      # ── Run the resolved mode ──
+      - name: Run alert pipeline
         working-directory: scripts
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -88,13 +152,36 @@ jobs:
           LB_COOLDOWN_MIN:    ${{ vars.LB_COOLDOWN_MIN || '60' }}
           LB_HOLD_LOCK:       ${{ vars.LB_HOLD_LOCK || '20' }}
           LB_CVD_CYCLES:      ${{ vars.LB_CVD_CYCLES || '3' }}
+          LB_ALERT_STATE_TTL_HOURS: ${{ vars.LB_ALERT_STATE_TTL_HOURS || '6' }}
+          LB_LEGACY_SCAN:     ${{ vars.LB_LEGACY_SCAN || 'false' }}
+          RUN_MODE:           ${{ steps.mode.outputs.value }}
         run: |
+          echo "Running in mode: $RUN_MODE"
+          DRY_FLAG=""
           if [ "$DRY_RUN" = "true" ]; then
             echo "🔍 DRY RUN — no Telegram messages will be sent"
-            node alert-runner.js --dry-run
-          else
-            node alert-runner.js
+            DRY_FLAG="--dry-run"
           fi
+
+          case "$RUN_MODE" in
+            fetch)
+              node market-fetcher.js
+              ;;
+            decide)
+              node leaderboard-decider.js $DRY_FLAG
+              node alert-runner.js $DRY_FLAG --mode=positions
+              ;;
+            positions)
+              node alert-runner.js $DRY_FLAG --mode=positions
+              ;;
+            full)
+              node alert-runner.js $DRY_FLAG --mode=full
+              ;;
+            *)
+              echo "Unknown mode: $RUN_MODE" >&2
+              exit 1
+              ;;
+          esac
 
       # ── Commit state — RESET env.js to blanks FIRST ─────────────────────────────
       # Critical order:
@@ -121,8 +208,10 @@ jobs:
           printf "window.__TG_TOKEN = '';\n" >> scripts/env.js
           printf "window.__TG_CHAT  = '';\n" >> scripts/env.js
 
-          # STEP 2 — Stage only safe files
-          git add scripts/.alert-state.json scripts/positions.json scripts/env.js 2>/dev/null || true
+          # STEP 2 — Stage only safe, generated tracking files
+          git add scripts/.alert-state.json scripts/.lb-scan-state.json \
+                  scripts/positions.json scripts/market-data.json \
+                  scripts/lb-alert-state.json scripts/env.js 2>/dev/null || true
 
           # STEP 3 — Verify env.js staged content has no real tokens (safety check)
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
