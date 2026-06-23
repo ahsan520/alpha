@@ -12,6 +12,17 @@ const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const DRY_RUN    = process.argv.includes('--dry-run');
 const STATE_FILE = path.join(__dirname, '.alert-state.json');
 
+// ── Run mode ──────────────────────────────────────────────────────────────
+// 'full'      — watchlist signal scan + leaderboard scanner + position
+//               tracker. Heavier (klines/depth/funding per symbol). Meant
+//               for the hourly schedule, matching the 4h/daily timeframes
+//               the scoring logic actually operates on.
+// 'positions' — position tracker ONLY (stop/T1/T2 checks on open GUI
+//               positions). One ticker call per open position — cheap
+//               enough to run every 5-10 min for timely stop alerts
+//               without re-running the full multi-symbol indicator scan.
+const MODE = (process.argv.find(a => a.startsWith('--mode=')) || '--mode=full').split('=')[1];
+
 // ── Config from environment ──
 const TG_TOKEN        = process.env.TELEGRAM_BOT_TOKEN  || '';
 const TG_CHAT         = process.env.TELEGRAM_CHAT_ID    || '';
@@ -217,6 +228,46 @@ async function fetchJSON(url, headers = {}, timeoutMs = 9000) {
   } finally { clearTimeout(tid); }
 }
 
+// ── Resilient Binance fetch ───────────────────────────────────────────────
+// api.binance.com returns HTTP 451 ("unavailable for legal reasons") for
+// requests from US-based datacenter IPs — which is exactly what GitHub-hosted
+// runners are. Three-step fallback, same pattern the browser GUI already
+// uses in js/api.js (direct → proxy):
+//   1. data-api.binance.vision — Binance's own public market-data mirror,
+//      intended for this exact use case (no auth, read-only, not subject
+//      to the same regional trading restrictions as api.binance.com).
+//   2. api.binance.com direct — in case the mirror is ever the one that's
+//      down/blocked instead.
+//   3. Public CORS proxy (corsproxy.io) — last resort, free but not
+//      uptime-guaranteed, mirrors the browser's own proxy fallback.
+// NOTE: fapi.binance.com (futures — funding rate) has no public mirror
+// equivalent, so it only gets steps 2+3.
+const BINANCE_MIRROR = 'https://data-api.binance.vision';
+const BINANCE_DIRECT = 'https://api.binance.com';
+const PROXY_PREFIX   = 'https://corsproxy.io/?url=';
+
+async function fetchBinance(urlPath, { useMirror = true } = {}) {
+  const candidates = [];
+  if (useMirror) candidates.push(`${BINANCE_MIRROR}${urlPath}`);
+  candidates.push(`${BINANCE_DIRECT}${urlPath}`);
+
+  let lastErr = null;
+  for (const url of candidates) {
+    try {
+      return await fetchJSON(url);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  // Last resort — public CORS proxy around the direct URL.
+  try {
+    return await fetchJSON(`${PROXY_PREFIX}${encodeURIComponent(`${BINANCE_DIRECT}${urlPath}`)}`);
+  } catch (e) {
+    lastErr = e;
+  }
+  throw lastErr || new Error('all Binance endpoints failed');
+}
+
 // RSI calculation (mirrors v8 calcRSI)
 function calcRSI(closes, p = 14) {
   if (!closes || closes.length < p + 1) return null;
@@ -239,7 +290,7 @@ function calcRSI(closes, p = 14) {
 // ════════════════════════════════════════════════════
 async function fetchCryptoTicker(pair) {
   try {
-    const d = await fetchJSON(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
+    const d = await fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`);
     return { price: parseFloat(d.lastPrice), chgPct: parseFloat(d.priceChangePercent) };
   } catch (e) {
     console.log(`  ⚠  fetchCryptoTicker failed for ${pair}: ${e.message}`);
@@ -249,7 +300,7 @@ async function fetchCryptoTicker(pair) {
 
 async function fetchCrypto4h(pair) {
   try {
-    const k = await fetchJSON(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=4h&limit=50`);
+    const k = await fetchBinance(`/api/v3/klines?symbol=${pair}&interval=4h&limit=50`);
     if (!Array.isArray(k) || k.length < 5) return null;
     const closes = k.map(c => parseFloat(c[4]));
     const vols   = k.map(c => parseFloat(c[5]));
@@ -270,7 +321,7 @@ async function fetchCrypto4h(pair) {
 
 async function fetchCryptoDaily(pair) {
   try {
-    const k = await fetchJSON(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=1d&limit=14`);
+    const k = await fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1d&limit=14`);
     if (!Array.isArray(k) || k.length < 7) return null;
     const closes = k.map(c => parseFloat(c[4]));
     const vols   = k.map(c => parseFloat(c[5]));
@@ -601,14 +652,14 @@ async function fetchCvdTrending(sym) {
   const bare = stripExchangePrefix(sym);
   try {
     if (isCrypto(bare)) {
-      const k = await fetchJSON(
-        `https://api.binance.com/api/v3/klines?symbol=${bare}&interval=15m&limit=6`
-      );
+      const k = await fetchBinance(`/api/v3/klines?symbol=${bare}&interval=15m&limit=6`);
       if (!Array.isArray(k) || k.length < 3) return 'up';
       const bearCount = k.filter(c => parseFloat(c[4]) < parseFloat(c[1])).length;
       return bearCount >= 4 ? 'down' : 'up';
     }
-  } catch {}
+  } catch (e) {
+    console.log(`  ⚠  fetchCvdTrending failed for ${bare}: ${e.message}`);
+  }
   return 'up'; // conservative default for stocks (no 15m data from Yahoo)
 }
 
@@ -616,25 +667,27 @@ async function fetchFundingRate(sym) {
   const bare = stripExchangePrefix(sym);
   if (!isCrypto(bare)) return 0;
   try {
-    const d = await fetchJSON(
-      `https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${bare}`
-    );
+    // fapi.binance.com (futures) has no public-mirror equivalent — direct + proxy only.
+    const d = await fetchBinance(`/fapi/v1/premiumIndex?symbol=${bare}`, { useMirror: false });
     return parseFloat(d.lastFundingRate || 0) * 100; // convert to % like GUI
-  } catch { return 0; }
+  } catch (e) {
+    console.log(`  ⚠  fetchFundingRate failed for ${bare}: ${e.message}`);
+    return 0;
+  }
 }
 
 async function fetchRsi15(sym) {
   const bare = stripExchangePrefix(sym);
   try {
     if (isCrypto(bare)) {
-      const k = await fetchJSON(
-        `https://api.binance.com/api/v3/klines?symbol=${bare}&interval=15m&limit=30`
-      );
+      const k = await fetchBinance(`/api/v3/klines?symbol=${bare}&interval=15m&limit=30`);
       if (!Array.isArray(k) || k.length < 15) return 50;
       const closes = k.map(c => parseFloat(c[4]));
       return calcRSI(closes, 14) || 50;
     }
-  } catch {}
+  } catch (e) {
+    console.log(`  ⚠  fetchRsi15 failed for ${bare}: ${e.message}`);
+  }
   return 50;
 }
 
@@ -839,9 +892,29 @@ async function checkPositions(state) {
 async function main() {
   console.log(`\n${'═'.repeat(60)}`);
   console.log(`Alpha Terminal Alert Runner — ${new Date().toUTCString()}`);
-  console.log(`Pairs: ${WATCHLIST.join(', ')}`);
-  console.log(`Cooldown: ${COOLDOWN_HOURS}h | Digest: ${DIGEST_MODE} | Dry-run: ${DRY_RUN}`);
+  console.log(`Mode: ${MODE} | Cooldown: ${COOLDOWN_HOURS}h | Digest: ${DIGEST_MODE} | Dry-run: ${DRY_RUN}`);
   console.log('═'.repeat(60));
+
+  const state = loadState();
+
+  // ── 'positions' mode — fast path for the tight (5-10 min) schedule. ──
+  // Only checks open GUI positions for stop/T1/T2 — one ticker call per
+  // position, no full watchlist scan, no leaderboard scoring. Keeps the
+  // frequent schedule cheap and avoids re-running expensive klines/depth/
+  // funding pulls more often than the underlying 4h/daily signals change.
+  if (MODE === 'positions') {
+    const positionSyms = Object.keys(await loadPositions()).map(stripExchangePrefix);
+    if (positionSyms.some(s => !isCrypto(s))) {
+      console.log('\n📡  Initialising Yahoo Finance session (stock position present)...');
+      await initYahoo();
+    }
+    await checkPositions(state);
+    saveState(state);
+    console.log('\n✅  Run complete (positions mode).\n');
+    return;
+  }
+
+  console.log(`Pairs: ${WATCHLIST.join(', ')}`);
 
   // Init Yahoo Finance session if we have any non-crypto tickers — check both
   // the watchlist and any GUI-synced positions, since a position symbol may
@@ -853,7 +926,6 @@ async function main() {
     await initYahoo();
   }
 
-  const state  = loadState();
   const digest = {};
 
   for (const sym of WATCHLIST) {
@@ -976,7 +1048,14 @@ async function main() {
   }
 
   // ── Headless leaderboard buy scanner ──
-  await checkLeaderboardBuys(state);
+  // v10.1: superseded by leaderboard-decider.js (Job B, runs every 15 min
+  // against market-fetcher.js's data). Disabled here to avoid two
+  // independent scanners with separate cooldown stores both deciding
+  // whether to open the same position. Set LB_LEGACY_SCAN=true to restore
+  // this hourly path if you ever stop running the new Job A/B pipeline.
+  if ((process.env.LB_LEGACY_SCAN || 'false') === 'true') {
+    await checkLeaderboardBuys(state);
+  }
 
   // ── Monitor GUI-synced positions for stop/T1/T2 ──
   await checkPositions(state);
@@ -989,8 +1068,9 @@ main().catch(err => { console.error('Fatal:', err); process.exit(1); });
 
 // ══════════════════════════════════════════════════════════════════════════════
 // HEADLESS LEADERBOARD BUY SCANNER
-// Scores all crypto symbols in watchlist.json every :15 using Binance public
-// APIs — no browser needed. Sends Telegram buy alerts when conv >= LB_MIN_SCORE.
+// Scores all crypto symbols in watchlist.json — runs as part of the hourly
+// full-scan job (MODE=full) using Binance public APIs — no browser needed.
+// Sends Telegram buy alerts when conv >= LB_MIN_SCORE.
 // Mirrors the browser leaderboard scoring logic from render.js + signals.js.
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -1118,22 +1198,25 @@ function isLbOnCooldown(state, sym) {
 function markLbCooldown(state, sym) { state[lbBuyCooldownKey(sym)] = Date.now(); }
 
 async function scoreCryptoSymbol(pair) {
-  const BASE = 'https://api.binance.com/api/v3';
-  const FAPI = 'https://fapi.binance.com/fapi/v1';
   try {
     const [ticker, k15r, k4r, kDr, depr, premr, oiCurr, oiPrevr] = await Promise.allSettled([
-      fetchJSON(`${BASE}/ticker/24hr?symbol=${pair}`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=4h&limit=60`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=1d&limit=14`),
-      fetchJSON(`${BASE}/depth?symbol=${pair}&limit=20`),
-      fetchJSON(`${FAPI}/premiumIndex?symbol=${pair}`),
-      fetchJSON(`${FAPI}/openInterest?symbol=${pair}`),
-      fetchJSON(`${FAPI}/openInterest?symbol=${pair}`), // placeholder for prev OI
+      fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=15m&limit=60`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=4h&limit=60`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1d&limit=14`),
+      fetchBinance(`/api/v3/depth?symbol=${pair}&limit=20`),
+      fetchBinance(`/fapi/v1/premiumIndex?symbol=${pair}`, { useMirror: false }),
+      fetchBinance(`/fapi/v1/openInterest?symbol=${pair}`, { useMirror: false }),
+      fetchBinance(`/fapi/v1/openInterest?symbol=${pair}`, { useMirror: false }), // placeholder for prev OI
     ]);
 
     const v = r => r.status === 'fulfilled' ? r.value : null;
-    const t = v(ticker); if (!t || t.code) return null;
+    const t = v(ticker);
+    if (!t || t.code) {
+      const reason = ticker.status === 'rejected' ? ticker.reason?.message : (t?.msg || 'invalid response');
+      console.log(`  ⚠  scoreCryptoSymbol: ticker fetch failed for ${pair}: ${reason}`);
+      return null;
+    }
 
     const k15  = v(k15r) || [];
     const k4   = v(k4r)  || [];

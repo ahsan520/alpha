@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // leaderboard-scanner.js — headless leaderboard buy alert engine
 // Mirrors the browser leaderboard scoring using Binance public APIs directly.
-// No browser needed — runs in GitHub Actions every :15.
+// No browser needed — runs hourly via alert-runner.yml (full-scan job).
 //
 // Data sources (all public, no auth):
 //   Binance /ticker/24hr     → price, chg, vol shock proxy
@@ -34,6 +34,34 @@ async function fetchJSON(url, timeout = 8000) {
   const r = await fetch(url, { signal: AbortSignal.timeout(timeout) });
   if (!r.ok) throw new Error(`HTTP ${r.status} ${url}`);
   return r.json();
+}
+
+// ── Resilient Binance fetch — same fallback chain as alert-runner.js ──
+// api.binance.com 451s from US-hosted GitHub runners. Mirror first (spot
+// data only), then direct, then a public CORS proxy as last resort.
+const BINANCE_MIRROR = 'https://data-api.binance.vision';
+const BINANCE_DIRECT = 'https://api.binance.com';
+const PROXY_PREFIX   = 'https://corsproxy.io/?url=';
+
+async function fetchBinance(urlPath, { useMirror = true } = {}) {
+  const candidates = [];
+  if (useMirror) candidates.push(`${BINANCE_MIRROR}${urlPath}`);
+  candidates.push(`${BINANCE_DIRECT}${urlPath}`);
+
+  let lastErr = null;
+  for (const url of candidates) {
+    try {
+      return await fetchJSON(url);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  try {
+    return await fetchJSON(`${PROXY_PREFIX}${encodeURIComponent(`${BINANCE_DIRECT}${urlPath}`)}`);
+  } catch (e) {
+    lastErr = e;
+  }
+  throw lastErr || new Error('all Binance endpoints failed');
 }
 
 function loadState() {
@@ -220,16 +248,14 @@ function calcConviction(d) {
 
 // ── Score one symbol ──
 async function scoreSymbol(pair) {
-  const BASE = 'https://api.binance.com/api/v3';
-  const FAPI = 'https://fapi.binance.com/fapi/v1';
   try {
     const [ticker, k15m, k4h, kDay, depth, prem] = await Promise.allSettled([
-      fetchJSON(`${BASE}/ticker/24hr?symbol=${pair}`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=4h&limit=50`),
-      fetchJSON(`${BASE}/klines?symbol=${pair}&interval=1d&limit=14`),
-      fetchJSON(`${BASE}/depth?symbol=${pair}&limit=20`),
-      fetchJSON(`${FAPI}/premiumIndex?symbol=${pair}`),
+      fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=15m&limit=60`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=4h&limit=50`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1d&limit=14`),
+      fetchBinance(`/api/v3/depth?symbol=${pair}&limit=20`),
+      fetchBinance(`/fapi/v1/premiumIndex?symbol=${pair}`, { useMirror: false }),
     ]);
 
     const val = r => r.status === 'fulfilled' ? r.value : null;
@@ -241,7 +267,11 @@ async function scoreSymbol(pair) {
     const dep   = val(depth);
     const pData = val(prem);
 
-    if (!t || t.code) return null;
+    if (!t || t.code) {
+      const reason = ticker.status === 'rejected' ? ticker.reason?.message : (t?.msg || 'invalid response');
+      console.log(`  ⚠  ${pair} ticker fetch failed: ${reason}`);
+      return null;
+    }
 
     const price  = parseFloat(t.lastPrice);
     const chg    = parseFloat(t.priceChangePercent);
@@ -350,4 +380,4 @@ export async function runLeaderboardScanner(state) {
 }
 
 // ── Run standalone (called from alert-runner.js) ──
-export { scoreSymbol, loadState, saveState };
+export { scoreSymbol, loadState, saveState, calcConviction, getSetupMode };
