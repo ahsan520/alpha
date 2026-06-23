@@ -208,10 +208,11 @@ jobs:
           printf "window.__TG_TOKEN = '';\n" >> scripts/env.js
           printf "window.__TG_CHAT  = '';\n" >> scripts/env.js
 
-          # STEP 2 — Stage only safe, generated tracking files
+          # STEP 2 — Stage only safe, generated tracking files (including audit logs)
           git add scripts/.alert-state.json scripts/.lb-scan-state.json \
                   scripts/positions.json scripts/market-data.json \
-                  scripts/lb-alert-state.json scripts/env.js 2>/dev/null || true
+                  scripts/lb-alert-state.json scripts/audit.json \
+                  scripts/env.js 2>/dev/null || true
 
           # STEP 3 — Verify env.js staged content has no real tokens (safety check)
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
