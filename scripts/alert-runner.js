@@ -241,7 +241,10 @@ async function fetchCryptoTicker(pair) {
   try {
     const d = await fetchJSON(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
     return { price: parseFloat(d.lastPrice), chgPct: parseFloat(d.priceChangePercent) };
-  } catch { return null; }
+  } catch (e) {
+    console.log(`  ⚠  fetchCryptoTicker failed for ${pair}: ${e.message}`);
+    return null;
+  }
 }
 
 async function fetchCrypto4h(pair) {
@@ -259,7 +262,10 @@ async function fetchCrypto4h(pair) {
     let cvd4h = 0;
     for (let i = n-4; i < n; i++) cvd4h += closes[i] > parseFloat(k[i][1]) ? 1 : -1;
     return { aboveEma8: closes[n-1] > ema8, recentUp, volUp, rsi4h, cvd4h };
-  } catch { return null; }
+  } catch (e) {
+    console.log(`  ⚠  fetchCrypto4h failed for ${pair}: ${e.message}`);
+    return null;
+  }
 }
 
 async function fetchCryptoDaily(pair) {
@@ -278,7 +284,10 @@ async function fetchCryptoDaily(pair) {
     let cvdDaily = 0;
     for (let i = n-7; i < n; i++) cvdDaily += closes[i] > parseFloat(k[i][1]) ? 1 : -1;
     return { rsiDaily, aboveEma7: closes[n-1] > ema7, volSurge, chg7d, cvdDaily };
-  } catch { return null; }
+  } catch (e) {
+    console.log(`  ⚠  fetchCryptoDaily failed for ${pair}: ${e.message}`);
+    return null;
+  }
 }
 
 // ════════════════════════════════════════════════════
@@ -361,10 +370,13 @@ async function fetchStockExtra(sym) {
 // ════════════════════════════════════════════════════
 async function fetchAll(sym) {
   if (isCrypto(sym)) {
+    // FIX: Binance's API rejects the "BINANCE:" TradingView-style prefix —
+    // strip it before hitting api.binance.com, same as fetchPositionPrice etc. do.
+    const bare = stripExchangePrefix(sym);
     const [ticker, k4h, kDay] = await Promise.all([
-      fetchCryptoTicker(sym),
-      fetchCrypto4h(sym),
-      fetchCryptoDaily(sym),
+      fetchCryptoTicker(bare),
+      fetchCrypto4h(bare),
+      fetchCryptoDaily(bare),
     ]);
     return { ticker, k4h, kDay };
   } else {
