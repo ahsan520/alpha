@@ -2,7 +2,7 @@ name: Alpha Terminal Alert Runner
 
 on:
   schedule:
-    - cron: '15 * * * *'   # :15 past every hour — position tracker heartbeat
+    - cron: '*/15 * * * *'   # :15 past every hour — position tracker heartbeat
   workflow_dispatch:
     inputs:
       dry_run:
