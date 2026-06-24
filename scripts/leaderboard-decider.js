@@ -171,30 +171,6 @@ async function pushPositionsToGitHub(positions) {
     logAudit('positions_push_failed', { error: e.message });
   }
 }
-    }
-
-    const json    = JSON.stringify(positions, null, 2);
-    const content = Buffer.from(json, 'utf8').toString('base64');
-    const count   = Object.keys(positions).length;
-    const body    = {
-      message: `chore: headless positions update (${count} open) [skip ci]`,
-      content,
-      branch,
-    };
-    if (sha) body.sha = sha;
-
-    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
-    if (!putRes.ok) {
-      const e = await putRes.json().catch(() => ({}));
-      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
-    }
-    console.log(`[positions-push] ✓ pushed positions.json to GitHub (${count} position(s))`);
-    logAudit('positions_pushed', { count, branch, path: fpath });
-  } catch (e) {
-    console.warn(`[positions-push] ⚠ failed: ${e.message}`);
-    logAudit('positions_push_failed', { error: e.message });
-  }
-}
 
 function evaluateSymbol(entry) {
   const latest  = { ...entry.d, conv: entry.conv, setup: entry.setup };
