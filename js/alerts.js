@@ -1054,27 +1054,59 @@ async function refreshAuditLog() {
     const sorted = [...entries].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     const actionColor = a => ({
-      fetch_complete:        'var(--bull)',
-      position_opened:       'var(--accent)',
-      positions_pushed:      'var(--bull)',
-      buy_cycle_complete:    'var(--text)',
-      job_start:             'var(--text-dim)',
-      job_complete:          'var(--text-dim)',
-      market_data_empty:     '#ffa500',
-      fatal_error:           'var(--bear)',
-      positions_push_failed: 'var(--bear)',
+      // market-fetcher (Job A)
+      fetch_complete:           'var(--bull)',
+      no_symbols:               '#ffa500',
+      // leaderboard-decider (Job B)
+      position_opened:          'var(--accent)',
+      positions_pushed:         'var(--bull)',
+      positions_push_failed:    'var(--bear)',
+      buy_cycle_complete:       'var(--text)',
+      market_data_empty:        '#ffa500',
+      // alert-runner (positions monitor)
+      positions_check:          'var(--text-dim)',
+      stop_hit:                 'var(--bear)',
+      t1_hit:                   'var(--bull)',
+      t2_hit:                   '#ffd700',
+      tier1_watch:              '#ffa500',
+      exit_signal:              '#ffa500',
+      stale_position:           '#ffa500',
+      positions_sweep_start:    'var(--text-dim)',
+      positions_sweep_pushed:   'var(--bull)',
+      positions_sweep_failed:   'var(--bear)',
+      positions_sweep_skipped:  'var(--text-dim)',
+      // shared
+      job_start:                'var(--text-dim)',
+      job_complete:             'var(--text-dim)',
+      fatal_error:              'var(--bear)',
     }[a] || 'var(--text-dim)');
 
     const actionIcon = a => ({
-      fetch_complete:        '📡',
-      position_opened:       '🟢',
-      positions_pushed:      '☁',
-      buy_cycle_complete:    '✅',
-      job_start:             '▶',
-      job_complete:          '■',
-      market_data_empty:     '⚠',
-      fatal_error:           '🔴',
-      positions_push_failed: '⚠',
+      // market-fetcher
+      fetch_complete:           '📡',
+      no_symbols:               '⚠',
+      // leaderboard-decider
+      position_opened:          '🟢',
+      positions_pushed:         '☁',
+      positions_push_failed:    '🔴',
+      buy_cycle_complete:       '✅',
+      market_data_empty:        '⚠',
+      // alert-runner
+      positions_check:          '📍',
+      stop_hit:                 '🔴',
+      t1_hit:                   '✅',
+      t2_hit:                   '🏆',
+      tier1_watch:              '⚠',
+      exit_signal:              '🟡',
+      stale_position:           '⏰',
+      positions_sweep_start:    '🗑',
+      positions_sweep_pushed:   '🗑',
+      positions_sweep_failed:   '⚠',
+      positions_sweep_skipped:  '⏭',
+      // shared
+      job_start:                '▶',
+      job_complete:             '■',
+      fatal_error:              '🔴',
     }[a] || '·');
 
     el.innerHTML = `
@@ -1095,15 +1127,28 @@ async function refreshAuditLog() {
         if (e.count         !== undefined) details.push(`${e.count} pos`);
         if (e.signalsFound  !== undefined) details.push(`${e.signalsFound} signals`);
         if (e.positionsOpened > 0)         details.push(`${e.positionsOpened} opened`);
+        if (e.total         !== undefined) details.push(`${e.total} total`);
+        if (e.monitored     !== undefined) details.push(`${e.monitored} active`);
+        if (e.swept         !== undefined) details.push(`${e.swept} swept`);
+        if (e.remaining     !== undefined) details.push(`${e.remaining} remain`);
+        if (e.pnlPct)                      details.push(`P&L ${e.pnlPct}%`);
+        if (e.price)                       details.push(`$${e.price}`);
+        if (e.exitScore)                   details.push(`exit ${e.exitScore}/6`);
+        if (e.signals)                     details.push(e.signals);
+        if (e.ageHours)                    details.push(`${e.ageHours}h old`);
         if (e.error)                       details.push(`err: ${e.error}`);
+
+        const jobLabel = e.job === 'market-fetcher' ? 'Job A'
+                       : e.job === 'leaderboard-decider' ? 'Job B'
+                       : e.job === 'alert-runner' ? 'Monitor'
+                       : e.job || '?';
 
         return `
         <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;
                     border-bottom:1px solid rgba(255,255,255,.04);font-size:8px;">
           <span style="color:${col};flex-shrink:0;font-size:10px;">${icon}</span>
           <span style="color:var(--text-dim);flex-shrink:0;min-width:110px;">${dateStr} ${timeStr}</span>
-          <span style="color:var(--text-dim);flex-shrink:0;min-width:50px;font-size:7px;padding-top:1px;">
-            ${e.job === 'market-fetcher' ? 'Job A' : 'Job B'}</span>
+          <span style="color:var(--text-dim);flex-shrink:0;min-width:55px;font-size:7px;padding-top:1px;">${jobLabel}</span>
           <span style="color:${col};font-weight:700;flex-shrink:0;min-width:130px;">${e.action}</span>
           <span style="color:var(--text-dim);">${details.join(' · ')}</span>
         </div>`;
