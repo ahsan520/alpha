@@ -65,6 +65,76 @@ function savePositions(pos) {
   localStorage.setItem(POSITION_KEY, JSON.stringify(pos));
 }
 
+// ── Seed localStorage from GitHub on page load (headless-written positions) ──
+// When leaderboard-decider.js opens a position headlessly, it writes
+// positions.json to the repo via the GitHub Contents API. The browser
+// reads it here once on load so the tracker panel shows those entries
+// without the user having to do anything. localStorage stays the live
+// source of truth — this just seeds it from the repo on startup.
+async function seedPositionsFromGitHub() {
+  // Derive repo from window.__GH_REPO (injected mid-workflow) or the Pages URL.
+  // e.g. https://ahsan520.github.io/alpha/ → ahsan520/alpha
+  let repo = window.__GH_REPO || '';
+  if (!repo) {
+    const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+    if (m) repo = `${m[1]}${location.pathname.replace(/\/$/, '') || '/alpha'}`.replace(/\/+/g, '/');
+    // pathname is like /alpha — strip leading slash and combine: "ahsan520/alpha"
+    if (m) repo = `${m[1]}/${location.pathname.split('/').filter(Boolean)[0] || ''}`;
+  }
+  if (!repo || !repo.includes('/')) return;
+
+  const branch = 'main';
+  const fpath  = 'scripts/positions.json';
+  const token  = window.__GH_PAT || '';
+
+  try {
+    let remote = null;
+
+    // Try authenticated Contents API first (works for private repos too)
+    if (token) {
+      const headers = {
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Authorization': `Bearer ${token}`,
+      };
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${fpath}?ref=${encodeURIComponent(branch)}`, { headers });
+      if (res.ok) {
+        const j = await res.json();
+        remote = JSON.parse(atob(j.content.replace(/\n/g, '')));
+      }
+    }
+
+    // Fallback: raw.githubusercontent.com — works for public repos, no auth needed
+    if (!remote) {
+      const rawUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}`;
+      const res = await fetch(rawUrl);
+      if (res.ok) remote = await res.json();
+    }
+
+    if (!remote || typeof remote !== 'object' || Array.isArray(remote)) return;
+    const remoteCount = Object.keys(remote).length;
+    if (!remoteCount) return;
+
+    // Merge: remote entry wins if newer than what's in localStorage
+    const local = loadPositions();
+    let merged = false;
+    for (const [sym, pos] of Object.entries(remote)) {
+      const existing = local[sym];
+      if (!existing || (pos.alertedAt || 0) > (existing.alertedAt || 0)) {
+        local[sym] = pos;
+        merged = true;
+      }
+    }
+    if (merged) {
+      savePositions(local);
+      console.log(`[position-tracker] Seeded ${remoteCount} position(s) from GitHub repo`);
+      renderPositionTracker();
+    }
+  } catch (e) {
+    console.warn('[position-tracker] GitHub seed failed:', e.message);
+  }
+}
+
 // ── Buy cooldown (separate from overnight alert cooldown) ──
 function _lbBuyCooldownKey(sym) { return `${_REPO_NS}_lb_buy_${sym}`; }
 
@@ -736,3 +806,13 @@ function saveLbAlertCfgFromUI() {
   logAlertItem('info', '💾 Leaderboard alert config saved.');
   renderAlertCfgPage();
 }
+
+// ── On page load: seed positions from GitHub repo (headless-written entries) ──
+// Runs once after scripts load. window.__GH_REPO is set by env.js only when
+// the page is served mid-workflow; for GitHub Pages it will be blank, so
+// seedPositionsFromGitHub() silently no-ops. The repo URL is always public,
+// so unauthenticated GET works for public repos — token only needed for private.
+document.addEventListener('DOMContentLoaded', () => {
+  // Small delay so renderPositionTracker() from app.js initialises first
+  setTimeout(() => seedPositionsFromGitHub(), 2000);
+});

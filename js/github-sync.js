@@ -175,7 +175,22 @@ async function syncPositionsToGitHub(manual = false) {
     window._ghSyncState.lastSyncAt     = Date.now();
     window._ghSyncState.lastError      = null;
     window._ghSyncState.lastPushedJSON = json;
-    logAlertItem('info', `☁ GitHub sync OK — ${Object.keys(positions).length} position(s) → ${cfg.repo}`);
+
+    // ── Auto-promote to Option B after first successful Option A sync ──
+    // Once the PAT has proven it can write to the repo, clear it from
+    // localStorage and switch to Secrets mode so the token is no longer
+    // stored in the browser. The runner already has GH_PAT via repo Secrets,
+    // so headless monitoring continues uninterrupted.
+    if (cfg.mode === 'pat' && cfg.token) {
+      const promoted = { ...cfg, mode: 'secrets', token: '' };
+      saveGhSyncCfg(promoted);
+      logAlertItem('info', `☁ GitHub sync OK — ${Object.keys(positions).length} position(s) → ${cfg.repo}`);
+      logAlertItem('info', `🔒 Auto-switched to Option B (Secrets) — PAT cleared from browser storage.`);
+      renderAlertCfgPage(); // refresh UI to show Secrets panel
+    } else {
+      logAlertItem('info', `☁ GitHub sync OK — ${Object.keys(positions).length} position(s) → ${cfg.repo}`);
+    }
+
     _refreshGhSyncStatusDOM();
     return { ok: true };
 
