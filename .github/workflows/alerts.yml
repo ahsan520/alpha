@@ -42,6 +42,9 @@ concurrency:
   group: alert-runner
   cancel-in-progress: false
 
+permissions:
+  contents: write   # Required for git push AND Contents API PUT (positions.json)
+
 jobs:
   run-alerts:
     name: Check alerts & positions
