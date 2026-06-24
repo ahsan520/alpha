@@ -65,20 +65,15 @@ function savePositions(pos) {
   localStorage.setItem(POSITION_KEY, JSON.stringify(pos));
 }
 
-// ── Seed localStorage from GitHub on page load (headless-written positions) ──
-// When leaderboard-decider.js opens a position headlessly, it writes
-// positions.json to the repo via the GitHub Contents API. The browser
-// reads it here once on load so the tracker panel shows those entries
-// without the user having to do anything. localStorage stays the live
-// source of truth — this just seeds it from the repo on startup.
+// ── Seed localStorage from positions.json on page load ───────────────────────
+// Shows any positions written by leaderboard-decider.js (headless) or pushed
+// by github-sync.js (Option A/B browser sync) so the Tracker tab is populated
+// even after a localStorage wipe or on a new device.
+// localStorage remains the live source of truth while the browser is open.
 async function seedPositionsFromGitHub() {
-  // Derive repo from window.__GH_REPO (injected mid-workflow) or the Pages URL.
-  // e.g. https://ahsan520.github.io/alpha/ → ahsan520/alpha
   let repo = window.__GH_REPO || '';
   if (!repo) {
     const m = location.hostname.match(/^([^.]+)\.github\.io$/);
-    if (m) repo = `${m[1]}${location.pathname.replace(/\/$/, '') || '/alpha'}`.replace(/\/+/g, '/');
-    // pathname is like /alpha — strip leading slash and combine: "ahsan520/alpha"
     if (m) repo = `${m[1]}/${location.pathname.split('/').filter(Boolean)[0] || ''}`;
   }
   if (!repo || !repo.includes('/')) return;
@@ -90,24 +85,21 @@ async function seedPositionsFromGitHub() {
   try {
     let remote = null;
 
-    // Try authenticated Contents API first (works for private repos too)
+    // Authenticated Contents API (Option A PAT available)
     if (token) {
-      const headers = {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Authorization': `Bearer ${token}`,
-      };
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${fpath}?ref=${encodeURIComponent(branch)}`, { headers });
+      const res = await fetch(
+        `https://api.github.com/repos/${repo}/contents/${fpath}?ref=${encodeURIComponent(branch)}`,
+        { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } }
+      );
       if (res.ok) {
         const j = await res.json();
         remote = JSON.parse(atob(j.content.replace(/\n/g, '')));
       }
     }
 
-    // Fallback: raw.githubusercontent.com — works for public repos, no auth needed
+    // Fallback: public raw URL — no auth needed for public repos
     if (!remote) {
-      const rawUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}`;
-      const res = await fetch(rawUrl);
+      const res = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`);
       if (res.ok) remote = await res.json();
     }
 
@@ -115,9 +107,9 @@ async function seedPositionsFromGitHub() {
     const remoteCount = Object.keys(remote).length;
     if (!remoteCount) return;
 
-    // Merge: remote entry wins if newer than what's in localStorage
-    const local = loadPositions();
-    let merged = false;
+    // Merge into localStorage — remote wins only if newer
+    const local  = loadPositions();
+    let   merged = false;
     for (const [sym, pos] of Object.entries(remote)) {
       const existing = local[sym];
       if (!existing || (pos.alertedAt || 0) > (existing.alertedAt || 0)) {
@@ -127,11 +119,11 @@ async function seedPositionsFromGitHub() {
     }
     if (merged) {
       savePositions(local);
-      console.log(`[position-tracker] Seeded ${remoteCount} position(s) from GitHub repo`);
+      console.log(`[position-tracker] Seeded ${remoteCount} position(s) from positions.json`);
       renderPositionTracker();
     }
   } catch (e) {
-    console.warn('[position-tracker] GitHub seed failed:', e.message);
+    console.warn('[position-tracker] seed failed:', e.message);
   }
 }
 
