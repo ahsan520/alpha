@@ -551,19 +551,24 @@ async function flushDigest() {
 
 function switchCfgTab(tab) {
   STATE._cfgTab = tab;
-  ['telegram','rules','leaderboard','sync','positions'].forEach(t => {
+  const ALL_TABS = ['telegram','rules','leaderboard','sync','positions','tracker','audit'];
+  ALL_TABS.forEach(t => {
     const panel = document.getElementById('cfg-panel-' + t);
-    if (panel) panel.style.display = t === tab ? 'flex' : 'none';
-    panel && (panel.style.flexDirection = 'column');
+    if (panel) {
+      panel.style.display       = t === tab ? 'flex' : 'none';
+      panel.style.flexDirection = 'column';
+    }
   });
   // Update tab highlight without full re-render
   document.querySelectorAll('#cfg-tabs button').forEach((btn, i) => {
-    const tabs = ['telegram','rules','leaderboard','sync','positions'];
-    const active = tabs[i] === tab;
+    const active = ALL_TABS[i] === tab;
     btn.style.borderBottomColor = active ? 'var(--accent)' : 'transparent';
     btn.style.color             = active ? 'var(--accent)' : 'var(--text-dim)';
     btn.style.fontWeight        = active ? '700' : '400';
   });
+  // Load data panels on demand
+  if (tab === 'positions' && typeof refreshHeadlessPositions === 'function') refreshHeadlessPositions();
+  if (tab === 'audit'     && typeof refreshAuditLog          === 'function') refreshAuditLog();
 }
 
 function resetSuppression() {
