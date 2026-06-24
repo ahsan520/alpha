@@ -61,22 +61,20 @@ const WATCHLIST = process.env.WATCHLIST
       }
     })();
 
-// ── Position loading — Option A or Option B ─────────────────────────────────
+// ── Position loading — two sources merged ───────────────────────────────────
 //
-// Option A (Browser PAT): GUI pushes positions.json to the repo via localStorage
-//   PAT. The runner reads the local file (checked out by actions/checkout).
-//   Nothing extra needed — loadPositions() reads the file directly.
+// positions.json — written by leaderboard-decider.js (headless signal entries)
+// tracker.json   — written by the browser GUI via github-sync.js (manual trades)
 //
-// Option B (GitHub Secrets): No PAT in the browser. The runner fetches
-//   positions.json from the GitHub Contents API using GITHUB_TOKEN + GH_REPO.
-//   Set GH_REPO (and optionally GH_BRANCH / GH_POSITIONS_PATH) as repo Variables.
+// Both are monitored for stop/T1/T2 exits. They're separate files so the
+// leaderboard runner never overwrites manually-managed GUI positions.
 //
-const POSITIONS_JSON_PATH = path.join(__dirname, 'positions.json');
+const POSITIONS_JSON_PATH = path.join(process.cwd(), 'positions.json');
+const TRACKER_JSON_PATH   = path.join(process.cwd(), 'tracker.json');
 
-async function loadPositionsFromGitHub() {
+async function loadFromGitHub(fpath) {
   const repo   = process.env.GH_REPO;
   const branch = process.env.GH_BRANCH || 'main';
-  const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
   const token  = process.env.GITHUB_TOKEN;
   if (!repo || !token) return null;
 
@@ -90,21 +88,21 @@ async function loadPositionsFromGitHub() {
       },
     });
     if (!res.ok) {
-      if (res.status === 404) return {}; // no positions file yet = no open positions
+      if (res.status === 404) return {}; // file doesn't exist yet = empty
       throw new Error(`GitHub API ${res.status}`);
     }
-    const j    = await res.json();
-    const raw  = JSON.parse(Buffer.from(j.content, 'base64').toString('utf8'));
+    const j   = await res.json();
+    const raw = JSON.parse(Buffer.from(j.content, 'base64').toString('utf8'));
     return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
   } catch (e) {
-    console.warn(`[Option B] Failed to fetch positions from GitHub: ${e.message}`);
-    return null; // fall through to local file
+    console.warn(`[positions] Failed to fetch ${fpath} from GitHub: ${e.message}`);
+    return null;
   }
 }
 
-function loadPositionsLocal() {
+function loadLocal(filePath) {
   try {
-    const raw = JSON.parse(fs.readFileSync(POSITIONS_JSON_PATH, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
   } catch {
     return {};
@@ -112,23 +110,99 @@ function loadPositionsLocal() {
 }
 
 async function loadPositions() {
-  // Option B: GH_REPO set → fetch from GitHub API (headless, no browser PAT needed)
-  if (process.env.GH_REPO) {
-    const remote = await loadPositionsFromGitHub();
-    if (remote !== null) {
-      console.log(`[positions] Loaded from GitHub API (Option B) — ${Object.keys(remote).length} position(s)`);
-      return remote;
-    }
-    console.warn('[positions] GitHub API fetch failed — falling back to local file');
-  }
-  // Option A: read local checkout (default)
-  const local = loadPositionsLocal();
-  console.log(`[positions] Loaded from local file (Option A) — ${Object.keys(local).length} position(s)`);
-  return local;
+  const ghPositions = await loadFromGitHub(process.env.GH_POSITIONS_PATH || 'scripts/positions.json');
+  const ghTracker   = await loadFromGitHub(process.env.GH_TRACKER_PATH   || 'scripts/tracker.json');
+
+  // Fall back to local files if GitHub API unavailable
+  const positions = ghPositions ?? loadLocal(POSITIONS_JSON_PATH);
+  const tracker   = ghTracker   ?? loadLocal(TRACKER_JSON_PATH);
+
+  const merged = { ...tracker, ...positions }; // positions.json wins on key collision
+  const posCount = Object.keys(positions).length;
+  const trkCount = Object.keys(tracker).length;
+  console.log(`[positions] Loaded from GitHub API — ${posCount} headless position(s), ${trkCount} tracker position(s)`);
+  return merged;
 }
 
 function stripExchangePrefix(sym) {
   return sym.startsWith('BINANCE:') ? sym.slice('BINANCE:'.length) : sym;
+}
+
+// ── Sweep terminal positions from positions.json and push back to GitHub ─────
+// After stop/T1/T2 hit, the position stays in the file but the runner skips
+// it each cycle (fire-key system prevents duplicate alerts). This sweep removes
+// entries that have been in a terminal state longer than the grace period, then
+// pushes the cleaned file back via the GitHub Contents API so the GUI reflects it.
+//
+// Grace periods (same logic as GUI tracker AUTO_EVICT_MS):
+//   stopped:  15 min  — stop hit, trade closed, clean up quickly
+//   tp2_hit:  20 min  — full target, celebrate then clear
+//   tp1_hit:  60 min  — partial target, still watching for T2
+//   exiting:  30 min  — distribution confirmed, should be closing
+//
+const HEADLESS_EVICT_MS = {
+  stopped: 15 * 60 * 1000,
+  tp2_hit: 20 * 60 * 1000,
+  tp1_hit: 60 * 60 * 1000,
+  exiting: 30 * 60 * 1000,
+};
+
+async function sweepAndPushPositions(positions) {
+  const now     = Date.now();
+  const cleaned = { ...positions };
+  let   swept   = 0;
+
+  for (const [sym, pos] of Object.entries(cleaned)) {
+    const grace = HEADLESS_EVICT_MS[pos.status];
+    if (!grace) continue; // 'watching' — keep indefinitely
+
+    const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
+    if (now - changedAt >= grace) {
+      delete cleaned[sym];
+      swept++;
+      console.log(`  🗑  Swept ${sym} (${pos.status}) after grace period`);
+    }
+  }
+
+  if (!swept) return; // nothing to do
+
+  // Push cleaned positions.json back to GitHub
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH        || 'main';
+  const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
+
+  if (!token || !repo) {
+    console.log(`[sweep] Skipping push — GITHUB_TOKEN or GH_REPO not set`);
+    return;
+  }
+
+  const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    'Authorization':        `Bearer ${token}`,
+    'Accept':               'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) { sha = (await getRes.json()).sha || null; }
+
+    const content = Buffer.from(JSON.stringify(cleaned, null, 2), 'utf8').toString('base64');
+    const body    = {
+      message: `chore: sweep ${swept} terminal position(s) [skip ci]`,
+      content, branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) throw new Error(`PUT ${putRes.status}`);
+    console.log(`[sweep] ✓ Pushed cleaned positions.json (${swept} removed, ${Object.keys(cleaned).length} remaining)`);
+  } catch (e) {
+    console.warn(`[sweep] ⚠ Failed to push: ${e.message}`);
+  }
 }
 
 // ── Overnight checklist conditions ──
@@ -769,6 +843,8 @@ async function checkPositions(state) {
           `  P&L ${pnlPct}%  Setup: ${pos.setup || '—'}\n` +
           `  _Headless — reopen GUI to update position status_`
         );
+        pos.status          = 'stopped';
+        pos.statusChangedAt = now;
       }
       continue;
     }
@@ -796,6 +872,8 @@ async function checkPositions(state) {
           `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
           `  P&L +${pnlPct}%  → Full target reached`
         );
+        pos.status          = 'tp2_hit';
+        pos.statusChangedAt = now;
       }
     }
 
@@ -882,8 +960,19 @@ async function checkPositions(state) {
         (t2 > price ? `  T2 $${t2} not yet hit — consider partial exit or trail stop` : `  → Consider full exit`) + `\n` +
         `  _Headless — CVD decline confirmed server-side_`
       );
+      // Mark exiting so grace period timer starts
+      pos.status          = 'exiting';
+      pos.statusChangedAt = now;
     }
   }
+
+  // ── Sweep terminal positions + push cleaned positions.json back ──────────
+  // Positions that have been in stopped/tp2_hit/exiting/tp1_hit longer than
+  // their grace period are removed. This keeps positions.json lean and the
+  // GUI Tracker Alerts panel clean, without needing manual intervention.
+  // fire-key deduplication in .alert-state.json ensures no re-alerts even
+  // if a symbol re-enters the leaderboard after being swept here.
+  await sweepAndPushPositions(positions);
 }
 
 // ════════════════════════════════════════════════════

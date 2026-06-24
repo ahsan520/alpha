@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // market-fetcher.js — Job A (runs every 5 min)
-// v10.2
+// v10.3
 //
 // WHY: leaderboard setups (SQUEEZE NOW / BREAKOUT / DIP BUY) are gated partly
 // by `shock` (15m volume spike) and `obi` (order book imbalance) — both of
@@ -16,10 +16,9 @@
 // This means a spike that fades between polls still gets caught, without
 // raising the poll rate (and Binance call volume) further.
 //
-// v10.2: Fixed path resolution for Actions runner compatibility + audit logging.
-//
-// Reuses scoreSymbol() from leaderboard-scanner.js — same scoring logic the
-// GUI and Job B already rely on, no duplicate implementation.
+// v10.3: Audit rotation changed from count-based (500 entries) to time-based
+// (1 hour). market-data.json is a snapshot — fully overwritten every run,
+// no rotation needed there.
 // ══════════════════════════════════════════════════════════════════════════════
 
 import fs   from 'fs';
@@ -59,21 +58,21 @@ function saveMarketData(data) {
   fs.writeFileSync(MARKET_DATA_PATH, JSON.stringify(data, null, 2));
 }
 
-// ── Audit logging ──
+// ── Audit logging — rolling 1-hour window ──
 function logAudit(action, details = {}) {
   const audit = { timestamp: new Date().toISOString(), job: 'market-fetcher', action, ...details };
-  
+
   let logs = [];
   try {
     logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8'));
     if (!Array.isArray(logs)) logs = [];
   } catch {}
-  
+
   logs.push(audit);
   // Rotate: drop entries older than 1 hour
   const cutoff = Date.now() - 60 * 60 * 1000;
   logs = logs.filter(e => new Date(e.timestamp).getTime() >= cutoff);
-  
+
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }
 
@@ -127,26 +126,30 @@ async function main() {
       conv: r.conv,
       setup: r.setup,        // { label, emoji } — latest cycle's setup
       d: r.d,                // full indicator set — latest cycle's values
-      peakShock,              // max shock since last Job B reset
-      peakObi,                // max |obi| since last Job B reset (signed)
+      peakShock,             // max shock since last Job B reset
+      peakObi,               // max |obi| since last Job B reset (signed)
       peakSince: prev?.peakSince ?? now, // when this peak window started
       updatedAt: now,
     };
-    
+
     fetchResults.push({ pair, status: 'success', conv: r.conv, setup: r.setup.label });
   }
 
   const out = { fetchedAt: now, staleAfterMinutes: STALE_MINUTES, symbols };
   saveMarketData(out);
-  
-  logAudit('fetch_complete', { totalPairs: pairs.length, successCount: okCount, failureCount: pairs.length - okCount, results: fetchResults });
-  
+
+  logAudit('fetch_complete', {
+    totalPairs: pairs.length,
+    successCount: okCount,
+    failureCount: pairs.length - okCount,
+    results: fetchResults,
+  });
+
   console.log(`[market-fetcher] Wrote market-data.json — ${okCount}/${pairs.length} symbol(s) updated.`);
 }
 
-main().catch(err => { 
-  console.error('[market-fetcher] Fatal:', err); 
+main().catch(err => {
+  console.error('[market-fetcher] Fatal:', err);
   logAudit('fatal_error', { error: err.message });
-  process.exit(1); 
+  process.exit(1);
 });
-

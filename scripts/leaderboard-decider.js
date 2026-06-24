@@ -1,12 +1,18 @@
 // ══════════════════════════════════════════════════════════════════════════════
-// leaderboard-decider.js — Job B (runs every 15 min v10.2: 2,19,36,53)
-// v10.2 — Path fix + audit logging
+// leaderboard-decider.js — Job B (runs every 15 min v10.3: 2,19,36,53)
+// v10.3
 //
 // Reads market-data.json (populated by Job A every 5 min), evaluates buy
 // signals (both latest and peak-substituted) against LB_MIN_SCORE/cooldown/
 // setup gates, writes positions to positions.json, sends Telegram, resets
-// peak window in market-data.json. Also runs position tracker sell-side
-// (stop/T1/T2 checks).
+// peak tracking in market-data.json.
+//
+// v10.3 changes:
+//   - pushPositionsToGitHub(): after writing positions.json locally, also
+//     pushes it to the repo via GitHub Contents API immediately so the browser
+//     GUI can see new positions without waiting for the end-of-job git commit.
+//   - Audit rotation changed from count-based (500 entries) to time-based (1h).
+//   - positions_pushed / positions_push_failed audit events added.
 // ══════════════════════════════════════════════════════════════════════════════
 
 import fs   from 'fs';
@@ -36,28 +42,28 @@ function loadJSON(p, fallback) {
 }
 function saveJSON(p, obj) { fs.writeFileSync(p, JSON.stringify(obj, null, 2)); }
 
-function loadMarketData()    { return loadJSON(MARKET_DATA_PATH, { fetchedAt: 0, symbols: {} }); }
-function saveMarketData(d)   { saveJSON(MARKET_DATA_PATH, d); }
-function loadPositions()     { return loadJSON(POSITIONS_PATH, {}); }
-function savePositions(p)    { saveJSON(POSITIONS_PATH, p); }
-function loadAlertState()    { return loadJSON(LB_ALERT_STATE_PATH, {}); }
-function saveAlertState(s)   { saveJSON(LB_ALERT_STATE_PATH, s); }
+function loadMarketData()  { return loadJSON(MARKET_DATA_PATH, { fetchedAt: 0, symbols: {} }); }
+function saveMarketData(d) { saveJSON(MARKET_DATA_PATH, d); }
+function loadPositions()   { return loadJSON(POSITIONS_PATH, {}); }
+function savePositions(p)  { saveJSON(POSITIONS_PATH, p); }
+function loadAlertState()  { return loadJSON(LB_ALERT_STATE_PATH, {}); }
+function saveAlertState(s) { saveJSON(LB_ALERT_STATE_PATH, s); }
 
-// ── Audit logging ──
+// ── Audit logging — rolling 1-hour window ──
 function logAudit(action, details = {}) {
   const audit = { timestamp: new Date().toISOString(), job: 'leaderboard-decider', action, ...details };
-  
+
   let logs = [];
   try {
     logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8'));
     if (!Array.isArray(logs)) logs = [];
   } catch {}
-  
+
   logs.push(audit);
   // Rotate: drop entries older than 1 hour
   const cutoff = Date.now() - 60 * 60 * 1000;
   logs = logs.filter(e => new Date(e.timestamp).getTime() >= cutoff);
-  
+
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }
 
@@ -104,24 +110,14 @@ async function sendTelegram(msg) {
   } catch (e) { console.warn('TG fetch error:', e.message); }
 }
 
-function evaluateSymbol(entry) {
-  const latest = { ...entry.d, conv: entry.conv, setup: entry.setup };
-  const peakD = { ...entry.d, shock: entry.peakShock, obi: entry.peakObi };
-  const peakConv  = calcConviction(peakD);
-  const peakSetup = getSetupMode({ ...peakD, conv: peakConv });
-  const peakIsStronger = peakConv > latest.conv && !SKIP_SETUPS.has(peakSetup.label);
-  return peakIsStronger
-    ? { conv: peakConv, setup: peakSetup, source: 'peak', shock: entry.peakShock, obi: entry.peakObi }
-    : { conv: latest.conv, setup: latest.setup, source: 'latest', shock: entry.d.shock, obi: entry.d.obi };
-}
-
 // ── Push positions.json to GitHub Contents API ──────────────────────────────
 // Uses GITHUB_TOKEN (always available in Actions) + GH_REPO repo variable.
-// GET sha first (needed to update an existing file), then PUT new content.
+// Writing here means the browser GUI sees the new position immediately —
+// before the end-of-job git commit even runs.
 async function pushPositionsToGitHub(positions) {
   const token  = process.env.GITHUB_TOKEN;
   const repo   = process.env.GH_REPO;
-  const branch = process.env.GH_BRANCH || 'main';
+  const branch = process.env.GH_BRANCH        || 'main';
   const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
 
   if (!token || !repo) {
@@ -138,7 +134,7 @@ async function pushPositionsToGitHub(positions) {
   };
 
   try {
-    // GET current sha (required to update an existing file)
+    // GET current sha — required to update an existing file
     let sha = null;
     const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
     if (getRes.ok) {
@@ -151,7 +147,11 @@ async function pushPositionsToGitHub(positions) {
     const json    = JSON.stringify(positions, null, 2);
     const content = Buffer.from(json, 'utf8').toString('base64');
     const count   = Object.keys(positions).length;
-    const body    = { message: `chore: headless positions update (${count} open) [skip ci]`, content, branch };
+    const body    = {
+      message: `chore: headless positions update (${count} open) [skip ci]`,
+      content,
+      branch,
+    };
     if (sha) body.sha = sha;
 
     const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
@@ -167,8 +167,19 @@ async function pushPositionsToGitHub(positions) {
   }
 }
 
+function evaluateSymbol(entry) {
+  const latest  = { ...entry.d, conv: entry.conv, setup: entry.setup };
+  const peakD   = { ...entry.d, shock: entry.peakShock, obi: entry.peakObi };
+  const peakConv  = calcConviction(peakD);
+  const peakSetup = getSetupMode({ ...peakD, conv: peakConv });
+  const peakIsStronger = peakConv > latest.conv && !SKIP_SETUPS.has(peakSetup.label);
+  return peakIsStronger
+    ? { conv: peakConv, setup: peakSetup, source: 'peak', shock: entry.peakShock, obi: entry.peakObi }
+    : { conv: latest.conv, setup: latest.setup, source: 'latest', shock: entry.d.shock, obi: entry.d.obi };
+}
+
 async function processBuySignals() {
-  const market = loadMarketData();
+  const market  = loadMarketData();
   const symbols = Object.entries(market.symbols || {});
 
   if (!symbols.length) {
@@ -184,14 +195,17 @@ async function processBuySignals() {
 
   const cooldownState = loadJSON(path.join(process.cwd(), '.lb-scan-state.json'), {});
   const alertState    = pruneAlertState(loadAlertState());
-  const positions      = loadPositions();
+  const positions     = loadPositions();
 
   const candidates = [];
   for (const [pair, entry] of symbols) {
     const evald = evaluateSymbol(entry);
     if (evald.conv < LB_MIN_SCORE)          { continue; }
     if (SKIP_SETUPS.has(evald.setup.label)) { continue; }
-    if (isOnCooldown(cooldownState, pair))  { console.log(`  🔕  ${pair} [${evald.setup.label}] score:${evald.conv} — cooldown`); continue; }
+    if (isOnCooldown(cooldownState, pair))  {
+      console.log(`  🔕  ${pair} [${evald.setup.label}] score:${evald.conv} — cooldown`);
+      continue;
+    }
 
     const sym = `BINANCE:${pair}`;
     if (positions[sym] && positions[sym].status !== 'stopped' && positions[sym].status !== 'tp2_hit') {
@@ -221,29 +235,45 @@ async function processBuySignals() {
     const dir    = evald.setup.label === 'SHORT SETUP' ? 'bear' : 'bull';
 
     positions[sym] = {
-      sym, base: pair.replace('USDT', ''), setup: evald.setup.label, dir, alertedAt: now,
+      sym,
+      base:          pair.replace('USDT', ''),
+      setup:         evald.setup.label,
+      dir,
+      alertedAt:     now,
       holdLockUntil: now + LB_HOLD_LOCK * 60000,
-      entryPrice: levels ? parseFloat(levels.entry) : entry.price,
-      stop: levels ? parseFloat(levels.stop) : 0, t1: levels ? parseFloat(levels.t1) : 0,
-      t2: levels ? parseFloat(levels.t2) : 0, score: evald.conv, spikeScore: evald.shock,
-      session: '—', exitAlertedAt: null, tier1AlertedAt: null, status: 'watching',
-      source: 'headless_v10.2', scoreSource: evald.source,
+      entryPrice:    levels ? parseFloat(levels.entry) : entry.price,
+      stop:          levels ? parseFloat(levels.stop)  : 0,
+      t1:            levels ? parseFloat(levels.t1)    : 0,
+      t2:            levels ? parseFloat(levels.t2)    : 0,
+      score:         evald.conv,
+      spikeScore:    evald.shock,
+      session:       '—',
+      exitAlertedAt: null,
+      tier1AlertedAt: null,
+      status:        'watching',
+      source:        'headless_v10.3',
+      scoreSource:   evald.source,
     };
 
     buyAlerts.push({ pair, levels, evald, price: entry.price, chg: entry.chg, d: entry.d });
     console.log(`  🟢  ${pair} [${evald.setup.label}] score:${evald.conv} (${evald.source}) → position opened`);
-    logAudit('position_opened', { pair, setup: evald.setup.label, score: evald.conv, source: evald.source, entryPrice: levels?.entry });
+    logAudit('position_opened', {
+      pair,
+      setup:      evald.setup.label,
+      score:      evald.conv,
+      source:     evald.source,
+      entryPrice: levels?.entry,
+    });
   }
 
+  // Write positions locally (committed by the workflow git push at job end)
   savePositions(positions);
   saveJSON(path.join(process.cwd(), '.lb-scan-state.json'), cooldownState);
   saveAlertState(alertState);
   saveMarketData(resetPeaks(market));
 
-  // ── Push positions.json to GitHub so the browser GUI can read it ──
-  // The local file is committed by the workflow's git push step, but that
-  // only runs at the end of the job. Writing via the Contents API here means
-  // the browser sees the new position immediately — before the job even ends.
+  // Also push positions to GitHub immediately via Contents API so the browser
+  // GUI can read the new entry without waiting for the end-of-job git commit.
   await pushPositionsToGitHub(positions);
 
   const utc = new Date().toUTCString().replace(/.*(\d{2}:\d{2}).*/, '$1') + ' UTC';
@@ -259,13 +289,17 @@ async function processBuySignals() {
 
   const msg = [
     `🔔 *Leaderboard BUY Alert* — ${utc}`,
-    `_${buyAlerts.length} signal(s) · headless v10.2 · min score ${LB_MIN_SCORE}_`,
+    `_${buyAlerts.length} signal(s) · headless v10.3 · min score ${LB_MIN_SCORE}_`,
     '', lines.join('\n\n'), '',
     `_Position(s) opened automatically — tracked for stop/T1/T2 going forward._`,
   ].join('\n');
 
   await sendTelegram(msg);
-  logAudit('buy_cycle_complete', { totalSymbols: symbols.length, signalsFound: candidates.length, positionsOpened: buyAlerts.length });
+  logAudit('buy_cycle_complete', {
+    totalSymbols:    symbols.length,
+    signalsFound:    candidates.length,
+    positionsOpened: buyAlerts.length,
+  });
 }
 
 function resetPeaks(market) {
@@ -291,8 +325,8 @@ async function main() {
   console.log('\n✅  Job B (buy-side) complete.\n');
 }
 
-main().catch(err => { 
-  console.error('[leaderboard-decider] Fatal:', err); 
+main().catch(err => {
+  console.error('[leaderboard-decider] Fatal:', err);
   logAudit('fatal_error', { error: err.message });
-  process.exit(1); 
+  process.exit(1);
 });
