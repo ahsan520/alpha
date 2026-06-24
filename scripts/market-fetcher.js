@@ -70,8 +70,9 @@ function logAudit(action, details = {}) {
   } catch {}
   
   logs.push(audit);
-  // Keep last 500 entries to avoid unbounded growth
-  if (logs.length > 500) logs = logs.slice(-500);
+  // Rotate: drop entries older than 1 hour
+  const cutoff = Date.now() - 60 * 60 * 1000;
+  logs = logs.filter(e => new Date(e.timestamp).getTime() >= cutoff);
   
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }

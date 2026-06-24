@@ -54,7 +54,9 @@ function logAudit(action, details = {}) {
   } catch {}
   
   logs.push(audit);
-  if (logs.length > 500) logs = logs.slice(-500);
+  // Rotate: drop entries older than 1 hour
+  const cutoff = Date.now() - 60 * 60 * 1000;
+  logs = logs.filter(e => new Date(e.timestamp).getTime() >= cutoff);
   
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }
@@ -111,6 +113,58 @@ function evaluateSymbol(entry) {
   return peakIsStronger
     ? { conv: peakConv, setup: peakSetup, source: 'peak', shock: entry.peakShock, obi: entry.peakObi }
     : { conv: latest.conv, setup: latest.setup, source: 'latest', shock: entry.d.shock, obi: entry.d.obi };
+}
+
+// ── Push positions.json to GitHub Contents API ──────────────────────────────
+// Uses GITHUB_TOKEN (always available in Actions) + GH_REPO repo variable.
+// GET sha first (needed to update an existing file), then PUT new content.
+async function pushPositionsToGitHub(positions) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH || 'main';
+  const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
+
+  if (!token || !repo) {
+    console.log('[positions-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    'Authorization':        `Bearer ${token}`,
+    'Accept':               'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    // GET current sha (required to update an existing file)
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) {
+      const j = await getRes.json();
+      sha = j.sha || null;
+    } else if (getRes.status !== 404) {
+      throw new Error(`GET ${getRes.status}`);
+    }
+
+    const json    = JSON.stringify(positions, null, 2);
+    const content = Buffer.from(json, 'utf8').toString('base64');
+    const count   = Object.keys(positions).length;
+    const body    = { message: `chore: headless positions update (${count} open) [skip ci]`, content, branch };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[positions-push] ✓ pushed positions.json to GitHub (${count} position(s))`);
+    logAudit('positions_pushed', { count, branch, path: fpath });
+  } catch (e) {
+    console.warn(`[positions-push] ⚠ failed: ${e.message}`);
+    logAudit('positions_push_failed', { error: e.message });
+  }
 }
 
 async function processBuySignals() {
@@ -185,6 +239,12 @@ async function processBuySignals() {
   saveJSON(path.join(process.cwd(), '.lb-scan-state.json'), cooldownState);
   saveAlertState(alertState);
   saveMarketData(resetPeaks(market));
+
+  // ── Push positions.json to GitHub so the browser GUI can read it ──
+  // The local file is committed by the workflow's git push step, but that
+  // only runs at the end of the job. Writing via the Contents API here means
+  // the browser sees the new position immediately — before the job even ends.
+  await pushPositionsToGitHub(positions);
 
   const utc = new Date().toUTCString().replace(/.*(\d{2}:\d{2}).*/, '$1') + ' UTC';
   const lines = buyAlerts.map(a => {
