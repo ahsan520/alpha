@@ -748,8 +748,8 @@ function renderAlertCfgPage() {
 
   <!-- ── Mobile tab bar ───────────────────────────────────────────────────── -->
   <div id="cfg-tabs" style="display:flex;border-bottom:1px solid var(--border);background:var(--bg);overflow-x:auto;flex-shrink:0;">
-    ${['telegram','rules','leaderboard','sync','positions'].map((t,i) => {
-      const labels = ['✈ Telegram','📡 Rules','🏆 Leaderboard','☁ Sync','📍 Tracker'];
+    ${['telegram','rules','leaderboard','sync','positions','tracker','audit'].map((t,i) => {
+      const labels = ['✈ Telegram','📡 Rules','🏆 Leaderboard','☁ Sync','🤖 Tracker Alerts','📍 Tracker','📋 Audit'];
       const active = (STATE._cfgTab || 'telegram') === t;
       return `<button onclick="switchCfgTab('${t}')"
         style="flex:1;min-width:70px;padding:10px 6px;border:none;border-bottom:2px solid ${active ? 'var(--accent)' : 'transparent'};
@@ -846,21 +846,43 @@ function renderAlertCfgPage() {
     ${typeof renderGithubSyncCard === 'function' ? renderGithubSyncCard() : ''}
   </div>
 
-  <!-- ══ TAB: POSITION TRACKER ══ -->
+  <!-- ══ TAB: HEADLESS POSITIONS (positions.json — machine written) ══ -->
   <div id="cfg-panel-positions" style="display:${(STATE._cfgTab||'telegram')==='positions'?'flex':'none'};flex-direction:column;gap:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:8px;padding:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);letter-spacing:2px;">🤖 TRACKER ALERTS</div>
+        <button onclick="refreshHeadlessPositions()"
+          style="background:none;border:1px solid var(--border2);color:var(--text-dim);
+                 padding:4px 12px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:8px;">
+          ↻ Refresh
+        </button>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.7;">
+        Positions opened automatically by <code>leaderboard-decider.js</code> via GitHub Actions.<br>
+        Read-only here — managed entirely by the headless runner.<br>
+        <span style="color:var(--accent);">Source: <code>scripts/positions.json</code> in repo</span>
+      </div>
+      <div id="headless-positions-panel">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">Loading from repo…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: TRACKER (tracker.json — GUI written) ══ -->
+  <div id="cfg-panel-tracker" style="display:${(STATE._cfgTab||'telegram')==='tracker'?'flex':'none'};flex-direction:column;gap:12px;">
     <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #ffd700;border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#ffd700;letter-spacing:2px;margin-bottom:8px;">
-        📍 POSITION TRACKER
+        📍 TRACKER
       </div>
-      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
-        Auto-populated when a leaderboard buy alert fires.<br>
-        Shows live P&L, stop/T1/T2 levels, and exit signal progress.<br>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
+        Your manually-managed positions. Synced to <code>scripts/tracker.json</code> in repo.<br>
+        Live P&amp;L, stop/T1/T2 levels, exit signal progress.<br>
         <span style="color:#ffd700;">Headless runner monitors these 24/7 via GitHub Actions.</span>
       </div>
       <div id="position-tracker-panel"></div>
     </div>
 
-    <!-- Overnight Buy — kept in Tracker tab since it feeds positions -->
+    <!-- Overnight Buy -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--bull);letter-spacing:2px;margin-bottom:4px;">🌙 ▲ OVERNIGHT BUY</div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;">All conditions evaluated together → fires <b style="color:var(--bull)">1 combined alert</b> with a full checklist summary</div>
@@ -889,18 +911,206 @@ function renderAlertCfgPage() {
       </button>
     </div>
 
-    <!-- Log -->
+    <!-- Session alert log -->
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-bright);letter-spacing:2px;margin-bottom:10px;">◆ ALERT LOG</div>
       <div id="alert-cfg-log" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;max-height:180px;overflow-y:auto;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px;">No alerts yet this session.</div>
       </div>
     </div>
+  </div>
+
+  <!-- ══ TAB: AUDIT LOG (audit.json — runner written, 1h rolling) ══ -->
+  <div id="cfg-panel-audit" style="display:${(STATE._cfgTab||'telegram')==='audit'?'flex':'none'};flex-direction:column;gap:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #29b6f6;border-radius:8px;padding:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:#29b6f6;letter-spacing:2px;">📋 RUNNER AUDIT LOG</div>
+        <button onclick="refreshAuditLog()"
+          style="background:none;border:1px solid var(--border2);color:var(--text-dim);
+                 padding:4px 12px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:8px;">
+          ↻ Refresh
+        </button>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.7;">
+        Live view of <code>scripts/audit.json</code> — rolling 1-hour window of runner activity.<br>
+        Updated every 5 min (Job A fetch) and every 15 min (Job B decide).<br>
+        <span style="color:#29b6f6;">Most recent entries shown first.</span>
+      </div>
+      <div id="audit-log-panel">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">Loading from repo…</div>
+      </div>
+    </div>
+  </div>
 
   </div>`;
 
   renderAlertLog();
   if (typeof renderPositionTracker === 'function') setTimeout(renderPositionTracker, 0);
+
+  // Auto-load data panels when their tab is active
+  const _activeTab = STATE._cfgTab || 'telegram';
+  if (_activeTab === 'positions') refreshHeadlessPositions();
+  if (_activeTab === 'audit')     refreshAuditLog();
+}
+
+// ── Derive repo slug (window.__GH_REPO or GitHub Pages URL) ─────────────────
+function _deriveRepo() {
+  if (window.__GH_REPO) return window.__GH_REPO;
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if (m) {
+    const owner = m[1];
+    const repo  = location.pathname.split('/').filter(Boolean)[0] || '';
+    return `${owner}/${repo}`;
+  }
+  return '';
+}
+
+// ── Headless positions panel (positions.json — machine written) ──────────────
+async function refreshHeadlessPositions() {
+  const el = document.getElementById('headless-positions-panel');
+  if (!el) return;
+  el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">Fetching…</div>`;
+
+  try {
+    const repo = _deriveRepo();
+    if (!repo) throw new Error('Cannot derive repo — set GH_REPO or deploy via GitHub Pages');
+    const rawUrl = `https://raw.githubusercontent.com/${repo}/main/scripts/positions.json?t=${Date.now()}`;
+    const res    = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const positions = await res.json();
+    const entries   = Object.values(positions || {});
+
+    if (!entries.length) {
+      el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">
+        No headless positions open — runner creates entries here when a buy signal fires.</div>`;
+      return;
+    }
+
+    const statusColor = s => ({ watching:'var(--bull)', tp1_hit:'#ffd700', tp2_hit:'#ffd700', exiting:'#ffa500', stopped:'var(--bear)' }[s] || 'var(--text-dim)');
+    const statusLabel = s => ({ watching:'👁 WATCHING', tp1_hit:'✅ T1 HIT', tp2_hit:'🏆 T2 HIT', exiting:'🟡 EXITING', stopped:'🔴 STOPPED' }[s] || s);
+
+    el.innerHTML = entries.map(pos => {
+      const age      = Math.floor((Date.now() - (pos.alertedAt || 0)) / 60000);
+      const ageStr   = age < 60 ? `${age}m ago` : `${Math.floor(age/60)}h ${age%60}m ago`;
+      const liveD    = (STATE._ranked || []).find(r => r.sym === pos.sym)?.d || {};
+      const price    = parseFloat(liveD.p || pos.entryPrice || 0);
+      const pnlPct   = pos.entryPrice > 0 ? ((price - pos.entryPrice) / pos.entryPrice * 100).toFixed(2) : '—';
+      const pnlColor = parseFloat(pnlPct) >= 0 ? 'var(--bull)' : 'var(--bear)';
+      const baseName = pos.base || (pos.sym || '').replace('BINANCE:','').replace('USDT','');
+
+      return `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${statusColor(pos.status)};
+                  border-radius:6px;padding:10px 12px;margin-bottom:8px;font-family:var(--mono);font-size:9px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+          <span style="color:var(--text-bright);font-weight:700;font-size:10px;">${baseName}</span>
+          <span style="color:${statusColor(pos.status)};font-size:8px;letter-spacing:1px;">${statusLabel(pos.status)}</span>
+          <span style="color:var(--text-dim);font-size:7px;">🤖 headless · ${ageStr}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px;">
+          <div><div style="color:var(--text-dim);font-size:7px;">SETUP</div><div style="color:var(--accent);">${pos.setup || '—'}</div></div>
+          <div><div style="color:var(--text-dim);font-size:7px;">ENTRY</div><div>$${pos.entryPrice || '—'}</div></div>
+          <div><div style="color:var(--text-dim);font-size:7px;">STOP</div><div style="color:var(--bear);">$${pos.stop || '—'}</div></div>
+          <div><div style="color:var(--text-dim);font-size:7px;">T1</div><div style="color:var(--bull);">$${pos.t1 || '—'}</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <span>Score: <b style="color:var(--accent);">${pos.score || '—'}</b></span>
+          ${price ? `<span>Live: <b>$${price}</b></span>
+          <span style="color:${pnlColor};font-weight:700;">${parseFloat(pnlPct)>=0?'+':''}${pnlPct}%</span>` : ''}
+          <span style="color:var(--text-dim);font-size:7px;">${pos.scoreSource === 'peak' ? '⚡ peak catch' : 'latest'}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--bear);padding:10px 0;">
+      ⚠ Failed to load positions.json: ${e.message}</div>`;
+  }
+}
+
+// ── Audit log panel (audit.json — runner written, 1h rolling) ───────────────
+async function refreshAuditLog() {
+  const el = document.getElementById('audit-log-panel');
+  if (!el) return;
+  el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">Fetching…</div>`;
+
+  try {
+    const repo = _deriveRepo();
+    if (!repo) throw new Error('Cannot derive repo — set GH_REPO or deploy via GitHub Pages');
+    const rawUrl = `https://raw.githubusercontent.com/${repo}/main/scripts/audit.json?t=${Date.now()}`;
+    const res    = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const entries = await res.json();
+
+    if (!Array.isArray(entries) || !entries.length) {
+      el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">
+        No audit entries yet — entries appear after the first fetch/decide run.</div>`;
+      return;
+    }
+
+    const sorted = [...entries].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    const actionColor = a => ({
+      fetch_complete:        'var(--bull)',
+      position_opened:       'var(--accent)',
+      positions_pushed:      'var(--bull)',
+      buy_cycle_complete:    'var(--text)',
+      job_start:             'var(--text-dim)',
+      job_complete:          'var(--text-dim)',
+      market_data_empty:     '#ffa500',
+      fatal_error:           'var(--bear)',
+      positions_push_failed: 'var(--bear)',
+    }[a] || 'var(--text-dim)');
+
+    const actionIcon = a => ({
+      fetch_complete:        '📡',
+      position_opened:       '🟢',
+      positions_pushed:      '☁',
+      buy_cycle_complete:    '✅',
+      job_start:             '▶',
+      job_complete:          '■',
+      market_data_empty:     '⚠',
+      fatal_error:           '🔴',
+      positions_push_failed: '⚠',
+    }[a] || '·');
+
+    el.innerHTML = `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;
+                max-height:480px;overflow-y:auto;font-family:var(--mono);">
+      ${sorted.map(e => {
+        const ts      = new Date(e.timestamp);
+        const timeStr = ts.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        const dateStr = ts.toLocaleDateString([], { month:'short', day:'numeric' });
+        const col     = actionColor(e.action);
+        const icon    = actionIcon(e.action);
+
+        const details = [];
+        if (e.successCount  !== undefined) details.push(`${e.successCount}/${e.totalPairs} ok`);
+        if (e.pair)                        details.push(e.pair);
+        if (e.setup)                       details.push(e.setup);
+        if (e.score)                       details.push(`score:${e.score}`);
+        if (e.count         !== undefined) details.push(`${e.count} pos`);
+        if (e.signalsFound  !== undefined) details.push(`${e.signalsFound} signals`);
+        if (e.positionsOpened > 0)         details.push(`${e.positionsOpened} opened`);
+        if (e.error)                       details.push(`err: ${e.error}`);
+
+        return `
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;
+                    border-bottom:1px solid rgba(255,255,255,.04);font-size:8px;">
+          <span style="color:${col};flex-shrink:0;font-size:10px;">${icon}</span>
+          <span style="color:var(--text-dim);flex-shrink:0;min-width:110px;">${dateStr} ${timeStr}</span>
+          <span style="color:var(--text-dim);flex-shrink:0;min-width:50px;font-size:7px;padding-top:1px;">
+            ${e.job === 'market-fetcher' ? 'Job A' : 'Job B'}</span>
+          <span style="color:${col};font-weight:700;flex-shrink:0;min-width:130px;">${e.action}</span>
+          <span style="color:var(--text-dim);">${details.join(' · ')}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-family:var(--mono);font-size:7px;color:var(--text-dim);margin-top:8px;text-align:right;">
+      ${sorted.length} entries · rolling 1h window · last: ${new Date(sorted[0]?.timestamp).toLocaleTimeString()}
+    </div>`;
+  } catch (e) {
+    el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--bear);padding:10px 0;">
+      ⚠ Failed to load audit.json: ${e.message}</div>`;
+  }
 }
 
 function renderAlertLog() {
