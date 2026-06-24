@@ -124,9 +124,6 @@ jobs:
             echo "positions.json exists: ${COUNT} position(s)"
           fi
 
-          if [ ! -f scripts/tracker.json ]; then
-            echo '{}' > scripts/tracker.json
-            echo "Created empty tracker.json"
           fi
 
           if [ ! -f scripts/market-data.json ]; then
@@ -154,7 +151,6 @@ jobs:
           GH_REPO:            ${{ vars.GH_REPO }}
           GH_BRANCH:          ${{ vars.GH_BRANCH || 'main' }}
           GH_POSITIONS_PATH:  ${{ vars.GH_POSITIONS_PATH || 'scripts/positions.json' }}
-          GH_TRACKER_PATH:    ${{ vars.GH_TRACKER_PATH || 'scripts/tracker.json' }}
           TELEGRAM_ENABLED:   ${{ vars.TELEGRAM_ENABLED || 'true' }}
           ALERT_COOLDOWN_HOURS: ${{ vars.ALERT_COOLDOWN_HOURS || '1' }}
           DIGEST_MODE:        ${{ vars.DIGEST_MODE || 'true' }}
@@ -217,7 +213,6 @@ jobs:
 
           # STEP 2 — Stage files individually so a missing file doesn't
           # silently block the others from staging.
-          # NOTE: positions.json and tracker.json are intentionally excluded here —
           # leaderboard-decider.js and github-sync.js push those via the Contents
           # API mid-job. Including them here causes a git push conflict because the
           # API push already advanced HEAD on main.
