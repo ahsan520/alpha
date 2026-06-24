@@ -216,11 +216,13 @@ jobs:
           printf "window.__TG_CHAT  = '';\n" >> scripts/env.js
 
           # STEP 2 — Stage files individually so a missing file doesn't
-          # silently block the others (e.g. market-data.json) from staging.
+          # silently block the others from staging.
+          # NOTE: positions.json and tracker.json are intentionally excluded here —
+          # leaderboard-decider.js and github-sync.js push those via the Contents
+          # API mid-job. Including them here causes a git push conflict because the
+          # API push already advanced HEAD on main.
           git add scripts/env.js || true
           git add scripts/market-data.json || true
-          git add scripts/positions.json || true
-          git add scripts/tracker.json || true
           git add scripts/audit.json || true
           git add scripts/.alert-state.json || true
           git add scripts/.lb-scan-state.json || true
@@ -232,10 +234,12 @@ jobs:
             exit 1
           fi
 
-          # STEP 4 — Commit and push
+          # STEP 4 — Pull latest (positions.json API push may have advanced HEAD)
+          # then commit and push state files
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
+            git pull --rebase origin main || true
             git commit -m "chore: update alert state [skip ci]"
             git push
           fi
