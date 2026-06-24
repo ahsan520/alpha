@@ -76,16 +76,15 @@ const WATCHLIST = process.env.WATCHLIST
       }
     })();
 
-// ── Position loading — two sources merged ───────────────────────────────────
+// ── Position loading — single source: positions.json ────────────────────────
 //
-// positions.json — written by leaderboard-decider.js (headless signal entries)
-// tracker.json   — written by the browser GUI via github-sync.js (manual trades)
+// positions.json is written by:
+//   - leaderboard-decider.js (headless signal entries via GitHub Contents API)
+//   - github-sync.js in the browser (Option A/B manual GUI positions)
 //
-// Both are monitored for stop/T1/T2 exits. They're separate files so the
-// leaderboard runner never overwrites manually-managed GUI positions.
+// Both paths write to the same file so alert-runner only needs to read one.
 //
 const POSITIONS_JSON_PATH = path.join(process.cwd(), 'positions.json');
-const TRACKER_JSON_PATH   = path.join(process.cwd(), 'tracker.json');
 
 async function loadFromGitHub(fpath) {
   const repo   = process.env.GH_REPO;
@@ -103,7 +102,7 @@ async function loadFromGitHub(fpath) {
       },
     });
     if (!res.ok) {
-      if (res.status === 404) return {}; // file doesn't exist yet = empty
+      if (res.status === 404) return {};
       throw new Error(`GitHub API ${res.status}`);
     }
     const j   = await res.json();
@@ -119,24 +118,15 @@ function loadLocal(filePath) {
   try {
     const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
-  } catch {
-    return {};
-  }
+  } catch { return {}; }
 }
 
 async function loadPositions() {
-  const ghPositions = await loadFromGitHub(process.env.GH_POSITIONS_PATH || 'scripts/positions.json');
-  const ghTracker   = await loadFromGitHub(process.env.GH_TRACKER_PATH   || 'scripts/tracker.json');
-
-  // Fall back to local files if GitHub API unavailable
-  const positions = ghPositions ?? loadLocal(POSITIONS_JSON_PATH);
-  const tracker   = ghTracker   ?? loadLocal(TRACKER_JSON_PATH);
-
-  const merged = { ...tracker, ...positions }; // positions.json wins on key collision
-  const posCount = Object.keys(positions).length;
-  const trkCount = Object.keys(tracker).length;
-  console.log(`[positions] Loaded from GitHub API — ${posCount} headless position(s), ${trkCount} tracker position(s)`);
-  return merged;
+  const fpath = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
+  const remote = await loadFromGitHub(fpath);
+  const positions = remote ?? loadLocal(POSITIONS_JSON_PATH);
+  console.log(`[positions] Loaded ${Object.keys(positions).length} position(s) from ${remote !== null ? 'GitHub API' : 'local file'}`);
+  return positions;
 }
 
 function stripExchangePrefix(sym) {
