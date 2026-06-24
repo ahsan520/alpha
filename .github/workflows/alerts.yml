@@ -124,8 +124,6 @@ jobs:
             echo "positions.json exists: ${COUNT} position(s)"
           fi
 
-          fi
-
           if [ ! -f scripts/market-data.json ]; then
             echo '{"fetchedAt":0,"symbols":{}}' > scripts/market-data.json
             echo "Created empty market-data.json"
