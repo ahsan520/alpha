@@ -377,13 +377,13 @@ function renderGithubSyncCard() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
       <div>
         <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">OWNER/REPO</label>
-        <input type="text" id="gh-sync-repo" value="\${cfg.repo}" placeholder="ahsan520/alpha"
+        <input type="text" id="gh-sync-repo" value="${cfg.repo}" placeholder="ahsan520/alpha"
           style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
                  padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
       </div>
       <div>
         <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">BRANCH</label>
-        <input type="text" id="gh-sync-branch" value="\${cfg.branch}" placeholder="main"
+        <input type="text" id="gh-sync-branch" value="${cfg.branch}" placeholder="main"
           style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
                  padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
       </div>
