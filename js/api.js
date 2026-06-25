@@ -1,6 +1,15 @@
 // ══════════════════════════════════════════════
-// api.js — v13.1 — all fetch, proxy, and data functions
-// v13.1 fixes a latency REGRESSION from v13.0: the proxy concurrency cap (4)
+// api.js — v13.2 — all fetch, proxy, and data functions
+// v13.2 removes api.codetabs.com from the proxy chain. v13.1's console log
+// showed it returning a hard 400 on every single request (not a rate limit),
+// matching other developers' independent reports that the service is
+// currently broken — it was just a slow, guaranteed-failing hop in front of
+// proxies that might otherwise succeed. Chain is back to corsproxy.io (both
+// URL formats) + allorigins.win, matching the original v12.9 chain that was
+// confirmed working, with the `?url=` format added as a second corsproxy.io
+// attempt.
+//
+// v13.1 fixed a latency REGRESSION from v13.0: the proxy concurrency cap (4)
 // and per-proxy retry made the page SLOWER than v12.9 for visitors whose
 // direct Binance calls are CORS-blocked on every request (proxy fallback is
 // their primary path, not an occasional one). Cap raised 4→12, retry removed.
@@ -17,24 +26,24 @@
 //     (app.js) requests the same URL while a previous call for it is still
 //     pending, the second caller awaits the same promise instead of firing
 //     a duplicate network request / proxy hit.
-//   • Proxy chain hardened: 3rd/4th fallback proxies added (corsproxy.io in
-//     both its documented URL formats, plus codetabs.com, plus allorigins.win).
 //   • fetchCryptoExtra() still fires Promise.allSettled in parallel; MTF RSI
 //     is derived from the 15m klines so no separate 1h/4h kline calls are
 //     needed. Old single-endpoint functions kept as thin stubs.
 // ══════════════════════════════════════════════
 
-// Proxy order: corsproxy.io first (in both documented formats) since its
-// free tier explicitly allow-lists *.github.io origins. Both the `?url=`
-// format (current docs, "recommended") and the older bare `?<url>` "direct
-// query" format are kept as separate entries — if one format behaves
-// differently for a given visitor's browser/network, the chain still has
-// the other to fall through to before reaching the 3rd-party proxies.
-// codetabs.com and allorigins.win remain as fallbacks after both.
+// Proxy order: matches the original v12.9 chain that was working reliably —
+// corsproxy.io (bare-query format) then allorigins.win. v13.0/13.1 added
+// api.codetabs.com and a second corsproxy.io URL format, but the latest
+// console log shows codetabs.com returning a consistent 400 on every single
+// request (not a rate limit — a hard rejection), which matches other
+// developers independently reporting api.codetabs.com/v1/proxy as broken
+// recently. It added a slow, guaranteed-failing hop in front of proxies
+// that might otherwise succeed, so it's removed here. The `?url=` format
+// of corsproxy.io is kept as a second corsproxy.io attempt since it's
+// their currently-documented format, ahead of allorigins.win.
 const PROXIES = [
-  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
 ];
 
