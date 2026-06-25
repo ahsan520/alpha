@@ -1,6 +1,12 @@
 // ══════════════════════════════════════════════
-// api.js — v13.0 — all fetch, proxy, and data functions
-// Key changes from v12.9:
+// api.js — v13.1 — all fetch, proxy, and data functions
+// v13.1 fixes a latency REGRESSION from v13.0: the proxy concurrency cap (4)
+// and per-proxy retry made the page SLOWER than v12.9 for visitors whose
+// direct Binance calls are CORS-blocked on every request (proxy fallback is
+// their primary path, not an occasional one). Cap raised 4→12, retry removed.
+// See inline comments at PROXY_MAX_CONCURRENT / fetchProxy for detail.
+//
+// Key changes from v12.9 (unchanged from original v13.0):
 //   • fetchCryptoExtra() no longer refetches 4h/daily klines on every 15s
 //     cycle — those are cached per-pair with a TTL (4h klines: 4min,
 //     daily klines: 15min) since they cannot meaningfully change inside
@@ -11,25 +17,23 @@
 //     (app.js) requests the same URL while a previous call for it is still
 //     pending, the second caller awaits the same promise instead of firing
 //     a duplicate network request / proxy hit.
-//   • Proxy chain hardened: 3rd fallback proxy added, and each proxy now
-//     gets one retry before moving to the next, since allorigins.win in
-//     particular is prone to intermittent 500/522 errors rather than hard
-//     failures.
+//   • Proxy chain hardened: 3rd/4th fallback proxies added (corsproxy.io in
+//     both its documented URL formats, plus codetabs.com, plus allorigins.win).
 //   • fetchCryptoExtra() still fires Promise.allSettled in parallel; MTF RSI
 //     is derived from the 15m klines so no separate 1h/4h kline calls are
 //     needed. Old single-endpoint functions kept as thin stubs.
 // ══════════════════════════════════════════════
 
-// Proxy order: corsproxy.io first — its free tier explicitly allow-lists
-// *.github.io origins (confirmed for GitHub Pages deployments), so it
-// should be the most reliable for this site. v13.0: switched to corsproxy.io's
-// documented `?url=` query format (the old bare `?<url>` "direct query" form
-// still works per their docs but `?url=` is the recommended/most reliable one).
-// codetabs.com moved up to #2 (simple passthrough, no wrapper to parse) ahead
-// of allorigins.win, which the console errors show timing out/522'ing under
-// load — kept as the last-resort 3rd fallback rather than removed entirely.
+// Proxy order: corsproxy.io first (in both documented formats) since its
+// free tier explicitly allow-lists *.github.io origins. Both the `?url=`
+// format (current docs, "recommended") and the older bare `?<url>` "direct
+// query" format are kept as separate entries — if one format behaves
+// differently for a given visitor's browser/network, the chain still has
+// the other to fall through to before reaching the 3rd-party proxies.
+// codetabs.com and allorigins.win remain as fallbacks after both.
 const PROXIES = [
   u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
 ];
@@ -50,14 +54,16 @@ function _coalesce(key, fn) {
 }
 
 // ── Global proxy concurrency limiter ──
-// Free CORS proxies all have rate limits (codetabs: 5 req/sec, allorigins:
-// ~20/min). Even with caching + coalescing, a cold page load still needs to
-// hit Binance for every watchlist symbol at once if Binance itself is
-// CORS-blocked for this visitor. Capping how many proxy requests run
-// simultaneously (rather than firing 15-20 at once) keeps us under each
-// provider's burst limit instead of tripping 429s that just cascade into
-// more retries on the next proxy down the chain.
-const PROXY_MAX_CONCURRENT = 4;
+// v13.0 shipped this capped at 4, assuming proxy fallback was a rare path
+// (most requests succeed direct, proxy only kicks in occasionally). For a
+// visitor whose direct Binance calls are CORS-blocked on every request,
+// proxy fallback IS the primary path — capping at 4 turned a parallel
+// fan-out (v12.9: all ~30-60 calls fire at once) into a slow queue and made
+// the page slower than v12.9, not faster. Raised to 12 — still a sane
+// ceiling that avoids ever firing 60 simultaneous proxy requests on a cold
+// load, but no longer serializes a normal sync cycle when proxy is the
+// only path available.
+const PROXY_MAX_CONCURRENT = 12;
 let _proxyActive = 0;
 const _proxyQueue = [];
 
@@ -75,21 +81,23 @@ function _withProxySlot(fn) {
   });
 }
 
+// v13.0 originally retried each proxy once before falling through (2
+// attempts × 3 proxies = up to 6 round trips, ~8s timeout each = 48s worst
+// case for a single field). That assumed failures were rare blips. When
+// proxy is the primary path, a slow/struggling proxy now takes 2x as long
+// to fail through to the next one for every single request. Retry removed
+// — single attempt per proxy, fall through immediately on any failure.
 async function fetchProxy(url) {
   return _withProxySlot(async () => {
     let lastErr;
     for (const fn of PROXIES) {
-      // One retry per proxy before moving on — allorigins.win in particular
-      // tends to intermittent 500/522 rather than a clean failure.
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const r = await fetch(fn(url), { signal: AbortSignal.timeout(8000) });
-          if (!r.ok) { lastErr = new Error('proxy HTTP ' + r.status); continue; }
-          const txt = await r.text();
-          try { const o = JSON.parse(txt); return o && o.contents !== undefined ? JSON.parse(o.contents) : o; }
-          catch { return JSON.parse(txt); }
-        } catch (e) { lastErr = e; }
-      }
+      try {
+        const r = await fetch(fn(url), { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) { lastErr = new Error('proxy HTTP ' + r.status); continue; }
+        const txt = await r.text();
+        try { const o = JSON.parse(txt); return o && o.contents !== undefined ? JSON.parse(o.contents) : o; }
+        catch { return JSON.parse(txt); }
+      } catch (e) { lastErr = e; }
     }
     throw lastErr || new Error('All proxies failed');
   });
