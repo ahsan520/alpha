@@ -1,28 +1,98 @@
 // ══════════════════════════════════════════════
-// api.js — v12.9 — all fetch, proxy, and data functions
-// Key change from v12.4:
-//   • fetchCryptoExtra() replaces fetchOBI/CVD/MTF/fetch4hKlines/fetchDailyKlines.
-//     Fires 4 Binance endpoints in parallel via Promise.allSettled; MTF RSI is
-//     derived from the 15m klines so no separate 1h/4h kline calls are needed.
-//     Old functions kept as thin stubs for backward-compatibility.
+// api.js — v13.0 — all fetch, proxy, and data functions
+// Key changes from v12.9:
+//   • fetchCryptoExtra() no longer refetches 4h/daily klines on every 15s
+//     cycle — those are cached per-pair with a TTL (4h klines: 4min,
+//     daily klines: 15min) since they cannot meaningfully change inside
+//     a 15s window. Only depth + 15m klines (CVD/MTF, genuinely fast-moving)
+//     are fetched live every call. This cuts steady-state Binance/proxy
+//     calls by ~50% with zero loss of signal freshness.
+//   • In-flight request coalescing: if the staggered per-symbol sync loop
+//     (app.js) requests the same URL while a previous call for it is still
+//     pending, the second caller awaits the same promise instead of firing
+//     a duplicate network request / proxy hit.
+//   • Proxy chain hardened: 3rd fallback proxy added, and each proxy now
+//     gets one retry before moving to the next, since allorigins.win in
+//     particular is prone to intermittent 500/522 errors rather than hard
+//     failures.
+//   • fetchCryptoExtra() still fires Promise.allSettled in parallel; MTF RSI
+//     is derived from the 15m klines so no separate 1h/4h kline calls are
+//     needed. Old single-endpoint functions kept as thin stubs.
 // ══════════════════════════════════════════════
 
+// Proxy order: corsproxy.io first — its free tier explicitly allow-lists
+// *.github.io origins (confirmed for GitHub Pages deployments), so it
+// should be the most reliable for this site. v13.0: switched to corsproxy.io's
+// documented `?url=` query format (the old bare `?<url>` "direct query" form
+// still works per their docs but `?url=` is the recommended/most reliable one).
+// codetabs.com moved up to #2 (simple passthrough, no wrapper to parse) ahead
+// of allorigins.win, which the console errors show timing out/522'ing under
+// load — kept as the last-resort 3rd fallback rather than removed entirely.
 const PROXIES = [
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
 ];
 
+// ── In-flight request coalescing ──
+// Keyed by raw target URL. While a fetchBinance/fetchProxy call for a given
+// URL is in flight, any additional caller for that exact URL awaits the
+// same promise instead of starting a second network/proxy request. This
+// matters because the adaptive sync loop staggers symbols only 100ms apart,
+// so overlapping calls for shared endpoints (e.g. ticker/24hr) were common.
+const _inflight = new Map();
+
+function _coalesce(key, fn) {
+  if (_inflight.has(key)) return _inflight.get(key);
+  const p = fn().finally(() => _inflight.delete(key));
+  _inflight.set(key, p);
+  return p;
+}
+
+// ── Global proxy concurrency limiter ──
+// Free CORS proxies all have rate limits (codetabs: 5 req/sec, allorigins:
+// ~20/min). Even with caching + coalescing, a cold page load still needs to
+// hit Binance for every watchlist symbol at once if Binance itself is
+// CORS-blocked for this visitor. Capping how many proxy requests run
+// simultaneously (rather than firing 15-20 at once) keeps us under each
+// provider's burst limit instead of tripping 429s that just cascade into
+// more retries on the next proxy down the chain.
+const PROXY_MAX_CONCURRENT = 4;
+let _proxyActive = 0;
+const _proxyQueue = [];
+
+function _withProxySlot(fn) {
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      _proxyActive++;
+      fn().then(resolve, reject).finally(() => {
+        _proxyActive--;
+        if (_proxyQueue.length) _proxyQueue.shift()();
+      });
+    };
+    if (_proxyActive < PROXY_MAX_CONCURRENT) run();
+    else _proxyQueue.push(run);
+  });
+}
+
 async function fetchProxy(url) {
-  for (const fn of PROXIES) {
-    try {
-      const r = await fetch(fn(url), { signal: AbortSignal.timeout(8000) });
-      if (!r.ok) continue;
-      const txt = await r.text();
-      try { const o = JSON.parse(txt); return o && o.contents !== undefined ? JSON.parse(o.contents) : o; }
-      catch { return JSON.parse(txt); }
-    } catch {}
-  }
-  throw new Error('All proxies failed');
+  return _withProxySlot(async () => {
+    let lastErr;
+    for (const fn of PROXIES) {
+      // One retry per proxy before moving on — allorigins.win in particular
+      // tends to intermittent 500/522 rather than a clean failure.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const r = await fetch(fn(url), { signal: AbortSignal.timeout(8000) });
+          if (!r.ok) { lastErr = new Error('proxy HTTP ' + r.status); continue; }
+          const txt = await r.text();
+          try { const o = JSON.parse(txt); return o && o.contents !== undefined ? JSON.parse(o.contents) : o; }
+          catch { return JSON.parse(txt); }
+        } catch (e) { lastErr = e; }
+      }
+    }
+    throw lastErr || new Error('All proxies failed');
+  });
 }
 
 async function fetchDirect(url) {
@@ -32,11 +102,13 @@ async function fetchDirect(url) {
 }
 
 async function fetchBinance(url) {
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
-    if (r.ok) { const d = await r.json(); if (d && !d.code) return d; }
-  } catch {}
-  return fetchProxy(url);
+  return _coalesce(url, async () => {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (r.ok) { const d = await r.json(); if (d && !d.code) return d; }
+    } catch {}
+    return fetchProxy(url);
+  });
 }
 
 // ── CoinGecko ID lookup ──
@@ -64,17 +136,16 @@ async function batchCrypto(syms) {
   const pairs = syms.map(s => s.split(':')[1]);
   const res = {};
 
-  // Attempt Binance batch ticker — single request covers all symbols
+  // Attempt Binance batch ticker — single request covers all symbols.
+  // syncOne() calls batchCrypto([s]) once per symbol in the staggered loop,
+  // but they all hit this exact same URL — fetchBinance's in-flight
+  // coalescing means only ONE real request/proxy hit happens per tick
+  // regardless of how many symbols are mid-sync, instead of N.
   // Skip pairs known to be delisted from Binance (e.g. XMRUSDT removed Feb 2024)
   const binancePairs = pairs.filter(p => !BINANCE_DELISTED.has(p));
   try {
     const url = `https://api.binance.com/api/v3/ticker/24hr`;
-    let data = null;
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) data = await r.json();
-    } catch {}
-    if (!data) data = await fetchProxy(url);
+    const data = await fetchBinance(url);
     if (Array.isArray(data)) {
       const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
       for (const pair of binancePairs) {
@@ -313,7 +384,48 @@ function _computeDailyBias(klinesDay) {
   return { rsiDaily, aboveEma7: closes[n - 1] > ema7, volSurge, chg7d: parseFloat(chg7d), chg1d, cvdDaily, _barsDay: dailyBars };
 }
 
-// Single entry-point: fires 3 parallel Binance requests, returns the same
+// ── TTL cache for slow-moving kline data ──
+// 4h candles can't produce a meaningfully different bias inside a 15s
+// resync window, and daily candles even less so. Re-requesting them on
+// every syncOne() call was pure waste — half of fetchCryptoExtra's network
+// load with zero signal benefit. Cached per-pair; depth + 15m klines
+// (genuinely live: order book + CVD/MTF) are NOT cached and still fetch
+// every call.
+const _klineCache = new Map(); // key: `${pair}:${interval}` → { data, fetchedAt }
+const KLINE_TTL = {
+  k4h:  4  * 60 * 1000,  // 4 minutes — 4h candle has ~16 fresh closes/day, no need for 15s polling
+  kDay: 15 * 60 * 1000,  // 15 minutes — daily candle changes meaningfully even less often
+};
+
+async function _fetchCached(pair, intervalKey, url) {
+  const cacheKey = `${pair}:${intervalKey}`;
+  const cached = _klineCache.get(cacheKey);
+  const ttl = KLINE_TTL[intervalKey];
+  if (cached && (Date.now() - cached.fetchedAt) < ttl) return cached.data;
+
+  const data = await _fetchOneRaw(url);
+  if (data) _klineCache.set(cacheKey, { data, fetchedAt: Date.now() });
+  // On failure, fall back to stale cache rather than nothing — a slightly
+  // old 4h/daily bias is far better than blanking the field out.
+  return data ?? cached?.data ?? null;
+}
+
+// Helper: try direct first, fall back to proxy chain, coalescing in-flight
+// duplicates — same pattern as fetchBinance but without the d.code check
+// (klines/depth responses are arrays, not error objects).
+async function _fetchOneRaw(url) {
+  return _coalesce(url, async () => {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (r.ok) { const d = await r.json(); if (d) return d; }
+    } catch {}
+    return fetchProxy(url);
+  });
+}
+
+// Single entry-point: fires 2 LIVE Binance requests (depth, 15m klines) every
+// call, plus 2 TTL-cached requests (4h, daily klines) that only actually hit
+// the network when their cache has expired. Returns the same
 // { obi, cvd, mtf, k4h, kDay } shape that syncOne / processAI already expect.
 async function fetchCryptoExtra(pair) {
   const BASE = 'https://api.binance.com/api/v3';
@@ -324,21 +436,14 @@ async function fetchCryptoExtra(pair) {
     kDay:    `${BASE}/klines?symbol=${pair}&interval=1d&limit=14`,
   };
 
-  // Helper: try direct first, fall back to proxy — same pattern as fetchBinance
-  async function fetchOne(url) {
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
-      if (r.ok) { const d = await r.json(); if (d && !d.code) return d; }
-    } catch {}
-    return fetchProxy(url); // proxy fallback (corsproxy.io → allorigins)
-  }
-
-  // Fire all 4 endpoints in parallel — total wall-clock time = slowest single request
+  // Fire all 4 in parallel — total wall-clock time = slowest single request.
+  // depth/k15m always hit the network; k4h/kDay resolve instantly from
+  // cache most cycles (cache miss only every 4min / 15min per pair).
   const [depth, k15m, k4h, kDay] = await Promise.allSettled([
-    fetchOne(urls.depth),
-    fetchOne(urls.k15m),
-    fetchOne(urls.k4h),
-    fetchOne(urls.kDay),
+    _fetchOneRaw(urls.depth),
+    _fetchOneRaw(urls.k15m),
+    _fetchCached(pair, 'k4h', urls.k4h),
+    _fetchCached(pair, 'kDay', urls.kDay),
   ]);
 
   const val = r => r.status === 'fulfilled' ? r.value : null;
@@ -352,7 +457,7 @@ async function fetchCryptoExtra(pair) {
 }
 
 // ── Legacy single-endpoint stubs kept for any external callers ──
-// (Not used by syncOne in v12.9 — fetchCryptoExtra replaces them all)
+// (Not used by syncOne in v13.0 — fetchCryptoExtra replaces them all)
 async function fetchOBI(pair) {
   const extra = await fetchCryptoExtra(pair);
   return extra.obi;
@@ -400,13 +505,11 @@ async function fetchKrakenExtra(pair) {
   if (!kPair) return null;
 
   try {
-    // ── Daily OHLC (interval=1440) — 20 bars ──
+    // ── Daily OHLC (interval=1440) — 20 bars — TTL cached, same as fetchCryptoExtra ──
     const dayUrl = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=1440&count=20`;
-    let dayRaw = null;
-    try { const r = await fetch(dayUrl, { signal: AbortSignal.timeout(8000) }); if (r.ok) dayRaw = await r.json(); } catch {}
-    if (!dayRaw) dayRaw = await fetchProxy(dayUrl);
+    const dayRaw = await _fetchCached(pair, 'kDay', dayUrl);
     // Kraken response: { error:[], result: { XMRUSD: [[time,o,h,l,c,vwap,vol,count], ...], last: N } }
-    const dayKey = Object.keys(dayRaw.result || {}).find(k => k !== 'last');
+    const dayKey = Object.keys(dayRaw?.result || {}).find(k => k !== 'last');
     if (!dayKey) return null;
     const dayBars = dayRaw.result[dayKey].map(r => ({
       t: r[0] * 1000, o: parseFloat(r[1]), h: parseFloat(r[2]),
@@ -431,14 +534,12 @@ async function fetchKrakenExtra(pair) {
     const dailyBars = dayBars.map(b => ({ h: b.h, l: b.l, c: b.c }));
     const kDay = { rsiDaily, aboveEma7: closes[n-1] > ema7, volSurge, chg7d, chg1d, cvdDaily, _barsDay: dailyBars };
 
-    // ── 4h OHLC (interval=240) — 20 bars ──
+    // ── 4h OHLC (interval=240) — 20 bars — TTL cached, same as fetchCryptoExtra ──
     let k4h = null;
     try {
       const h4Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=240&count=20`;
-      let h4Raw = null;
-      try { const r = await fetch(h4Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) h4Raw = await r.json(); } catch {}
-      if (!h4Raw) h4Raw = await fetchProxy(h4Url);
-      const h4Key = Object.keys(h4Raw.result || {}).find(k => k !== 'last');
+      const h4Raw = await _fetchCached(pair, 'k4h', h4Url);
+      const h4Key = Object.keys(h4Raw?.result || {}).find(k => k !== 'last');
       if (h4Key) {
         const h4Bars = h4Raw.result[h4Key].map(r => ({
           o: parseFloat(r[1]), h: parseFloat(r[2]), l: parseFloat(r[3]),
@@ -475,20 +576,33 @@ async function fetchKrakenExtra(pair) {
       k4h = { rsi4h, recentUp, volUp, aboveEma8: rClose[rn-1] > ema8, cvd4h, lastClose: rClose[rn-1], prevClose: rClose[Math.max(0, rn-4)] };
     }
 
-    // ── MTF RSI from 15m klines (interval=15) ──
+    // ── MTF RSI + CVD — single 15m OHLC fetch shared by both ──
+    // v13.0: previously fetched the same interval=15 series twice (once for
+    // MTF at count=60, once for CVD at count=48) — pure duplication since
+    // count=60 is a superset. One fetch now backs both calculations.
     let mtf = [null, null, null];
+    let cvd = null;
     try {
       const m15Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=15&count=60`;
-      let m15Raw = null;
-      try { const r = await fetch(m15Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) m15Raw = await r.json(); } catch {}
-      if (!m15Raw) m15Raw = await fetchProxy(m15Url);
-      const m15Key = Object.keys(m15Raw.result || {}).find(k => k !== 'last');
+      const m15Raw = await _fetchOneRaw(m15Url);
+      const m15Key = Object.keys(m15Raw?.result || {}).find(k => k !== 'last');
       if (m15Key) {
-        const m15Closes = m15Raw.result[m15Key].map(r => parseFloat(r[4]));
+        const rows = m15Raw.result[m15Key];
+        const m15Closes = rows.map(r => parseFloat(r[4]));
         const r15 = calcRSI(m15Closes.slice(-20),  14);
         const r1h = calcRSI(m15Closes.slice(-30),  14); // ~7.5h of 15m bars
         const r4h = calcRSI(m15Closes,             14); // full 15h window
         mtf = [r15, r1h, r4h];
+
+        let cvdAcc = 0;
+        const cvdSeries = rows.slice(-48).map(r => {
+          const vol = parseFloat(r[6]), o = parseFloat(r[1]), c = parseFloat(r[4]);
+          cvdAcc += c >= o ? vol : -vol;
+          return cvdAcc;
+        });
+        const cvdLast = cvdSeries[cvdSeries.length - 1];
+        const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
+        cvd = { value: cvdLast, series: cvdSeries.slice(-20), trending: cvdLast > cvdPrev ? 'up' : 'down' };
       }
     } catch {}
     // Fallback MTF from daily closes at different lookbacks
@@ -499,27 +613,6 @@ async function fetchKrakenExtra(pair) {
         calcRSI(closes.slice(-12), 7),
       ];
     }
-
-    // ── CVD from 15m volume-weighted direction ──
-    let cvd = null;
-    try {
-      const m15Url = `https://api.kraken.com/0/public/OHLC?pair=${kPair}&interval=15&count=48`;
-      let m15Raw = null;
-      try { const r = await fetch(m15Url, { signal: AbortSignal.timeout(8000) }); if (r.ok) m15Raw = await r.json(); } catch {}
-      if (!m15Raw) m15Raw = await fetchProxy(m15Url);
-      const m15Key = Object.keys(m15Raw.result || {}).find(k => k !== 'last');
-      if (m15Key) {
-        let cvdAcc = 0;
-        const cvdSeries = m15Raw.result[m15Key].map(r => {
-          const vol = parseFloat(r[6]), o = parseFloat(r[1]), c = parseFloat(r[4]);
-          cvdAcc += c >= o ? vol : -vol;
-          return cvdAcc;
-        });
-        const cvdLast = cvdSeries[cvdSeries.length - 1];
-        const cvdPrev = cvdSeries[Math.max(0, cvdSeries.length - 6)];
-        cvd = { value: cvdLast, series: cvdSeries.slice(-20), trending: cvdLast > cvdPrev ? 'up' : 'down' };
-      }
-    } catch {}
     // Fallback CVD from daily candle direction
     if (!cvd) {
       let cvdAcc = 0;
@@ -645,11 +738,11 @@ async function fetchMarketPulse() {
   });
 
   // ── Crypto: single Binance batch (skip delisted) ──
+  // v13.0: routed through fetchBinance so this coalesces with any concurrent
+  // batchCrypto() ticker/24hr call instead of firing a second one.
   try {
     const url = `https://api.binance.com/api/v3/ticker/24hr`;
-    let data = null;
-    try { const r = await fetch(url, { signal: AbortSignal.timeout(8000) }); if (r.ok) data = await r.json(); } catch {}
-    if (!data) data = await fetchProxy(url);
+    const data = await fetchBinance(url);
     if (Array.isArray(data)) {
       const byPair = Object.fromEntries(data.map(t => [t.symbol, t]));
       for (const pill of MPULSE_CRYPTO) {
