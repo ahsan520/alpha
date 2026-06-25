@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════════════════
-// leaderboard-decider.js — Job B (runs every 15 min v10.3: 2,19,36,53)
-// v10.3
+// leaderboard-decider.js — Job B (runs every 15 min v10.4: 2,19,36,53)
+// v10.4
 //
 // Reads market-data.json (populated by Job A every 5 min), evaluates buy
 // signals (both latest and peak-substituted) against LB_MIN_SCORE/cooldown/
@@ -13,6 +13,13 @@
 //     GUI can see new positions without waiting for the end-of-job git commit.
 //   - Audit rotation changed from count-based (500 entries) to time-based (1h).
 //   - positions_pushed / positions_push_failed audit events added.
+//
+// v10.4 changes:
+//   - Early-exit pre-screen at top of processBuySignals(): checks every symbol's
+//     conv (latest) and peakConv against LB_MIN_SCORE BEFORE loading cooldown
+//     state, alert state, or positions. If nothing clears the threshold the job
+//     logs a single 'no_candidates' audit event and stops immediately — no
+//     wasted I/O, no noise in the audit log.
 // ══════════════════════════════════════════════════════════════════════════════
 
 import fs   from 'fs';
@@ -198,6 +205,26 @@ async function processBuySignals() {
     console.log(`[leaderboard-decider] ⚠ market-data.json is ${ageMin.toFixed(1)} min old — proceeding, but check market-fetcher.js is running.`);
   }
 
+  // ── Pre-screen: bail immediately if nothing clears LB_MIN_SCORE ──────────
+  // Checks both latest conv and peak conv for every symbol. This runs BEFORE
+  // loading cooldown state, alert state, or positions — so bear-market cycles
+  // where nothing is close to the threshold cost almost nothing.
+  const anyCandidate = symbols.some(([, entry]) => {
+    if (entry.conv >= LB_MIN_SCORE && !SKIP_SETUPS.has(entry.setup?.label)) return true;
+    const peakD    = { ...entry.d, shock: entry.peakShock, obi: entry.peakObi };
+    const peakConv = calcConviction(peakD);
+    const peakSetup = getSetupMode({ ...peakD, conv: peakConv });
+    return peakConv >= LB_MIN_SCORE && !SKIP_SETUPS.has(peakSetup.label);
+  });
+
+  if (!anyCandidate) {
+    const maxConv = Math.max(...symbols.map(([, e]) => e.conv ?? -Infinity));
+    console.log(`[leaderboard-decider] Pre-screen: no symbol reaches min score ${LB_MIN_SCORE} (best conv: ${maxConv}) — stopping early.`);
+    logAudit('no_candidates', { totalSymbols: symbols.length, minScore: LB_MIN_SCORE, bestConv: maxConv });
+    return;
+  }
+  // ── End pre-screen ────────────────────────────────────────────────────────
+
   const cooldownState = loadJSON(path.join(process.cwd(), '.lb-scan-state.json'), {});
   const alertState    = pruneAlertState(loadAlertState());
   const positions     = loadPositions();
@@ -222,11 +249,13 @@ async function processBuySignals() {
   }
 
   if (!candidates.length) {
-    console.log('  ✓  No new leaderboard buy signals this cycle');
+    // All symbols cleared the pre-screen conv threshold but were blocked by
+    // SKIP_SETUPS, cooldown, or an existing open position.
+    console.log('  ✓  No new leaderboard buy signals this cycle (blocked by cooldown / setup / open position)');
     saveMarketData(resetPeaks(market));
     saveJSON(path.join(process.cwd(), '.lb-scan-state.json'), cooldownState);
     saveAlertState(alertState);
-    logAudit('buy_cycle_complete', { totalSymbols: symbols.length, signalsFound: 0, positionsOpened: 0 });
+    logAudit('buy_cycle_complete', { totalSymbols: symbols.length, signalsFound: 0, positionsOpened: 0, note: 'blocked_post_prescreen' });
     return;
   }
 
