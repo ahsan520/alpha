@@ -18,7 +18,7 @@ on:
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
     # scanner inside alert-runner.js is disabled by default here (see
     # LB_LEGACY_SCAN) since Job B now owns the buy side on a faster cycle.
-    - cron: '13 * * * *'         # :13 past every hour
+    - cron: '15 * * * *'         # :15 past every hour
 
   workflow_dispatch:
     inputs:
@@ -69,7 +69,7 @@ jobs:
       # ── Determine run mode ──────────────────────────────────────────────
       # */5        → fetch   (market-fetcher.js — Job A, data only)
       # 2,19,36,53 → decide  (leaderboard-decider.js + positions check — Job B)
-      # :13 hourly → full    (alert-runner.js full watchlist/overnight scan)
+      # :15 hourly → full    (alert-runner.js full watchlist/overnight scan)
       # workflow_dispatch    → whatever the "mode" input says (default: full)
       #
       # NOTE: github.event.schedule tells us exactly which cron string
@@ -83,7 +83,7 @@ jobs:
             VALUE="fetch"
           elif [ "$SCHEDULE" = "2,19,36,53 * * * *" ]; then
             VALUE="decide"
-          elif [ "$SCHEDULE" = "13 * * * *" ]; then
+          elif [ "$SCHEDULE" = "15 * * * *" ]; then
             VALUE="full"
           elif [ -n "${{ inputs.mode }}" ]; then
             VALUE="${{ inputs.mode }}"
@@ -213,7 +213,13 @@ jobs:
           printf "window.__TG_TOKEN = '';\n" >> scripts/env.js
           printf "window.__TG_CHAT  = '';\n" >> scripts/env.js
 
-          # STEP 2 — Stage files individually so a missing file doesn't
+          # STEP 2 — Pull latest BEFORE staging so the index is clean during rebase.
+          # leaderboard-decider.js may have pushed positions.json via the Contents
+          # API mid-job, advancing HEAD. Pulling here (on a clean index) avoids
+          # the "cannot pull with rebase: Your index contains uncommitted changes" error.
+          git pull --rebase origin main
+
+          # STEP 3 — Stage files individually so a missing file doesn't
           # silently block the others from staging.
           # NOTE: positions.json is intentionally excluded — leaderboard-decider.js
           # pushes it via the Contents API mid-job, so including it here would
@@ -225,23 +231,21 @@ jobs:
           git add scripts/.lb-scan-state.json  || true
           git add scripts/lb-alert-state.json  || true
 
-          # STEP 3 — Verify env.js staged content has no real tokens
+          # STEP 4 — Verify env.js staged content has no real tokens
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
             echo "🚨 SAFETY ABORT — env.js appears to contain real tokens, refusing to commit"
             exit 1
           fi
 
-          # STEP 4 — Commit and push with retry
-          # The Contents API push from leaderboard-decider.js may have advanced
-          # HEAD between our checkout and now. We rebase, then retry once on
-          # push failure instead of masking the error with || true.
+          # STEP 5 — Commit and push with one retry
+          # A second concurrent job (e.g. Job B) could push between our pull and
+          # push here — retry once with a fresh rebase if that happens.
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git pull --rebase origin main
             git commit -m "chore: update alert state [skip ci]"
             git push || {
-              echo "⚠ Push failed — rebasing again and retrying once..."
+              echo "⚠ Push failed — rebasing and retrying once..."
               git pull --rebase origin main
               git push
             }
