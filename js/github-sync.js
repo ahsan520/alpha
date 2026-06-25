@@ -248,6 +248,10 @@ async function syncPositionsToGitHub(manual = false) {
     } else {
       logAlertItem('info', `  Synced: ${posNames}`);
     }
+    // Write to audit log (best-effort — needs Option A PAT)
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_sync_ok', { count: posCount, symbols: posNames, repo: resolvedRepo });
+    }
 
     _refreshGhSyncStatusDOM();
     return { ok: true };
@@ -261,6 +265,10 @@ async function syncPositionsToGitHub(manual = false) {
     else if (e.message.includes('404')) hint = ' — repo not found, check owner/repo field';
     else if (e.message.includes('not configured')) hint = ' — enter owner/repo and PAT then Save';
     logAlertItem('info', `☁ GitHub sync FAILED — ${e.message}${hint}`);
+    // Write failure to audit (best-effort)
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_sync_failed', { error: e.message + hint, repo: resolvedRepo || '?' });
+    }
     _refreshGhSyncStatusDOM();
     return { ok: false, reason: e.message };
 

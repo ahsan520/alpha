@@ -362,6 +362,17 @@ function checkAlertRules(sym, d, shock, bias4h) {
 
 // ── Save ──
 function saveAlertCfg() {
+  // Track leaderboard score changes in audit before saving
+  try {
+    const prevLb  = JSON.parse(localStorage.getItem(`${_REPO_NS}_lb_alert_cfg`) || '{}');
+    const newScoreEl = document.getElementById('lb-min-score');
+    if (newScoreEl && prevLb.minScore !== undefined) {
+      const newScore = parseInt(newScoreEl.value);
+      if (prevLb.minScore !== newScore) {
+        logBrowserAudit('lb_score_changed', { from: prevLb.minScore, to: newScore });
+      }
+    }
+  } catch {}
   const cfg = STATE.alertCfg;
   cfg.email.enabled           = document.getElementById('al-email-on').checked;
   cfg.email.address           = document.getElementById('al-email-addr').value.trim();
@@ -978,6 +989,38 @@ function _deriveRepo() {
   return '';
 }
 
+// ── Browser-side audit logging ────────────────────────────────────────────────
+// Writes browser events to scripts/audit.json via GitHub API (Option A only).
+// Events: sync ok/fail, leaderboard score changes, manual position changes.
+async function logBrowserAudit(action, details = {}) {
+  try {
+    const repo  = _deriveRepo();
+    const ghCfg = JSON.parse(localStorage.getItem(`${_REPO_NS}_gh_sync_cfg`) || '{}');
+    const token = ghCfg.token || window.__GH_PAT || '';
+    if (!repo || !token) return; // needs Option A PAT to write
+
+    const branch = ghCfg.branch || 'main';
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/scripts/audit.json`;
+    const hdrs   = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+    const entry  = { timestamp: new Date().toISOString(), job: 'browser', action, ...details };
+
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers: hdrs });
+    let existing = [], sha = null;
+    if (getRes.ok) {
+      const j = await getRes.json(); sha = j.sha;
+      try { existing = JSON.parse(atob(j.content.replace(/\n/g, ''))); } catch {}
+    }
+    if (!Array.isArray(existing)) existing = [];
+    existing.push(entry);
+    const cutoff = Date.now() - 3600000;
+    existing = existing.filter(e => new Date(e.timestamp).getTime() >= cutoff);
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(existing, null, 2))));
+    const putBody = { message: 'chore: browser audit [skip ci]', content, branch };
+    if (sha) putBody.sha = sha;
+    await fetch(apiUrl, { method: 'PUT', headers: hdrs, body: JSON.stringify(putBody) });
+  } catch {} // silently fail — audit is best-effort
+}
+
 // ── Headless positions panel (positions.json — machine written) ──────────────
 async function refreshHeadlessPositions() {
   const el = document.getElementById('headless-positions-panel');
@@ -1090,6 +1133,10 @@ async function refreshAuditLog() {
       job_start:                'var(--text-dim)',
       job_complete:             'var(--text-dim)',
       fatal_error:              'var(--bear)',
+      browser_sync_ok:          'var(--bull)',
+      browser_sync_failed:      'var(--bear)',
+      lb_score_changed:         '#8957e5',
+      position_closed_manual:   'var(--text-dim)',
     }[a] || 'var(--text-dim)');
 
     const actionIcon = a => ({
@@ -1118,6 +1165,10 @@ async function refreshAuditLog() {
       job_start:                '▶',
       job_complete:             '■',
       fatal_error:              '🔴',
+      browser_sync_ok:          '☁',
+      browser_sync_failed:      '🔴',
+      lb_score_changed:         '⚙',
+      position_closed_manual:   '✕',
     }[a] || '·');
 
     el.innerHTML = `
@@ -1143,6 +1194,9 @@ async function refreshAuditLog() {
         if (e.successCount  !== undefined) details.push(`${e.successCount}/${e.totalPairs} ok`);
         if (e.pair)                        details.push(e.pair);
         if (e.setup)                       details.push(e.setup);
+        if (e.from !== undefined && e.to !== undefined) details.push(`${e.from} → ${e.to}`);
+        if (e.count    !== undefined)      details.push(`${e.count} positions`);
+        if (e.error)                       details.push(e.error);
         if (e.score)                       details.push(`score:${e.score}`);
         if (e.count         !== undefined) details.push(`${e.count} pos`);
         if (e.signalsFound  !== undefined) details.push(`${e.signalsFound} signals`);
