@@ -25,12 +25,12 @@ const GH_SYNC_KEY = `${_REPO_NS}_gh_sync_cfg`;
 
 // Bump this version whenever defaults change — triggers a one-time migration
 // that resets mode/enabled to new defaults while keeping PAT credentials intact.
-const GH_SYNC_CFG_VERSION = 2; // v2: enabled=true, mode='secrets' by default
+const GH_SYNC_CFG_VERSION = 4; // v4: Option B default with pull from GitHub, repo field
 
 const DEFAULT_GH_SYNC_CFG = {
   _version:     GH_SYNC_CFG_VERSION,
   enabled:      true,      // ON by default — sync starts immediately when repo is configured
-  mode:         'secrets', // Option B by default — no PAT needed in browser
+  mode:         'secrets', // Option B by default — headless-first, no PAT needed
   token:        '',        // GitHub PAT — fine-grained, "Contents: Read and write" on this repo
   repo:         '',        // "yourname/your-repo"
   branch:       'main',
@@ -48,6 +48,8 @@ function loadGhSyncCfg() {
       const migrated = {
         ...DEFAULT_GH_SYNC_CFG,
         // Preserve any PAT/repo/branch the user already entered
+        // Reset mode to 'pat' — fixes users stuck on broken Option B default
+        mode:         raw.token ? 'pat' : (raw.mode || 'secrets'),
         token:        raw.token        || '',
         repo:         raw.repo         || '',
         branch:       raw.branch       || 'main',
@@ -81,6 +83,67 @@ let _ghSyncQueued   = false;
 // DEBOUNCED TRIGGER — called from position-tracker.js after every
 // savePositions(). Batches rapid-fire changes into one push.
 // ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// OPTION B — Pull positions.json FROM GitHub into localStorage
+// Runs on page load when mode='secrets' so the GUI shows headless
+// positions written by leaderboard-decider.js without any browser sync.
+// ══════════════════════════════════════════════════════════════════
+async function pullPositionsFromGitHub() {
+  const cfg   = loadGhSyncCfg();
+  if (cfg.mode !== 'secrets') return; // Option A manages its own state
+
+  // Use GH_PAT secret from env.js OR fall back to GITHUB_TOKEN isn't
+  // available client-side, so we need GH_PAT set as a repo secret exposed
+  // via env.js, OR the user can leave Option B and just view headless data
+  // by refreshing — the runner commits positions.json every run.
+  //
+  // Simplest working approach: fetch the raw file from the public repo URL.
+  // This works for public repos without any auth.
+  const repo   = cfg.repo || window.__GH_REPO || '';
+  const branch = cfg.branch || 'main';
+  const fpath  = cfg.path  || 'scripts/positions.json';
+
+  if (!repo) return; // no repo configured
+
+  try {
+    // Try raw.githubusercontent.com first (public repos, no auth needed)
+    const rawUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`;
+    const r = await fetch(rawUrl, { cache: 'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const remote = await r.json();
+
+    if (!remote || typeof remote !== 'object' || Array.isArray(remote)) return;
+
+    const localPositions = (typeof loadPositions === 'function') ? loadPositions() : {};
+    const localKeys  = Object.keys(localPositions);
+    const remoteKeys = Object.keys(remote);
+
+    if (remoteKeys.length === 0 && localKeys.length > 0) {
+      // Remote is empty but local has data — don't overwrite local with empty
+      return;
+    }
+
+    // Merge: remote wins for symbols it knows about, local wins for anything extra
+    const merged = { ...localPositions, ...remote };
+
+    if (typeof savePositions === 'function') savePositions(merged);
+    logAlertItem('info', `☁ Option B — pulled ${remoteKeys.length} position(s) from GitHub`);
+
+    // Refresh the position tracker display
+    if (typeof renderAlertCfgPage === 'function') renderAlertCfgPage();
+
+  } catch (e) {
+    // Silently fail — this is a best-effort pull
+    console.log(`[gh-sync pull] ${e.message}`);
+  }
+}
+
+// Pull on page load (Option B) — deferred so the rest of the app inits first
+setTimeout(() => {
+  const cfg = loadGhSyncCfg();
+  if (cfg.mode === 'secrets') pullPositionsFromGitHub();
+}, 3000);
+
 function scheduleGithubSync(delayMs = 4000) {
   const cfg = loadGhSyncCfg();
   if (!cfg.enabled) return;
@@ -176,19 +239,14 @@ async function syncPositionsToGitHub(manual = false) {
     window._ghSyncState.lastError      = null;
     window._ghSyncState.lastPushedJSON = json;
 
-    // ── Auto-promote to Option B after first successful Option A sync ──
-    // Once the PAT has proven it can write to the repo, clear it from
-    // localStorage and switch to Secrets mode so the token is no longer
-    // stored in the browser. The runner already has GH_PAT via repo Secrets,
-    // so headless monitoring continues uninterrupted.
-    if (cfg.mode === 'pat' && cfg.token) {
-      const promoted = { ...cfg, mode: 'secrets', token: '' };
-      saveGhSyncCfg(promoted);
-      logAlertItem('info', `☁ GitHub sync OK — ${Object.keys(positions).length} position(s) → ${cfg.repo}`);
-      logAlertItem('info', `🔒 Auto-switched to Option B (Secrets) — PAT cleared from browser storage.`);
-      renderAlertCfgPage(); // refresh UI to show Secrets panel
+    // Sync succeeded — log and refresh status
+    const posCount = Object.keys(positions).length;
+    const posNames = Object.keys(positions).join(', ') || 'none';
+    logAlertItem('info', `☁ GitHub sync OK — ${posCount} position(s) → ${resolvedRepo}`);
+    if (posCount === 0) {
+      logAlertItem('info', `ℹ No positions in local cache yet. A leaderboard buy alert must fire first to populate positions.`);
     } else {
-      logAlertItem('info', `☁ GitHub sync OK — ${Object.keys(positions).length} position(s) → ${cfg.repo}`);
+      logAlertItem('info', `  Synced: ${posNames}`);
     }
 
     _refreshGhSyncStatusDOM();
@@ -196,7 +254,13 @@ async function syncPositionsToGitHub(manual = false) {
 
   } catch (e) {
     window._ghSyncState.lastError = e.message;
-    logAlertItem('info', `☁ GitHub sync FAILED — ${e.message}`);
+    // Surface actionable error messages
+    let hint = '';
+    if (e.message.includes('401')) hint = ' — PAT invalid or expired';
+    else if (e.message.includes('403')) hint = ' — PAT lacks Contents:Write permission';
+    else if (e.message.includes('404')) hint = ' — repo not found, check owner/repo field';
+    else if (e.message.includes('not configured')) hint = ' — enter owner/repo and PAT then Save';
+    logAlertItem('info', `☁ GitHub sync FAILED — ${e.message}${hint}`);
     _refreshGhSyncStatusDOM();
     return { ok: false, reason: e.message };
 
@@ -293,20 +357,38 @@ function renderGithubSyncCard() {
 
   const secretsPanel = `
     <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.9;">
-      <b style="color:var(--text);">No PAT stored in the browser.</b>
-      The GitHub Actions workflow manages <code style="color:var(--accent);">positions.json</code>
-      directly using its built-in <code style="color:var(--accent);">GITHUB_TOKEN</code>.<br><br>
-      Add these in your repo → <b>Settings → Secrets and variables → Actions</b>:<br><br>
-      <b style="color:#8957e5;">Secrets</b> (encrypted):<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">TELEGRAM_BOT_TOKEN</code> — your bot token<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">TELEGRAM_CHAT_ID</code> — your chat ID<br><br>
-      <b style="color:#8957e5;">Variables</b> (plain text, optional):<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">GH_REPO</code> — owner/repo (e.g. <code>ahsan520/alpha-terminal</code>)<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">GH_BRANCH</code> — branch (default: <code>main</code>)<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">GH_POSITIONS_PATH</code> — file path (default: <code>scripts/positions.json</code>)<br>
-      &nbsp;&nbsp;<code style="color:var(--accent);">ALERT_COOLDOWN_HOURS</code> — cooldown hrs (default: <code>4</code>)<br><br>
-      <span style="color:var(--bull);">✓ Recommended for headless-first setups</span> — workflow
-      reads and monitors positions via repo file; no token in browser.
+      <b style="color:var(--text);">Fully headless — no PAT in browser.</b>
+      GitHub Actions writes <code style="color:var(--accent);">positions.json</code> every 15 min.
+      The browser pulls it on load so you see live positions without syncing.<br><br>
+      <b style="color:#8957e5;">Required — Settings → Secrets → Actions:</b><br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">TELEGRAM_BOT_TOKEN</code> + <code style="color:var(--accent);">TELEGRAM_CHAT_ID</code><br><br>
+      <b style="color:#8957e5;">Required — Settings → Variables → Actions:</b><br>
+      &nbsp;&nbsp;<code style="color:var(--accent);">GH_REPO</code> = <code>ahsan520/alpha</code><br><br>
+      <b style="color:var(--text);">Enter your repo below so the browser can pull positions:</b>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div>
+        <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">OWNER/REPO</label>
+        <input type="text" id="gh-sync-repo" value="\${cfg.repo}" placeholder="ahsan520/alpha"
+          style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                 padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">BRANCH</label>
+        <input type="text" id="gh-sync-branch" value="\${cfg.branch}" placeholder="main"
+          style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                 padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
+      </div>
+    </div>
+    <button onclick="pullPositionsFromGitHub()"
+      style="width:100%;background:none;border:1px solid #8957e5;color:#8957e5;padding:8px;
+             border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;margin-bottom:10px;">
+      🔄 PULL POSITIONS NOW
+    </button>
+    <div style="font-family:var(--mono);font-size:7.5px;color:var(--text-dim);line-height:1.7;padding:8px;background:rgba(137,87,229,.06);border-radius:4px;">
+      ✓ Leaderboard buy alerts → GitHub Actions → <code>positions.json</code><br>
+      ✓ Stop/T1/T2/exit alerts → GitHub Actions every 15 min<br>
+      ✓ Browser pulls positions on load — close tab anytime
     </div>`;
 
   return `
@@ -345,11 +427,11 @@ function renderGithubSyncCard() {
                border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:700;">
         💾 SAVE
       </button>
-      ${mode === 'pat' ? `<button onclick="syncPositionsToGitHub(true)"
+      <button onclick="syncPositionsToGitHub(true)"
         style="background:none;border:1px solid #8957e5;color:#8957e5;padding:7px 16px;
                border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;">
         🔄 SYNC NOW
-      </button>` : ''}
+      </button>
       <span id="gh-sync-status-line" style="font-family:var(--mono);font-size:8px;">${_ghSyncStatusLine()}</span>
     </div>
   </div>`;
@@ -377,7 +459,11 @@ function saveGithubSyncCfgFromUI() {
     cfg.path         = document.getElementById('gh-sync-path')?.value.trim()     || 'scripts/positions.json';
     cfg.intervalMins = parseInt(document.getElementById('gh-sync-interval')?.value) || 3;
   }
-  // Option B: no fields to read from UI — config comes from repo secrets/variables
+  // Option B: save repo/branch so pullPositionsFromGitHub knows where to fetch from
+  if (mode === 'secrets') {
+    cfg.repo   = document.getElementById('gh-sync-repo')?.value.trim()   || cfg.repo   || '';
+    cfg.branch = document.getElementById('gh-sync-branch')?.value.trim() || cfg.branch || 'main';
+  }
   cfg._version = GH_SYNC_CFG_VERSION;
   saveGhSyncCfg(cfg);
   logAlertItem('info', `💾 GitHub Sync config saved (${mode === 'secrets' ? 'Option B — Secrets' : 'Option A — Browser PAT'}).`);

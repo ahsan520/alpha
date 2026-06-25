@@ -863,9 +863,9 @@ function renderAlertCfgPage() {
         </button>
       </div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:12px;line-height:1.7;">
-        Positions opened automatically by <code>leaderboard-decider.js</code> via GitHub Actions.<br>
-        Read-only here — managed entirely by the headless runner.<br>
-        <span style="color:var(--accent);">Source: <code>scripts/positions.json</code> in repo</span>
+        Shows <code style="color:var(--accent);">scripts/positions.json</code> from your GitHub repo.<br>
+        Written by GitHub Actions every 15 min + by Option A sync when you save positions.<br>
+        <span style="color:var(--text-dim);">Repo: <code style="color:var(--accent);">${_deriveRepo() || 'not detected — set in Sync tab'}</code></span>
       </div>
       <div id="headless-positions-panel">
         <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:10px 0;">Loading from repo…</div>
@@ -880,9 +880,10 @@ function renderAlertCfgPage() {
         📍 TRACKER
       </div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
-        Your manually-managed positions. Synced to <code>scripts/tracker.json</code> in repo.<br>
-        Live P&amp;L, stop/T1/T2 levels, exit signal progress.<br>
-        <span style="color:#ffd700;">Headless runner monitors these 24/7 via GitHub Actions.</span>
+        Local browser cache — positions stored in this browser's localStorage.<br>
+        Use <b>Option A sync</b> (☁ Sync tab) to push these to <code>positions.json</code> so<br>
+        the headless runner can monitor them for stop/T1/T2/exit alerts.<br>
+        <span style="color:#ffd700;">Live P&amp;L updates while this tab is open.</span>
       </div>
       <div id="position-tracker-panel"></div>
     </div>
@@ -960,12 +961,19 @@ function renderAlertCfgPage() {
 
 // ── Derive repo slug (window.__GH_REPO or GitHub Pages URL) ─────────────────
 function _deriveRepo() {
+  // Priority: 1) window.__GH_REPO (env.js) 2) github-sync cfg 3) Pages URL auto-detect
   if (window.__GH_REPO) return window.__GH_REPO;
+  // Check github-sync saved config (Option A or B)
+  try {
+    const ghCfg = JSON.parse(localStorage.getItem(`${_REPO_NS}_gh_sync_cfg`) || '{}');
+    if (ghCfg.repo) return ghCfg.repo;
+  } catch {}
+  // Auto-derive from GitHub Pages URL
   const m = location.hostname.match(/^([^.]+)\.github\.io$/);
   if (m) {
     const owner = m[1];
     const repo  = location.pathname.split('/').filter(Boolean)[0] || '';
-    return `${owner}/${repo}`;
+    if (repo) return `${owner}/${repo}`;
   }
   return '';
 }
@@ -979,7 +987,10 @@ async function refreshHeadlessPositions() {
   try {
     const repo = _deriveRepo();
     if (!repo) throw new Error('Cannot derive repo — set GH_REPO or deploy via GitHub Pages');
-    const rawUrl = `https://raw.githubusercontent.com/${repo}/main/scripts/positions.json?t=${Date.now()}`;
+    // Get branch from github-sync cfg or default to main
+    let _branch = 'main';
+    try { const c = JSON.parse(localStorage.getItem(`${_REPO_NS}_gh_sync_cfg`) || '{}'); _branch = c.branch || 'main'; } catch {}
+    const rawUrl = `https://raw.githubusercontent.com/${repo}/${_branch}/scripts/positions.json?t=${Date.now()}`;
     const res    = await fetch(rawUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const positions = await res.json();
