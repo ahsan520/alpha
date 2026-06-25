@@ -323,7 +323,15 @@ async function main() {
   console.log(`Min score: ${LB_MIN_SCORE} | Cooldown: ${LB_COOLDOWN_MIN}min | Alert-state TTL: ${ALERT_STATE_TTL_HOURS}h | Dry-run: ${DRY_RUN}`);
   console.log('═'.repeat(60));
 
-  logAudit('job_start');
+  logAudit('job_start', {
+    minScore:    LB_MIN_SCORE,
+    cooldownMin: LB_COOLDOWN_MIN,
+    ghRepo:      process.env.GH_REPO      || '✗ missing',
+    ghToken:     process.env.GITHUB_TOKEN  ? '✓' : '✗ missing',
+    tgToken:     process.env.TELEGRAM_BOT_TOKEN ? '✓' : '✗ missing',
+    tgEnabled:   TG_ENABLED,
+    dryRun:      DRY_RUN,
+  });
   await processBuySignals();
   logAudit('job_complete');
 
