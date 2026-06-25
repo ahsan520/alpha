@@ -67,7 +67,7 @@ jobs:
         run: npm install
 
       # ── Determine run mode ──────────────────────────────────────────────
-      # */5      → fetch     (market-fetcher.js — Job A, data only)
+      # */5        → fetch   (market-fetcher.js — Job A, data only)
       # 2,19,36,53 → decide  (leaderboard-decider.js + positions check — Job B)
       # :15 hourly → full    (alert-runner.js full watchlist/overnight scan)
       # workflow_dispatch    → whatever the "mode" input says (default: full)
@@ -196,7 +196,7 @@ jobs:
       # Critical order:
       #   1. Overwrite env.js with blank values (secrets wiped from disk)
       #   2. git add each file individually (missing files skip cleanly)
-      #   3. git commit + push (no secrets ever reach git history)
+      #   3. git commit + push with retry (guards against Contents API race)
       - name: Commit alert state (secrets-safe)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -215,15 +215,15 @@ jobs:
 
           # STEP 2 — Stage files individually so a missing file doesn't
           # silently block the others from staging.
-          # leaderboard-decider.js and github-sync.js push those via the Contents
-          # API mid-job. Including them here causes a git push conflict because the
-          # API push already advanced HEAD on main.
-          git add scripts/env.js || true
-          git add scripts/market-data.json || true
-          git add scripts/audit.json || true
-          git add scripts/.alert-state.json || true
-          git add scripts/.lb-scan-state.json || true
-          git add scripts/lb-alert-state.json || true
+          # NOTE: positions.json is intentionally excluded — leaderboard-decider.js
+          # pushes it via the Contents API mid-job, so including it here would
+          # cause a non-fast-forward push conflict.
+          git add scripts/env.js               || true
+          git add scripts/market-data.json     || true
+          git add scripts/audit.json           || true
+          git add scripts/.alert-state.json    || true
+          git add scripts/.lb-scan-state.json  || true
+          git add scripts/lb-alert-state.json  || true
 
           # STEP 3 — Verify env.js staged content has no real tokens
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
@@ -231,12 +231,18 @@ jobs:
             exit 1
           fi
 
-          # STEP 4 — Pull latest (positions.json API push may have advanced HEAD)
-          # then commit and push state files
+          # STEP 4 — Commit and push with retry
+          # The Contents API push from leaderboard-decider.js may have advanced
+          # HEAD between our checkout and now. We rebase, then retry once on
+          # push failure instead of masking the error with || true.
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git pull --rebase origin main || true
+            git pull --rebase origin main
             git commit -m "chore: update alert state [skip ci]"
-            git push
+            git push || {
+              echo "⚠ Push failed — rebasing again and retrying once..."
+              git pull --rebase origin main
+              git push
+            }
           fi
