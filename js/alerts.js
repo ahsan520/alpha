@@ -1120,6 +1120,15 @@ async function refreshAuditLog() {
         const icon    = actionIcon(e.action);
 
         const details = [];
+        // job_start — show config snapshot
+        if (e.action === 'job_start') {
+          if (e.minScore    !== undefined) details.push(`minScore:${e.minScore}`);
+          if (e.ghRepo)                    details.push(`repo:${e.ghRepo}`);
+          if (e.ghToken)                   details.push(`token:${e.ghToken}`);
+          if (e.tgToken)                   details.push(`tg:${e.tgToken}`);
+          if (e.dryRun)                    details.push('DRY-RUN');
+        }
+        // general fields
         if (e.successCount  !== undefined) details.push(`${e.successCount}/${e.totalPairs} ok`);
         if (e.pair)                        details.push(e.pair);
         if (e.setup)                       details.push(e.setup);
@@ -1136,7 +1145,8 @@ async function refreshAuditLog() {
         if (e.exitScore)                   details.push(`exit ${e.exitScore}/6`);
         if (e.signals)                     details.push(e.signals);
         if (e.ageHours)                    details.push(`${e.ageHours}h old`);
-        if (e.error)                       details.push(`err: ${e.error}`);
+        if (e.reason)                      details.push(e.reason);
+        if (e.error)                       details.push(`⚠ ${e.error}`);
 
         const jobLabel = e.job === 'market-fetcher' ? 'Job A'
                        : e.job === 'leaderboard-decider' ? 'Job B'
