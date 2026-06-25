@@ -1,5 +1,6 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // leaderboard-scanner.js — headless leaderboard buy alert engine
+// v10.5: added calcBullConf() — 10-check confirmation count stored in market-data.json
 // Mirrors the browser leaderboard scoring using Binance public APIs directly.
 // No browser needed — runs hourly via alert-runner.yml (full-scan job).
 //
@@ -246,12 +247,153 @@ function calcConviction(d) {
   return Math.round(score);
 }
 
+// ── Whale Score (0–100) — mirrors signals.js PDF FEATURE 1 ──
+// Weights: OI 25% | CVD 20% | OBI 15% | Funding 15% | Vol 15% | (L/S skipped headlessly)
+function calcWhaleScore(d) {
+  const fr     = d.fr    || 0;
+  const shock  = d.shock || 1;
+  const obi    = d.obi   || 0;
+  const cvdUp  = d.cvdTrend === 'up';
+  const oiDiv  = d.oiDiv || 'NEUTRAL';
+
+  let raw = 50;
+  // OI (25 pts)
+  if      (oiDiv === 'DIP BUY') raw += 25;
+  else if (oiDiv === 'CONFIRM') raw += 18;
+  else if (oiDiv === 'OI DROP') raw -= 15;
+  // CVD (20 pts)
+  if (cvdUp) raw += 20; else raw -= 20;
+  // OBI (15 pts)
+  if      (obi > 20)  raw += 15;
+  else if (obi > 5)   raw += 8;
+  else if (obi < -20) raw -= 15;
+  else if (obi < -5)  raw -= 8;
+  // Funding (15 pts)
+  if      (fr <= -0.03) raw += 15;
+  else if (fr <= -0.01) raw += 8;
+  else if (fr >= 0.05)  raw -= 15;
+  else if (fr >= 0.025) raw -= 8;
+  // Vol shock (15 pts)
+  if      (shock >= 2.5) raw += 15;
+  else if (shock >= 1.8) raw += 10;
+  else if (shock >= 1.3) raw += 5;
+  else if (shock < 0.7)  raw -= 8;
+
+  const score = Math.max(0, Math.min(100, Math.round(raw)));
+  let zone, emoji;
+  if      (score >= 80) { zone = 'Aggressive Accum'; emoji = '🐋'; }
+  else if (score >= 60) { zone = 'Smart Money Buy';  emoji = '💚'; }
+  else if (score >= 40) { zone = 'Neutral';           emoji = '⚪'; }
+  else if (score >= 20) { zone = 'Distribution';      emoji = '🟠'; }
+  else                  { zone = 'Heavy Dist';         emoji = '🔴'; }
+  return { score, zone, emoji };
+}
+
+// ── CAP BUY detector — mirrors render.js capitulation logic ──
+// Fires on extreme oversold conditions: RSI crushed + funding negative +
+// vol spike + CVD turning up. rawDir must be 'bear' (symbol falling).
+// Returns { isCapBuy, capScore }.
+function calcCapBuy(d) {
+  const r15  = d.r15 || 50;
+  const r1h  = d.r1h || 50;
+  const fr   = d.fr  || 0;
+  const shock = d.shock || 1;
+  const chg  = d.chg || 0;
+
+  let capScore = 0;
+  if (r15 < 15)                              capScore += 2;
+  else if (r15 < 25)                         capScore += 1;
+  if (r1h < 25)                              capScore += 2;
+  else if (r1h < 35)                         capScore += 1;
+  if (fr < -0.02)                            capScore += 2;
+  else if (fr < -0.01)                       capScore += 1;
+  if (shock > 2.5 && d.cvdTrend !== 'up')   capScore += 1;
+  if (d.oiDiv === 'OI DROP')                capScore += 1;
+  if (d.cvdTrend === 'up')                  capScore += 2;
+  if (chg < -7)                             capScore += 1;
+
+  // CAP BUY requires rawDir=bear (negative conv) — same as GUI
+  const rawIsBear = (d.conv || 0) < -1;
+  const isCapBuy  = capScore >= 3 && rawIsBear;
+  return { isCapBuy, capScore };
+}
+
+// ── Flow label — mirrors signals.js Smart Money logic ──
+function calcFlow(d, whaleScore) {
+  const fr    = d.fr    || 0;
+  const shock = d.shock || 1;
+  const oiDiv = d.oiDiv || 'NEUTRAL';
+  const cvdUp = d.cvdTrend === 'up';
+
+  const earlyEntry = (oiDiv === 'CONFIRM' || oiDiv === 'DIP BUY') && cvdUp && fr <= 0.01 && shock >= 1.3;
+  if (earlyEntry && whaleScore >= 65)      return 'Whales Buying';
+  if (shock >= 2.0 && fr >= 0.03)          return 'Retail FOMO';
+  if (whaleScore <= 35)                    return 'Institutional↓';
+  if (whaleScore >= 55 && earlyEntry)      return 'Smart Accum';
+  return 'Mixed Flow';
+}
+
+// ── Trade grade + success probability — mirrors signals.js PDF FEATURE 6 ──
+// signalStability is estimated from bullConf variance (no rolling history headlessly)
+function calcGrade(bullConf, whaleScore) {
+  // Headless stability proxy: use bullConf as surrogate (0–10 mapped to 10–100)
+  const stabilityProxy = Math.round(bullConf * 9 + 10);
+  const gradeScore = bullConf * 10 + (whaleScore - 50) * 0.3 + (stabilityProxy - 50) * 0.2;
+  let grade;
+  if      (gradeScore >= 85) grade = 'A+';
+  else if (gradeScore >= 70) grade = 'A';
+  else if (gradeScore >= 50) grade = 'B';
+  else if (gradeScore >= 30) grade = 'C';
+  else                       grade = 'D';
+  const successProb = Math.max(20, Math.min(92, Math.round(
+    bullConf * 6 + (whaleScore - 50) * 0.25 + (stabilityProxy - 50) * 0.1 + 30
+  )));
+  return { grade, successProb, stabilityProxy };
+}
+
+// ── Setup archetype — mirrors signals.js PDF FEATURE 6 ──
+function calcSetupArchetype(d, whaleScore) {
+  const shock = d.shock || 1;
+  const fr    = d.fr    || 0;
+  const chg   = d.chg   || 0;
+  const cvdUp = d.cvdTrend === 'up';
+  const oiDiv = d.oiDiv || 'NEUTRAL';
+
+  const earlyEntry = (oiDiv === 'CONFIRM' || oiDiv === 'DIP BUY') && cvdUp && fr <= 0.01 && shock >= 1.3;
+  if (whaleScore >= 75 && earlyEntry)                          return 'Whale Accumulation';
+  if (shock >= 2.0 && d.emaTrend === 'ABOVE')                 return 'Momentum Breakout';
+  if (d.obi > 0 && fr <= -0.01)                               return 'Short Squeeze';
+  if (chg < -1 && cvdUp && fr < 0)                           return 'Mean Reversion';
+  return 'Developing';
+}
+
+// ── Bull confirmation count — mirrors GUI leaderboard 10-check panel ──
+// Now includes Whale Score ≥60 as check 10 (replaces proxy).
+function calcBullConf(d, whaleScore) {
+  const r1h = d.r1h || 50;
+  const checks = {
+    dailyBiasBull:  (d.biasDay || '').includes('BULL'),
+    bias4hBull:     (d.bias4h  || '').includes('BULL'),
+    aboveEma:       d.emaTrend === 'ABOVE',
+    oiRising:       d.oiDiv === 'CONFIRM' || d.oiDiv === 'DIP BUY',
+    cvdRising:      d.cvdTrend === 'up',
+    volExpansion:   (d.shock || 1) >= 1.3,
+    fundingHealthy: (d.fr || 0) <= 0.01,
+    obiBidHeavy:    (d.obi || 0) > 10,
+    rsiNotOb:       (d.r15 || 50) < 70 && r1h < 68,
+    whaleScore60:   (whaleScore ?? 0) >= 60,  // exact match to GUI check 10
+  };
+  const count = Object.values(checks).filter(Boolean).length;
+  return { count, checks };
+}
+
 // ── Score one symbol ──
 async function scoreSymbol(pair) {
   try {
-    const [ticker, k15m, k4h, kDay, depth, prem] = await Promise.allSettled([
+    const [ticker, k15m, k1h, k4h, kDay, depth, prem] = await Promise.allSettled([
       fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=15m&limit=60`),
+      fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1h&limit=30`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=4h&limit=50`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1d&limit=14`),
       fetchBinance(`/api/v3/depth?symbol=${pair}&limit=20`),
@@ -262,6 +404,7 @@ async function scoreSymbol(pair) {
 
     const t     = val(ticker);
     const k15   = val(k15m);
+    const k1    = val(k1h);
     const k4    = val(k4h);
     const kD    = val(kDay);
     const dep   = val(depth);
@@ -281,10 +424,12 @@ async function scoreSymbol(pair) {
     const shock  = vols[4] ? vols[4] / avgVol : 1;
 
     const k15closes = (k15 || []).map(c => parseFloat(c[4]));
+    const k1closes  = (k1  || []).map(c => parseFloat(c[4]));
     const k4closes  = (k4  || []).map(c => parseFloat(c[4]));
     const kDcloses  = (kD  || []).map(c => parseFloat(c[4]));
 
     const r15 = calcRSI(k15closes);
+    const r1h = calcRSI(k1closes);
     const r4h = calcRSI(k4closes);
 
     const ema20   = calcEMA(k4closes, 20);
@@ -302,13 +447,37 @@ async function scoreSymbol(pair) {
     else if (fr <= 0 && chg > 0.5) oiDiv = 'CONFIRM';
     else if (fr > 0.05 && chg < 0) oiDiv = 'OI DROP';
 
-    const d = { p: price, chg, shock, r15, r4h, emaTrend, bias4h, biasDay,
+    const d = { p: price, chg, shock, r15, r1h, r4h, emaTrend, bias4h, biasDay,
                 cvdTrend, obi, fr, oiDiv };
 
     d.conv = calcConviction(d);
-    const setup = getSetupMode(d);
+    const setup     = getSetupMode(d);
+    const whale     = calcWhaleScore(d);
+    const capBuy    = calcCapBuy({ ...d, conv: d.conv });
+    const bullConf  = calcBullConf(d, whale.score);
+    const flow      = calcFlow(d, whale.score);
+    const gradeInfo = calcGrade(bullConf.count, whale.score);
+    const archetype = calcSetupArchetype(d, whale.score);
 
-    return { pair, price, chg, conv: d.conv, setup, d };
+    // Override setup to CAP BUY if capitulation detected
+    const finalSetup = capBuy.isCapBuy
+      ? { label: 'CAP BUY', emoji: '💥' }
+      : setup;
+
+    return {
+      pair, price, chg, conv: d.conv,
+      setup: finalSetup,
+      d,
+      // ── enriched fields stored in market-data.json ──
+      whale:     { score: whale.score, zone: whale.zone, emoji: whale.emoji },
+      capBuy:    { isCapBuy: capBuy.isCapBuy, capScore: capBuy.capScore },
+      bullConf:  bullConf.count,
+      bullChecks: bullConf.checks,
+      flow,
+      grade:     gradeInfo.grade,
+      successProb: gradeInfo.successProb,
+      archetype,
+    };
   } catch (e) {
     console.log(`  ⚠  ${pair} score failed: ${e.message}`);
     return null;
@@ -380,4 +549,4 @@ export async function runLeaderboardScanner(state) {
 }
 
 // ── Run standalone (called from alert-runner.js) ──
-export { scoreSymbol, loadState, saveState, calcConviction, getSetupMode };
+export { scoreSymbol, loadState, saveState, calcConviction, getSetupMode, calcBullConf, calcWhaleScore, calcCapBuy, calcFlow, calcGrade, calcSetupArchetype };

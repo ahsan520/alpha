@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // market-fetcher.js — Job A (runs every 5 min)
-// v10.3
+// v10.6: stores full enrichment — bullConf, whale, capBuy, flow, grade, archetype, r1h
 //
 // WHY: leaderboard setups (SQUEEZE NOW / BREAKOUT / DIP BUY) are gated partly
 // by `shock` (15m volume spike) and `obi` (order book imbalance) — both of
@@ -121,15 +121,25 @@ async function main() {
 
     symbols[pair] = {
       pair,
-      price: r.price,
-      chg: r.chg,
-      conv: r.conv,
-      setup: r.setup,        // { label, emoji } — latest cycle's setup
-      d: r.d,                // full indicator set — latest cycle's values
-      peakShock,             // max shock since last Job B reset
-      peakObi,               // max |obi| since last Job B reset (signed)
-      peakSince: prev?.peakSince ?? now, // when this peak window started
-      updatedAt: now,
+      price:      r.price,
+      chg:        r.chg,
+      conv:       r.conv,
+      setup:      r.setup,        // { label, emoji } — latest cycle's setup (CAP BUY overridden)
+      d:          r.d,            // full indicator set — latest cycle's values
+      // ── enriched fields (all computed by leaderboard-scanner.js scoreSymbol) ──
+      bullConf:   r.bullConf,     // 0–10 confirmation count (mirrors GUI 10-check panel)
+      bullChecks: r.bullChecks,   // named breakdown for audit/debug
+      whale:      r.whale,        // { score 0-100, zone, emoji } — whale accumulation signal
+      capBuy:     r.capBuy,       // { isCapBuy, capScore } — capitulation buy detector
+      flow:       r.flow,         // 'Whales Buying' | 'Smart Accum' | 'Mixed Flow' | etc.
+      grade:      r.grade,        // 'A+' | 'A' | 'B' | 'C' | 'D' — trade quality
+      successProb: r.successProb, // 20–92% — estimated win probability
+      archetype:  r.archetype,    // 'Whale Accumulation' | 'Short Squeeze' | etc.
+      // ── peak tracking — max absolute shock/obi seen since Job B last reset ──
+      peakShock,
+      peakObi,
+      peakSince:  prev?.peakSince ?? now,
+      updatedAt:  now,
     };
 
     fetchResults.push({ pair, status: 'success', conv: r.conv, setup: r.setup.label });
