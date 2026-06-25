@@ -18,7 +18,7 @@ on:
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
     # scanner inside alert-runner.js is disabled by default here (see
     # LB_LEGACY_SCAN) since Job B now owns the buy side on a faster cycle.
-    - cron: '15 * * * *'         # :15 past every hour
+    - cron: '13 * * * *'         # :13 past every hour
 
   workflow_dispatch:
     inputs:
@@ -69,7 +69,7 @@ jobs:
       # ── Determine run mode ──────────────────────────────────────────────
       # */5      → fetch     (market-fetcher.js — Job A, data only)
       # 2,19,36,53 → decide  (leaderboard-decider.js + positions check — Job B)
-      # :15 hourly → full    (alert-runner.js full watchlist/overnight scan)
+      # :13 hourly → full    (alert-runner.js full watchlist/overnight scan)
       # workflow_dispatch    → whatever the "mode" input says (default: full)
       #
       # NOTE: github.event.schedule tells us exactly which cron string
@@ -83,7 +83,7 @@ jobs:
             VALUE="fetch"
           elif [ "$SCHEDULE" = "2,19,36,53 * * * *" ]; then
             VALUE="decide"
-          elif [ "$SCHEDULE" = "15 * * * *" ]; then
+          elif [ "$SCHEDULE" = "13 * * * *" ]; then
             VALUE="full"
           elif [ -n "${{ inputs.mode }}" ]; then
             VALUE="${{ inputs.mode }}"
