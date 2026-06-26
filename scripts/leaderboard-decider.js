@@ -367,8 +367,8 @@ async function processBuySignals() {
     const peakNote = a.evald.source === 'peak' ? '  _(caught via peak — spike faded before check)_' : '';
     return [
       `${a.evald.setup.emoji} *${a.pair.replace('USDT', '')}* — ${a.evald.setup.label}  [${a.evald.conv} pts]${peakNote}`,
-      a.entry.whale ? `  ${a.entry.whale.emoji} Whale ${a.entry.whale.score}/100 (${a.entry.whale.zone})  · Flow: ${a.entry.flow || '—'}  · Grade: ${a.entry.grade || '—'} (${a.entry.successProb || '—'}% win)` : '',
-      a.entry.archetype ? `  Setup: ${a.entry.archetype}  · BullConf: ${a.entry.bullConf ?? '—'}/10` : '',
+      a.entry?.whale ? `  ${a.entry.whale.emoji} Whale ${a.entry.whale.score}/100 (${a.entry.whale.zone})  · Flow: ${a.entry.flow || '—'}  · Grade: ${a.entry.grade || '—'} (${a.entry.successProb || '—'}% win)` : '',
+      a.entry?.archetype ? `  Setup: ${a.entry.archetype}  · BullConf: ${a.entry.bullConf ?? '—'}/10` : '',
       `  Price $${a.price}  Chg ${a.chg > 0 ? '+' : ''}${a.chg.toFixed(2)}%`,
       `  Entry $${l?.entry || '—'}  Stop $${l?.stop || '—'}  T1 $${l?.t1 || '—'}  T2 $${l?.t2 || '—'}  R:R ${l?.rr || '—'}`,
     ].join('\n');
