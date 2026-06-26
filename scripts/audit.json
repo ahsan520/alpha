@@ -1,101 +1,60 @@
 [
   {
-    "timestamp": "2026-06-26T16:33:13.027Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 13,
-    "failureCount": 1,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "success",
-        "conv": -1,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "success",
-        "conv": -1,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "success",
-        "conv": 1,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "success",
-        "conv": 2,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "success",
-        "conv": 1,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "success",
-        "conv": 9,
-        "setup": "BREAKOUT"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "success",
-        "conv": 3,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "success",
-        "conv": 2,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "success",
-        "conv": 1,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "success",
-        "conv": 2,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "success",
-        "conv": 3,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "success",
-        "conv": 5,
-        "setup": "WATCHING"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "success",
-        "conv": 7,
-        "setup": "BREAKOUT"
-      },
-      {
-        "pair": "HYPEUSDT",
-        "status": "failed_carried_forward"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-06-26T17:08:32.876Z",
     "job": "alert-runner",
     "action": "positions_check",
     "total": 2,
     "monitored": 2
+  },
+  {
+    "timestamp": "2026-06-26T17:45:46.549Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "ghRepo": "ahsan520/alpha",
+    "ghToken": "✓",
+    "tgToken": "✓",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-06-26T17:45:46.551Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 6,
+    "source": "peak",
+    "entryPrice": "419.16"
+  },
+  {
+    "timestamp": "2026-06-26T17:45:47.509Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 3,
+    "branch": "main",
+    "path": "scripts/positions.json"
+  },
+  {
+    "timestamp": "2026-06-26T17:45:47.958Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "totalSymbols": 13,
+    "signalsFound": 1,
+    "positionsOpened": 1
+  },
+  {
+    "timestamp": "2026-06-26T17:45:47.959Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-06-26T17:45:48.253Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 3
   }
 ]
