@@ -340,7 +340,7 @@ async function processBuySignals() {
       scoreSource:   evald.source,
     };
 
-    buyAlerts.push({ pair, levels, evald, price: entry.price, chg: entry.chg, d: entry.d });
+    buyAlerts.push({ pair, levels, evald, entry, price: entry.price, chg: entry.chg, d: entry.d });
     console.log(`  🟢  ${pair} [${evald.setup.label}] score:${evald.conv} (${evald.source}) → position opened`);
     logAudit('position_opened', {
       pair,
