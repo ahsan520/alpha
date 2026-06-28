@@ -99,7 +99,7 @@ jobs:
       - name: Write env.js (runtime credentials)
         env:
           GH_PAT:             ${{ secrets.GH_PAT }}
-          GH_REPO:            ${{ vars.GH_REPO || 'ahsan520/alpha' }}
+          GH_REPO:            ${{ vars.GH_REPO || 'ahsan520/test2' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
@@ -146,7 +146,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO:            ${{ vars.GH_REPO || 'ahsan520/alpha' }}
+          GH_REPO:            ${{ vars.GH_REPO || 'ahsan520/test2' }}
           GH_BRANCH:          ${{ vars.GH_BRANCH || 'main' }}
           GH_POSITIONS_PATH:  ${{ vars.GH_POSITIONS_PATH || 'scripts/positions.json' }}
           TELEGRAM_ENABLED:   ${{ vars.TELEGRAM_ENABLED || 'true' }}
