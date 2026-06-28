@@ -1,161 +1,205 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // market-fetcher.js — Job A (runs every 5 min)
-// v10.6: stores full enrichment — bullConf, whale, capBuy, flow, grade, archetype, r1h
+// v10.9: uses exchange-registry for session gating and symbol routing.
 //
-// WHY: leaderboard setups (SQUEEZE NOW / BREAKOUT / DIP BUY) are gated partly
-// by `shock` (15m volume spike) and `obi` (order book imbalance) — both of
-// which can appear and fade within a single 15-min window, faster than even
-// a 5-min poll reliably samples. Job B only runs every 15 min (v10.2: 2,19,36,53),
-// so if it simply read "shock right now" it could land after a spike already faded
-// and never know it happened.
-//
-// FIX: Job A runs every 5 min (3x per Job B cycle) and tracks the PEAK
-// shock/obi seen *since the last time Job B consumed this file* — not just
-// the latest snapshot. Job B reads the peak values (alongside the latest
-// score/setup), then resets the peak tracking so the next window starts fresh.
-// This means a spike that fades between polls still gets caught, without
-// raising the poll rate (and Binance call volume) further.
-//
-// v10.3: Audit rotation changed from count-based (500 entries) to time-based
-// (1 hour). market-data.json is a snapshot — fully overwritten every run,
-// no rotation needed there.
+// Changes from v10.8:
+//   - getMarketSession() from exchange-registry replaces hardcoded .TO check.
+//   - Stocks outside their regular session are frozen with marketClosed:true
+//     and session tag — Job B skips them entirely (no stale alerts).
+//   - Pre-market / after-hours stocks are scored but tagged session:'pre_market'
+//     or 'after_hours' so Job B can respect LB_ALLOW_PRE_MARKET / LB_ALLOW_AH.
+//   - Lunch-break stocks (TSE, HKEX) frozen same as closed.
+//   - Crypto always scored (24/7).
+//   - exchangePrefix derived from registry (LSE, XETRA, TSE, HKEX, NSE all work).
 // ══════════════════════════════════════════════════════════════════════════════
 
 import fs   from 'fs';
 import path from 'path';
-import { scoreSymbol } from './leaderboard-scanner.js';
+import { scoreSymbol, scoreStock, initYahoo } from './leaderboard-scanner.js';
+import { resolveExchange, getMarketSession, EXCHANGES } from './exchange-registry.js';
 
-// Use process.cwd() for reliable path resolution in GitHub Actions
-const WATCHLIST_PATH    = path.join(process.cwd(), '..', 'watchlist.json');
-const MARKET_DATA_PATH  = path.join(process.cwd(), 'market-data.json');
-const AUDIT_PATH        = path.join(process.cwd(), 'audit.json');
+const WATCHLIST_PATH   = path.join(process.cwd(), '..', 'watchlist.json');
+const MARKET_DATA_PATH = path.join(process.cwd(), 'market-data.json');
+const AUDIT_PATH       = path.join(process.cwd(), 'audit.json');
 
-// Market data older than this is considered stale by any consumer — purely
-// a staleness signal via `fetchedAt`, not a rotation/deletion mechanism.
-// (The file is fully overwritten every run regardless.)
 const STALE_MINUTES = 30;
 
-function loadWatchlistPairs() {
+// ── Resolve exchange prefix key (BINANCE, TSX, LSE …) ──
+function exchangePrefixFor(sym) {
+  const ex = resolveExchange(sym);
+  return Object.entries(EXCHANGES).find(([, v]) => v === ex)?.[0] ?? 'NYSE';
+}
+
+function loadWatchlist() {
   try {
-    const raw = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+    const raw  = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
     const list = Array.isArray(raw) ? raw : raw.symbols || [];
-    return list.filter(s => s.startsWith('BINANCE:')).map(s => s.replace('BINANCE:', ''));
+    const crypto = list.filter(s => s.startsWith('BINANCE:')).map(s => s.replace('BINANCE:', ''));
+    const stocks = list.filter(s => !s.startsWith('BINANCE:'));
+    return { crypto, stocks };
   } catch {
-    return ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+    return { crypto: ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'], stocks: [] };
   }
 }
 
-// ── Load existing market-data.json so we can carry forward peak tracking ──
 function loadExisting() {
-  try {
-    return JSON.parse(fs.readFileSync(MARKET_DATA_PATH, 'utf8'));
-  } catch {
-    return { fetchedAt: 0, symbols: {} };
-  }
+  try { return JSON.parse(fs.readFileSync(MARKET_DATA_PATH, 'utf8')); }
+  catch { return { fetchedAt: 0, symbols: {} }; }
 }
 
 function saveMarketData(data) {
   fs.writeFileSync(MARKET_DATA_PATH, JSON.stringify(data, null, 2));
 }
 
-// ── Audit logging — rolling 1-hour window ──
 function logAudit(action, details = {}) {
-  const audit = { timestamp: new Date().toISOString(), job: 'market-fetcher', action, ...details };
-
+  const entry = { timestamp: new Date().toISOString(), job: 'market-fetcher', action, ...details };
   let logs = [];
   try {
     logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8'));
     if (!Array.isArray(logs)) logs = [];
   } catch {}
-
-  logs.push(audit);
-  // Rotate: drop entries older than 1 hour
+  logs.push(entry);
   const cutoff = Date.now() - 60 * 60 * 1000;
   logs = logs.filter(e => new Date(e.timestamp).getTime() >= cutoff);
-
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }
 
+// ── Build/update a market-data.json entry ──
+// Maintains peak shock/obi since Job B last consumed + reset them.
+function buildEntry(r, prev, now, session) {
+  const shock = r.d.shock || 1;
+  const obi   = r.d.obi   || 0;
+  return {
+    pair:           r.pair,
+    price:          r.price,
+    chg:            r.chg,
+    conv:           r.conv,
+    setup:          r.setup,
+    assetType:      r.assetType,
+    exchangePrefix: r.exchangePrefix,
+    session,                                        // 'open' | 'pre_market' | 'after_hours' | '24/7'
+    marketClosed:   false,
+    d:              r.d,
+    bullConf:       r.bullConf,
+    bullChecks:     r.bullChecks,
+    whale:          r.whale,
+    capBuy:         r.capBuy,
+    flow:           r.flow,
+    grade:          r.grade,
+    successProb:    r.successProb,
+    archetype:      r.archetype,
+    peakShock:      Math.max(shock, prev?.peakShock ?? shock),
+    peakObi:        Math.abs(obi) > Math.abs(prev?.peakObi ?? 0) ? obi : (prev?.peakObi ?? obi),
+    peakSince:      prev?.peakSince ?? now,
+    updatedAt:      now,
+  };
+}
+
+// ── Freeze an entry when market is closed ──
+// Carries forward prior data but flags it so Job B ignores it.
+function freezeEntry(prev, session) {
+  if (!prev) return null;
+  return { ...prev, session, marketClosed: true };
+}
+
 async function main() {
-  const pairs = loadWatchlistPairs();
-  if (!pairs.length) {
-    console.log('[market-fetcher] No crypto symbols in watchlist — nothing to fetch.');
-    logAudit('no_symbols', { count: 0 });
+  const { crypto: cryptoPairs, stocks: stockSyms } = loadWatchlist();
+  const totalSymbols = cryptoPairs.length + stockSyms.length;
+
+  if (!totalSymbols) {
+    console.log('[market-fetcher] No symbols in watchlist.');
+    logAudit('no_symbols');
     return;
   }
 
-  console.log(`[market-fetcher] Fetching ${pairs.length} symbol(s)...`);
+  console.log(`[market-fetcher] ${cryptoPairs.length} crypto + ${stockSyms.length} stock/ETF`);
+
   const existing = loadExisting();
-  const now = Date.now();
+  const now      = Date.now();
 
-  const results = await Promise.all(pairs.map(scoreSymbol));
+  // ── Determine which stocks need scoring vs freezing ──
+  const stocksToScore  = [];
+  const stocksToFreeze = [];
 
-  const symbols = {};
-  let okCount = 0;
+  for (const sym of stockSyms) {
+    const session = getMarketSession(sym);
+    if (session === 'closed' || session === 'lunch_break') {
+      stocksToFreeze.push({ sym, session });
+    } else {
+      stocksToScore.push({ sym, session }); // open | pre_market | after_hours
+    }
+  }
+
+  // Init Yahoo once if any stocks need scoring
+  if (stocksToScore.length) await initYahoo();
+
+  // ── Fetch in parallel ──
+  const [cryptoResults, stockResults] = await Promise.all([
+    Promise.all(cryptoPairs.map(scoreSymbol)),
+    Promise.all(stocksToScore.map(({ sym }) => scoreStock(sym))),
+  ]);
+
+  const symbols      = {};
+  let okCount        = 0;
   const fetchResults = [];
 
-  for (let i = 0; i < pairs.length; i++) {
-    const pair = pairs[i];
-    const r    = results[i];
+  // ── Crypto (always 24/7) ──
+  for (let i = 0; i < cryptoPairs.length; i++) {
+    const pair = cryptoPairs[i];
+    const r    = cryptoResults[i];
     const prev = existing.symbols?.[pair];
 
     if (!r) {
-      // Fetch failed this cycle — carry forward the previous entry (if any)
-      // rather than dropping the symbol, so a single failed poll doesn't
-      // blank out peak tracking that's still within its window.
       if (prev) symbols[pair] = prev;
-      console.log(`  ⚠  ${pair} — fetch failed, carrying forward previous data`);
-      fetchResults.push({ pair, status: 'failed_carried_forward' });
+      console.log(`  ⚠  ${pair} — crypto fetch failed, carrying forward`);
+      fetchResults.push({ pair, status: 'failed', assetType: 'crypto' });
       continue;
     }
-
     okCount++;
-    const shock = r.d.shock || 1;
-    const obi   = r.d.obi   || 0;
+    symbols[pair] = buildEntry(r, prev, now, '24/7');
+    fetchResults.push({ pair, status: 'ok', conv: r.conv, session: '24/7', assetType: 'crypto' });
+  }
 
-    // Peak tracking — max absolute shock/obi seen since Job B last reset
-    // this entry (peakSince). If there's no previous entry, this cycle's
-    // value is both the latest and the peak so far.
-    const peakShock = Math.max(shock, prev?.peakShock ?? shock);
-    const peakObi   = Math.abs(obi) > Math.abs(prev?.peakObi ?? 0) ? obi : (prev?.peakObi ?? obi);
+  // ── Stocks: freeze closed markets ──
+  for (const { sym, session } of stocksToFreeze) {
+    const prev   = existing.symbols?.[sym];
+    const frozen = freezeEntry(prev, session);
+    if (frozen) symbols[sym] = frozen;
+    console.log(`  ⏸  ${sym} — ${session}, frozen`);
+    fetchResults.push({ pair: sym, status: 'frozen', session, assetType: 'stock' });
+  }
 
-    symbols[pair] = {
-      pair,
-      price:      r.price,
-      chg:        r.chg,
-      conv:       r.conv,
-      setup:      r.setup,        // { label, emoji } — latest cycle's setup (CAP BUY overridden)
-      d:          r.d,            // full indicator set — latest cycle's values
-      // ── enriched fields (all computed by leaderboard-scanner.js scoreSymbol) ──
-      bullConf:   r.bullConf,     // 0–10 confirmation count (mirrors GUI 10-check panel)
-      bullChecks: r.bullChecks,   // named breakdown for audit/debug
-      whale:      r.whale,        // { score 0-100, zone, emoji } — whale accumulation signal
-      capBuy:     r.capBuy,       // { isCapBuy, capScore } — capitulation buy detector
-      flow:       r.flow,         // 'Whales Buying' | 'Smart Accum' | 'Mixed Flow' | etc.
-      grade:      r.grade,        // 'A+' | 'A' | 'B' | 'C' | 'D' — trade quality
-      successProb: r.successProb, // 20–92% — estimated win probability
-      archetype:  r.archetype,    // 'Whale Accumulation' | 'Short Squeeze' | etc.
-      // ── peak tracking — max absolute shock/obi seen since Job B last reset ──
-      peakShock,
-      peakObi,
-      peakSince:  prev?.peakSince ?? now,
-      updatedAt:  now,
-    };
+  // ── Stocks: scored (open / pre_market / after_hours) ──
+  for (let i = 0; i < stocksToScore.length; i++) {
+    const { sym, session } = stocksToScore[i];
+    const r    = stockResults[i];
+    const prev = existing.symbols?.[sym];
 
-    fetchResults.push({ pair, status: 'success', conv: r.conv, setup: r.setup.label });
+    if (!r) {
+      if (prev) symbols[sym] = { ...prev, session, marketClosed: false };
+      console.log(`  ⚠  ${sym} — fetch failed, carrying forward`);
+      fetchResults.push({ pair: sym, status: 'failed', session, assetType: 'stock' });
+      continue;
+    }
+    okCount++;
+    symbols[sym] = buildEntry(r, prev, now, session);
+    console.log(`  ✓  ${sym} [${session}] conv:${r.conv} setup:${r.setup.label}`);
+    fetchResults.push({ pair: sym, status: 'ok', conv: r.conv, session, setup: r.setup.label, assetType: 'stock' });
   }
 
   const out = { fetchedAt: now, staleAfterMinutes: STALE_MINUTES, symbols };
   saveMarketData(out);
 
   logAudit('fetch_complete', {
-    totalPairs: pairs.length,
-    successCount: okCount,
-    failureCount: pairs.length - okCount,
-    results: fetchResults,
+    totalPairs:    totalSymbols,
+    successCount:  okCount,
+    cryptoCount:   cryptoPairs.length,
+    stockScored:   stocksToScore.length,
+    stockFrozen:   stocksToFreeze.length,
+    results:       fetchResults,
   });
 
-  console.log(`[market-fetcher] Wrote market-data.json — ${okCount}/${pairs.length} symbol(s) updated.`);
+  console.log(`[market-fetcher] Done — ${okCount} scored, ${stocksToFreeze.length} frozen.`);
 }
 
 main().catch(err => {

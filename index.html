@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Alpha Terminal v49.4</title>
+<title>Alpha Terminal v49.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -11,7 +11,7 @@
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="hdr-brand">◈ ALPHA TERMINAL <span>v49.4</span></div>
+  <div class="hdr-brand">◈ ALPHA TERMINAL <span>v49.5</span></div>
   <div class="hdr-right">
     <div class="hstat"><span class="hstat-l">BTC DOM</span><span class="hstat-v" id="h-btcdom">—</span></div>
     <div class="hstat"><span class="hstat-l">MCAP</span><span class="hstat-v" id="h-mcap">—</span></div>
@@ -79,6 +79,7 @@
       <div class="mp-tile" id="mp-SPY"><div class="mp-tile-name">S&amp;P 500</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
       <div class="mp-tile" id="mp-QQQ"><div class="mp-tile-name">NASDAQ</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
       <div class="mp-tile" id="mp-DIA"><div class="mp-tile-name">DOW</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
+      <div class="mp-tile" id="mp-TSX"><div class="mp-tile-name">TSX</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div></div>
 
     </div>
     <div class="mp-vsep"></div>
@@ -123,6 +124,9 @@
   </div>
 
 </div><!-- /mbar -->
+
+<!-- ◆ SMART MONEY SECTOR FLOW — populated by renderSectorFlow() in render.js -->
+<div id="sector-flow-panel"></div>
 
 <!-- ◆ HIGH CONVICTION LEADERBOARD v12 -->
 <div class="hcl" id="hcl-wrap">
@@ -255,7 +259,7 @@
 <!-- ══ SIGNAL MATRIX TABLE (always visible below tabs) ══ -->
 <div class="tbl-wrap">
   <div class="tbl-ph">
-    <span class="pt">◆ PREDATOR APEX — Signal Matrix v49.4</span>
+    <span class="pt">◆ PREDATOR APEX — Signal Matrix v49.5</span>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <button class="bsm" onclick="toggleAlerts()" style="padding:3px 10px;">🔔 ALERTS</button>
     </div>
@@ -283,6 +287,8 @@
         <th onclick="sortBy('whaleScore')" title="Whale Accumulation Score 0–100: OI+CVD+OBI+Funding+Vol+L/S">🐋 WHALE ↕</th>
         <th onclick="sortBy('bullConfirmCount')" title="Bull Confirmation Count: how many of 10 institutional checks are passing">CONF ↕</th>
         <th title="Nearest support and resistance levels computed from pivot highs/lows">SUP / RES</th>
+        <th onclick="sortBy('_rf')" title="Risk On / Risk Off — money flow classification per symbol">RISK ↕</th>
+        <th title="Capital flow direction — ACCUMULATE · INFLOW · OUTFLOW · EXIT">FLOW</th>
         <th title="Refresh this row">↺</th>
         <th>REASONING</th>
       </tr></thead>
@@ -293,13 +299,14 @@
   <div class="last-upd-bar">
     <span>LAST UPDATE:</span>
     <span id="last-upd-bar-time">—</span>
-    <span style="margin-left:auto;color:#2a3040;">Alpha Terminal v49.4 · 15s refresh</span>
+    <span style="margin-left:auto;color:#2a3040;">Alpha Terminal v49.5 · 15s refresh</span>
   </div>
 </div>
 
-<!-- Scripts — load order matters: config → api → signals → render → alerts → journal → app -->
+<!-- Scripts — load order matters: config → registry → api → signals → render → alerts → journal → app -->
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script src="js/config.js"></script>
+<script src="js/exchange-registry-browser.js"></script>
 <script src="js/api.js"></script>
 <script src="js/signals.js"></script>
 <script src="js/render.js"></script>

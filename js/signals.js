@@ -442,6 +442,12 @@ function processAI(s, p, chg, ex) {
     sparkBars = barsDay.slice(-7).map(b => b.c ?? b);
   }
 
+  // ── RISK FLOW ──
+  const _rf = typeof calcRiskFlow === 'function' ? calcRiskFlow({
+    cvd, whaleScore, chg: finalChg, oiDiv, fr: parseFloat(fr) || 0,
+    shock: parseFloat(shock) || 1, cvdTrend: cvd?.trending,
+  }, s) : null;
+
   DS[s] = {
     p: p.toFixed(p < 1 ? 5 : p < 10 ? 3 : 2), chg: finalChg.toFixed(2),
     r15, r1h, r4h, shock, nf, lp, sp, fr, whale, sig, sigC, reason, score,
@@ -457,6 +463,7 @@ function processAI(s, p, chg, ex) {
     smartMoneyLabel, smartMoneyC,
     tradeGrade, tradeGradeC, setupArchetype, successProb,
     earlyWarnZone, earlyWarnC,
+    _rf,
   };
 
   // ── CHECK ALERT RULES ──
@@ -525,3 +532,138 @@ function applyYieldEtfAdjustment(symbol, state){
 
 // Example:
 // state = applyYieldEtfAdjustment(symbol, state);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RISK FLOW ENGINE — v1.0
+// Works for both crypto (full signals) and stocks (fr=0, obi proxy).
+//
+// calcRiskFlow(d, sym) → { risk, flow, riskC, flowC, riskEmoji }
+//   risk:  'RISK ON' | 'ROTATE IN' | 'ROTATE OUT' | 'RISK OFF' | 'NEUTRAL'
+//   flow:  'ACCUMULATE' | 'INFLOW' | 'OUTFLOW' | 'EXIT' | '—'
+//
+// calcSectorFlow(allDS) → sector-level aggregation for the flow panel.
+//   Called once per render cycle from renderSectorFlow() in render.js.
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Sector tag for a symbol ──
+// Crypto → 'CRYPTO'
+// TSX energy/resource ETFs → 'ENERGY' etc.
+// Inferred from symbol suffix / name.
+function sectorTagFor(sym) {
+  const s = sym.toUpperCase();
+  if (s.includes('BINANCE:') || s.endsWith('USDT')) return 'CRYPTO';
+
+  // Explicit TSX ETF mappings
+  const ETF_SECTORS = {
+    'XEG.TO': 'ENERGY',   'ENB.TO': 'ENERGY',   'TOU.TO': 'ENERGY',
+    'XEI.TO': 'DIVIDEND', 'T.TO':   'TELECOM',   'BCE.TO': 'TELECOM',
+    'XBM.TO': 'MATERIALS','ABX.TO': 'MATERIALS',
+    'XFN.TO': 'FINANCIALS','RY.TO': 'FINANCIALS','TD.TO': 'FINANCIALS',
+    'ETHY.TO':'CRYPTO',   'KILO.TO':'CRYPTO',    'TXF.TO':'CRYPTO',
+    'BTCY.TO':'CRYPTO',   'ETHH.TO':'CRYPTO',    'XRPP.TO':'CRYPTO',
+    'GLCC.TO':'CRYPTO',   'AGCC.TO':'CRYPTO',    'ENCC.TO':'CRYPTO',
+    'HTAE.TO':'CRYPTO',
+    'CRWD.TO':'TECH',     'GOOG.TO':'TECH',      'MSFT.TO':'TECH',
+    'TSLA.TO':'TECH',     'DELL.TO':'TECH',      'NVDA': 'TECH',
+    'SPXY.TO':'MIXED',    'ESTC.TO':'TECH',
+    'GE.TO':  'INDUSTRIAL','SVR.TO':'MATERIALS',
+  };
+  if (ETF_SECTORS[sym]) return ETF_SECTORS[sym];
+
+  // Suffix-based fallback
+  if (s.endsWith('.L'))  return 'LSE';
+  if (s.endsWith('.DE')) return 'EU';
+  if (s.endsWith('.T'))  return 'JAPAN';
+  if (s.endsWith('.HK')) return 'CHINA';
+  if (s.endsWith('.NS')) return 'INDIA';
+  return 'US';
+}
+
+// ── Per-symbol risk/flow label ──
+function calcRiskFlow(d, sym) {
+  if (!d) return { risk: '—', flow: '—', riskC: 'var(--text-dim)', flowC: 'var(--text-dim)', riskEmoji: '' };
+
+  const cvdUp     = d.cvd?.trending === 'up' || d.cvdTrend === 'up';
+  const whaleScore = d.whaleScore ?? 50;
+  const chg        = parseFloat(d.chg) || 0;
+  const oiDiv      = d.oiDiv || '—';
+  const fr         = parseFloat(d.fr) || 0;
+  const shock      = parseFloat(d.shock) || 1;
+  const isCrypto   = sym.includes('BINANCE:');
+
+  // Funding health — stocks always pass (fr=0)
+  const frHealthy  = fr <= 0.01;
+  const frNegative = fr < -0.01;
+
+  // ── RISK ON: broad accumulation across all inputs ──
+  if (whaleScore >= 65 && cvdUp && frHealthy && chg > 0.3) {
+    return { risk: 'RISK ON', flow: 'ACCUMULATE', riskC: 'var(--bull)', flowC: 'var(--bull)', riskEmoji: '🟢' };
+  }
+
+  // ── ROTATE IN: quiet accumulation — OI dropping but whale/CVD rising ──
+  // For stocks: OI proxy (oiDiv) = DIP BUY + whale rising
+  if ((oiDiv.includes('DIP BUY') || oiDiv.includes('OI DROP')) && whaleScore >= 55 && cvdUp) {
+    return { risk: 'ROTATE IN', flow: 'INFLOW', riskC: 'var(--accent)', flowC: 'var(--accent)', riskEmoji: '🔵' };
+  }
+
+  // ── ROTATE OUT: trapped longs / distribution ──
+  if ((oiDiv.includes('CONFIRM') || oiDiv.includes('✓')) && chg < -0.5 && whaleScore <= 40) {
+    return { risk: 'ROTATE OUT', flow: 'OUTFLOW', riskC: '#ff8c00', flowC: '#ff8c00', riskEmoji: '🟠' };
+  }
+
+  // ── RISK OFF: broad distribution ──
+  if (whaleScore <= 30 && !cvdUp && (isCrypto ? frNegative : chg < -0.5)) {
+    return { risk: 'RISK OFF', flow: 'EXIT', riskC: 'var(--bear)', flowC: 'var(--bear)', riskEmoji: '🔴' };
+  }
+
+  // ── NEUTRAL ──
+  return { risk: 'NEUTRAL', flow: '—', riskC: 'var(--text-dim)', flowC: 'var(--text-dim)', riskEmoji: '⚪' };
+}
+
+// ── Sector-level aggregation ──
+// Returns array of sector objects sorted by net flow score (bull - bear count).
+// Used by renderSectorFlow() panel in render.js.
+function calcSectorFlow(allDS) {
+  const sectors = {};
+
+  for (const [sym, d] of Object.entries(allDS || {})) {
+    if (!d || !d.whaleScore) continue;
+    const sector = sectorTagFor(sym);
+    if (!sectors[sector]) {
+      sectors[sector] = {
+        sector,
+        syms:      [],
+        riskOn:    0, riskOff:   0,
+        rotateIn:  0, rotateOut: 0,
+        neutral:   0,
+        totalWhale: 0,
+        totalChg:   0,
+        count:      0,
+      };
+    }
+    const rf = calcRiskFlow(d, sym);
+    const s  = sectors[sector];
+    s.syms.push(sym);
+    s.count++;
+    s.totalWhale += d.whaleScore ?? 50;
+    s.totalChg   += parseFloat(d.chg) || 0;
+    if      (rf.risk === 'RISK ON')     s.riskOn++;
+    else if (rf.risk === 'ROTATE IN')   s.rotateIn++;
+    else if (rf.risk === 'ROTATE OUT')  s.rotateOut++;
+    else if (rf.risk === 'RISK OFF')    s.riskOff++;
+    else                                s.neutral++;
+  }
+
+  return Object.values(sectors).map(s => {
+    const avgWhale   = Math.round(s.totalWhale / s.count);
+    const avgChg     = parseFloat((s.totalChg / s.count).toFixed(2));
+    const flowScore  = s.riskOn * 2 + s.rotateIn - s.rotateOut - s.riskOff * 2;
+    let flowLabel, flowC, flowEmoji;
+    if      (flowScore >= 2)  { flowLabel = 'INFLOW';   flowC = 'var(--bull)';      flowEmoji = '📈'; }
+    else if (flowScore >= 1)  { flowLabel = 'BUILDING'; flowC = '#00cc8a';           flowEmoji = '🔵'; }
+    else if (flowScore <= -2) { flowLabel = 'OUTFLOW';  flowC = 'var(--bear)';      flowEmoji = '📉'; }
+    else if (flowScore <= -1) { flowLabel = 'FADING';   flowC = '#ff8c00';           flowEmoji = '🟠'; }
+    else                      { flowLabel = 'NEUTRAL';  flowC = 'var(--text-dim)';  flowEmoji = '➡️'; }
+    return { ...s, avgWhale, avgChg, flowScore, flowLabel, flowC, flowEmoji };
+  }).sort((a, b) => b.flowScore - a.flowScore);
+}

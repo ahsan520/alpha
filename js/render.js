@@ -189,6 +189,8 @@ function renderTable() {
       </td>
       <td data-k="conf" style="font-family:var(--mono);font-size:10px;font-weight:700;color:${(d.bullConfirmCount||0)>=7?'var(--bull)':(d.bullConfirmCount||0)>=4?'#f5c518':'var(--bear)'};min-width:50px;" title="Bull confirmations: ${(d.confirmChecks||[]).filter(c=>c.pass).map(c=>c.label).join(', ')}">${d.bullConfirmCount??0}/10</td>
       <td data-k="sr" style="font-size:9px;min-width:90px;">${d.sup||d.res?`<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${d.sup||'—'}</span><span style="color:var(--bear);">R $${d.res||'—'}</span></div>`:'<span style="color:var(--text-dim);">—</span>'}</td>
+      <td data-k="risk" style="font-size:9px;font-weight:700;min-width:72px;color:${(d._rf&&d._rf.riskC)||'var(--text-dim)'};">${d._rf?`${d._rf.riskEmoji} ${d._rf.risk}`:"—"}</td>
+      <td data-k="flow" style="font-size:9px;font-weight:700;min-width:62px;color:${(d._rf&&d._rf.flowC)||'var(--text-dim)'};">${d._rf?d._rf.flow:"—"}</td>
       <td><button class="rbtn" onclick="event.stopPropagation();refreshSymbol('${s}',this)">↺</button></td>
       <td class="td-reason" data-k="reason" title="${d.reason}">${d.reason}</td>
     </tr>`;
@@ -416,6 +418,23 @@ function patchSymbolRow(s) {
     srEl.innerHTML = fd.sup||fd.res
       ? `<div style="display:flex;flex-direction:column;gap:1px;line-height:1.3;"><span style="color:var(--bull);">S $${fd.sup||'—'}</span><span style="color:var(--bear);">R $${fd.res||'—'}</span></div>`
       : '<span style="color:var(--text-dim);">—</span>';
+  }
+
+  // ── RISK / FLOW columns ──
+  const rf     = fd._rf;
+  const riskEl = cell('risk');
+  const riskKey = rf ? rf.risk : '—';
+  if (riskEl && _dv[s+':risk'] !== riskKey) {
+    _dv[s+':risk'] = riskKey;
+    riskEl.textContent = rf ? `${rf.riskEmoji} ${rf.risk}` : '—';
+    riskEl.style.color = rf ? rf.riskC : 'var(--text-dim)';
+  }
+  const flowEl  = cell('flow');
+  const flowKey = rf ? rf.flow : '—';
+  if (flowEl && _dv[s+':flow'] !== flowKey) {
+    _dv[s+':flow'] = flowKey;
+    flowEl.textContent = rf ? rf.flow : '—';
+    flowEl.style.color = rf ? rf.flowC : 'var(--text-dim)';
   }
 
   // Row class (heat colour + market status dim)
@@ -1886,6 +1905,7 @@ function renderLeaderboard() {
   // Call dots only after full card rebuild (structure changed) — not on patch cycles
   if (typeof renderLeaderboardDots === 'function') renderLeaderboardDots();
   if (typeof renderPositionTracker === 'function') renderPositionTracker();
+  if (typeof renderSectorFlow === 'function') renderSectorFlow();
 }
 
 function drawSparkLine(canvas, data, color) {
@@ -1928,3 +1948,127 @@ function buildAlertBar(el) {
     </div>
   </div>`;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SECTOR FLOW PANEL — v1.0
+// Renders outside the main table, above the leaderboard.
+// Call renderSectorFlow() after each sync cycle (called from renderLeaderboard).
+// Expects a <div id="sector-flow-panel"></div> in index.html.
+//
+// Shows:
+//   • Market-wide RISK ON / OFF header bar (aggregated across all symbols)
+//   • Per-sector flow tiles: sector name, flow label, avg whale score,
+//     avg daily chg, symbol count, inflow/outflow breakdown
+//   • Money-move arrows: largest INFLOW → OUTFLOW sector pair
+// ══════════════════════════════════════════════════════════════════════════════
+function renderSectorFlow() {
+  const panel = document.getElementById('sector-flow-panel');
+  if (!panel) return;
+
+  const ds = STATE.DS || {};
+  if (!Object.keys(ds).length) return;
+
+  const sectors = typeof calcSectorFlow === 'function' ? calcSectorFlow(ds) : [];
+  if (!sectors.length) return;
+
+  // ── Market-wide aggregation ──
+  const totalSyms  = sectors.reduce((a, s) => a + s.count, 0);
+  const totalRiskOn  = sectors.reduce((a, s) => a + s.riskOn + s.rotateIn, 0);
+  const totalRiskOff = sectors.reduce((a, s) => a + s.riskOff + s.rotateOut, 0);
+  const netFlow = totalRiskOn - totalRiskOff;
+  let marketRisk, marketRiskC, marketRiskEmoji;
+  if      (netFlow >= 3)  { marketRisk = 'RISK ON';  marketRiskC = 'var(--bull)';     marketRiskEmoji = '🟢'; }
+  else if (netFlow >= 1)  { marketRisk = 'LEAN BULL'; marketRiskC = '#00cc8a';         marketRiskEmoji = '🔵'; }
+  else if (netFlow <= -3) { marketRisk = 'RISK OFF'; marketRiskC = 'var(--bear)';     marketRiskEmoji = '🔴'; }
+  else if (netFlow <= -1) { marketRisk = 'LEAN BEAR'; marketRiskC = '#ff8c00';         marketRiskEmoji = '🟠'; }
+  else                    { marketRisk = 'NEUTRAL';   marketRiskC = 'var(--text-dim)'; marketRiskEmoji = '⚪'; }
+
+  // ── Best inflow / worst outflow for money-move arrow ──
+  const topInflow  = sectors.find(s => s.flowScore >= 1);
+  const topOutflow = [...sectors].reverse().find(s => s.flowScore <= -1);
+  const moneyMove  = topInflow && topOutflow
+    ? `💸 ${topOutflow.sector} → ${topInflow.sector}`
+    : topInflow  ? `💸 into ${topInflow.sector}`
+    : topOutflow ? `💸 out of ${topOutflow.sector}`
+    : '💸 No clear rotation';
+
+  // ── Sector tiles ──
+  const tiles = sectors.map(s => {
+    const whaleBar = Math.round(s.avgWhale);
+    const whaleC   = whaleBar >= 65 ? 'var(--bull)' : whaleBar <= 35 ? 'var(--bear)' : '#f5c518';
+    const chgStr   = (s.avgChg >= 0 ? '+' : '') + s.avgChg.toFixed(2) + '%';
+    const chgC     = s.avgChg >= 0 ? 'var(--bull)' : 'var(--bear)';
+    const symNames = s.syms.map(sym =>
+      sym.includes('BINANCE:') ? sym.split(':')[1].replace('USDT','') : sym.replace(/\.\w+$/,'')
+    ).join(', ');
+    return `
+      <div class="sf-tile" title="${symNames}">
+        <div class="sf-sector">${s.sector}</div>
+        <div class="sf-flow" style="color:${s.flowC};font-weight:700;">${s.flowEmoji} ${s.flowLabel}</div>
+        <div class="sf-meta">
+          <span style="color:${whaleC};">🐋 ${whaleBar}</span>
+          <span style="color:${chgC};">${chgStr}</span>
+          <span style="color:var(--text-dim);">${s.count}sym</span>
+        </div>
+        <div class="sf-breakdown">
+          ${s.riskOn    ? `<span class="sf-pill on">${s.riskOn}▲</span>` : ''}
+          ${s.rotateIn  ? `<span class="sf-pill in">${s.rotateIn}→</span>` : ''}
+          ${s.rotateOut ? `<span class="sf-pill out">${s.rotateOut}←</span>` : ''}
+          ${s.riskOff   ? `<span class="sf-pill off">${s.riskOff}▼</span>` : ''}
+          ${s.neutral   ? `<span class="sf-pill neu">${s.neutral}—</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  // ── Fingerprint to avoid full redraws ──
+  const fp = sectors.map(s => s.sector + s.flowLabel + s.avgWhale).join('|');
+  if (panel._sfFp === fp) return;
+  panel._sfFp = fp;
+
+  panel.innerHTML = `
+    <div class="sf-wrap">
+      <div class="sf-header">
+        <span class="sf-title">💸 SMART MONEY FLOW</span>
+        <span class="sf-regime" style="color:${marketRiskC};font-weight:700;">${marketRiskEmoji} ${marketRisk}</span>
+        <span class="sf-move" style="color:var(--text-dim);font-size:10px;">${moneyMove}</span>
+        <span class="sf-count" style="color:var(--text-dim);font-size:10px;">${totalSyms} symbols · ${sectors.length} sectors</span>
+      </div>
+      <div class="sf-tiles">${tiles}</div>
+    </div>
+  `;
+}
+
+// ── CSS injected once for sector flow panel ──
+(function injectSectorFlowCSS() {
+  if (document.getElementById('sf-style')) return;
+  const s = document.createElement('style');
+  s.id = 'sf-style';
+  s.textContent = `
+    #sector-flow-panel { margin: 6px 0 4px; }
+    .sf-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
+    .sf-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
+                 border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .sf-title  { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .8px; color: var(--accent); }
+    .sf-regime { font-family: var(--mono); font-size: 11px; }
+    .sf-move   { margin-left: auto; }
+    .sf-tiles  { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sf-tile   { background: var(--bg); border: 1px solid var(--border2); border-radius: 5px;
+                 padding: 5px 8px; min-width: 110px; cursor: default; }
+    .sf-sector { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .6px;
+                 color: var(--text-dim); margin-bottom: 2px; }
+    .sf-flow   { font-size: 11px; margin-bottom: 3px; }
+    .sf-meta   { display: flex; gap: 6px; font-size: 9px; margin-bottom: 3px; font-family: var(--mono); }
+    .sf-breakdown { display: flex; gap: 3px; flex-wrap: wrap; }
+    .sf-pill   { font-size: 8px; font-family: var(--mono); border-radius: 3px; padding: 1px 4px; font-weight: 700; }
+    .sf-pill.on  { background: rgba(0,229,160,.15); color: var(--bull); }
+    .sf-pill.in  { background: rgba(77,166,255,.15); color: #4da6ff; }
+    .sf-pill.out { background: rgba(255,140,0,.15);  color: #ff8c00; }
+    .sf-pill.off { background: rgba(255,68,85,.15);  color: var(--bear); }
+    .sf-pill.neu { background: rgba(100,100,100,.15);color: var(--text-dim); }
+    @media (max-width: 768px) {
+      .sf-tiles { gap: 4px; }
+      .sf-tile  { min-width: 90px; padding: 4px 6px; }
+    }
+  `;
+  document.head.appendChild(s);
+})();
