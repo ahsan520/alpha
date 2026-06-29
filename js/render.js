@@ -1964,110 +1964,191 @@ function buildAlertBar(el) {
 function renderSectorFlow() {
   const panel = document.getElementById('sector-flow-panel');
   if (!panel) return;
-
   const ds = STATE.DS || {};
-  if (!Object.keys(ds).length) return;
 
-  const sectors = typeof calcSectorFlow === 'function' ? calcSectorFlow(ds) : [];
+  const sectors  = typeof calcSectorFlow    === 'function' ? calcSectorFlow(ds)   : [];
+  const appetite = typeof calcRiskAppetite  === 'function' ? calcRiskAppetite()   : null;
+  const regime   = typeof calcMarketRegime  === 'function' ? calcMarketRegime(sectors, appetite) : null;
   if (!sectors.length) return;
 
-  // ── Market-wide aggregation ──
-  const totalSyms  = sectors.reduce((a, s) => a + s.count, 0);
+  // ── Fingerprint guard ──
+  const fp = (regime?.regime||'') + (appetite?.appetiteLabel||'') +
+    sectors.map(s => s.sector + s.flowLabel + (s.avgWhale||'') + s.velArrow + s.confidence).join('|');
+  if (panel._sfFp === fp) return;
+  panel._sfFp = fp;
+
+  // ── Market-wide counts ──
+  const totalSyms    = sectors.reduce((a, s) => a + s.count, 0);
   const totalRiskOn  = sectors.reduce((a, s) => a + s.riskOn + s.rotateIn, 0);
   const totalRiskOff = sectors.reduce((a, s) => a + s.riskOff + s.rotateOut, 0);
-  const netFlow = totalRiskOn - totalRiskOff;
-  let marketRisk, marketRiskC, marketRiskEmoji;
-  if      (netFlow >= 3)  { marketRisk = 'RISK ON';  marketRiskC = 'var(--bull)';     marketRiskEmoji = '🟢'; }
-  else if (netFlow >= 1)  { marketRisk = 'LEAN BULL'; marketRiskC = '#00cc8a';         marketRiskEmoji = '🔵'; }
-  else if (netFlow <= -3) { marketRisk = 'RISK OFF'; marketRiskC = 'var(--bear)';     marketRiskEmoji = '🔴'; }
-  else if (netFlow <= -1) { marketRisk = 'LEAN BEAR'; marketRiskC = '#ff8c00';         marketRiskEmoji = '🟠'; }
-  else                    { marketRisk = 'NEUTRAL';   marketRiskC = 'var(--text-dim)'; marketRiskEmoji = '⚪'; }
 
-  // ── Best inflow / worst outflow for money-move arrow ──
-  const topInflow  = sectors.find(s => s.flowScore >= 1);
-  const topOutflow = [...sectors].reverse().find(s => s.flowScore <= -1);
-  const moneyMove  = topInflow && topOutflow
-    ? `💸 ${topOutflow.sector} → ${topInflow.sector}`
-    : topInflow  ? `💸 into ${topInflow.sector}`
-    : topOutflow ? `💸 out of ${topOutflow.sector}`
-    : '💸 No clear rotation';
+  // ── Risk appetite row ──
+  let appetiteHTML = '';
+  if (appetite) {
+    const { smallCapLead, cryptoBeta, tsxVsSpy, goldFlight, silverFlight,
+            bondFlight, dxyRising, stableRotate, havenConvergence,
+            appetiteLabel, appetiteC, appetiteEmoji, spy, gld, tlt, uup } = appetite;
+
+    const scC  = smallCapLead > 0.5 ? 'var(--bull)' : smallCapLead < -0.5 ? 'var(--bear)' : 'var(--text-dim)';
+    const cbC  = cryptoBeta > 1 ? 'var(--bull)' : cryptoBeta < -1 ? 'var(--bear)' : 'var(--text-dim)';
+    const tvC  = tsxVsSpy > 0.3 ? 'var(--bull)' : tsxVsSpy < -0.3 ? 'var(--bear)' : 'var(--text-dim)';
+    const dxyC = dxyRising ? '#ff8c00' : uup < -0.3 ? 'var(--bull)' : 'var(--text-dim)';
+
+    const warnings = [
+      havenConvergence && '<span style="color:#ff8c00;font-weight:700;">⚠ HAVEN CONVERGENCE</span>',
+      goldFlight       && '<span style="color:#ff8c00;font-weight:700;">⚠ GOLD FLIGHT</span>',
+      bondFlight       && '<span style="color:#ff8c00;font-weight:700;">⚠ BOND FLIGHT</span>',
+      stableRotate     && '<span style="color:var(--accent);font-weight:700;">🔄 BTC DOM DROP</span>',
+      dxyRising        && '<span style="color:#ff4455;font-weight:700;">💵 DXY BID</span>',
+    ].filter(Boolean).join(' ');
+
+    appetiteHTML = `
+      <div class="sf-appetite">
+        <span class="sf-apt-lbl">RISK APPETITE</span>
+        <span style="color:${appetiteC};font-weight:700;">${appetiteEmoji} ${appetiteLabel}</span>
+        <span class="sf-apt-sep">|</span>
+        <span class="sf-apt-item" title="IWM vs SPY">SmCap <span style="color:${scC};">${smallCapLead >= 0 ? '+' : ''}${smallCapLead.toFixed(1)}%</span></span>
+        <span class="sf-apt-item" title="BTC vs SPY">BTC β <span style="color:${cbC};">${cryptoBeta >= 0 ? '+' : ''}${cryptoBeta.toFixed(1)}%</span></span>
+        <span class="sf-apt-item" title="TSX vs SPY">TSX/US <span style="color:${tvC};">${tsxVsSpy >= 0 ? '+' : ''}${tsxVsSpy.toFixed(1)}%</span></span>
+        <span class="sf-apt-item" title="DXY direction">DXY <span style="color:${dxyC};">${uup >= 0 ? '+' : ''}${(uup||0).toFixed(1)}%</span></span>
+        ${warnings}
+      </div>`;
+  }
+
+  // ── Regime row ──
+  let regimeHTML = '';
+  if (regime) {
+    const alertStyle = regime.alert
+      ? 'background:rgba(255,68,85,.12);border:1px solid rgba(255,68,85,.3);border-radius:4px;padding:4px 8px;'
+      : '';
+    regimeHTML = `
+      <div class="sf-regime-row" style="${alertStyle}">
+        <span class="sf-regime-label" style="color:${regime.c};font-weight:700;">${regime.emoji} ${regime.regime}</span>
+        <span class="sf-regime-note">${regime.note}</span>
+        ${regime.prediction ? `
+        <div class="sf-prediction">
+          <span class="sf-pred-lbl">📍 PREDICTION</span>
+          <span class="sf-pred-txt">${regime.prediction}</span>
+        </div>` : ''}
+      </div>`;
+  }
 
   // ── Sector tiles ──
   const tiles = sectors.map(s => {
-    const whaleBar = Math.round(s.avgWhale);
-    const whaleC   = whaleBar >= 65 ? 'var(--bull)' : whaleBar <= 35 ? 'var(--bear)' : '#f5c518';
+    const whaleC   = s.avgWhale != null ? (s.avgWhale >= 65 ? 'var(--bull)' : s.avgWhale <= 35 ? 'var(--bear)' : '#f5c518') : 'var(--text-dim)';
     const chgStr   = (s.avgChg >= 0 ? '+' : '') + s.avgChg.toFixed(2) + '%';
-    const chgC     = s.avgChg >= 0 ? 'var(--bull)' : 'var(--bear)';
-    const symNames = s.syms.map(sym =>
-      sym.includes('BINANCE:') ? sym.split(':')[1].replace('USDT','') : sym.replace(/\.\w+$/,'')
-    ).join(', ');
+    const chgC     = s.avgChg > 0 ? 'var(--bull)' : s.avgChg < 0 ? 'var(--bear)' : 'var(--text-dim)';
+    const allNames = [...(s.sentinels || []), ...(s.syms || [])].slice(0, 8).join(', ');
+    const pulseTag = s.isPulseOnly ? '<span class="sf-pulse-tag" title="Pulse data only — no watchlist symbols">P</span>' : '';
+    const velHTML  = s.velArrow ? `<span class="sf-vel" style="color:${s.velC};">${s.velArrow}</span>` : '';
+    const confHTML = `<span class="sf-conf" style="color:${s.confC};" title="Coverage confidence: ${s.count} data points">${s.confidence}</span>`;
+    const havenBorder = (s.sector === 'HAVEN' && s.flowScore > 0) ? 'border-color:#ff8c00;' : '';
+    const currBorder  = (s.sector === 'CURRENCY' && s.flowScore > 0) ? 'border-color:#ff4455;' : '';
+
     return `
-      <div class="sf-tile" title="${symNames}">
-        <div class="sf-sector">${s.sector}</div>
+      <div class="sf-tile" title="${allNames}" style="${havenBorder}${currBorder}">
+        <div class="sf-sector-row">
+          <span class="sf-sector">${s.sector}</span>
+          ${pulseTag}${confHTML}${velHTML}
+        </div>
         <div class="sf-flow" style="color:${s.flowC};font-weight:700;">${s.flowEmoji} ${s.flowLabel}</div>
         <div class="sf-meta">
-          <span style="color:${whaleC};">🐋 ${whaleBar}</span>
+          ${s.avgWhale != null ? `<span style="color:${whaleC};">🐋${s.avgWhale}</span>` : '<span style="color:var(--text-dim);">🐋—</span>'}
           <span style="color:${chgC};">${chgStr}</span>
-          <span style="color:var(--text-dim);">${s.count}sym</span>
+          <span style="color:var(--text-dim);">${s.count}src</span>
         </div>
         <div class="sf-breakdown">
-          ${s.riskOn    ? `<span class="sf-pill on">${s.riskOn}▲</span>` : ''}
-          ${s.rotateIn  ? `<span class="sf-pill in">${s.rotateIn}→</span>` : ''}
-          ${s.rotateOut ? `<span class="sf-pill out">${s.rotateOut}←</span>` : ''}
-          ${s.riskOff   ? `<span class="sf-pill off">${s.riskOff}▼</span>` : ''}
-          ${s.neutral   ? `<span class="sf-pill neu">${s.neutral}—</span>` : ''}
+          ${s.riskOn    ? `<span class="sf-pill on"  title="Risk On: ${s.riskOn}">▲${s.riskOn}</span>`    : ''}
+          ${s.rotateIn  ? `<span class="sf-pill in"  title="Rotate In: ${s.rotateIn}">→${s.rotateIn}</span>` : ''}
+          ${s.rotateOut ? `<span class="sf-pill out" title="Rotate Out: ${s.rotateOut}">←${s.rotateOut}</span>` : ''}
+          ${s.riskOff   ? `<span class="sf-pill off" title="Risk Off: ${s.riskOff}">▼${s.riskOff}</span>`  : ''}
+          ${s.neutral   ? `<span class="sf-pill neu" title="Neutral: ${s.neutral}">—${s.neutral}</span>`   : ''}
         </div>
       </div>`;
   }).join('');
 
-  // ── Fingerprint to avoid full redraws ──
-  const fp = sectors.map(s => s.sector + s.flowLabel + s.avgWhale).join('|');
-  if (panel._sfFp === fp) return;
-  panel._sfFp = fp;
-
   panel.innerHTML = `
     <div class="sf-wrap">
+
+      <!-- Row 1: title + counts -->
       <div class="sf-header">
         <span class="sf-title">💸 SMART MONEY FLOW</span>
-        <span class="sf-regime" style="color:${marketRiskC};font-weight:700;">${marketRiskEmoji} ${marketRisk}</span>
-        <span class="sf-move" style="color:var(--text-dim);font-size:10px;">${moneyMove}</span>
-        <span class="sf-count" style="color:var(--text-dim);font-size:10px;">${totalSyms} symbols · ${sectors.length} sectors</span>
+        <span class="sf-hcount">${totalRiskOn} inflow · ${totalRiskOff} outflow · ${totalSyms} sources · ${sectors.length} sectors</span>
       </div>
+
+      <!-- Row 2: market regime + prediction -->
+      ${regimeHTML}
+
+      <!-- Row 3: risk appetite cross-asset bar -->
+      ${appetiteHTML}
+
+      <!-- Row 4: sector tiles -->
       <div class="sf-tiles">${tiles}</div>
+
+      <!-- Row 5: legend -->
+      <div class="sf-legend">
+        <span class="sf-pill on">▲ RISK ON</span>
+        <span class="sf-pill in">→ ROTATE IN</span>
+        <span class="sf-pill out">← ROTATE OUT</span>
+        <span class="sf-pill off">▼ RISK OFF</span>
+        <span class="sf-leg-note">P=pulse only · ●=sentinel · HIGH/MED/LOW=coverage · ↑↓=15min velocity</span>
+      </div>
     </div>
   `;
 }
 
-// ── CSS injected once for sector flow panel ──
 (function injectSectorFlowCSS() {
   if (document.getElementById('sf-style')) return;
   const s = document.createElement('style');
   s.id = 'sf-style';
   s.textContent = `
-    #sector-flow-panel { margin: 6px 0 4px; }
-    .sf-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
-    .sf-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
-                 border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-    .sf-title  { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .8px; color: var(--accent); }
-    .sf-regime { font-family: var(--mono); font-size: 11px; }
-    .sf-move   { margin-left: auto; }
-    .sf-tiles  { display: flex; flex-wrap: wrap; gap: 6px; }
-    .sf-tile   { background: var(--bg); border: 1px solid var(--border2); border-radius: 5px;
-                 padding: 5px 8px; min-width: 110px; cursor: default; }
-    .sf-sector { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .6px;
-                 color: var(--text-dim); margin-bottom: 2px; }
-    .sf-flow   { font-size: 11px; margin-bottom: 3px; }
-    .sf-meta   { display: flex; gap: 6px; font-size: 9px; margin-bottom: 3px; font-family: var(--mono); }
-    .sf-breakdown { display: flex; gap: 3px; flex-wrap: wrap; }
-    .sf-pill   { font-size: 8px; font-family: var(--mono); border-radius: 3px; padding: 1px 4px; font-weight: 700; }
-    .sf-pill.on  { background: rgba(0,229,160,.15); color: var(--bull); }
-    .sf-pill.in  { background: rgba(77,166,255,.15); color: #4da6ff; }
-    .sf-pill.out { background: rgba(255,140,0,.15);  color: #ff8c00; }
-    .sf-pill.off { background: rgba(255,68,85,.15);  color: var(--bear); }
-    .sf-pill.neu { background: rgba(100,100,100,.15);color: var(--text-dim); }
-    @media (max-width: 768px) {
-      .sf-tiles { gap: 4px; }
-      .sf-tile  { min-width: 90px; padding: 4px 6px; }
+    #sector-flow-panel { margin:6px 0 4px; }
+    .sf-wrap { background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
+
+    .sf-header { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-bottom:5px; border-bottom:1px solid var(--border); }
+    .sf-title  { font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.8px; color:var(--accent); }
+    .sf-hcount { font-family:var(--mono); font-size:9px; color:var(--text-dim); margin-left:auto; }
+
+    .sf-regime-row   { display:flex; flex-direction:column; gap:3px; padding:5px 8px; border-radius:4px; background:var(--bg); }
+    .sf-regime-label { font-family:var(--mono); font-size:11px; letter-spacing:.6px; }
+    .sf-regime-note  { font-size:9px; color:var(--text-dim); font-family:var(--mono); }
+    .sf-prediction   { display:flex; gap:6px; align-items:flex-start; margin-top:2px; }
+    .sf-pred-lbl     { font-family:var(--mono); font-size:8px; color:var(--accent); white-space:nowrap; font-weight:700; }
+    .sf-pred-txt     { font-size:9px; color:#8899aa; line-height:1.4; }
+
+    .sf-appetite  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:var(--mono); font-size:9px; padding:4px 0; border-bottom:1px solid var(--border); }
+    .sf-apt-lbl   { color:var(--text-dim); letter-spacing:.6px; font-weight:700; }
+    .sf-apt-sep   { color:var(--border2); }
+    .sf-apt-item  { color:var(--text-dim); white-space:nowrap; }
+
+    .sf-tiles { display:flex; flex-wrap:wrap; gap:5px; }
+    .sf-tile  { background:var(--bg); border:1px solid var(--border2); border-radius:5px; padding:5px 7px; min-width:98px; cursor:default; transition:border-color .2s; }
+    .sf-tile:hover { border-color:var(--accent); }
+
+    .sf-sector-row { display:flex; align-items:center; gap:3px; margin-bottom:2px; }
+    .sf-sector     { font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:.5px; color:var(--text-dim); }
+    .sf-pulse-tag  { font-size:7px; background:rgba(77,166,255,.2); color:#4da6ff; border-radius:2px; padding:0 3px; font-family:var(--mono); }
+    .sf-conf       { font-size:7px; font-family:var(--mono); margin-left:auto; letter-spacing:.3px; }
+    .sf-vel        { font-family:var(--mono); font-size:9px; font-weight:700; }
+    .sf-flow       { font-size:10px; margin-bottom:2px; }
+    .sf-meta       { display:flex; gap:5px; font-size:9px; margin-bottom:3px; font-family:var(--mono); flex-wrap:wrap; }
+    .sf-breakdown  { display:flex; gap:3px; flex-wrap:wrap; }
+
+    .sf-pill     { font-size:8px; font-family:var(--mono); border-radius:3px; padding:1px 4px; font-weight:700; }
+    .sf-pill.on  { background:rgba(0,229,160,.15);  color:var(--bull); }
+    .sf-pill.in  { background:rgba(77,166,255,.15); color:#4da6ff; }
+    .sf-pill.out { background:rgba(255,140,0,.15);  color:#ff8c00; }
+    .sf-pill.off { background:rgba(255,68,85,.15);  color:var(--bear); }
+    .sf-pill.neu { background:rgba(100,100,100,.15);color:var(--text-dim); }
+
+    .sf-legend   { display:flex; gap:5px; align-items:center; flex-wrap:wrap; padding-top:4px; border-top:1px solid var(--border); }
+    .sf-leg-note { font-size:8px; color:var(--text-dim); font-family:var(--mono); margin-left:4px; }
+
+    @media (max-width:768px) {
+      .sf-tiles { gap:4px; }
+      .sf-tile  { min-width:82px; padding:4px 5px; }
+      .sf-appetite { gap:5px; }
+      .sf-pred-txt { font-size:8px; }
     }
   `;
   document.head.appendChild(s);

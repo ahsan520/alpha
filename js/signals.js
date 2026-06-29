@@ -534,43 +534,49 @@ function applyYieldEtfAdjustment(symbol, state){
 // state = applyYieldEtfAdjustment(symbol, state);
 
 // ══════════════════════════════════════════════════════════════════════════════
-// RISK FLOW ENGINE — v1.0
-// Works for both crypto (full signals) and stocks (fr=0, obi proxy).
+// RISK FLOW ENGINE — v2.0
+// Works for crypto (full signals), stocks (fr=0, obi proxy),
+// and market-pulse-only assets (price change only — no whale/CVD needed).
 //
-// calcRiskFlow(d, sym) → { risk, flow, riskC, flowC, riskEmoji }
-//   risk:  'RISK ON' | 'ROTATE IN' | 'ROTATE OUT' | 'RISK OFF' | 'NEUTRAL'
-//   flow:  'ACCUMULATE' | 'INFLOW' | 'OUTFLOW' | 'EXIT' | '—'
+// Three data layers:
+//   Layer 1 — STATE.DS       : full scoring (whale, CVD, OBI, funding)
+//   Layer 2 — STATE.marketPulse : price-only (chg%) — Gold, Silver, Bonds,
+//             Oil, DXY, indices — no watchlist symbol required
+//   Layer 3 — velocity history  : 15-min flow delta per sector
 //
-// calcSectorFlow(allDS) → sector-level aggregation for the flow panel.
-//   Called once per render cycle from renderSectorFlow() in render.js.
+// Exports:
+//   sectorTagFor(sym)           → sector string
+//   isSentinel(sym)             → bool
+//   calcRiskFlow(d, sym)        → per-symbol { risk, flow, riskC, flowC, riskEmoji }
+//   pulseRiskFlow(chg, sector)  → lightweight flow from chg% (pulse layer)
+//   calcRiskAppetite()          → cross-asset macro signals
+//   calcSectorFlow(allDS)       → full sector array (DS + pulse merged)
+//   calcMarketRegime(sectors, appetite) → top-level market regime label
 // ══════════════════════════════════════════════════════════════════════════════
 
-// ── Sector tag for a symbol ──
-// Crypto → 'CRYPTO'
-// TSX energy/resource ETFs → 'ENERGY' etc.
-// Inferred from symbol suffix / name.
+// ── Sector tag for watchlist symbols ──
 function sectorTagFor(sym) {
   const s = sym.toUpperCase();
   if (s.includes('BINANCE:') || s.endsWith('USDT')) return 'CRYPTO';
 
-  // Explicit TSX ETF mappings
   const ETF_SECTORS = {
-    'XEG.TO': 'ENERGY',   'ENB.TO': 'ENERGY',   'TOU.TO': 'ENERGY',
-    'XEI.TO': 'DIVIDEND', 'T.TO':   'TELECOM',   'BCE.TO': 'TELECOM',
-    'XBM.TO': 'MATERIALS','ABX.TO': 'MATERIALS',
-    'XFN.TO': 'FINANCIALS','RY.TO': 'FINANCIALS','TD.TO': 'FINANCIALS',
-    'ETHY.TO':'CRYPTO',   'KILO.TO':'CRYPTO',    'TXF.TO':'CRYPTO',
-    'BTCY.TO':'CRYPTO',   'ETHH.TO':'CRYPTO',    'XRPP.TO':'CRYPTO',
-    'GLCC.TO':'CRYPTO',   'AGCC.TO':'CRYPTO',    'ENCC.TO':'CRYPTO',
-    'HTAE.TO':'CRYPTO',
-    'CRWD.TO':'TECH',     'GOOG.TO':'TECH',      'MSFT.TO':'TECH',
-    'TSLA.TO':'TECH',     'DELL.TO':'TECH',      'NVDA': 'TECH',
-    'SPXY.TO':'MIXED',    'ESTC.TO':'TECH',
-    'GE.TO':  'INDUSTRIAL','SVR.TO':'MATERIALS',
+    // TSX crypto ETFs
+    'ETHY.TO':'CRYPTO', 'KILO.TO':'CRYPTO', 'TXF.TO':'CRYPTO',
+    'BTCY.TO':'CRYPTO', 'ETHH.TO':'CRYPTO', 'XRPP.TO':'CRYPTO',
+    'GLCC.TO':'CRYPTO', 'AGCC.TO':'CRYPTO', 'ENCC.TO':'CRYPTO', 'HTAE.TO':'CRYPTO',
+    // TSX equity
+    'XEG.TO':'ENERGY',  'ENB.TO':'ENERGY',  'TOU.TO':'ENERGY',
+    'XEI.TO':'DIVIDEND','T.TO':'TELECOM',   'BCE.TO':'TELECOM',
+    'XBM.TO':'MATERIALS','ABX.TO':'MATERIALS','SVR.TO':'MATERIALS',
+    'XFN.TO':'FINANCIALS','RY.TO':'FINANCIALS','TD.TO':'FINANCIALS',
+    'GE.TO':'INDUSTRIAL',
+    // US tech
+    'NVDA':'TECH','CRWD.TO':'TECH','GOOG.TO':'TECH',
+    'MSFT.TO':'TECH','TSLA.TO':'TECH','DELL.TO':'TECH','ESTC.TO':'TECH',
+    'SPXY.TO':'MIXED',
   };
   if (ETF_SECTORS[sym]) return ETF_SECTORS[sym];
 
-  // Suffix-based fallback
   if (s.endsWith('.L'))  return 'LSE';
   if (s.endsWith('.DE')) return 'EU';
   if (s.endsWith('.T'))  return 'JAPAN';
@@ -579,91 +585,394 @@ function sectorTagFor(sym) {
   return 'US';
 }
 
-// ── Per-symbol risk/flow label ──
-function calcRiskFlow(d, sym) {
-  if (!d) return { risk: '—', flow: '—', riskC: 'var(--text-dim)', flowC: 'var(--text-dim)', riskEmoji: '' };
+// ── Sentinel map — always-on rotation coverage, no watchlist symbol needed ──
+// These feed into the sector flow panel via STATE.marketPulse (pulse layer).
+// The sector panel shows these sectors even if you hold ZERO related symbols.
+const SENTINEL_MAP = {
+  // Crypto sentinels (also in DS if in watchlist)
+  'BINANCE:BTCUSDT': { sector:'CRYPTO',     label:'BTC',        pulse:'BTC'  },
+  'BINANCE:ETHUSDT': { sector:'CRYPTO',     label:'ETH',        pulse:'ETH'  },
+  'BINANCE:SOLUSDT': { sector:'CRYPTO',     label:'SOL',        pulse:'SOL'  },
+  // TSX sentinels
+  'XIU.TO': { sector:'TSX_BROAD',  label:'TSX 60',     pulse:null   },
+  'XEG.TO': { sector:'ENERGY',     label:'TSX Energy', pulse:null   },
+  'XFN.TO': { sector:'FINANCIALS', label:'TSX Fin',    pulse:null   },
+  'XBM.TO': { sector:'MATERIALS',  label:'TSX Mats',   pulse:null   },
+  // US broad + sector sentinels
+  'SPY':    { sector:'US_BROAD',   label:'S&P 500',    pulse:'SPY'  },
+  'QQQ':    { sector:'TECH',       label:'NASDAQ 100', pulse:'QQQ'  },
+  'IWM':    { sector:'US_SMALL',   label:'Russell 2K', pulse:'IWM'  },
+  'XLF':    { sector:'FINANCIALS', label:'US Fin',     pulse:'XLF'  },
+  'XLE':    { sector:'ENERGY',     label:'US Energy',  pulse:'XLE'  },
+  'XLV':    { sector:'HEALTH',     label:'Healthcare', pulse:'XLV'  },
+  'XLB':    { sector:'MATERIALS',  label:'US Mats',    pulse:'XLB'  },
+  // Haven sentinels — pulse layer ONLY (no DS scoring possible)
+  'GLD':    { sector:'HAVEN',      label:'Gold',       pulse:'GLD'  },
+  'SLV':    { sector:'HAVEN',      label:'Silver',     pulse:'SLV'  },
+  'TLT':    { sector:'HAVEN',      label:'Bonds/10Y',  pulse:'TLT'  },
+  // Commodity sentinels — pulse layer ONLY
+  'USO':    { sector:'COMMODITIES',label:'WTI Oil',    pulse:'USO'  },
+  'BRT':    { sector:'COMMODITIES',label:'Brent',      pulse:'BRT'  },
+  // Currency sentinel — pulse layer ONLY
+  'UUP':    { sector:'CURRENCY',   label:'DXY',        pulse:'UUP'  },
+};
 
-  const cvdUp     = d.cvd?.trending === 'up' || d.cvdTrend === 'up';
-  const whaleScore = d.whaleScore ?? 50;
-  const chg        = parseFloat(d.chg) || 0;
-  const oiDiv      = d.oiDiv || '—';
-  const fr         = parseFloat(d.fr) || 0;
-  const shock      = parseFloat(d.shock) || 1;
-  const isCrypto   = sym.includes('BINANCE:');
-
-  // Funding health — stocks always pass (fr=0)
-  const frHealthy  = fr <= 0.01;
-  const frNegative = fr < -0.01;
-
-  // ── RISK ON: broad accumulation across all inputs ──
-  if (whaleScore >= 65 && cvdUp && frHealthy && chg > 0.3) {
-    return { risk: 'RISK ON', flow: 'ACCUMULATE', riskC: 'var(--bull)', flowC: 'var(--bull)', riskEmoji: '🟢' };
-  }
-
-  // ── ROTATE IN: quiet accumulation — OI dropping but whale/CVD rising ──
-  // For stocks: OI proxy (oiDiv) = DIP BUY + whale rising
-  if ((oiDiv.includes('DIP BUY') || oiDiv.includes('OI DROP')) && whaleScore >= 55 && cvdUp) {
-    return { risk: 'ROTATE IN', flow: 'INFLOW', riskC: 'var(--accent)', flowC: 'var(--accent)', riskEmoji: '🔵' };
-  }
-
-  // ── ROTATE OUT: trapped longs / distribution ──
-  if ((oiDiv.includes('CONFIRM') || oiDiv.includes('✓')) && chg < -0.5 && whaleScore <= 40) {
-    return { risk: 'ROTATE OUT', flow: 'OUTFLOW', riskC: '#ff8c00', flowC: '#ff8c00', riskEmoji: '🟠' };
-  }
-
-  // ── RISK OFF: broad distribution ──
-  if (whaleScore <= 30 && !cvdUp && (isCrypto ? frNegative : chg < -0.5)) {
-    return { risk: 'RISK OFF', flow: 'EXIT', riskC: 'var(--bear)', flowC: 'var(--bear)', riskEmoji: '🔴' };
-  }
-
-  // ── NEUTRAL ──
-  return { risk: 'NEUTRAL', flow: '—', riskC: 'var(--text-dim)', flowC: 'var(--text-dim)', riskEmoji: '⚪' };
+// Reverse map: pulse key → sentinel config (e.g. 'GLD' → SENTINEL_MAP['GLD'])
+const PULSE_KEY_MAP = {};
+for (const [sym, cfg] of Object.entries(SENTINEL_MAP)) {
+  if (cfg.pulse) PULSE_KEY_MAP[cfg.pulse] = { ...cfg, sym };
 }
 
-// ── Sector-level aggregation ──
-// Returns array of sector objects sorted by net flow score (bull - bear count).
-// Used by renderSectorFlow() panel in render.js.
+function isSentinel(sym) { return !!(SENTINEL_MAP[sym]); }
+
+// ── Flow velocity history — persists across render cycles (~60s each) ──
+if (!window._sectorFlowHistory) window._sectorFlowHistory = {};
+
+// ── Per-symbol risk flow (full scoring — STATE.DS layer) ──
+function calcRiskFlow(d, sym) {
+  if (!d) return { risk:'—', flow:'—', riskC:'var(--text-dim)', flowC:'var(--text-dim)', riskEmoji:'' };
+
+  const cvdUp    = d.cvd?.trending === 'up' || d.cvdTrend === 'up';
+  const whale    = d.whaleScore ?? 50;
+  const chg      = parseFloat(d.chg) || 0;
+  const oiDiv    = d.oiDiv || '—';
+  const fr       = parseFloat(d.fr) || 0;
+  const isCrypto = sym.includes('BINANCE:');
+
+  if (whale >= 65 && cvdUp && fr <= 0.01 && chg > 0.3)
+    return { risk:'RISK ON',    flow:'ACCUMULATE', riskC:'var(--bull)',     flowC:'var(--bull)',     riskEmoji:'🟢' };
+  if ((oiDiv.includes('DIP BUY') || oiDiv.includes('OI DROP')) && whale >= 55 && cvdUp)
+    return { risk:'ROTATE IN',  flow:'INFLOW',     riskC:'var(--accent)',   flowC:'var(--accent)',   riskEmoji:'🔵' };
+  if ((oiDiv.includes('CONFIRM') || oiDiv.includes('✓')) && chg < -0.5 && whale <= 40)
+    return { risk:'ROTATE OUT', flow:'OUTFLOW',    riskC:'#ff8c00',         flowC:'#ff8c00',         riskEmoji:'🟠' };
+  if (whale <= 30 && !cvdUp && (isCrypto ? fr < -0.01 : chg < -0.5))
+    return { risk:'RISK OFF',   flow:'EXIT',       riskC:'var(--bear)',     flowC:'var(--bear)',     riskEmoji:'🔴' };
+  return   { risk:'NEUTRAL',   flow:'—',          riskC:'var(--text-dim)', flowC:'var(--text-dim)', riskEmoji:'⚪' };
+}
+
+// ── Lightweight risk flow from price change only (pulse layer) ──
+// Used for Gold, Silver, Bonds, Oil, DXY, indices — no whale/CVD available.
+// HAVEN and CURRENCY sectors use inverted logic (see calcSectorFlow).
+function pulseRiskFlow(chg) {
+  if (chg >  1.5) return { risk:'RISK ON',    score: 2 };
+  if (chg >  0.3) return { risk:'ROTATE IN',  score: 1 };
+  if (chg < -1.5) return { risk:'RISK OFF',   score:-2 };
+  if (chg < -0.3) return { risk:'ROTATE OUT', score:-1 };
+  return           { risk:'NEUTRAL',          score: 0 };
+}
+
+// ── Cross-asset risk appetite from STATE.marketPulse ──
+function calcRiskAppetite() {
+  const mp  = (typeof STATE !== 'undefined' && STATE.marketPulse) ? STATE.marketPulse : {};
+  const spy = parseFloat(mp.SPY?.chg || 0);
+  const iwm = parseFloat(mp.IWM?.chg || 0);
+  const gld = parseFloat(mp.GLD?.chg || 0);
+  const slv = parseFloat(mp.SLV?.chg || 0);
+  const tlt = parseFloat(mp.TLT?.chg || 0);
+  const btc = parseFloat(mp.BTC?.chg || 0);
+  const eth = parseFloat(mp.ETH?.chg || 0);
+  const sol = parseFloat(mp.SOL?.chg || 0);
+  const tsx = parseFloat(mp.TSX?.chg || 0);
+  const uup = parseFloat(mp.UUP?.chg || 0);  // DXY proxy
+  const uso = parseFloat(mp.USO?.chg || 0);  // WTI
+
+  const smallCapLead = parseFloat((iwm - spy).toFixed(2));
+  const goldFlight   = gld > 0.5 && spy < -0.3;
+  const silverFlight = slv > 0.5 && spy < -0.3;
+  const bondFlight   = tlt < -0.1 && spy < -0.3;  // yield dropping = bonds rising
+  const dxyRising    = uup > 0.3;
+  const cryptoBeta   = parseFloat((btc - spy).toFixed(2));
+  const tsxVsSpy     = parseFloat((tsx - spy).toFixed(2));
+
+  // Stablecoin rotation proxy: BTC bleeding but ETH/SOL holding → within-crypto rotation
+  const btcBleeding  = btc < -2;
+  const altHolding   = (eth > btc + 1) || (sol > btc + 1);
+  const stableRotate = btcBleeding && altHolding;
+
+  // Haven convergence: gold AND silver AND bonds all bid simultaneously = real fear
+  const havenConvergence = gld > 0.3 && slv > 0.3 && tlt < -0.05;
+
+  // Everything bleeding check
+  const equityBleeding = spy < -0.5 && iwm < -0.5;
+  const cryptoBleeding = btc < -1 && eth < -1;
+  const goldBleeding   = gld < -0.3;
+  const bondBleeding   = tlt > 0.2;  // yield rising = bonds falling
+  const allBleeding    = equityBleeding && cryptoBleeding && goldBleeding;
+
+  const riskScore =
+    (smallCapLead > 1 ? 2 : smallCapLead > 0 ? 1 : smallCapLead < -1 ? -2 : -1) +
+    (goldFlight   ? -2 : gld  < -0.3 ?  1 : 0) +
+    (bondFlight   ? -2 : 0) +
+    (dxyRising    ? -1 : uup  < -0.3 ?  1 : 0) +
+    (spy > 0.5    ?  1 : spy  < -0.5 ? -1 : 0);
+
+  let appetiteLabel, appetiteC, appetiteEmoji;
+  if      (riskScore >= 3)  { appetiteLabel='HIGH';     appetiteC='var(--bull)';     appetiteEmoji='🟢'; }
+  else if (riskScore >= 1)  { appetiteLabel='MODERATE'; appetiteC='#00cc8a';          appetiteEmoji='🔵'; }
+  else if (riskScore <= -3) { appetiteLabel='VERY LOW'; appetiteC='var(--bear)';     appetiteEmoji='🔴'; }
+  else if (riskScore <= -1) { appetiteLabel='LOW';      appetiteC='#ff8c00';          appetiteEmoji='🟠'; }
+  else                      { appetiteLabel='NEUTRAL';  appetiteC='var(--text-dim)'; appetiteEmoji='⚪'; }
+
+  return {
+    spy, iwm, gld, slv, tlt, btc, eth, sol, tsx, uup, uso,
+    smallCapLead, goldFlight, silverFlight, bondFlight, dxyRising,
+    cryptoBeta, tsxVsSpy, stableRotate, havenConvergence,
+    equityBleeding, cryptoBleeding, goldBleeding, allBleeding,
+    appetiteLabel, appetiteC, appetiteEmoji,
+  };
+}
+
+// ── Market regime — top-level label derived from all sectors + appetite ──
+function calcMarketRegime(sectors, appetite) {
+  if (!sectors || !sectors.length) return { regime:'NEUTRAL', emoji:'⚪', c:'var(--text-dim)', note:'No data', prediction:'' };
+
+  const a = appetite || {};
+  const allBleeding    = sectors.every(s => s.flowScore <= 0);
+  const havenSector    = sectors.find(s => s.sector === 'HAVEN');
+  const cryptoSector   = sectors.find(s => s.sector === 'CRYPTO');
+  const techSector     = sectors.find(s => s.sector === 'TECH');
+  const currencySector = sectors.find(s => s.sector === 'CURRENCY');
+  const commSector     = sectors.find(s => s.sector === 'COMMODITIES');
+  const havenInflow    = (havenSector?.flowScore ?? 0) > 0;
+  const dxyRising      = (currencySector?.flowScore ?? 0) > 0 || a.dxyRising;
+
+  // ── Scenario 1: LIQUIDITY EVENT — everything bleeding including haven ──
+  if (allBleeding && !havenInflow && a.goldBleeding && a.cryptoBleeding) {
+    return {
+      regime:'LIQUIDITY EVENT', emoji:'⚠️', c:'#ff4455',
+      note:'Forced selling across ALL assets · No safe haven bid · Check margin calls',
+      prediction:'Expect sharp bounce once forced selling exhausts · Watch for BTC stabilisation first · Cash is king short-term',
+      alert: true,
+    };
+  }
+
+  // ── Scenario 2: CASH ROTATION — everything bleeding, DXY rising ──
+  if (allBleeding && dxyRising) {
+    return {
+      regime:'CASH ROTATION', emoji:'🚨', c:'#ff4455',
+      note:`Dollar bid ${a.uup >= 0 ? '+' : ''}${(a.uup||0).toFixed(1)}% · All risk assets under pressure`,
+      prediction:'Capital parking in USD cash/T-bills · Watch DXY for reversal signal · Crypto typically lags equity recovery by 1–2 sessions',
+      alert: true,
+    };
+  }
+
+  // ── Scenario 3: FLIGHT TO SAFETY — equities + crypto bleeding, haven bid ──
+  if (a.equityBleeding && a.cryptoBleeding && havenInflow) {
+    const havenStr = [a.goldFlight && 'Gold', a.silverFlight && 'Silver', a.bondFlight && 'Bonds'].filter(Boolean).join(' + ');
+    return {
+      regime:'FLIGHT TO SAFETY', emoji:'🛡', c:'#ff8c00',
+      note:`${havenStr || 'Haven assets'} bid · Risk assets bleeding · Defensive rotation active`,
+      prediction:'Institutional de-risking in progress · Haven inflow typically precedes equity bottom by 1–3 sessions · Wait for gold to peak before re-entering risk',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 4: HAVEN CONVERGENCE — gold + silver + bonds all bid ──
+  if (a.havenConvergence && !allBleeding) {
+    return {
+      regime:'HAVEN CONVERGENCE', emoji:'🛡', c:'#ff8c00',
+      note:'Gold + Silver + Bonds all bid simultaneously · Smart money hedging',
+      prediction:'Hedging behaviour — not necessarily panic yet · Risk assets may hold short-term but downside risk building · Reduce position sizes',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 5: STABLECOIN ROTATION — BTC bleeding, alts holding ──
+  if (a.stableRotate) {
+    return {
+      regime:'BTC DOM DROP', emoji:'🔄', c:'var(--accent)',
+      note:'BTC bleeding · ETH/SOL holding · BTC dominance rotating to alts',
+      prediction:'Alt season signal · Capital staying within crypto but rotating from BTC → ETH/SOL/alts · Not an exit signal for crypto overall',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 6: CRYPTO → HAVEN (crypto specific outflow) ──
+  if ((cryptoSector?.flowScore ?? 0) <= -1 && havenInflow) {
+    return {
+      regime:'CRYPTO → HAVEN', emoji:'🛡', c:'#ff8c00',
+      note:'Crypto outflow into gold/bonds · Defensive rotation',
+      prediction:'Crypto likely to continue lower until haven inflow peaks · Watch gold price for reversal · ETH typically recovers before BTC in these rotations',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 7: CRYPTO → TECH (within-risk rotation) ──
+  if ((cryptoSector?.flowScore ?? 0) <= -1 && (techSector?.flowScore ?? 0) >= 1) {
+    return {
+      regime:'CRYPTO → TECH', emoji:'🔄', c:'#4da6ff',
+      note:'Risk rotating from crypto into tech equities · Institutional preference shift',
+      prediction:'Crypto may stabilise once tech rotation exhausts · Watch QQQ/NVDA for signs of topping · Crypto ETFs (ETHY/KILO) may lag pure equity recovery',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 8: COMMODITY BID (inflation rotation) ──
+  if ((commSector?.flowScore ?? 0) >= 1 && (a.uso || 0) > 1) {
+    return {
+      regime:'COMMODITY BID', emoji:'🛢', c:'#f5c518',
+      note:'Oil + commodities bid · Inflation rotation or supply shock',
+      prediction:'Energy equities (XEG.TO, XLE) typically follow oil with 1-session lag · TSX outperforms S&P in commodity bids · Crypto neutral to negative in inflation spikes',
+      alert: false,
+    };
+  }
+
+  // ── Scenario 9: Normal rotation — top sector → bottom sector ──
+  const topIn  = sectors.find(s => s.flowScore >= 1 && s.sector !== 'HAVEN' && s.sector !== 'CURRENCY');
+  const topOut = [...sectors].reverse().find(s => s.flowScore <= -1);
+  if (topIn && topOut) {
+    return {
+      regime:`${topOut.sector} → ${topIn.sector}`, emoji:'💸', c:'var(--accent)',
+      note:`Capital rotating from ${topOut.sector} into ${topIn.sector}`,
+      prediction:`${topIn.sector} momentum likely to continue 1–2 sessions · ${topOut.sector} may find support once rotation exhausts · Watch velocity for acceleration`,
+      alert: false,
+    };
+  }
+
+  // ── Scenario 10: Broad risk on ──
+  if (sectors.filter(s => s.flowScore >= 1).length >= 3) {
+    return {
+      regime:'BROAD RISK ON', emoji:'🟢', c:'var(--bull)',
+      note:'Multiple sectors showing inflow · Risk appetite expanding',
+      prediction:'Momentum environment · Breakout setups favoured · Reduce counter-trend bias · Crypto typically lags equity risk-on by 0.5–1 session',
+      alert: false,
+    };
+  }
+
+  return {
+    regime:'NEUTRAL', emoji:'⚪', c:'var(--text-dim)',
+    note:'No clear directional rotation detected',
+    prediction:'Wait for sector divergence to develop · Watch IWM vs SPY and BTC vs ETH for first rotation signal',
+    alert: false,
+  };
+}
+
+// ── Main sector flow aggregation ──
+// Merges STATE.DS (full scoring) + STATE.marketPulse (pulse layer).
+// Sectors appear even with ZERO watchlist symbols — driven by pulse layer.
 function calcSectorFlow(allDS) {
   const sectors = {};
+  const now     = Date.now();
+  const history = window._sectorFlowHistory;
+  const mp      = (typeof STATE !== 'undefined' && STATE.marketPulse) ? STATE.marketPulse : {};
 
+  // ── Helper: ensure sector bucket exists ──
+  function ensureSector(key) {
+    if (!sectors[key]) sectors[key] = {
+      sector: key, syms:[], sentinels:[],
+      riskOn:0, riskOff:0, rotateIn:0, rotateOut:0, neutral:0,
+      totalWhale:0, totalChg:0, pulseChgs:[], count:0, pulseCount:0,
+    };
+    return sectors[key];
+  }
+
+  // ── Layer 1: STATE.DS — full scoring ──
   for (const [sym, d] of Object.entries(allDS || {})) {
     if (!d || !d.whaleScore) continue;
-    const sector = sectorTagFor(sym);
-    if (!sectors[sector]) {
-      sectors[sector] = {
-        sector,
-        syms:      [],
-        riskOn:    0, riskOff:   0,
-        rotateIn:  0, rotateOut: 0,
-        neutral:   0,
-        totalWhale: 0,
-        totalChg:   0,
-        count:      0,
-      };
-    }
-    const rf = calcRiskFlow(d, sym);
-    const s  = sectors[sector];
-    s.syms.push(sym);
+    const sectorKey = SENTINEL_MAP[sym]?.sector ?? sectorTagFor(sym);
+    const s = ensureSector(sectorKey);
+    if (SENTINEL_MAP[sym]) s.sentinels.push(SENTINEL_MAP[sym].label);
+    else s.syms.push(sym.includes('BINANCE:') ? sym.split(':')[1].replace('USDT','') : sym.replace(/\.\w+$/,''));
     s.count++;
     s.totalWhale += d.whaleScore ?? 50;
     s.totalChg   += parseFloat(d.chg) || 0;
-    if      (rf.risk === 'RISK ON')     s.riskOn++;
-    else if (rf.risk === 'ROTATE IN')   s.rotateIn++;
-    else if (rf.risk === 'ROTATE OUT')  s.rotateOut++;
-    else if (rf.risk === 'RISK OFF')    s.riskOff++;
-    else                                s.neutral++;
+    const rf = calcRiskFlow(d, sym);
+    if      (rf.risk === 'RISK ON')    s.riskOn++;
+    else if (rf.risk === 'ROTATE IN')  s.rotateIn++;
+    else if (rf.risk === 'ROTATE OUT') s.rotateOut++;
+    else if (rf.risk === 'RISK OFF')   s.riskOff++;
+    else                               s.neutral++;
   }
 
+  // ── Layer 2: STATE.marketPulse — price-only pulse data ──
+  // Adds coverage for Gold, Silver, Bonds, Oil, DXY, indices
+  // even when those symbols are NOT in the watchlist.
+  for (const [pulseKey, cfg] of Object.entries(PULSE_KEY_MAP)) {
+    const pulseData = mp[pulseKey];
+    if (!pulseData || pulseData.chg == null) continue;
+    const chg = parseFloat(pulseData.chg) || 0;
+    const s   = ensureSector(cfg.sector);
+
+    // Only add if not already covered by DS layer for this symbol
+    const alreadyInDS = (allDS || {})[cfg.sym] != null;
+    if (!alreadyInDS) {
+      s.pulseCount++;
+      s.pulseChgs.push(chg);
+      s.totalChg += chg;
+      s.count++;
+      if (!s.sentinels.includes(cfg.label)) s.sentinels.push(cfg.label + '●');
+
+      // HAVEN and CURRENCY: inverted interpretation
+      const prf = pulseRiskFlow(chg);
+      let effectiveScore = prf.score;
+      if (cfg.sector === 'HAVEN') {
+        // Haven inflow = market fear = we keep score as-is for the haven tile
+        // but flag it so regime detection knows
+      }
+      if (cfg.sector === 'CURRENCY') {
+        // DXY rising = risk-off for everyone else — invert for currency tile display
+        effectiveScore = -prf.score;
+      }
+
+      if      (effectiveScore >= 2)  s.riskOn++;
+      else if (effectiveScore >= 1)  s.rotateIn++;
+      else if (effectiveScore <= -2) s.riskOff++;
+      else if (effectiveScore <= -1) s.rotateOut++;
+      else                           s.neutral++;
+    }
+  }
+
+  // ── Build final sector objects ──
   return Object.values(sectors).map(s => {
-    const avgWhale   = Math.round(s.totalWhale / s.count);
-    const avgChg     = parseFloat((s.totalChg / s.count).toFixed(2));
-    const flowScore  = s.riskOn * 2 + s.rotateIn - s.rotateOut - s.riskOff * 2;
+    const dsCount  = s.count - s.pulseCount;
+    const avgWhale = dsCount > 0 ? Math.round(s.totalWhale / dsCount) : null;
+    const avgChg   = parseFloat((s.totalChg / s.count).toFixed(2));
+
+    // Flow score: weighted — DS symbols count double (richer signal)
+    const flowScore = s.riskOn * 2 + s.rotateIn - s.rotateOut - s.riskOff * 2;
+
+    // Coverage confidence: how many independent data points back this sector reading
+    // Single symbol = LOW, 2-3 = MEDIUM, 4+ = HIGH
+    const confidence = s.count >= 4 ? 'HIGH' : s.count >= 2 ? 'MED' : 'LOW';
+    const confC = confidence === 'HIGH' ? 'var(--bull)' : confidence === 'MED' ? '#f5c518' : 'var(--text-dim)';
+
+    // HAVEN special: inflow = defensive (amber not green)
     let flowLabel, flowC, flowEmoji;
-    if      (flowScore >= 2)  { flowLabel = 'INFLOW';   flowC = 'var(--bull)';      flowEmoji = '📈'; }
-    else if (flowScore >= 1)  { flowLabel = 'BUILDING'; flowC = '#00cc8a';           flowEmoji = '🔵'; }
-    else if (flowScore <= -2) { flowLabel = 'OUTFLOW';  flowC = 'var(--bear)';      flowEmoji = '📉'; }
-    else if (flowScore <= -1) { flowLabel = 'FADING';   flowC = '#ff8c00';           flowEmoji = '🟠'; }
-    else                      { flowLabel = 'NEUTRAL';  flowC = 'var(--text-dim)';  flowEmoji = '➡️'; }
-    return { ...s, avgWhale, avgChg, flowScore, flowLabel, flowC, flowEmoji };
+    if (s.sector === 'HAVEN') {
+      if      (flowScore >= 2)  { flowLabel='DEFENSIVE'; flowC='#ff8c00';          flowEmoji='🛡'; }
+      else if (flowScore >= 1)  { flowLabel='HEDGING';   flowC='#ffa500';          flowEmoji='🛡'; }
+      else if (flowScore <= -2) { flowLabel='UNWINDING'; flowC='var(--bull)';      flowEmoji='📈'; }
+      else if (flowScore <= -1) { flowLabel='FADING';    flowC='#00cc8a';          flowEmoji='🔵'; }
+      else                      { flowLabel='NEUTRAL';   flowC='var(--text-dim)'; flowEmoji='➡️'; }
+    } else if (s.sector === 'CURRENCY') {
+      if      (flowScore >= 2)  { flowLabel='DXY↑ RISK'; flowC='#ff4455';         flowEmoji='⚠️'; }
+      else if (flowScore >= 1)  { flowLabel='DXY FIRM';  flowC='#ff8c00';          flowEmoji='🟠'; }
+      else if (flowScore <= -2) { flowLabel='DXY↓ BULL'; flowC='var(--bull)';     flowEmoji='🟢'; }
+      else if (flowScore <= -1) { flowLabel='DXY SOFT';  flowC='#00cc8a';          flowEmoji='🔵'; }
+      else                      { flowLabel='DXY FLAT';  flowC='var(--text-dim)'; flowEmoji='➡️'; }
+    } else {
+      if      (flowScore >= 2)  { flowLabel='INFLOW';    flowC='var(--bull)';     flowEmoji='📈'; }
+      else if (flowScore >= 1)  { flowLabel='BUILDING';  flowC='#00cc8a';          flowEmoji='🔵'; }
+      else if (flowScore <= -2) { flowLabel='OUTFLOW';   flowC='var(--bear)';     flowEmoji='📉'; }
+      else if (flowScore <= -1) { flowLabel='FADING';    flowC='#ff8c00';          flowEmoji='🟠'; }
+      else                      { flowLabel='NEUTRAL';   flowC='var(--text-dim)'; flowEmoji='➡️'; }
+    }
+
+    // ── Velocity: 15-min flow delta ──
+    if (!history[s.sector]) history[s.sector] = [];
+    history[s.sector].push({ t:now, score:flowScore });
+    history[s.sector] = history[s.sector].filter(e => now - e.t < 30 * 60 * 1000);
+    const old15 = history[s.sector].find(e => now - e.t >= 14 * 60 * 1000);
+    const flowVelocity = old15 ? flowScore - old15.score : 0;
+    const velArrow = flowVelocity >= 2 ? '↑↑' : flowVelocity === 1 ? '↑' :
+                     flowVelocity <= -2 ? '↓↓' : flowVelocity === -1 ? '↓' : '';
+    const velC = flowVelocity > 0 ? 'var(--bull)' : flowVelocity < 0 ? 'var(--bear)' : 'var(--text-dim)';
+
+    return {
+      ...s, avgWhale, avgChg, flowScore, confidence, confC,
+      flowVelocity, velArrow, velC,
+      flowLabel, flowC, flowEmoji,
+      isPulseOnly: dsCount === 0,
+    };
   }).sort((a, b) => b.flowScore - a.flowScore);
 }

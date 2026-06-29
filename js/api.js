@@ -556,15 +556,18 @@ async function fetchFG() {
   } catch {}
 }
 
-// ── Market Pulse — unchanged from v13.2 ──
+// ── Market Pulse — v13.4: added TSX Composite, IWM (risk appetite), XLB (materials) ──
 const MPULSE_STOCKS = [
   { id: 'mp-SPY', sym: '^spx',     stooq: true },
   { id: 'mp-QQQ', sym: '^ndx',     stooq: true },
   { id: 'mp-DIA', sym: '^dji',     stooq: true },
+  { id: 'mp-TSX', sym: '^tsx',     stooq: true },                        // TSX Composite
+  { id: 'mp-IWM', sym: 'IWM',      stooq: false, yahoo: 'IWM'      },   // Russell 2000 — risk appetite
   { id: 'mp-XLK', sym: 'XLK',      stooq: false },
   { id: 'mp-XLE', sym: 'XLE',      stooq: false },
   { id: 'mp-XLF', sym: 'XLF',      stooq: false },
   { id: 'mp-XLV', sym: 'XLV',      stooq: false },
+  { id: 'mp-XLB', sym: 'XLB',      stooq: false, yahoo: 'XLB'      },   // Materials
   { id: 'mp-GLD', sym: 'xauusd',   stooq: true,  yahoo: 'GC=F'     },
   { id: 'mp-SLV', sym: 'xagusd',   stooq: true,  yahoo: 'SI=F'     },
   { id: 'mp-UUP', sym: 'dx-y.nyb', stooq: true,  yahoo: 'DX-Y.NYB' },
@@ -670,7 +673,17 @@ function updateMPill(id, price, chgPct) {
   chgEl.className = 'mp-tile-chg ' + (up ? 'up' : dn ? 'dn' : 'flat');
   el.classList.toggle('mp-hot-up', chgPct >  1.5);
   el.classList.toggle('mp-hot-dn', chgPct < -1.5);
+  // Store in STATE.marketPulse keyed by tile id suffix
+  // so calcRiskAppetite() and calcSectorFlow() can read all pulse data
   const sym = id.replace('mp-', '');
   if (!STATE.marketPulse) STATE.marketPulse = {};
   STATE.marketPulse[sym] = { p: price, chg: chgPct };
+  // Also store by common aliases used in PULSE_KEY_MAP
+  const PULSE_ALIASES = {
+    'SPY':'SPY', 'QQQ':'QQQ', 'DIA':'DIA', 'TSX':'TSX', 'IWM':'IWM',
+    'XLK':'XLK', 'XLE':'XLE', 'XLF':'XLF', 'XLV':'XLV', 'XLB':'XLB',
+    'GLD':'GLD', 'SLV':'SLV', 'TLT':'TLT', 'UUP':'UUP', 'USO':'USO', 'BRT':'BRT',
+    'BTC':'BTC', 'ETH':'ETH', 'SOL':'SOL', 'XMR':'XMR',
+  };
+  if (PULSE_ALIASES[sym]) STATE.marketPulse[PULSE_ALIASES[sym]] = { p: price, chg: chgPct };
 }
