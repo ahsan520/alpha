@@ -33,7 +33,29 @@ const TG_ENABLED = (process.env.TELEGRAM_ENABLED ?? 'true') === 'true';
 const LB_MIN_SCORE     = parseInt(process.env.LB_MIN_SCORE     || '9');
 const LB_BULL_CONF_MIN = parseInt(process.env.LB_BULL_CONF_MIN || '5');
 const LB_COOLDOWN_MIN  = parseInt(process.env.LB_COOLDOWN_MIN  || '60');
-const LB_HOLD_LOCK     = parseInt(process.env.LB_HOLD_LOCK     || '20');
+const LB_HOLD_LOCK      = parseInt(process.env.LB_HOLD_LOCK      || '20');
+const LB_STALE_WATCH_HRS = parseFloat(process.env.LB_STALE_WATCH_HRS || '48');
+
+// ── Sweep stale 'watching' positions from positions.json ──
+// Headless equivalent of the browser sweepExpiredPositions().
+// Without this, positions.json accumulates symbols that never tagged
+// stop or target — the classic "3-day-old symbol" bug.
+function sweepStalePositions(positions) {
+  const now      = Date.now();
+  const staleMs  = LB_STALE_WATCH_HRS * 60 * 60 * 1000;
+  let changed    = false;
+  for (const [sym, pos] of Object.entries(positions)) {
+    if (pos.status !== 'watching') continue;
+    const openedAt = pos.alertedAt || 0;
+    if (now - openedAt >= staleMs) {
+      const ageHrs = Math.round((now - openedAt) / 3600000);
+      console.log(`  🗑  STALE — ${sym} watching ${ageHrs}h → evicted`);
+      delete positions[sym];
+      changed = true;
+    }
+  }
+  return { positions, changed };
+}
 const ALLOW_PRE_MARKET = (process.env.LB_ALLOW_PRE_MARKET || 'false') === 'true';
 const ALLOW_AH         = (process.env.LB_ALLOW_AH         || 'false') === 'true';
 const ALERT_STATE_TTL  = parseFloat(process.env.LB_ALERT_STATE_TTL_HOURS || '6');
@@ -214,7 +236,18 @@ async function processBuySignals() {
 
   const cooldowns  = loadCooldowns();
   const alertState = pruneAlertState(loadAlertState());
-  const positions  = loadPositions();
+  let   positions  = loadPositions();
+
+  // ── Sweep stale watching positions before evaluating new candidates ──
+  // Prevents positions.json accumulating symbols that never tagged stop/target.
+  const swept = sweepStalePositions(positions);
+  positions   = swept.positions;
+  if (swept.changed) {
+    savePositions(positions);
+    logAudit('stale_sweep', { evicted: Object.keys(positions).length });
+    if (typeof scheduleGithubSync === 'function') scheduleGithubSync?.();
+  }
+
   const candidates = [];
 
   for (const [pair, entry] of entries) {
@@ -360,6 +393,7 @@ async function main() {
   logAudit('job_start', {
     minScore: LB_MIN_SCORE, bullConfMin: LB_BULL_CONF_MIN,
     cooldownMin: LB_COOLDOWN_MIN, allowAH: ALLOW_AH, allowPre: ALLOW_PRE_MARKET,
+    staleWatchHrs: LB_STALE_WATCH_HRS,
     ghRepo: process.env.GH_REPO || '✗ missing',
     tgEnabled: TG_ENABLED, dryRun: DRY_RUN,
   });
