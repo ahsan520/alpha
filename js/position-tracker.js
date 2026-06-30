@@ -521,6 +521,34 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
   if (changed) savePositions(positions);
   if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
 
+  // ── Schedule removal of newly-terminal positions ──
+  // stopped: removed after 5 min, tp2_hit: after 8 min.
+  // We schedule an exact setTimeout rather than waiting for the next
+  // sweepExpiredPositions() render cycle — ensures removal happens even
+  // if the Alerts tab is closed and renderPositionTracker() isn't running.
+  for (const a of [...tier3Alerts]) {
+    const pos   = positions[a.sym];
+    if (!pos) continue;
+    const delay = AUTO_EVICT_MS[pos.status];
+    if (!delay) continue;
+    setTimeout(async () => {
+      const current = loadPositions();
+      if (!current[a.sym]) return; // already removed
+      if (!['stopped','tp2_hit'].includes(current[a.sym].status)) return; // status changed
+      delete current[a.sym];
+      if (window._cvdDeclineCount) delete window._cvdDeclineCount[a.sym];
+      savePositions(current);
+      if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
+      logAlertItem('info', `🗑 Removed ${a.base} (${pos.status}) — slot freed`);
+      // Promote next queued candidate
+      const _cfg     = loadLbAlertCfg();
+      const _tgCfg   = STATE.alertCfg?.telegram || {};
+      const _tgReady = (_tgCfg.enabled !== false) && !!(_tgCfg.botToken || window.__TG_TOKEN) && !!(_tgCfg.chatId || window.__TG_CHAT);
+      await promoteRotationCandidate(_cfg, _tgReady);
+      renderPositionTracker();
+    }, delay);
+  }
+
   // ── Send Tier 3 immediate alerts (one per event) ──
   for (const a of tier3Alerts) {
     if (!tgReady) continue;
@@ -827,19 +855,34 @@ async function renderPositionTracker() {
     stopped:  '🔴 STOPPED',
   }[s] || s);
 
-  // Countdown to auto-eviction for terminal states
+  // Countdown to auto-eviction for terminal states — updates every second
   function evictCountdown(pos) {
     const delay = AUTO_EVICT_MS[pos.status];
-    if (!delay) return ''; // watching = stays forever
+    if (!delay) return '';
     const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
     const remaining = Math.max(0, delay - (Date.now() - changedAt));
     const remMins   = Math.ceil(remaining / 60000);
     const remSecs   = Math.ceil(remaining / 1000);
+    const id        = `evict-cd-${pos.sym.replace(/[^a-z0-9]/gi,'')}`;
     const txt = remaining <= 0
       ? 'removing…'
-      : remaining < 60000 ? `auto-remove in ${remSecs}s`
-      :                     `auto-remove in ${remMins}min`;
-    return `<span style="color:var(--text-dim);font-size:7px;font-family:var(--mono);opacity:.7;">⏳ ${txt}</span>`;
+      : remaining < 60000 ? `removing in ${remSecs}s`
+      :                     `removing in ${remMins}min`;
+    // Kick off a live countdown ticker on first render
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el || el._ticking) return;
+      el._ticking = true;
+      const tick = setInterval(() => {
+        const rem2 = Math.max(0, delay - (Date.now() - changedAt));
+        if (!document.getElementById(id)) { clearInterval(tick); return; }
+        if (rem2 <= 0) { clearInterval(tick); el.textContent = '⏳ removing…'; return; }
+        const s = Math.ceil(rem2 / 1000);
+        const m = Math.ceil(rem2 / 60000);
+        el.textContent = `⏳ ${rem2 < 60000 ? `removing in ${s}s` : `removing in ${m}min`}`;
+      }, 1000);
+    }, 0);
+    return `<span id="${id}" style="color:var(--text-dim);font-size:7px;font-family:var(--mono);opacity:.7;">⏳ ${txt}</span>`;
   }
 
   el.innerHTML = entries.map(pos => {
