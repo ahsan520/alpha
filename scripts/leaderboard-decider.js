@@ -33,28 +33,84 @@ const TG_ENABLED = (process.env.TELEGRAM_ENABLED ?? 'true') === 'true';
 const LB_MIN_SCORE     = parseInt(process.env.LB_MIN_SCORE     || '9');
 const LB_BULL_CONF_MIN = parseInt(process.env.LB_BULL_CONF_MIN || '5');
 const LB_COOLDOWN_MIN  = parseInt(process.env.LB_COOLDOWN_MIN  || '60');
-const LB_HOLD_LOCK      = parseInt(process.env.LB_HOLD_LOCK      || '20');
-const LB_STALE_WATCH_HRS = parseFloat(process.env.LB_STALE_WATCH_HRS || '48');
+const LB_HOLD_LOCK        = parseInt(process.env.LB_HOLD_LOCK        || '20');
+const LB_STALE_WATCH_HRS  = parseFloat(process.env.LB_STALE_WATCH_HRS  || '24');  // default 24h for crypto
 
-// ── Sweep stale 'watching' positions from positions.json ──
-// Headless equivalent of the browser sweepExpiredPositions().
-// Without this, positions.json accumulates symbols that never tagged
-// stop or target — the classic "3-day-old symbol" bug.
-function sweepStalePositions(positions) {
+// ── Terminal state cleanup delays ──
+// How long stopped/tp2_hit/exiting/tp1_hit entries persist in positions.json
+// before the headless runner removes them. These mirror the browser AUTO_EVICT_MS.
+const HEADLESS_TERMINAL_MS = {
+  stopped:  5  * 60 * 1000,   //  5 min
+  tp2_hit:  8  * 60 * 1000,   //  8 min
+  tp1_hit:  20 * 60 * 1000,   // 20 min — may still be tracking T2
+  exiting:  10 * 60 * 1000,   // 10 min
+};
+
+// ── Sweep positions.json — three passes ──
+// Pass 1: stale 'watching' (never hit stop or target)
+// Pass 2: terminal states past their eviction window
+// Pass 3: price-check watching positions against live market data
+function sweepPositions(positions, marketSymbols) {
   const now      = Date.now();
   const staleMs  = LB_STALE_WATCH_HRS * 60 * 60 * 1000;
   let changed    = false;
+  const evicted  = [];
+  const stopHits = [];
+
   for (const [sym, pos] of Object.entries(positions)) {
-    if (pos.status !== 'watching') continue;
-    const openedAt = pos.alertedAt || 0;
-    if (now - openedAt >= staleMs) {
-      const ageHrs = Math.round((now - openedAt) / 3600000);
-      console.log(`  🗑  STALE — ${sym} watching ${ageHrs}h → evicted`);
+
+    // ── Pass 1: stale watching — never resolved ──
+    if (pos.status === 'watching') {
+      const openedAt = pos.alertedAt || 0;
+      if (now - openedAt >= staleMs) {
+        const ageHrs = Math.round((now - openedAt) / 3600000);
+        console.log(`  🗑  STALE — ${sym} watching ${ageHrs}h → evicted`);
+        delete positions[sym];
+        evicted.push(sym);
+        changed = true;
+        continue;
+      }
+
+      // ── Pass 3: price check watching positions vs live market data ──
+      // Headless runner has market-data.json — use it to detect stops
+      // even when the browser is never opened.
+      if (marketSymbols) {
+        // Resolve the market key: positions use BINANCE:BTCUSDT, market uses BTCUSDT
+        const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
+        const mData = marketSymbols[mKey];
+        if (mData && mData.d?.p) {
+          const price  = parseFloat(mData.d.p);
+          const stop   = parseFloat(pos.stop || 0);
+          const isBull = pos.dir === 'bull' || pos.dir !== 'bear';
+          if (isBull && stop > 0 && price <= stop) {
+            console.log(`  🔴  STOP HIT (headless) — ${sym} price:${price} stop:${stop}`);
+            pos.status          = 'stopped';
+            pos.statusChangedAt = now;
+            pos.headlessStop    = true;  // flag: stop detected by headless runner
+            stopHits.push({ sym, base: pos.base, price, stop, entry: pos.entryPrice });
+            changed = true;
+            // Schedule removal after 5 min — re-evaluated next Job B run
+            // (actual removal happens on next sweep when statusChangedAt + 5min elapsed)
+          }
+        }
+      }
+      continue;
+    }
+
+    // ── Pass 2: terminal state cleanup ──
+    const delay = HEADLESS_TERMINAL_MS[pos.status];
+    if (!delay) continue;
+    const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
+    if (now - changedAt >= delay) {
+      const base = sym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
+      console.log(`  🗑  Removed ${base} (${pos.status}) after ${Math.round(delay/60000)}min`);
       delete positions[sym];
+      evicted.push(sym);
       changed = true;
     }
   }
-  return { positions, changed };
+
+  return { positions, changed, evicted, stopHits };
 }
 const ALLOW_PRE_MARKET = (process.env.LB_ALLOW_PRE_MARKET || 'false') === 'true';
 const ALLOW_AH         = (process.env.LB_ALLOW_AH         || 'false') === 'true';
@@ -238,14 +294,36 @@ async function processBuySignals() {
   const alertState = pruneAlertState(loadAlertState());
   let   positions  = loadPositions();
 
-  // ── Sweep stale watching positions before evaluating new candidates ──
-  // Prevents positions.json accumulating symbols that never tagged stop/target.
-  const swept = sweepStalePositions(positions);
+  // ── Sweep positions.json before evaluating new candidates ──
+  // Pass 1: stale watching (never resolved)
+  // Pass 2: terminal states past eviction window (stopped/tp2_hit/exiting/tp1_hit)
+  // Pass 3: price check watching vs live market-data.json (catches stops browser missed)
+  const swept = sweepPositions(positions, market.symbols || {});
   positions   = swept.positions;
   if (swept.changed) {
     savePositions(positions);
-    logAudit('stale_sweep', { evicted: Object.keys(positions).length });
-    if (typeof scheduleGithubSync === 'function') scheduleGithubSync?.();
+    logAudit('position_sweep', {
+      evicted:  swept.evicted.length,
+      stopHits: swept.stopHits.length,
+      remaining: Object.keys(positions).length,
+    });
+  }
+
+  // Send Telegram for headless stop hits
+  if (swept.stopHits.length) {
+    const utc = new Date().toUTCString().slice(17, 22) + ' UTC';
+    for (const s of swept.stopHits) {
+      const pnlPct = s.entry > 0 ? ((s.price - s.entry) / s.entry * 100).toFixed(2) : '—';
+      const msg = [
+        `🔴 *STOP HIT (headless)* — ${s.base} — ${utc}`,
+        `  Entry $${s.entry}  Stop $${s.stop}  Current $${s.price}`,
+        `  P&L ${pnlPct}%`,
+        `  _Detected by Job B price check — position removed_`,
+      ].join('\n');
+      await sendTelegram(msg);
+    }
+    // Push cleaned positions.json to GitHub immediately after stop hits
+    await pushPositionsToGitHub(positions);
   }
 
   const candidates = [];
@@ -290,10 +368,27 @@ async function processBuySignals() {
     }
 
     // ── 6. Open position gate ──
+    // Terminal states (stopped, tp2_hit) allow re-entry after cooldown — they
+    // will be cleaned up by sweepPositions() on the next run anyway.
+    // Non-terminal active states (watching, tp1_hit, exiting) block new entry.
     const sym = buildSymKey(pair);
-    if (positions[sym]?.status && !['stopped', 'tp2_hit'].includes(positions[sym].status)) {
-      console.log(`  ⏭  ${pair} — open position (${positions[sym].status})`);
-      continue;
+    const existingPos = positions[sym];
+    if (existingPos) {
+      const isTerminal = ['stopped', 'tp2_hit'].includes(existingPos.status);
+      if (!isTerminal) {
+        console.log(`  ⏭  ${pair} — open position (${existingPos.status})`);
+        continue;
+      }
+      // Terminal but not yet swept — skip if terminal state is fresh (< eviction window)
+      const terminalDelay = HEADLESS_TERMINAL_MS[existingPos.status] || 0;
+      const changedAt     = existingPos.statusChangedAt || existingPos.alertedAt || 0;
+      if (terminalDelay && (Date.now() - changedAt) < terminalDelay) {
+        console.log(`  ⏭  ${pair} — terminal (${existingPos.status}) not yet evicted`);
+        continue;
+      }
+      // Past eviction window — remove it now and allow re-entry
+      console.log(`  ♻️  ${pair} — clearing terminal (${existingPos.status}), allowing re-entry`);
+      delete positions[sym];
     }
 
     candidates.push({ pair, sym, entry, evald, cdKey, isCapBuy });
