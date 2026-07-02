@@ -521,6 +521,33 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
   if (changed) savePositions(positions);
   if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
 
+  // ── Immediate cleanup of any terminal positions past their eviction window ──
+  // Runs every monitorOpenPositions cycle (every 60s via renderLeaderboard).
+  // Catches positions that were marked terminal on a previous cycle but whose
+  // setTimeout may have been lost (page reload, tab sleep, etc.).
+  {
+    const recheck = loadPositions();
+    let rechecked = false;
+    const now2 = Date.now();
+    for (const [rsym, rpos] of Object.entries(recheck)) {
+      const rdelay = AUTO_EVICT_MS[rpos.status];
+      if (!rdelay) continue;
+      const rchangedAt = rpos.statusChangedAt || rpos.alertedAt || 0;
+      if (now2 - rchangedAt >= rdelay) {
+        delete recheck[rsym];
+        if (window._cvdDeclineCount) delete window._cvdDeclineCount[rsym];
+        const rbase = rsym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
+        logAlertItem('info', `🗑 Cleaned ${rbase} (${rpos.status}) on monitor cycle`);
+        rechecked = true;
+      }
+    }
+    if (rechecked) {
+      savePositions(recheck);
+      if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
+      renderPositionTracker();
+    }
+  }
+
   // ── Schedule removal of newly-terminal positions ──
   // stopped: removed after 5 min, tp2_hit: after 8 min.
   // We schedule an exact setTimeout rather than waiting for the next
@@ -615,7 +642,7 @@ const AUTO_EVICT_MS = {
 // open without resolution before being force-closed as STALE and the
 // slot freed for rotation. Configurable via localStorage; default 48hr.
 function getStaleWatchingMs() {
-  const hrs = parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '48');
+  const hrs = parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '24');
   return hrs * 60 * 60 * 1000;
 }
 
@@ -1052,7 +1079,7 @@ function renderLbAlertCard() {
          'No exit alerts in first N minutes after entry. Prevents panic on retest.'],
         ['lb-max-pos', 'Max Concurrent Positions', parseInt(localStorage.getItem(`${_REPO_NS}_max_positions`) || '4'), 1, 10, 1,
          'Max open positions before new signals are queued for rotation instead of immediately opened.'],
-        ['lb-stale-hrs', 'Stale-Watch Timeout (hrs)', parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '48'), 4, 168, 4,
+        ['lb-stale-hrs', 'Stale-Watch Timeout (hrs)', parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '24'), 4, 168, 4,
          'Force-evict a watching position after N hours with no stop or target hit. Fixes the stuck-symbol bug. 48hr = 2 trading days.'],
       ].map(([id, lbl, val, min, max, step, tip]) => `
         <div title="${tip}">
@@ -1105,7 +1132,7 @@ function saveLbAlertCfgFromUI() {
   saveLbAlertCfg(cfg);
   // max_positions and stale_watch_hrs stored separately (localStorage only — not in positions.json)
   const maxPos   = parseInt(document.getElementById('lb-max-pos')?.value)   || 4;
-  const staleHrs = parseFloat(document.getElementById('lb-stale-hrs')?.value) || 48;
+  const staleHrs = parseFloat(document.getElementById('lb-stale-hrs')?.value) || 24;
   localStorage.setItem(`${_REPO_NS}_max_positions`,  String(maxPos));
   localStorage.setItem(`${_REPO_NS}_stale_watch_hrs`, String(staleHrs));
   logAlertItem('info', `💾 Config saved — max positions: ${maxPos} · stale timeout: ${staleHrs}h`);
