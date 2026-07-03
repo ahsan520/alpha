@@ -658,18 +658,10 @@ async function main() {
     logAudit('position_opened', { pair, sym, setup: evald.setup.label, score: evald.conv });
   }
 
-  savePositions(positions);
-  saveCooldowns(cooldowns);
-  saveAlertState(alertState);
-  saveMarketData(resetPeaks(market));
-  await pushPositionsToGitHub(positions);
-
-  // Telegram BUY alerts
-  const utc   = new Date().toUTCString().slice(17, 22) + ' UTC';
-
   // ── Rank by CURRENT signal first, past spike history as a bonus only ──
-  // Informational only — every candidate above still opens a position;
-  // this just tells you where to look first.
+  // Computed here (before save) so positions.json itself carries the same
+  // recommended/rank/caution tags the Telegram message uses — Position
+  // Tracker in the browser can then badge ⭐ inline, no separate panel.
   //
   // Why current-first: a symbol's 30d win rate mostly reflects the regime
   // it traded in (BTC/market beta dragging everything down), not whether
@@ -705,6 +697,26 @@ async function main() {
   if (showRecoTags) {
     ranked.slice(0, RECO_TOP_N).forEach(r => { r.recommended = true; });
   }
+
+  // ── Tag positions.json with the same ranking, before it's saved ──
+  for (const { a, hist, rankScore, recommended, caution } of ranked) {
+    const p = positions[a.sym];
+    if (!p) continue;
+    p.recommended = !!recommended;   // starred in Position Tracker
+    p.rankScore   = parseFloat(rankScore.toFixed(3));
+    p.histWinRate = hist.winRate;    // null if no history yet
+    p.histSample  = hist.sample;
+    p.caution     = caution;         // rough recent record — reversal bet, not a repeat pattern
+  }
+
+  savePositions(positions);
+  saveCooldowns(cooldowns);
+  saveAlertState(alertState);
+  saveMarketData(resetPeaks(market));
+  await pushPositionsToGitHub(positions);
+
+  // Telegram BUY alerts
+  const utc   = new Date().toUTCString().slice(17, 22) + ' UTC';
 
   const lines = ranked.map(({ a, hist, recommended, caution }) => {
     const l          = a.levels;
