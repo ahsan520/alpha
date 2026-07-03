@@ -792,7 +792,8 @@ async function renderPositionTracker() {
 
   const positions = loadPositions();
   const cfg       = loadLbAlertCfg();
-  const entries   = Object.values(positions);
+  const entries   = Object.values(positions)
+    .sort((a, b) => (b.alertedAt || 0) - (a.alertedAt || 0)); // newest alert first
 
   // ── Rotation queue panel ──
   const queueEntries = (window._rotationQueue || []).filter(
@@ -919,12 +920,29 @@ async function renderPositionTracker() {
                      : spikeInfo.cls === 'spike-med'  ? '#00c8ff'
                      : 'var(--text-dim)';
 
+    // Recommendation tags written by leaderboard-decider.js at alert time —
+    // undefined on older positions opened before this feature, so guard.
+    const recoBadge = pos.recommended
+      ? `<span title="Ranked top pick when this alert fired — current signal + history bonus"
+               style="color:#ffd700;font-size:8px;font-weight:700;">⭐</span>`
+      : '';
+    const histTip = pos.histSample
+      ? `Past history at alert time: ${Math.round((pos.histWinRate||0) * pos.histSample)}W-${pos.histSample - Math.round((pos.histWinRate||0) * pos.histSample)}L (${Math.round((pos.histWinRate||0)*100)}%)`
+      : 'No trade history yet at alert time';
+    const cautionBadge = pos.caution
+      ? `<span title="${histTip} — rough recent record, treat as a reversal bet not a repeat pattern"
+               style="color:#ff8c00;font-size:7px;font-weight:700;border:1px solid #ff8c00;
+                      padding:1px 5px;border-radius:3px;">⚠ CAUTION</span>`
+      : '';
+
     return `
     <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${statusColor(pos.status)};
                 border-radius:6px;padding:10px 12px;margin-bottom:8px;font-family:var(--mono);font-size:9px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="color:var(--text-bright);font-weight:700;font-size:10px;">${pos.base}</span>
+        <span style="color:var(--text-bright);font-weight:700;font-size:10px;" title="${pos.histSample ? histTip : ''}">${pos.base}</span>
+        ${recoBadge}
         <span style="color:${statusColor(pos.status)};font-size:8px;letter-spacing:1px;">${statusLabel(pos.status)}</span>
+        ${cautionBadge}
         ${evictCountdown(pos)}
         <span title="Live spike potential: ${liveSpikeScore}/100 — resistance room + vol + funding + short squeeze fuel"
               style="color:${spikeColor};font-size:7px;font-weight:700;border:1px solid ${spikeColor};
