@@ -23,6 +23,16 @@
 
 const GH_SYNC_KEY = `${_REPO_NS}_gh_sync_cfg`;
 
+// ── symbol-history.json push — browser side ──
+// Best-effort, PAT/GH_PAT-gated, same as position sync. Only fires on
+// stop/T2 close events (rare), so a direct GET+merge+PUT per event is fine —
+// no need for a polling loop like positions.json has.
+const HISTORY_RETENTION_DAYS = 45;  // keep in sync with LB_HISTORY_RETENTION_DAYS default in leaderboard-decider.js
+const HISTORY_MAX_ROWS       = 1500; // hard cap regardless of days — mirrors LB_HISTORY_MAX_ROWS default
+window._historyQueue = window._historyQueue || []; // rows waiting to be pushed
+let _historyPushTimer    = null;
+let _historyPushInFlight = false;
+
 // Bump this version whenever defaults change — triggers a one-time migration
 // that resets mode/enabled to new defaults while keeping PAT credentials intact.
 const GH_SYNC_CFG_VERSION = 4; // v4: Option B default with pull from GitHub, repo field
@@ -276,6 +286,105 @@ async function syncPositionsToGitHub(manual = false) {
     _ghSyncInFlight = false;
     window._ghSyncState.syncing = false;
     if (_ghSyncQueued) { _ghSyncQueued = false; scheduleGithubSync(2000); }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SYMBOL-HISTORY PUSH — browser side companion to leaderboard-decider.js's
+// headless history recording. Called from position-tracker.js whenever a
+// position closes (stopped/tp2_hit) locally, e.g. because the browser tab
+// was open and caught a price-based exit before the next headless Job B
+// cycle did. Feeds the same scripts/symbol-history.json file that powers
+// the ⭐ recommendation ranking in the Telegram buy alert.
+//
+// Best-effort only: needs Option A (browser PAT) or Option B (GH_PAT
+// secret) — same credential resolution as positions sync. If neither is
+// configured, rows just accumulate in window._historyQueue and are
+// silently dropped on page close (headless Job B remains the source of
+// truth either way, since it also records the same outcome on its own
+// next cycle).
+// ══════════════════════════════════════════════════════════════════
+function queueHistoryOutcome(pos, price, outcome) {
+  const entry  = pos.entryPrice || 0;
+  const pnlPct = entry > 0 ? parseFloat(((price - entry) / entry * 100).toFixed(2)) : 0;
+  window._historyQueue.push({
+    base:       pos.base,
+    pair:       pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+    outcome,    // 'stopped' | 'tp2_hit'
+    score:      pos.score,
+    spikeScore: pos.spikeScore,
+    pnlPct,
+    closedAt:   Date.now(),
+  });
+  if (_historyPushTimer) clearTimeout(_historyPushTimer);
+  _historyPushTimer = setTimeout(() => { _historyPushTimer = null; pushHistoryToGitHub(); }, 4000);
+}
+
+async function pushHistoryToGitHub() {
+  if (!window._historyQueue.length) return;
+  if (_historyPushInFlight) return; // next close event (or the timer above) will retry
+
+  const cfg            = loadGhSyncCfg();
+  const resolvedToken   = cfg.token || window.__GH_PAT  || '';
+  const resolvedRepo    = cfg.repo  || window.__GH_REPO || '';
+  if (!resolvedToken || !resolvedRepo) return; // not configured — stay silent, headless job covers it
+
+  _historyPushInFlight = true;
+  const pending = window._historyQueue.slice(); // snapshot — cleared only on success
+
+  try {
+    const branch  = cfg.branch || 'main';
+    const fpath   = (cfg.path || 'scripts/positions.json').replace(/positions\.json$/, 'symbol-history.json');
+    const apiBase = `https://api.github.com/repos/${resolvedRepo}/contents/${fpath}`;
+    const headers = {
+      'Authorization':        `Bearer ${resolvedToken}`,
+      'Accept':               'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+
+    const attemptPush = async () => {
+      let sha = null, remote = [];
+      const getRes = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+      if (getRes.ok) {
+        const j = await getRes.json();
+        sha = j.sha || null;
+        try {
+          const decoded = decodeURIComponent(escape(atob((j.content || '').replace(/\n/g, ''))));
+          remote = JSON.parse(decoded);
+          if (!Array.isArray(remote)) remote = [];
+        } catch { remote = []; }
+      } else if (getRes.status !== 404) {
+        throw new Error(`GET ${getRes.status}`);
+      }
+
+      let merged = remote.concat(pending);
+      const cutoff = Date.now() - HISTORY_RETENTION_DAYS * 86_400_000;
+      merged = merged.filter(e => e.closedAt >= cutoff);
+      if (merged.length > HISTORY_MAX_ROWS) merged = merged.slice(merged.length - HISTORY_MAX_ROWS);
+
+      const json    = JSON.stringify(merged); // compact — this is log data, not something you hand-edit
+      const content = btoa(unescape(encodeURIComponent(json)));
+      const body    = { message: `chore: symbol-history +${pending.length} row(s) [skip ci]`, content, branch };
+      if (sha) body.sha = sha;
+      return fetch(apiBase, { method: 'PUT', headers, body: JSON.stringify(body) });
+    };
+
+    let putRes = await attemptPush();
+    if (!putRes.ok && putRes.status === 409) putRes = await attemptPush(); // lost a race with Job B — refetch sha, retry once
+
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`.trim());
+    }
+
+    // Only drop the rows we actually sent — anything queued mid-flight stays for next push
+    window._historyQueue = window._historyQueue.slice(pending.length);
+    logAlertItem('info', `☁ Symbol history synced — +${pending.length} row(s) → ${fpath}`);
+
+  } catch (e) {
+    console.log(`[gh-sync history] ${e.message}`); // silent-ish — rows stay queued, retried on next close event
+  } finally {
+    _historyPushInFlight = false;
   }
 }
 

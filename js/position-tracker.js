@@ -392,6 +392,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
         ],
       });
       logAlertItem('sell', `🔴 STOP HIT — ${pos.base} @ $${price} (entry $${entry})`);
+      if (typeof queueHistoryOutcome === 'function') queueHistoryOutcome(pos, price, 'stopped');
       continue;
     }
 
@@ -430,6 +431,7 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
         ],
       });
       logAlertItem('buy', `🏆 T2 HIT — ${pos.base} @ $${price} (+${pnlPct}%)`);
+      if (typeof queueHistoryOutcome === 'function') queueHistoryOutcome(pos, price, 'tp2_hit');
       continue;
     }
 
