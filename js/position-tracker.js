@@ -354,12 +354,19 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
   for (const [sym, pos] of Object.entries(positions)) {
     if (pos.status === 'stopped' || pos.status === 'tp2_hit') continue;
 
-    // Find current data for this symbol
+    // Find current data — check ranked first, then fall back to STATE.DS.
+    // IMPORTANT: previously only ranked was checked, which meant positions
+    // whose score dropped below the leaderboard threshold (< minScore) were
+    // never monitored — stop/T1/T2 was never detected and the position sat
+    // in positions.json/localStorage forever. STATE.DS always has the latest
+    // price for every synced symbol regardless of leaderboard score.
     const lbEntry = ranked.find(r => r.sym === sym);
-    // NOTE: Only use data from ranked (keyed by correct sym).
-    // STATE.DS can bleed symbols from other tabs — never fall back to it here.
-    const d       = lbEntry?.d;
-    if (!d) continue;
+    const dsEntry = STATE.DS?.[sym];
+    const d       = lbEntry?.d ?? dsEntry;
+    if (!d) {
+      console.log(`[position-tracker] No data for ${sym} — skipping monitor`);
+      continue;
+    }
 
     const price    = parseFloat(d.p || 0);
     const entry    = pos.entryPrice;
@@ -520,33 +527,6 @@ async function monitorOpenPositions(ranked, cfg, tgReady) {
 
   if (changed) savePositions(positions);
   if (changed && typeof scheduleGithubSync === 'function') scheduleGithubSync();
-
-  // ── Immediate cleanup of any terminal positions past their eviction window ──
-  // Runs every monitorOpenPositions cycle (every 60s via renderLeaderboard).
-  // Catches positions that were marked terminal on a previous cycle but whose
-  // setTimeout may have been lost (page reload, tab sleep, etc.).
-  {
-    const recheck = loadPositions();
-    let rechecked = false;
-    const now2 = Date.now();
-    for (const [rsym, rpos] of Object.entries(recheck)) {
-      const rdelay = AUTO_EVICT_MS[rpos.status];
-      if (!rdelay) continue;
-      const rchangedAt = rpos.statusChangedAt || rpos.alertedAt || 0;
-      if (now2 - rchangedAt >= rdelay) {
-        delete recheck[rsym];
-        if (window._cvdDeclineCount) delete window._cvdDeclineCount[rsym];
-        const rbase = rsym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
-        logAlertItem('info', `🗑 Cleaned ${rbase} (${rpos.status}) on monitor cycle`);
-        rechecked = true;
-      }
-    }
-    if (rechecked) {
-      savePositions(recheck);
-      if (typeof scheduleGithubSync === 'function') scheduleGithubSync();
-      renderPositionTracker();
-    }
-  }
 
   // ── Schedule removal of newly-terminal positions ──
   // stopped: removed after 5 min, tp2_hit: after 8 min.
@@ -755,24 +735,24 @@ async function sweepExpiredPositions(cfg, tgReady) {
   const staleWatchMs = getStaleWatchingMs();
 
   for (const [sym, pos] of Object.entries(positions)) {
-    // ── Stale 'watching' positions — never tagged stop OR target ──
-    // This is the leak that causes positions.json to accumulate days-old
-    // symbols: 'watching' has no entry in AUTO_EVICT_MS so it never
-    // expires through the normal path. Force-close it as STALE here.
+    const base = sym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
+
+    // ── Stale 'watching' — never hit stop or target ──
     if (pos.status === 'watching') {
       const openedAt = pos.alertedAt || 0;
       if (now - openedAt >= staleWatchMs) {
         delete positions[sym];
         if (window._cvdDeclineCount) delete window._cvdDeclineCount[sym];
-        const base   = sym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
         const ageHrs = Math.round((now - openedAt) / 3600000);
-        logAlertItem('info', `🗑 STALE — ${base} watching ${ageHrs}h with no resolution → evicted, slot freed`);
+        logAlertItem('info', `🗑 STALE — ${base} watching ${ageHrs}h → evicted, slot freed`);
         changed   = true;
         slotFreed = true;
       }
       continue;
     }
 
+    // ── Terminal states — remove after eviction window ──
+    // Covers: stopped (5min), tp2_hit (8min), tp1_hit (20min), exiting (10min)
     const delay = AUTO_EVICT_MS[pos.status];
     if (!delay) continue; // unknown status — leave alone
 
@@ -780,8 +760,7 @@ async function sweepExpiredPositions(cfg, tgReady) {
     if (now - changedAt >= delay) {
       delete positions[sym];
       if (window._cvdDeclineCount) delete window._cvdDeclineCount[sym];
-      const base = sym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
-      logAlertItem('info', `🗑 Evicted ${base} (${pos.status}) → slot freed for rotation`);
+      logAlertItem('info', `🗑 Removed ${base} (${pos.status} ${Math.round(delay/60000)}min) → slot freed`);
       changed   = true;
       slotFreed = true;
     }
@@ -1079,7 +1058,7 @@ function renderLbAlertCard() {
          'No exit alerts in first N minutes after entry. Prevents panic on retest.'],
         ['lb-max-pos', 'Max Concurrent Positions', parseInt(localStorage.getItem(`${_REPO_NS}_max_positions`) || '4'), 1, 10, 1,
          'Max open positions before new signals are queued for rotation instead of immediately opened.'],
-        ['lb-stale-hrs', 'Stale-Watch Timeout (hrs)', parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '24'), 4, 168, 4,
+        ['lb-stale-hrs', 'Stale-Watch Timeout (hrs)', parseFloat(localStorage.getItem(`${_REPO_NS}_stale_watch_hrs`) || '48'), 4, 168, 4,
          'Force-evict a watching position after N hours with no stop or target hit. Fixes the stuck-symbol bug. 48hr = 2 trading days.'],
       ].map(([id, lbl, val, min, max, step, tip]) => `
         <div title="${tip}">
@@ -1132,7 +1111,7 @@ function saveLbAlertCfgFromUI() {
   saveLbAlertCfg(cfg);
   // max_positions and stale_watch_hrs stored separately (localStorage only — not in positions.json)
   const maxPos   = parseInt(document.getElementById('lb-max-pos')?.value)   || 4;
-  const staleHrs = parseFloat(document.getElementById('lb-stale-hrs')?.value) || 24;
+  const staleHrs = parseFloat(document.getElementById('lb-stale-hrs')?.value) || 48;
   localStorage.setItem(`${_REPO_NS}_max_positions`,  String(maxPos));
   localStorage.setItem(`${_REPO_NS}_stale_watch_hrs`, String(staleHrs));
   logAlertItem('info', `💾 Config saved — max positions: ${maxPos} · stale timeout: ${staleHrs}h`);
