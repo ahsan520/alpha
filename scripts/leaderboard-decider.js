@@ -27,6 +27,7 @@ const LB_ALERT_STATE_PATH = path.join(process.cwd(), 'lb-alert-state.json');
 const AUDIT_PATH          = path.join(process.cwd(), 'audit.json');
 const COOLDOWN_STATE_PATH = path.join(process.cwd(), '.lb-scan-state.json');
 const CVD_STATE_PATH      = path.join(process.cwd(), '.cvd-decline-state.json');
+const SYMBOL_HISTORY_PATH = path.join(process.cwd(), 'symbol-history.json');
 
 const DRY_RUN    = process.argv.includes('--dry-run');
 const TG_TOKEN   = process.env.TELEGRAM_BOT_TOKEN || '';
@@ -43,6 +44,13 @@ const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
 const ALLOW_PRE_MARKET   = (process.env.LB_ALLOW_PRE_MARKET || 'false') === 'true';
 const ALLOW_AH           = (process.env.LB_ALLOW_AH         || 'false') === 'true';
 const ALERT_STATE_TTL    = parseFloat(process.env.LB_ALERT_STATE_TTL_HOURS || '6');
+
+// ── Multi-signal recommendation (top N by past spike history) ──
+const RECO_MIN_SIGNALS   = parseInt(process.env.LB_RECO_MIN_SIGNALS    || '3');   // only annotate when this many+ fire in one cycle
+const RECO_TOP_N         = parseInt(process.env.LB_RECO_TOP_N          || '3');   // how many to star as recommended
+const RECO_LOOKBACK_DAYS = parseFloat(process.env.LB_RECO_LOOKBACK_DAYS|| '30');  // history window used for win-rate
+const HISTORY_RETENTION_DAYS = parseFloat(process.env.LB_HISTORY_RETENTION_DAYS || '45'); // how long symbol-history.json keeps rows
+const HISTORY_MAX_ROWS    = parseInt(process.env.LB_HISTORY_MAX_ROWS || '1500'); // hard cap regardless of days — safety net vs. size blowup
 
 // ── How long terminal positions stay in positions.json before removal ──
 const TERMINAL_EVICT_MS = {
@@ -68,6 +76,8 @@ const loadCooldowns  = () => loadJSON(COOLDOWN_STATE_PATH, {});
 const saveCooldowns  = s  => saveJSON(COOLDOWN_STATE_PATH, s);
 const loadCvdState   = () => loadJSON(CVD_STATE_PATH, {});
 const saveCvdState   = s  => saveJSON(CVD_STATE_PATH, s);
+const loadHistory     = () => loadJSON(SYMBOL_HISTORY_PATH, []);
+const saveHistory     = h  => fs.writeFileSync(SYMBOL_HISTORY_PATH, JSON.stringify(h)); // compact — it's log data, not something you hand-edit
 
 // ── Audit ──
 function logAudit(action, details = {}) {
@@ -199,6 +209,7 @@ async function monitorPositions(positions, marketSymbols) {
   const holdLockMs    = LB_HOLD_LOCK * 60 * 1000;
   let   changed       = false;
   const telegramAlerts = [];
+  const closedOutcomes = []; // rows for symbol-history.json — win/loss record per closed position
   const utc = new Date().toUTCString().slice(17, 22) + ' UTC';
 
   for (const [sym, pos] of Object.entries(positions)) {
@@ -265,6 +276,11 @@ async function monitorPositions(positions, marketSymbols) {
       pos.exitPrice       = price;
       changed = true;
       logAudit('stop_hit', { sym, price, stop, entry, pnlPct });
+      closedOutcomes.push({
+        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        outcome: 'stopped', score: pos.score, spikeScore: pos.spikeScore,
+        pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
+      });
       telegramAlerts.push(
         `🔴 *STOP HIT* — ${pos.base} — ${utc}\n` +
         `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
@@ -282,6 +298,11 @@ async function monitorPositions(positions, marketSymbols) {
       pos.exitPrice       = price;
       changed = true;
       logAudit('tp2_hit', { sym, price, t2, entry, pnlPct });
+      closedOutcomes.push({
+        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        outcome: 'tp2_hit', score: pos.score, spikeScore: pos.spikeScore,
+        pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
+      });
       telegramAlerts.push(
         `🏆 *T2 HIT* — ${pos.base} — ${utc}\n` +
         `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
@@ -387,7 +408,30 @@ async function monitorPositions(positions, marketSymbols) {
     }
   }
 
-  return { positions, changed, telegramAlerts };
+  return { positions, changed, telegramAlerts, closedOutcomes };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Historical spike-strength ranking — used to recommend top N when several
+// buy signals fire in the same cycle. Purely informational (Telegram-only,
+// no gating of which positions actually open).
+// ══════════════════════════════════════════════════════════════════════════════
+function getHistoryStrength(history, base, lookbackDays) {
+  const cutoff = Date.now() - lookbackDays * 86_400_000;
+  const rows = history.filter(e => e.base === base && e.closedAt >= cutoff);
+  if (!rows.length) return { winRate: null, sample: 0, avgPnl: null, strength: 0 };
+
+  const wins    = rows.filter(e => e.outcome === 'tp2_hit').length;
+  const winRate = wins / rows.length;
+  const avgPnl  = rows.reduce((s, e) => s + (e.pnlPct || 0), 0) / rows.length;
+
+  // Confidence-weighted: winRate dampened when sample size is thin (<5),
+  // plus a small nudge for average P&L so a 100%-but-tiny sample doesn't
+  // automatically beat a well-proven symbol.
+  const confidence = Math.min(1, rows.length / 5);
+  const strength   = winRate * confidence + Math.max(0, avgPnl) * 0.01;
+
+  return { winRate, sample: rows.length, avgPnl, strength };
 }
 
 // ── peak/latest evaluator ──
@@ -463,6 +507,16 @@ async function main() {
     if (monitored.changed) {
       savePositions(positions);
       await pushPositionsToGitHub(positions);
+    }
+
+    if (monitored.closedOutcomes.length) {
+      let history = loadHistory();
+      history.push(...monitored.closedOutcomes);
+      const cutoff = Date.now() - HISTORY_RETENTION_DAYS * 86_400_000;
+      history = history.filter(e => e.closedAt >= cutoff);
+      if (history.length > HISTORY_MAX_ROWS) history = history.slice(history.length - HISTORY_MAX_ROWS);
+      saveHistory(history);
+      logAudit('history_recorded', { rows: monitored.closedOutcomes.length, totalKept: history.length });
     }
 
     // Send all exit/stop/stale Telegram alerts
@@ -612,31 +666,91 @@ async function main() {
 
   // Telegram BUY alerts
   const utc   = new Date().toUTCString().slice(17, 22) + ' UTC';
-  const lines = buyAlerts.map(a => {
+
+  // ── Rank by CURRENT signal first, past spike history as a bonus only ──
+  // Informational only — every candidate above still opens a position;
+  // this just tells you where to look first.
+  //
+  // Why current-first: a symbol's 30d win rate mostly reflects the regime
+  // it traded in (BTC/market beta dragging everything down), not whether
+  // *this* setup is good. So history can only ADD to the rank (proven
+  // repeaters get boosted), never subtract — a real reversal spike with a
+  // rough recent record still competes on its own technical merit.
+  const history      = loadHistory();
+  const showRecoTags = buyAlerts.length >= RECO_MIN_SIGNALS;
+  const base = a => a.pair.replace('USDT', '').replace(/\.\w+$/, '');
+
+  const HIST_BOOST_WEIGHT  = parseFloat(process.env.LB_RECO_HIST_BOOST_WEIGHT || '0.5');  // how much a clean track record can add on top of current signal
+  const CAUTION_WIN_RATE   = parseFloat(process.env.LB_RECO_CAUTION_WIN_RATE  || '0.3');  // below this win rate → caution note
+  const CAUTION_MIN_SAMPLE = parseInt(process.env.LB_RECO_CAUTION_MIN_SAMPLE  || '3');    // need at least this many closes for the caution note to be meaningful
+
+  function currentSignalStrength(a) {
+    // Normalize conviction score and bull-confirmation to ~0-1 so they're
+    // comparable to the history bonus below.
+    const convNorm     = Math.max(0, Math.min(1, (a.evald.conv - LB_MIN_SCORE) / 10));
+    const bullConfNorm = Math.max(0, Math.min(1, (a.entry.bullConf || 0) / 10));
+    return 0.7 * convNorm + 0.3 * bullConfNorm;
+  }
+
+  const ranked = buyAlerts
+    .map(a => {
+      const hist      = getHistoryStrength(history, base(a), RECO_LOOKBACK_DAYS);
+      const curStr     = currentSignalStrength(a);
+      const rankScore  = curStr + HIST_BOOST_WEIGHT * Math.max(0, hist.strength); // history floors at 0 — never a penalty
+      const caution    = hist.sample >= CAUTION_MIN_SAMPLE && hist.winRate !== null && hist.winRate < CAUTION_WIN_RATE;
+      return { a, hist, curStr, rankScore, caution };
+    })
+    .sort((x, y) => (y.rankScore - x.rankScore) || (y.a.evald.conv - x.a.evald.conv));
+
+  if (showRecoTags) {
+    ranked.slice(0, RECO_TOP_N).forEach(r => { r.recommended = true; });
+  }
+
+  const lines = ranked.map(({ a, hist, recommended, caution }) => {
     const l          = a.levels;
     const peakNote   = a.evald.source === 'peak' ? ' _(peak)_' : '';
     const assetBadge = a.entry.assetType === 'stock' ? ' 📊' : '';
     const sessionTag = a.entry.session !== 'open' && a.entry.session !== '24/7'
       ? ` _(${a.entry.session})_` : '';
+    const star       = recommended ? '⭐ ' : '';
+    const histLine    = showRecoTags
+      ? (hist.sample > 0
+          ? `  📈 Past ${RECO_LOOKBACK_DAYS}d: ${Math.round(hist.winRate * hist.sample)}W-${hist.sample - Math.round(hist.winRate * hist.sample)}L (${Math.round(hist.winRate * 100)}%) avg ${hist.avgPnl >= 0 ? '+' : ''}${hist.avgPnl.toFixed(2)}%`
+          : `  📈 No trade history yet — ranked on signal strength`)
+      : '';
+    const cautionLine = caution
+      ? `  ⚠ _Rough recent record (${Math.round(hist.winRate*100)}% win, ${hist.sample} closes) — treat as a reversal bet, not a repeat pattern_`
+      : '';
     return [
-      `${a.evald.setup.emoji} *${a.pair.replace('USDT','')}*${assetBadge} — ${a.evald.setup.label} [${a.evald.conv} pts]${peakNote}${sessionTag}`,
+      `${star}${a.evald.setup.emoji} *${a.pair.replace('USDT','')}*${assetBadge} — ${a.evald.setup.label} [${a.evald.conv} pts]${peakNote}${sessionTag}`,
       a.entry.whale ? `  ${a.entry.whale.emoji} Whale ${a.entry.whale.score}/100 · Flow: ${a.entry.flow||'—'} · Grade: ${a.entry.grade||'—'} (${a.entry.successProb||'—'}% win)` : '',
       `  Setup: ${a.entry.archetype||'—'} · BullConf: ${a.entry.bullConf??'—'}/10`,
       `  Price $${a.price}  Chg ${a.chg>0?'+':''}${a.chg?.toFixed(2)}%`,
       `  Entry $${l?.entry||'—'}  Stop $${l?.stop||'—'}  T1 $${l?.t1||'—'}  T2 $${l?.t2||'—'}  R:R ${l?.rr||'—'}`,
+      histLine,
+      cautionLine,
       `  _Pos: ${a.sym}_`,
     ].filter(Boolean).join('\n');
   });
 
+  const recoHeader = showRecoTags
+    ? `_⭐ Top ${Math.min(RECO_TOP_N, buyAlerts.length)} of ${buyAlerts.length} — ranked on current signal, clean track record adds a bonus (never a penalty)_`
+    : `_${buyAlerts.length} signal(s) · v11.0 · min score ${LB_MIN_SCORE}_`;
+
   const msg = [
     `🔔 *Leaderboard BUY Alert* — ${utc}`,
-    `_${buyAlerts.length} signal(s) · v11.0 · min score ${LB_MIN_SCORE}_`,
+    recoHeader,
     '', lines.join('\n\n'), '',
     `_Stop/T1/T2/exit monitored headlessly every 15 min_`,
   ].join('\n');
 
   await sendTelegram(msg);
-  logAudit('buy_cycle_complete', { signalsFound: candidates.length, positionsOpened: buyAlerts.length });
+  logAudit('buy_cycle_complete', {
+    signalsFound: candidates.length,
+    positionsOpened: buyAlerts.length,
+    recommended: showRecoTags ? ranked.slice(0, RECO_TOP_N).map(r => base(r.a)) : [],
+    caution: ranked.filter(r => r.caution).map(r => base(r.a)),
+  });
   logAudit('job_complete');
   console.log('\n✅  Job B complete.\n');
 }
