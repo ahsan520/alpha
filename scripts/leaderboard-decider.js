@@ -1,17 +1,19 @@
 // ══════════════════════════════════════════════════════════════════════════════
 // leaderboard-decider.js — Job B (runs every 15 min)
-// v10.9
+// v11.0
 //
-// Changes from v10.8:
-//   - Market session gate: skips entries where marketClosed:true (set by
-//     market-fetcher when exchange is outside regular hours).
-//   - LB_ALLOW_PRE_MARKET / LB_ALLOW_AH env vars (default false) control
-//     whether pre-market and after-hours stock entries are evaluated.
-//   - Date-keyed cooldown for stocks: one alert per symbol per trading day,
-//     keyed by local exchange date. Resets naturally at midnight local time.
-//     Crypto keeps time-based cooldown (LB_COOLDOWN_MIN minutes).
-//   - buildSymKey() and cooldownKey() imported from exchange-registry.
-//   - CAP BUY fast path restricted to crypto (unchanged from v10.8).
+// KEY CHANGE from v10.9:
+//   Added monitorPositions() — runs every Job B cycle BEFORE buy signal scan.
+//   For every open position in positions.json it:
+//     1. Reads live price from market-data.json
+//     2. Checks stop / T1 / T2 (price-based, immediate)
+//     3. Computes exit score (CVD + OI + FR + RSI) → marks 'exiting'
+//     4. Removes positions that have been in terminal state long enough
+//   This means positions.json is always up to date even when the browser
+//   is never opened. Telegram alerts fire for every status change.
+//
+//   Previously Job B only swept stale 'watching' positions — it never
+//   detected stops or computed exit scores headlessly.
 // ══════════════════════════════════════════════════════════════════════════════
 
 import fs   from 'fs';
@@ -24,97 +26,31 @@ const POSITIONS_PATH      = path.join(process.cwd(), 'positions.json');
 const LB_ALERT_STATE_PATH = path.join(process.cwd(), 'lb-alert-state.json');
 const AUDIT_PATH          = path.join(process.cwd(), 'audit.json');
 const COOLDOWN_STATE_PATH = path.join(process.cwd(), '.lb-scan-state.json');
+const CVD_STATE_PATH      = path.join(process.cwd(), '.cvd-decline-state.json');
 
 const DRY_RUN    = process.argv.includes('--dry-run');
 const TG_TOKEN   = process.env.TELEGRAM_BOT_TOKEN || '';
 const TG_CHAT    = process.env.TELEGRAM_CHAT_ID   || '';
 const TG_ENABLED = (process.env.TELEGRAM_ENABLED ?? 'true') === 'true';
 
-const LB_MIN_SCORE     = parseInt(process.env.LB_MIN_SCORE     || '9');
-const LB_BULL_CONF_MIN = parseInt(process.env.LB_BULL_CONF_MIN || '5');
-const LB_COOLDOWN_MIN  = parseInt(process.env.LB_COOLDOWN_MIN  || '60');
-const LB_HOLD_LOCK        = parseInt(process.env.LB_HOLD_LOCK        || '20');
-const LB_STALE_WATCH_HRS  = parseFloat(process.env.LB_STALE_WATCH_HRS  || '24');  // default 24h for crypto
+const LB_MIN_SCORE       = parseInt(process.env.LB_MIN_SCORE       || '9');
+const LB_BULL_CONF_MIN   = parseInt(process.env.LB_BULL_CONF_MIN   || '5');
+const LB_COOLDOWN_MIN    = parseInt(process.env.LB_COOLDOWN_MIN    || '60');
+const LB_HOLD_LOCK       = parseInt(process.env.LB_HOLD_LOCK       || '20');
+const LB_STALE_WATCH_HRS = parseFloat(process.env.LB_STALE_WATCH_HRS || '24');
+const LB_EXIT_CVD_CYCLES = parseInt(process.env.LB_EXIT_CVD_CYCLES || '3');
+const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
+const ALLOW_PRE_MARKET   = (process.env.LB_ALLOW_PRE_MARKET || 'false') === 'true';
+const ALLOW_AH           = (process.env.LB_ALLOW_AH         || 'false') === 'true';
+const ALERT_STATE_TTL    = parseFloat(process.env.LB_ALERT_STATE_TTL_HOURS || '6');
 
-// ── Terminal state cleanup delays ──
-// How long stopped/tp2_hit/exiting/tp1_hit entries persist in positions.json
-// before the headless runner removes them. These mirror the browser AUTO_EVICT_MS.
-const HEADLESS_TERMINAL_MS = {
+// ── How long terminal positions stay in positions.json before removal ──
+const TERMINAL_EVICT_MS = {
   stopped:  5  * 60 * 1000,   //  5 min
   tp2_hit:  8  * 60 * 1000,   //  8 min
-  tp1_hit:  20 * 60 * 1000,   // 20 min — may still be tracking T2
+  tp1_hit:  20 * 60 * 1000,   // 20 min (still watching T2)
   exiting:  10 * 60 * 1000,   // 10 min
 };
-
-// ── Sweep positions.json — three passes ──
-// Pass 1: stale 'watching' (never hit stop or target)
-// Pass 2: terminal states past their eviction window
-// Pass 3: price-check watching positions against live market data
-function sweepPositions(positions, marketSymbols) {
-  const now      = Date.now();
-  const staleMs  = LB_STALE_WATCH_HRS * 60 * 60 * 1000;
-  let changed    = false;
-  const evicted  = [];
-  const stopHits = [];
-
-  for (const [sym, pos] of Object.entries(positions)) {
-
-    // ── Pass 1: stale watching — never resolved ──
-    if (pos.status === 'watching') {
-      const openedAt = pos.alertedAt || 0;
-      if (now - openedAt >= staleMs) {
-        const ageHrs = Math.round((now - openedAt) / 3600000);
-        console.log(`  🗑  STALE — ${sym} watching ${ageHrs}h → evicted`);
-        delete positions[sym];
-        evicted.push(sym);
-        changed = true;
-        continue;
-      }
-
-      // ── Pass 3: price check watching positions vs live market data ──
-      // Headless runner has market-data.json — use it to detect stops
-      // even when the browser is never opened.
-      if (marketSymbols) {
-        // Resolve the market key: positions use BINANCE:BTCUSDT, market uses BTCUSDT
-        const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
-        const mData = marketSymbols[mKey];
-        if (mData && mData.d?.p) {
-          const price  = parseFloat(mData.d.p);
-          const stop   = parseFloat(pos.stop || 0);
-          const isBull = pos.dir === 'bull' || pos.dir !== 'bear';
-          if (isBull && stop > 0 && price <= stop) {
-            console.log(`  🔴  STOP HIT (headless) — ${sym} price:${price} stop:${stop}`);
-            pos.status          = 'stopped';
-            pos.statusChangedAt = now;
-            pos.headlessStop    = true;  // flag: stop detected by headless runner
-            stopHits.push({ sym, base: pos.base, price, stop, entry: pos.entryPrice });
-            changed = true;
-            // Schedule removal after 5 min — re-evaluated next Job B run
-            // (actual removal happens on next sweep when statusChangedAt + 5min elapsed)
-          }
-        }
-      }
-      continue;
-    }
-
-    // ── Pass 2: terminal state cleanup ──
-    const delay = HEADLESS_TERMINAL_MS[pos.status];
-    if (!delay) continue;
-    const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
-    if (now - changedAt >= delay) {
-      const base = sym.replace('BINANCE:','').replace('USDT','').replace(/\.\w+$/,'');
-      console.log(`  🗑  Removed ${base} (${pos.status}) after ${Math.round(delay/60000)}min`);
-      delete positions[sym];
-      evicted.push(sym);
-      changed = true;
-    }
-  }
-
-  return { positions, changed, evicted, stopHits };
-}
-const ALLOW_PRE_MARKET = (process.env.LB_ALLOW_PRE_MARKET || 'false') === 'true';
-const ALLOW_AH         = (process.env.LB_ALLOW_AH         || 'false') === 'true';
-const ALERT_STATE_TTL  = parseFloat(process.env.LB_ALERT_STATE_TTL_HOURS || '6');
 
 const SKIP_SETUPS = new Set(['SHORT SETUP']);
 
@@ -122,14 +58,16 @@ const SKIP_SETUPS = new Set(['SHORT SETUP']);
 function loadJSON(p, fb) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fb; } }
 function saveJSON(p, o)  { fs.writeFileSync(p, JSON.stringify(o, null, 2)); }
 
-const loadMarketData   = () => loadJSON(MARKET_DATA_PATH, { fetchedAt: 0, symbols: {} });
-const saveMarketData   = d  => saveJSON(MARKET_DATA_PATH, d);
-const loadPositions    = () => loadJSON(POSITIONS_PATH, {});
-const savePositions    = p  => saveJSON(POSITIONS_PATH, p);
-const loadAlertState   = () => loadJSON(LB_ALERT_STATE_PATH, {});
-const saveAlertState   = s  => saveJSON(LB_ALERT_STATE_PATH, s);
-const loadCooldowns    = () => loadJSON(COOLDOWN_STATE_PATH, {});
-const saveCooldowns    = s  => saveJSON(COOLDOWN_STATE_PATH, s);
+const loadMarketData = () => loadJSON(MARKET_DATA_PATH, { fetchedAt: 0, symbols: {} });
+const saveMarketData = d  => saveJSON(MARKET_DATA_PATH, d);
+const loadPositions  = () => loadJSON(POSITIONS_PATH, {});
+const savePositions  = p  => saveJSON(POSITIONS_PATH, p);
+const loadAlertState = () => loadJSON(LB_ALERT_STATE_PATH, {});
+const saveAlertState = s  => saveJSON(LB_ALERT_STATE_PATH, s);
+const loadCooldowns  = () => loadJSON(COOLDOWN_STATE_PATH, {});
+const saveCooldowns  = s  => saveJSON(COOLDOWN_STATE_PATH, s);
+const loadCvdState   = () => loadJSON(CVD_STATE_PATH, {});
+const saveCvdState   = s  => saveJSON(CVD_STATE_PATH, s);
 
 // ── Audit ──
 function logAudit(action, details = {}) {
@@ -141,14 +79,24 @@ function logAudit(action, details = {}) {
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
 }
 
+// ── CVD decline tracking (persisted across Job B runs) ──
+// Browser uses window._cvdDeclineCount; headless uses .cvd-decline-state.json
+function trackCvdDecline(sym, trending) {
+  const state = loadCvdState();
+  if (trending === 'down') {
+    state[sym] = (state[sym] || 0) + 1;
+  } else {
+    state[sym] = 0;
+  }
+  saveCvdState(state);
+  return state[sym];
+}
+
 // ── Cooldown helpers ──
-// Crypto:  time-based key — expires after LB_COOLDOWN_MIN
-// Stocks:  date-keyed    — one alert per trading day per symbol
 function isOnCooldown(state, cdKey, assetType) {
   const ts = state[cdKey] || 0;
   if (assetType === 'crypto') return (Date.now() - ts) < LB_COOLDOWN_MIN * 60000;
-  // For stocks the date is baked into the key — any truthy value means already fired today
-  return ts > 0;
+  return ts > 0; // stocks: date-keyed, any truthy = fired today
 }
 function markCooldown(state, cdKey) { state[cdKey] = Date.now(); }
 
@@ -174,7 +122,7 @@ function calcEntryLevels(price, shock) {
 }
 
 async function sendTelegram(msg) {
-  if (DRY_RUN)     { console.log('[DRY-RUN] TG:', msg.slice(0, 80)); return; }
+  if (DRY_RUN)     { console.log('[DRY-RUN] TG:', msg.slice(0, 120)); return; }
   if (!TG_ENABLED) { console.log('[TG DISABLED]'); return; }
   if (!TG_TOKEN || !TG_CHAT) { console.warn('⚠ No TG credentials'); return; }
   try {
@@ -193,7 +141,10 @@ async function pushPositionsToGitHub(positions) {
   const branch = process.env.GH_BRANCH        || 'main';
   const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
 
-  if (!token || !repo) { console.log('[positions-push] Skipping — GITHUB_TOKEN or GH_REPO not set'); return; }
+  if (!token || !repo) {
+    console.log('[positions-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
 
   const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
   const headers = {
@@ -210,7 +161,7 @@ async function pushPositionsToGitHub(positions) {
     else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
 
     const body = {
-      message: `chore: headless positions update (${Object.keys(positions).length} open) [skip ci]`,
+      message: `chore: positions update (${Object.keys(positions).length} open) [skip ci]`,
       content: Buffer.from(JSON.stringify(positions, null, 2)).toString('base64'),
       branch,
     };
@@ -229,11 +180,221 @@ async function pushPositionsToGitHub(positions) {
   }
 }
 
-// ── Evaluate latest vs peak signal, return stronger ──
+// ══════════════════════════════════════════════════════════════════════════════
+// monitorPositions — runs every Job B cycle
+//
+// For each open position in positions.json:
+//   1. Look up live price + signals from market-data.json
+//   2. Check stop / T1 / T2 (price-based, immediate)
+//   3. Compute exit score (CVD + OI + FR + RSI) → mark 'exiting'
+//   4. Remove positions past their terminal eviction window
+//   5. Remove positions that have been 'watching' past LB_STALE_WATCH_HRS
+//
+// Returns { positions, changed, telegramAlerts[] }
+// Caller saves positions.json and pushes to GitHub.
+// ══════════════════════════════════════════════════════════════════════════════
+async function monitorPositions(positions, marketSymbols) {
+  const now           = Date.now();
+  const staleMs       = LB_STALE_WATCH_HRS * 60 * 60 * 1000;
+  const holdLockMs    = LB_HOLD_LOCK * 60 * 1000;
+  let   changed       = false;
+  const telegramAlerts = [];
+  const utc = new Date().toUTCString().slice(17, 22) + ' UTC';
+
+  for (const [sym, pos] of Object.entries(positions)) {
+
+    // ── 1. Remove terminal positions past their eviction window ──
+    const termDelay = TERMINAL_EVICT_MS[pos.status];
+    if (termDelay) {
+      const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
+      if (now - changedAt >= termDelay) {
+        console.log(`  🗑  ${pos.base} (${pos.status}) past eviction window → removed`);
+        delete positions[sym];
+        changed = true;
+        logAudit('position_evicted', { sym, status: pos.status });
+      }
+      // Don't do any further monitoring on terminal positions
+      continue;
+    }
+
+    // ── 2. Remove stale watching positions (never hit stop or target) ──
+    if (pos.status === 'watching') {
+      const openedAt = pos.alertedAt || 0;
+      if (now - openedAt >= staleMs) {
+        const ageHrs = Math.round((now - openedAt) / 3600000);
+        console.log(`  🗑  ${pos.base} stale ${ageHrs}h watching → evicted`);
+        delete positions[sym];
+        changed = true;
+        logAudit('position_stale_evicted', { sym, ageHrs });
+        telegramAlerts.push(
+          `🗑 *STALE EVICTED* — ${pos.base}\n` +
+          `  Watching ${ageHrs}h with no stop/target hit\n` +
+          `  Entry $${pos.entryPrice}  Stop $${pos.stop}  ${utc}`
+        );
+        continue;
+      }
+    }
+
+    // ── 3. Look up live market data for this position ──
+    // positions.json uses BINANCE:BTCUSDT — market-data.json uses BTCUSDT
+    const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
+    const mData = marketSymbols[mKey];
+    if (!mData || !mData.d) {
+      console.log(`  ⚠  ${pos.base} — no market data found (key: ${mKey})`);
+      continue;
+    }
+
+    const d      = mData.d;
+    const price  = parseFloat(d.p || 0);
+    if (!price) { console.log(`  ⚠  ${pos.base} — price is 0, skipping`); continue; }
+
+    const entry  = parseFloat(pos.entryPrice || 0);
+    const stop   = parseFloat(pos.stop  || 0);
+    const t1     = parseFloat(pos.t1    || 0);
+    const t2     = parseFloat(pos.t2    || 0);
+    const isBull = pos.dir !== 'bear';
+    const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
+
+    // ── 4. Price-based exits (immediate, no hold lock, no score needed) ──
+
+    // Stop hit
+    if (isBull && stop > 0 && price <= stop) {
+      console.log(`  🔴  STOP HIT — ${pos.base} price:${price} stop:${stop}`);
+      pos.status          = 'stopped';
+      pos.statusChangedAt = now;
+      pos.exitPrice       = price;
+      changed = true;
+      logAudit('stop_hit', { sym, price, stop, entry, pnlPct });
+      telegramAlerts.push(
+        `🔴 *STOP HIT* — ${pos.base} — ${utc}\n` +
+        `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
+        `  P&L ${pnlPct}%  Setup: ${pos.setup}\n` +
+        `  _Position removed in 5 min_`
+      );
+      continue; // no further checks needed
+    }
+
+    // T2 hit (only if T1 already hit)
+    if (isBull && t2 > 0 && price >= t2 && pos.status === 'tp1_hit') {
+      console.log(`  🏆  T2 HIT — ${pos.base} price:${price} t2:${t2}`);
+      pos.status          = 'tp2_hit';
+      pos.statusChangedAt = now;
+      pos.exitPrice       = price;
+      changed = true;
+      logAudit('tp2_hit', { sym, price, t2, entry, pnlPct });
+      telegramAlerts.push(
+        `🏆 *T2 HIT* — ${pos.base} — ${utc}\n` +
+        `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
+        `  P&L +${pnlPct}%  Full target reached\n` +
+        `  _Position removed in 8 min_`
+      );
+      continue;
+    }
+
+    // T1 hit (only when still watching)
+    if (isBull && t1 > 0 && price >= t1 && pos.status === 'watching') {
+      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1}`);
+      pos.status          = 'tp1_hit';
+      pos.statusChangedAt = now;
+      changed = true;
+      logAudit('tp1_hit', { sym, price, t1, entry, pnlPct });
+      telegramAlerts.push(
+        `✅ *T1 HIT* — ${pos.base} — ${utc}\n` +
+        `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
+        `  P&L +${pnlPct}%  Trail stop, watching for T2 $${t2}`
+      );
+      // Don't continue — still run exit score below
+    }
+
+    // ── 5. Hold lock — no exit score during first N minutes ──
+    const holdLockUntil = (pos.alertedAt || 0) + holdLockMs;
+    if (now < holdLockUntil) {
+      const remMins = Math.ceil((holdLockUntil - now) / 60000);
+      console.log(`  ⏳  ${pos.base} — hold lock ${remMins}min remaining`);
+      continue;
+    }
+
+    // ── 6. Skip exit scoring for exiting positions (already fired) ──
+    if (pos.status === 'exiting') {
+      const exitedAt = pos.statusChangedAt || 0;
+      // Still within eviction window — just log
+      console.log(`  🟡  ${pos.base} — exiting, ${Math.round((now - exitedAt)/60000)}min since signal`);
+      continue;
+    }
+
+    // ── 7. Exit score — CVD + OI + FR + RSI ──
+    // CVD is the hard gate: must decline LB_EXIT_CVD_CYCLES consecutive Job B runs
+    const cvdTrending  = d.cvd?.trending || d.cvdTrend || 'up';
+    const cvdDeclines  = trackCvdDecline(sym, cvdTrending);
+    const cvdConfirmed = cvdDeclines >= LB_EXIT_CVD_CYCLES;
+
+    const fr          = parseFloat(d.fr    || 0);
+    const r15         = parseFloat(d.r15   || 50);
+    const oiStr       = (d.oiDiv || '').toLowerCase();
+    const chg         = parseFloat(d.chg   || 0);
+    const priceNearEntry = Math.abs(chg) < 0.5 || price < entry * 1.005;
+    const oiExiting   = (oiStr.includes('bear oi') || oiStr.includes('oi drop')) && priceNearEntry;
+    const fundingHot  = fr > 0.08;
+    const rsiExtended = r15 > 75;
+
+    let exitScore = 0;
+    if (cvdConfirmed)                       exitScore += 2; // hard gate contribution
+    if (oiExiting)                          exitScore += 2;
+    if (fundingHot)                         exitScore += 1;
+    if (rsiExtended && cvdDeclines >= 1)    exitScore += 1;
+
+    console.log(`  📊  ${pos.base} — price:$${price} pnl:${pnlPct}% exitScore:${exitScore}/6 cvd:${cvdTrending}(${cvdDeclines}) fr:${fr.toFixed(3)}%`);
+
+    // ── Tier 1: Overheating warning (no CVD needed) ──
+    const tier1Triggered = fundingHot && rsiExtended && !cvdConfirmed;
+    const tier1Cooldown  = 2 * 60 * 60 * 1000;
+    if (tier1Triggered && (!pos.tier1AlertedAt || now - pos.tier1AlertedAt > tier1Cooldown)) {
+      pos.tier1AlertedAt = now;
+      changed = true;
+      console.log(`  ⚠  ${pos.base} — OVERHEATING FR:${fr.toFixed(3)}% RSI:${Math.round(r15)}`);
+      telegramAlerts.push(
+        `⚠ *WATCH — Overheating* — ${pos.base} — ${utc}\n` +
+        `  FR ${fr.toFixed(3)}%  RSI 15m ${Math.round(r15)}\n` +
+        `  CVD still up — tighten stop, not yet an exit\n` +
+        `  Current $${price}  Entry $${entry}  P&L ${pnlPct}%`
+      );
+    }
+
+    // ── Tier 2: Distribution confirmed — exit signal ──
+    const tier2Cooldown = 2 * 60 * 60 * 1000;
+    if (cvdConfirmed
+        && exitScore >= LB_EXIT_SCORE_MIN
+        && (!pos.exitAlertedAt || now - pos.exitAlertedAt > tier2Cooldown)) {
+      pos.status          = 'exiting';
+      pos.statusChangedAt = now;
+      pos.exitAlertedAt   = now;
+      changed = true;
+      const signals = [
+        cvdConfirmed ? `CVD↓ ${cvdDeclines} cycles` : null,
+        oiExiting    ? 'OI distributing'             : null,
+        fundingHot   ? `FR ${fr.toFixed(3)}%`        : null,
+        rsiExtended  ? `RSI ${Math.round(r15)}`      : null,
+      ].filter(Boolean).join(' · ');
+      console.log(`  🟡  ${pos.base} — EXIT SIGNAL score:${exitScore}/6 [${signals}]`);
+      logAudit('exit_signal', { sym, exitScore, signals, price, pnlPct });
+      telegramAlerts.push(
+        `🟡 *EXIT SIGNAL* — ${pos.base} — ${utc}\n` +
+        `  Score ${exitScore}/6 · ${signals}\n` +
+        `  Current $${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
+        `  T2 $${t2} — consider partial exit or trail stop\n` +
+        `  _Position removed in 10 min_`
+      );
+    }
+  }
+
+  return { positions, changed, telegramAlerts };
+}
+
+// ── peak/latest evaluator ──
 function evaluateSymbol(entry) {
-  const latest   = { conv: entry.conv, setup: entry.setup, shock: entry.d?.shock, obi: entry.d?.obi };
-  const peakD    = { ...entry.d, shock: entry.peakShock, obi: entry.peakObi };
-  const peakConv = calcConviction(peakD);
+  const latest    = { conv: entry.conv, setup: entry.setup, shock: entry.d?.shock, obi: entry.d?.obi };
+  const peakD     = { ...entry.d, shock: entry.peakShock, obi: entry.peakObi };
+  const peakConv  = calcConviction(peakD);
   const peakSetup = getSetupMode({ ...peakD, conv: peakConv });
   return peakConv > latest.conv && !SKIP_SETUPS.has(peakSetup.label)
     ? { conv: peakConv, setup: peakSetup, source: 'peak', shock: entry.peakShock, obi: entry.peakObi }
@@ -253,7 +414,21 @@ function resetPeaks(market) {
 // ════════════════════════════════════════════════════════
 // MAIN
 // ════════════════════════════════════════════════════════
-async function processBuySignals() {
+async function main() {
+  console.log(`\n${'═'.repeat(60)}`);
+  console.log(`Leaderboard Decider v11.0 — ${new Date().toUTCString()}`);
+  console.log(`MinScore:${LB_MIN_SCORE} BullConf:${LB_BULL_CONF_MIN} Cooldown:${LB_COOLDOWN_MIN}min StaleHrs:${LB_STALE_WATCH_HRS} DryRun:${DRY_RUN}`);
+  console.log('═'.repeat(60));
+
+  logAudit('job_start', {
+    minScore: LB_MIN_SCORE, bullConfMin: LB_BULL_CONF_MIN,
+    cooldownMin: LB_COOLDOWN_MIN, staleWatchHrs: LB_STALE_WATCH_HRS,
+    exitCvdCycles: LB_EXIT_CVD_CYCLES, exitScoreMin: LB_EXIT_SCORE_MIN,
+    allowAH: ALLOW_AH, allowPre: ALLOW_PRE_MARKET,
+    ghRepo: process.env.GH_REPO || '✗ missing',
+    tgEnabled: TG_ENABLED, dryRun: DRY_RUN,
+  });
+
   const market  = loadMarketData();
   const entries = Object.entries(market.symbols || {});
 
@@ -268,12 +443,48 @@ async function processBuySignals() {
     console.log(`[leaderboard-decider] ⚠ market-data.json is ${ageMin.toFixed(1)} min old`);
   }
 
-  const cryptoCount  = entries.filter(([, e]) => e.assetType === 'crypto').length;
-  const stockCount   = entries.filter(([, e]) => e.assetType === 'stock').length;
-  const frozenCount  = entries.filter(([, e]) => e.marketClosed).length;
+  const cryptoCount = entries.filter(([, e]) => e.assetType === 'crypto').length;
+  const stockCount  = entries.filter(([, e]) => e.assetType === 'stock').length;
+  const frozenCount = entries.filter(([, e]) => e.marketClosed).length;
   console.log(`[leaderboard-decider] ${entries.length} symbols — ${cryptoCount} crypto, ${stockCount} stock (${frozenCount} frozen)`);
 
-  // ── Pre-screen: any symbol could clear min score? ──
+  // ══════════════════════════════════════════════════════
+  // STEP 1 — Monitor open positions (exit/stop/stale)
+  // Runs BEFORE buy scan so freed slots are available.
+  // ══════════════════════════════════════════════════════
+  let positions = loadPositions();
+  const openCount = Object.keys(positions).length;
+
+  if (openCount > 0) {
+    console.log(`\n📊  Monitoring ${openCount} open position(s)...`);
+    const monitored = await monitorPositions(positions, market.symbols || {});
+    positions = monitored.positions;
+
+    if (monitored.changed) {
+      savePositions(positions);
+      await pushPositionsToGitHub(positions);
+    }
+
+    // Send all exit/stop/stale Telegram alerts
+    for (const msg of monitored.telegramAlerts) {
+      await sendTelegram(msg);
+    }
+
+    if (monitored.changed) {
+      logAudit('monitor_complete', {
+        openBefore: openCount,
+        openAfter:  Object.keys(positions).length,
+        alerts:     monitored.telegramAlerts.length,
+      });
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // STEP 2 — Scan for new BUY signals
+  // ══════════════════════════════════════════════════════
+  console.log(`\n🔍  Scanning for buy signals...`);
+
+  // Pre-screen — bail early if nothing clears min score
   const anyCandidate = entries.some(([, entry]) => {
     if (entry.marketClosed) return false;
     if (entry.conv >= LB_MIN_SCORE && !SKIP_SETUPS.has(entry.setup?.label)) return true;
@@ -284,93 +495,44 @@ async function processBuySignals() {
 
   if (!anyCandidate) {
     const bestConv = Math.max(...entries.map(([, e]) => e.conv ?? -Infinity));
-    console.log(`[leaderboard-decider] Pre-screen: nothing reaches ${LB_MIN_SCORE} (best: ${bestConv}) — stopping early.`);
+    console.log(`  Pre-screen: nothing reaches ${LB_MIN_SCORE} (best conv: ${bestConv}) — no buys this cycle.`);
     logAudit('no_candidates', { bestConv });
     saveMarketData(resetPeaks(market));
+    logAudit('job_complete');
+    console.log('\n✅  Job B complete.\n');
     return;
   }
 
   const cooldowns  = loadCooldowns();
   const alertState = pruneAlertState(loadAlertState());
-  let   positions  = loadPositions();
-
-  // ── Sweep positions.json before evaluating new candidates ──
-  // Pass 1: stale watching (never resolved)
-  // Pass 2: terminal states past eviction window (stopped/tp2_hit/exiting/tp1_hit)
-  // Pass 3: price check watching vs live market-data.json (catches stops browser missed)
-  const swept = sweepPositions(positions, market.symbols || {});
-  positions   = swept.positions;
-  if (swept.changed) {
-    savePositions(positions);
-    logAudit('position_sweep', {
-      evicted:  swept.evicted.length,
-      stopHits: swept.stopHits.length,
-      remaining: Object.keys(positions).length,
-    });
-  }
-
-  // Send Telegram for headless stop hits
-  if (swept.stopHits.length) {
-    const utc = new Date().toUTCString().slice(17, 22) + ' UTC';
-    for (const s of swept.stopHits) {
-      const pnlPct = s.entry > 0 ? ((s.price - s.entry) / s.entry * 100).toFixed(2) : '—';
-      const msg = [
-        `🔴 *STOP HIT (headless)* — ${s.base} — ${utc}`,
-        `  Entry $${s.entry}  Stop $${s.stop}  Current $${s.price}`,
-        `  P&L ${pnlPct}%`,
-        `  _Detected by Job B price check — position removed_`,
-      ].join('\n');
-      await sendTelegram(msg);
-    }
-    // Push cleaned positions.json to GitHub immediately after stop hits
-    await pushPositionsToGitHub(positions);
-  }
-
   const candidates = [];
 
   for (const [pair, entry] of entries) {
+    // Session gate
+    if (entry.marketClosed) continue;
+    if (entry.session === 'pre_market'  && !ALLOW_PRE_MARKET) continue;
+    if (entry.session === 'after_hours' && !ALLOW_AH) continue;
 
-    // ── 1. Market session gate ──
-    if (entry.marketClosed) {
-      console.log(`  ⏸  ${pair} — market closed`);
-      continue;
-    }
-    if (entry.session === 'pre_market' && !ALLOW_PRE_MARKET) {
-      console.log(`  ⏸  ${pair} — pre-market (LB_ALLOW_PRE_MARKET=false)`);
-      continue;
-    }
-    if (entry.session === 'after_hours' && !ALLOW_AH) {
-      console.log(`  ⏸  ${pair} — after-hours (LB_ALLOW_AH=false)`);
-      continue;
-    }
-
-    // ── 2. Score gate ──
+    // Score gate
     const evald = evaluateSymbol(entry);
     if (evald.conv < LB_MIN_SCORE)          continue;
     if (SKIP_SETUPS.has(evald.setup.label)) continue;
 
-    // ── 3. CAP BUY fast path (crypto only) ──
+    // CAP BUY bypasses bull confirmation gate
     const isCapBuy = entry.assetType === 'crypto' && (entry.capBuy?.isCapBuy ?? false);
-    if (!isCapBuy) {
-      // ── 4. Bull confirmation gate ──
-      if ((entry.bullConf ?? 0) < LB_BULL_CONF_MIN) {
-        console.log(`  ⏭  ${pair} bullConf:${entry.bullConf}/10 < ${LB_BULL_CONF_MIN} — skipped`);
-        continue;
-      }
+    if (!isCapBuy && (entry.bullConf ?? 0) < LB_BULL_CONF_MIN) {
+      console.log(`  ⏭  ${pair} bullConf:${entry.bullConf}/10 < ${LB_BULL_CONF_MIN}`);
+      continue;
     }
 
-    // ── 5. Cooldown gate ──
-    // Crypto: time-based.  Stocks: date-keyed (one per trading day).
+    // Cooldown gate
     const cdKey = cooldownKey(pair, entry.assetType);
     if (isOnCooldown(cooldowns, cdKey, entry.assetType)) {
       console.log(`  🔕  ${pair} — cooldown`);
       continue;
     }
 
-    // ── 6. Open position gate ──
-    // Terminal states (stopped, tp2_hit) allow re-entry after cooldown — they
-    // will be cleaned up by sweepPositions() on the next run anyway.
-    // Non-terminal active states (watching, tp1_hit, exiting) block new entry.
+    // Open position gate — block on active states only
     const sym = buildSymKey(pair);
     const existingPos = positions[sym];
     if (existingPos) {
@@ -379,15 +541,15 @@ async function processBuySignals() {
         console.log(`  ⏭  ${pair} — open position (${existingPos.status})`);
         continue;
       }
-      // Terminal but not yet swept — skip if terminal state is fresh (< eviction window)
-      const terminalDelay = HEADLESS_TERMINAL_MS[existingPos.status] || 0;
-      const changedAt     = existingPos.statusChangedAt || existingPos.alertedAt || 0;
-      if (terminalDelay && (Date.now() - changedAt) < terminalDelay) {
-        console.log(`  ⏭  ${pair} — terminal (${existingPos.status}) not yet evicted`);
+      // Terminal but not yet evicted — check if past eviction window
+      const termDelay = TERMINAL_EVICT_MS[existingPos.status] || 0;
+      const changedAt = existingPos.statusChangedAt || existingPos.alertedAt || 0;
+      if (Date.now() - changedAt < termDelay) {
+        console.log(`  ⏭  ${pair} — terminal (${existingPos.status}), waiting for eviction`);
         continue;
       }
-      // Past eviction window — remove it now and allow re-entry
-      console.log(`  ♻️  ${pair} — clearing terminal (${existingPos.status}), allowing re-entry`);
+      // Past eviction window — clear it now
+      console.log(`  ♻️  ${pair} — clearing terminal (${existingPos.status}), slot available`);
       delete positions[sym];
     }
 
@@ -395,15 +557,17 @@ async function processBuySignals() {
   }
 
   if (!candidates.length) {
-    console.log('  ✓  No new buy signals this cycle');
+    console.log('  ✓  No new buy signals this cycle (blocked by cooldown/gates)');
     saveMarketData(resetPeaks(market));
     saveCooldowns(cooldowns);
     saveAlertState(alertState);
     logAudit('buy_cycle_complete', { signalsFound: 0 });
+    logAudit('job_complete');
+    console.log('\n✅  Job B complete.\n');
     return;
   }
 
-  // ── Open positions ──
+  // Open new positions
   const buyAlerts = [];
   for (const { pair, sym, entry, evald, cdKey } of candidates) {
     markCooldown(cooldowns, cdKey);
@@ -431,69 +595,48 @@ async function processBuySignals() {
       exitAlertedAt:  null,
       tier1AlertedAt: null,
       status:         'watching',
-      source:         'headless_v10.9',
+      source:         'headless_v11.0',
       scoreSource:    evald.source,
     };
 
     buyAlerts.push({ pair, sym, levels, evald, price: entry.price, chg: entry.chg, d: entry.d, entry });
-    console.log(`  🟢  ${pair} [${evald.setup.label}] score:${evald.conv} (${evald.source}) ${entry.assetType} session:${entry.session} → ${sym}`);
-    logAudit('position_opened', { pair, sym, assetType: entry.assetType, setup: evald.setup.label, score: evald.conv, session: entry.session });
+    console.log(`  🟢  ${pair} [${evald.setup.label}] score:${evald.conv} → ${sym}`);
+    logAudit('position_opened', { pair, sym, setup: evald.setup.label, score: evald.conv });
   }
 
   savePositions(positions);
   saveCooldowns(cooldowns);
   saveAlertState(alertState);
   saveMarketData(resetPeaks(market));
-
   await pushPositionsToGitHub(positions);
 
-  // ── Telegram ──
-  const utc = new Date().toUTCString().slice(17, 22) + ' UTC';
-
+  // Telegram BUY alerts
+  const utc   = new Date().toUTCString().slice(17, 22) + ' UTC';
   const lines = buyAlerts.map(a => {
-    const l         = a.levels;
-    const peakNote  = a.evald.source === 'peak' ? ' _(peak)_' : '';
+    const l          = a.levels;
+    const peakNote   = a.evald.source === 'peak' ? ' _(peak)_' : '';
     const assetBadge = a.entry.assetType === 'stock' ? ' 📊' : '';
     const sessionTag = a.entry.session !== 'open' && a.entry.session !== '24/7'
       ? ` _(${a.entry.session})_` : '';
     return [
-      `${a.evald.setup.emoji} *${a.pair.replace('USDT', '')}*${assetBadge} — ${a.evald.setup.label} [${a.evald.conv} pts]${peakNote}${sessionTag}`,
-      a.entry.whale
-        ? `  ${a.entry.whale.emoji} Whale ${a.entry.whale.score}/100 · Flow: ${a.entry.flow || '—'} · Grade: ${a.entry.grade || '—'} (${a.entry.successProb || '—'}% win)`
-        : '',
-      `  Setup: ${a.entry.archetype || '—'} · BullConf: ${a.entry.bullConf ?? '—'}/10`,
-      `  Price: ${a.price}  Chg: ${a.chg > 0 ? '+' : ''}${a.chg?.toFixed(2)}%`,
-      `  Entry $${l?.entry || '—'}  Stop $${l?.stop || '—'}  T1 $${l?.t1 || '—'}  T2 $${l?.t2 || '—'}  R:R ${l?.rr || '—'}`,
+      `${a.evald.setup.emoji} *${a.pair.replace('USDT','')}*${assetBadge} — ${a.evald.setup.label} [${a.evald.conv} pts]${peakNote}${sessionTag}`,
+      a.entry.whale ? `  ${a.entry.whale.emoji} Whale ${a.entry.whale.score}/100 · Flow: ${a.entry.flow||'—'} · Grade: ${a.entry.grade||'—'} (${a.entry.successProb||'—'}% win)` : '',
+      `  Setup: ${a.entry.archetype||'—'} · BullConf: ${a.entry.bullConf??'—'}/10`,
+      `  Price $${a.price}  Chg ${a.chg>0?'+':''}${a.chg?.toFixed(2)}%`,
+      `  Entry $${l?.entry||'—'}  Stop $${l?.stop||'—'}  T1 $${l?.t1||'—'}  T2 $${l?.t2||'—'}  R:R ${l?.rr||'—'}`,
       `  _Pos: ${a.sym}_`,
     ].filter(Boolean).join('\n');
   });
 
   const msg = [
     `🔔 *Leaderboard BUY Alert* — ${utc}`,
-    `_${buyAlerts.length} signal(s) · v10.9 · min ${LB_MIN_SCORE} · bullConf≥${LB_BULL_CONF_MIN}/10_`,
+    `_${buyAlerts.length} signal(s) · v11.0 · min score ${LB_MIN_SCORE}_`,
     '', lines.join('\n\n'), '',
-    `_Position(s) opened — tracked for stop/T1/T2._`,
+    `_Stop/T1/T2/exit monitored headlessly every 15 min_`,
   ].join('\n');
 
   await sendTelegram(msg);
   logAudit('buy_cycle_complete', { signalsFound: candidates.length, positionsOpened: buyAlerts.length });
-}
-
-async function main() {
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log(`Leaderboard Decider v10.9 — ${new Date().toUTCString()}`);
-  console.log(`MinScore:${LB_MIN_SCORE} BullConf:${LB_BULL_CONF_MIN} Cooldown:${LB_COOLDOWN_MIN}min AH:${ALLOW_AH} Pre:${ALLOW_PRE_MARKET} DryRun:${DRY_RUN}`);
-  console.log('═'.repeat(60));
-
-  logAudit('job_start', {
-    minScore: LB_MIN_SCORE, bullConfMin: LB_BULL_CONF_MIN,
-    cooldownMin: LB_COOLDOWN_MIN, allowAH: ALLOW_AH, allowPre: ALLOW_PRE_MARKET,
-    staleWatchHrs: LB_STALE_WATCH_HRS,
-    ghRepo: process.env.GH_REPO || '✗ missing',
-    tgEnabled: TG_ENABLED, dryRun: DRY_RUN,
-  });
-
-  await processBuySignals();
   logAudit('job_complete');
   console.log('\n✅  Job B complete.\n');
 }
