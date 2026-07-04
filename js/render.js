@@ -84,13 +84,23 @@ function renderWL() {
     cont.innerHTML = watchlist.map(s => {
       const name = s.includes(':') ? s.split(':')[1].replace('USDT','') : s;
       const mktB = typeof marketStatusBadge === 'function' ? marketStatusBadge(s) : '';
+      const spId = 'wlsp_' + s.replace(/[^a-z0-9]/gi, '_');
       return `<div class="wli" onclick="switchT('${s}')" data-sym="${s}">
         <span class="wl-name">${name}${mktB}</span>
+        <canvas id="${spId}" width="46" height="16" class="sp" style="flex-shrink:0;"></canvas>
         <span class="wl-chg">—</span>
       </div>`;
     }).join('');
     _rendered.wl = wlKey;
     watchlist.forEach(s => { delete _dv[s+':wlchg']; delete _dv[s+':wlcolor']; });
+    // Register the new sparkline canvases for viewport-only lazy drawing
+    requestAnimationFrame(() => {
+      _initSparkIO();
+      watchlist.forEach(s => {
+        const spEl = document.getElementById('wlsp_' + s.replace(/[^a-z0-9]/gi,'_'));
+        if (spEl) _registerSpark(spEl);
+      });
+    });
   }
 
   // Patch-only: textContent + className, no innerHTML writes
@@ -108,6 +118,17 @@ function renderWL() {
     }
     const isOn = s === currentS;
     if (el.classList.contains('on') !== isOn) el.classList.toggle('on', isOn);
+  });
+
+  // Sparklines: only draw canvases currently in the viewport (same lazy
+  // IntersectionObserver machinery the Signal Matrix table sparklines use)
+  requestAnimationFrame(() => {
+    watchlist.forEach(s => {
+      const d       = DS[s];
+      const spId    = 'wlsp_' + s.replace(/[^a-z0-9]/gi,'_');
+      const spData  = d?.sparkBars?.length > 1 ? d.sparkBars : (STATE.PH[s]?.length > 1 ? STATE.PH[s] : null);
+      if (spData) _drawSparkLazy(spId, spData, null);
+    });
   });
 }
 

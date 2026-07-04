@@ -297,21 +297,38 @@ function sortBy(k) {
   renderTable();
 }
 
-// ── CHART SWITCH — registry-backed TradingView symbol ──
-function switchT(s) {
-  const prev = STATE.currentS;
-  STATE.currentS = s;
+// ── CHART SETUP — shared by single view and both compare panes ──
+// Default view: last 5 minutes visible, with Supertrend + Bull Bear Power
+// pre-loaded. Interval defaults to 1-minute candles — a 5-minute window of
+// 30-minute candles would show well under one bar, so granularity has to
+// match the window. The person can still change interval/indicators by hand
+// afterward; this only sets what loads initially.
+const DEFAULT_CHART_INTERVAL   = '1';       // 1-minute candles
+const DEFAULT_VISIBLE_RANGE_S  = 5 * 60;    // last 5 minutes
+const DEFAULT_STUDIES          = ['Supertrend', 'Bull Bear Power'];
 
-  // Use registry to build the correct TV symbol for any exchange
-  const tv = typeof buildTVSymbol !== 'undefined' ? buildTVSymbol(s) : s;
+function _applyDefaultChartView(widget) {
+  if (!widget || typeof widget.onChartReady !== 'function') return;
+  widget.onChartReady(() => {
+    try {
+      const chart  = widget.chart();
+      const nowSec = Math.floor(Date.now() / 1000);
+      chart.setVisibleRange({ from: nowSec - DEFAULT_VISIBLE_RANGE_S, to: nowSec });
+      DEFAULT_STUDIES.forEach(name => {
+        try { chart.createStudy(name, false, false); }
+        catch (e) { console.log(`[chart] createStudy('${name}') failed:`, e.message); }
+      });
+    } catch (e) {
+      console.log('[chart] default view setup failed:', e.message);
+    }
+  });
+}
 
-  const cont = document.getElementById('tv_chart');
-  if (cont && cont.querySelector('div[style*="Click any symbol"]')) cont.innerHTML = '';
-
-  if (STATE.tvW) { try { STATE.tvW.remove(); } catch {} }
-  STATE.tvW = new TradingView.widget({
-    autosize: true, symbol: tv, interval: '30', theme: 'dark',
-    container_id: 'tv_chart', allow_symbol_change: true, style: '1',
+function _buildTVWidget(containerId, sym) {
+  const tv = typeof buildTVSymbol !== 'undefined' ? buildTVSymbol(sym) : sym;
+  const widget = new TradingView.widget({
+    autosize: true, symbol: tv, interval: DEFAULT_CHART_INTERVAL, theme: 'dark',
+    container_id: containerId, allow_symbol_change: true, style: '1',
     toolbar_bg: '#0d1117',
     overrides: {
       'paneProperties.background':              '#080a0d',
@@ -319,8 +336,69 @@ function switchT(s) {
       'paneProperties.horzGridProperties.color': '#1e2530',
     },
   });
+  _applyDefaultChartView(widget);
+  return widget;
+}
+
+// ── CHART SWITCH — registry-backed TradingView symbol ──
+function switchT(s) {
+  const prev = STATE.currentS;
+  STATE.currentS = s;
+
+  const cont = document.getElementById('tv_chart');
+  if (cont && cont.querySelector('div[style*="Click any symbol"]')) cont.innerHTML = '';
+
+  if (STATE.tvW) { try { STATE.tvW.remove(); } catch {} }
+  STATE.tvW = _buildTVWidget('tv_chart', s);
+
   renderWL();
   if (s !== prev && STATE._newsFetched) fetchNews();
+}
+
+// ── COMPARE MODE — side-by-side second chart ──
+function toggleCompareMode() {
+  STATE.compareMode = !STATE.compareMode;
+  const btn      = document.getElementById('compare-toggle-btn');
+  const wrap     = document.getElementById('compare-symbol-wrap');
+  const paneB    = document.getElementById('tv_chart_b');
+  if (btn)   btn.classList.toggle('on', STATE.compareMode);
+  if (wrap)  wrap.classList.toggle('hide', !STATE.compareMode);
+  if (paneB) paneB.style.display = STATE.compareMode ? 'block' : 'none';
+
+  if (STATE.compareMode) {
+    // Default second symbol: whatever's currently focused stays on the left;
+    // pick the next watchlist entry (or fall back to the same symbol) for the right.
+    if (!STATE.compareSymbol) {
+      const others = STATE.watchlist.filter(s => s !== STATE.currentS);
+      STATE.compareSymbol = others[0] || STATE.currentS;
+    }
+    const input = document.getElementById('compareSymbolInput');
+    if (input) input.value = (STATE.compareSymbol || '').split(':').pop().replace('USDT', '');
+    _renderComparePane();
+  } else if (STATE.tvW2) {
+    try { STATE.tvW2.remove(); } catch {}
+    STATE.tvW2 = null;
+  }
+}
+
+function setCompareSymbol(raw) {
+  const v = (raw || '').trim().toUpperCase();
+  if (!v) return;
+
+  // Prefer an exact base match already in the watchlist (any exchange),
+  // otherwise assume crypto on Binance — same default addTicker() uses.
+  const existing = STATE.watchlist.find(sym => {
+    const base = sym.includes(':') ? sym.split(':')[1].replace('USDT', '') : sym.replace(/\.\w+$/, '');
+    return base === v;
+  });
+  STATE.compareSymbol = existing || (v.startsWith('BINANCE:') ? v : `BINANCE:${v}${v.includes('USDT') ? '' : 'USDT'}`);
+  _renderComparePane();
+}
+
+function _renderComparePane() {
+  if (!STATE.compareSymbol) return;
+  if (STATE.tvW2) { try { STATE.tvW2.remove(); } catch {} }
+  STATE.tvW2 = _buildTVWidget('tv_chart_b', STATE.compareSymbol);
 }
 
 // ── WATCHLIST MANAGEMENT ──
