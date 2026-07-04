@@ -63,7 +63,18 @@
     </div>
     <!-- TradingView Chart -->
     <div class="chart-wrap">
-      <div id="tv_chart" style="height:100%;"></div>
+      <div class="chart-toolbar" id="chart-toolbar">
+        <button class="bsm" id="compare-toggle-btn" onclick="toggleCompareMode()">⇄ Compare</button>
+        <div class="compare-symbol-input hide" id="compare-symbol-wrap">
+          <input type="text" id="compareSymbolInput" placeholder="Compare with… e.g. ETH"
+                 onkeydown="if(event.key==='Enter') setCompareSymbol(this.value)">
+          <button class="bsm" onclick="setCompareSymbol(document.getElementById('compareSymbolInput').value)">Load</button>
+        </div>
+      </div>
+      <div id="tv_chart_row" style="height:calc(100% - 34px);display:flex;gap:4px;">
+        <div id="tv_chart"   style="height:100%;flex:1;min-width:0;"></div>
+        <div id="tv_chart_b" style="height:100%;flex:1;min-width:0;display:none;"></div>
+      </div>
     </div>
   </div>
 
