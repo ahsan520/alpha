@@ -138,7 +138,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .rbtn:disabled{cursor:default;}
 
 /* chart */
-.chart-wrap{grid-column:2;grid-row:1;overflow:hidden;}
+.chart-wrap{grid-column:2;grid-row:1;overflow:hidden;display:flex;flex-direction:column;}
+.chart-toolbar{display:flex;align-items:center;gap:8px;padding:4px 8px;height:34px;flex-shrink:0;
+  border-bottom:1px solid var(--border);background:var(--card);}
+.compare-symbol-input{display:flex;align-items:center;gap:6px;}
+.compare-symbol-input.hide{display:none;}
+.compare-symbol-input input{background:var(--bg2);border:1px solid var(--border2);color:var(--text-bright);
+  font-family:var(--mono);font-size:10px;padding:4px 8px;border-radius:4px;width:140px;}
+#compare-toggle-btn.on{background:rgba(61,155,255,0.15);border-color:rgba(61,155,255,0.4);color:#4da6ff;}
 
 /* ── SIGNAL TABLE ── */
 .tbl-wrap{display:flex;flex-direction:column;border-top:2px solid var(--border2);}
