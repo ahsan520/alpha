@@ -802,80 +802,106 @@ async function main() {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // MEXC AUTO-TRADE — place a market buy for the ⭐ top-ranked pick only.
+  // ══════════════════════════════════════════════════════════════════════════
+  // MEXC AUTO-TRADE
   //
-  // Gates (all must pass):
+  // Two execution strategies (set via GUI toggle → trade-state.json):
+  //   'top1'  — buy only the ⭐ #1 ranked symbol, full TRADE_USD_SIZE
+  //   'topN'  — buy every ⭐ starred symbol, TRADE_USD_SIZE split equally
+  //             e.g. $75 / 3 starred picks = $25 each
+  //
+  // Gates (per-symbol, all must pass):
   //   1. TRADE_MODE is 'paper' or 'live' (not 'off')
-  //   2. tradingEnabled flag in trade-state.json (Telegram kill-switch)
-  //   3. ranked[0] exists and is marked recommended (i.e. showRecoTags fired)
-  //   4. Not already holding a live open trade (TRADE_MAX_CONCURRENT_LIVE)
-  //   5. Idempotency: positions[sym].liveOrder not already set (prevents
-  //      double-buy if Job B retries or overlaps)
+  //   2. tradingEnabled flag (Telegram /pause kill-switch)
+  //   3. Symbol is in the ⭐ recommended set (showRecoTags fired)
+  //   4. Not already holding too many live open trades (TRADE_MAX_CONCURRENT_LIVE)
+  //   5. Idempotency: positions[sym].liveOrder not already set
   // ══════════════════════════════════════════════════════════════════════════
   let tradeState = loadTradeState();
   tradeState = await pollTelegramCommands(tradeState);
   saveTradeState(tradeState);
 
-  // GUI toggle (saveApiTradingCfg) writes `tradeMode` to trade-state.json.
-  // That takes precedence over the TRADE_MODE env var so the browser control
-  // works without a repo-variable change.
-  const effectiveTradeMode = tradeState.tradeMode || TRADE_MODE;
+  // GUI toggle writes `tradeMode` and `execStrategy` to trade-state.json —
+  // both take precedence over env vars so the browser control works without
+  // a repo-variable change.
+  const effectiveTradeMode     = tradeState.tradeMode     || TRADE_MODE;
+  const effectiveExecStrategy  = tradeState.execStrategy  || 'top1'; // 'top1' | 'topN'
+  const effectiveUsdSize       = tradeState.usdSize       || TRADE_USD_SIZE;
+  const effectiveMaxLive       = tradeState.maxLive       || TRADE_MAX_LIVE;
 
-  if (effectiveTradeMode !== 'off' && showRecoTags && ranked[0]?.recommended) {
-    const topPick   = ranked[0].a;
-    const topPos    = positions[topPick.sym];
-    const symbol    = topPick.pair.replace(/[^A-Z]/g, '') + (topPick.pair.includes('USDT') ? '' : 'USDT');
-    const liveLock  = countLiveOpenPositions(positions);
+  if (effectiveTradeMode !== 'off' && showRecoTags) {
+    // Determine the picks for this cycle based on strategy
+    const allStarred   = ranked.filter(r => r.recommended);
+    const picks        = effectiveExecStrategy === 'topN' ? allStarred : allStarred.slice(0, 1);
+    const perPickUsd   = effectiveExecStrategy === 'topN' && picks.length > 1
+      ? parseFloat((effectiveUsdSize / picks.length).toFixed(2))
+      : effectiveUsdSize;
 
-    const blockedReasons = [
-      !tradeState.tradingEnabled ? 'trading paused via Telegram /pause' : null,
-      topPos?.liveOrder          ? 'liveOrder already set (idempotency guard)' : null,
-      liveLock >= TRADE_MAX_LIVE ? `already ${liveLock}/${TRADE_MAX_LIVE} live trades open` : null,
-    ].filter(Boolean);
+    console.log(`  ⚡  Exec strategy: ${effectiveExecStrategy} — ${picks.length} pick(s) @ $${perPickUsd} each`);
 
-    if (blockedReasons.length) {
-      console.log(`  🚫  Auto-trade blocked — ${blockedReasons.join(', ')}`);
-      logAudit('mexc_blocked', { sym: symbol, reasons: blockedReasons });
-    } else if (effectiveTradeMode === 'paper') {
-      // Paper mode: log only, no exchange call
-      console.log(`  📝  PAPER BUY — ${symbol} $${TRADE_USD_SIZE} USDT (paper mode, no real order placed)`);
-      topPos.liveOrder = {
-        mode: 'paper', buyAt: Date.now(), usdSize: TRADE_USD_SIZE,
-        qty: TRADE_USD_SIZE / (topPick.levels ? parseFloat(topPick.levels.entry) : topPick.price),
-        fillPrice: topPick.levels ? parseFloat(topPick.levels.entry) : topPick.price,
-        buyOrderId: `PAPER_${Date.now()}`,
-      };
-      logAudit('mexc_paper_buy', { sym: symbol, usdSize: TRADE_USD_SIZE, fillPrice: topPos.liveOrder.fillPrice });
-      await sendTelegram(`📝 *PAPER BUY* — ${topPick.pair.replace('USDT','')} $${TRADE_USD_SIZE} USDT @ ~$${topPos.liveOrder.fillPrice}\n_Paper mode — no real order placed. Set TRADE\\_MODE=live to trade for real._`);
+    if (!tradeState.tradingEnabled) {
+      console.log(`  🚫  Auto-trade blocked — trading paused via Telegram /pause`);
+      logAudit('mexc_blocked', { strategy: effectiveExecStrategy, reasons: ['paused'] });
     } else {
-      // Live mode — real MEXC market buy
-      console.log(`  ⚡  LIVE BUY — ${symbol} $${TRADE_USD_SIZE} USDT via MEXC...`);
-      try {
-        const buy = await mexcMarketBuy(MEXC_API_KEY, MEXC_API_SECRET, symbol, TRADE_USD_SIZE);
-        topPos.liveOrder = {
-          mode: 'live', buyAt: Date.now(), usdSize: TRADE_USD_SIZE,
-          qty: buy.executedQty, fillPrice: buy.fillPrice, buyOrderId: buy.orderId,
-        };
-        logAudit('mexc_live_buy', { sym: symbol, usdSize: TRADE_USD_SIZE, qty: buy.executedQty, fillPrice: buy.fillPrice, orderId: buy.orderId });
-        await sendTelegram(
-          `⚡ *LIVE BUY PLACED* — ${topPick.pair.replace('USDT','')} — ${utc}\n` +
-          `  MEXC MARKET BUY: ${buy.executedQty} @ $${buy.fillPrice.toFixed(6)}\n` +
-          `  Total: ~$${TRADE_USD_SIZE}  Order ID: \`${buy.orderId}\`\n` +
-          `  Stop/T2 exits will close this position automatically.\n` +
-          `  _Send /pause to halt further auto-buys_`
-        );
-      } catch (e) {
-        logAudit('mexc_live_buy_failed', { sym: symbol, error: e.message });
-        await sendTelegram(`🚨 *LIVE BUY FAILED* — ${symbol}\n  Error: ${e.message}\n  _No position opened on MEXC. Check API key and USDT balance._`);
+      const liveLock = countLiveOpenPositions(positions);
+
+      for (const { a: pick } of picks) {
+        const pos    = positions[pick.sym];
+        const symbol = pick.pair.replace(/[^A-Z]/g, '') + (pick.pair.includes('USDT') ? '' : 'USDT');
+
+        const blockedReasons = [
+          pos?.liveOrder                    ? 'liveOrder already set (idempotency guard)' : null,
+          liveLock >= effectiveMaxLive      ? `already ${liveLock}/${effectiveMaxLive} live trades open` : null,
+        ].filter(Boolean);
+
+        if (blockedReasons.length) {
+          console.log(`  🚫  ${symbol} skipped — ${blockedReasons.join(', ')}`);
+          logAudit('mexc_blocked', { sym: symbol, reasons: blockedReasons });
+          continue;
+        }
+
+        if (effectiveTradeMode === 'paper') {
+          console.log(`  📝  PAPER BUY — ${symbol} $${perPickUsd} USDT`);
+          pos.liveOrder = {
+            mode: 'paper', buyAt: Date.now(), usdSize: perPickUsd,
+            qty: perPickUsd / (pick.levels ? parseFloat(pick.levels.entry) : pick.price),
+            fillPrice: pick.levels ? parseFloat(pick.levels.entry) : pick.price,
+            buyOrderId: `PAPER_${Date.now()}`,
+          };
+          logAudit('mexc_paper_buy', { sym: symbol, usdSize: perPickUsd, fillPrice: pos.liveOrder.fillPrice });
+          await sendTelegram(
+            `📝 *PAPER BUY* — ${pick.pair.replace('USDT','')} $${perPickUsd} USDT @ ~$${pos.liveOrder.fillPrice.toFixed(6)}\n` +
+            `  Strategy: ${effectiveExecStrategy === 'topN' ? `top${picks.length} split` : 'top 1'}\n` +
+            `  _Paper mode — no real order placed. Set TRADE\\_MODE=live to trade for real._`
+          );
+        } else {
+          // Live mode — real MEXC market buy
+          console.log(`  ⚡  LIVE BUY — ${symbol} $${perPickUsd} USDT via MEXC...`);
+          try {
+            const buy = await mexcMarketBuy(MEXC_API_KEY, MEXC_API_SECRET, symbol, perPickUsd);
+            pos.liveOrder = {
+              mode: 'live', buyAt: Date.now(), usdSize: perPickUsd,
+              qty: buy.executedQty, fillPrice: buy.fillPrice, buyOrderId: buy.orderId,
+            };
+            logAudit('mexc_live_buy', { sym: symbol, usdSize: perPickUsd, qty: buy.executedQty, fillPrice: buy.fillPrice, orderId: buy.orderId });
+            await sendTelegram(
+              `⚡ *LIVE BUY PLACED* — ${pick.pair.replace('USDT','')} — ${utc}\n` +
+              `  MEXC MARKET BUY: ${buy.executedQty} @ $${buy.fillPrice.toFixed(6)}\n` +
+              `  Size: $${perPickUsd} USDT  Order ID: \`${buy.orderId}\`\n` +
+              (effectiveExecStrategy === 'topN' ? `  Strategy: top${picks.length} split ($${effectiveUsdSize} ÷ ${picks.length})\n` : '') +
+              `  Stop/T2 exits will close this position automatically.\n` +
+              `  _Send /pause to halt further auto-buys_`
+            );
+          } catch (e) {
+            logAudit('mexc_live_buy_failed', { sym: symbol, error: e.message });
+            await sendTelegram(`🚨 *LIVE BUY FAILED* — ${symbol}\n  Error: ${e.message}\n  _No position opened on MEXC. Check API key and USDT balance._`);
+          }
+        }
       }
     }
   }
 
   savePositions(positions);
-  saveCooldowns(cooldowns);
-  saveAlertState(alertState);
-  saveMarketData(resetPeaks(market));
-  await pushPositionsToGitHub(positions);
   saveCooldowns(cooldowns);
   saveAlertState(alertState);
   saveMarketData(resetPeaks(market));
