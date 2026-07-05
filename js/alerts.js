@@ -366,7 +366,13 @@ function setApiTradeMode(mode) {
   STATE._apiTradeMode = mode;
   if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
   STATE.alertCfg.apiTrading.mode = mode;
-  // Re-render just the apitrading tab so the button states and warning update
+  switchCfgTab('apitrading');
+}
+
+function setApiExecStrategy(strategy) {
+  STATE._apiExecStrategy = strategy;
+  if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
+  STATE.alertCfg.apiTrading.execStrategy = strategy;
   switchCfgTab('apitrading');
 }
 
@@ -376,12 +382,13 @@ async function saveApiTradingCfg() {
   if (result) result.textContent = 'Saving…';
 
   // Collect values
-  const mode    = STATE._apiTradeMode || STATE.alertCfg.apiTrading?.mode || 'off';
-  const usdSize = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
-  const maxLive = parseInt(document.getElementById('api-max-live')?.value) || 1;
+  const mode     = STATE._apiTradeMode     || STATE.alertCfg.apiTrading?.mode         || 'off';
+  const strategy = STATE._apiExecStrategy  || STATE.alertCfg.apiTrading?.execStrategy || 'top1';
+  const usdSize  = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
+  const maxLive  = parseInt(document.getElementById('api-max-live')?.value) || 1;
 
   if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
-  STATE.alertCfg.apiTrading = { mode, usdSize, maxLive };
+  STATE.alertCfg.apiTrading = { mode, execStrategy: strategy, usdSize, maxLive };
 
   // Persist to localStorage via the normal saveAlertCfg path
   const cfg = STATE.alertCfg;
@@ -416,7 +423,7 @@ async function saveApiTradingCfg() {
       try { prev = JSON.parse(atob((j.content || '').replace(/\n/g,''))); } catch {}
     }
 
-    const newState = { ...prev, tradeMode: mode, usdSize, maxLive, modeChangedAt: Date.now() };
+    const newState = { ...prev, tradeMode: mode, execStrategy: strategy, usdSize, maxLive, modeChangedAt: Date.now() };
     const content  = btoa(unescape(encodeURIComponent(JSON.stringify(newState, null, 2))));
     const body     = { message: `chore: api trade mode → ${mode} [skip ci]`, content, branch };
     if (sha) body.sha = sha;
@@ -466,9 +473,10 @@ function saveAlertCfg() {
   const apiModeBtns = document.querySelectorAll('[onclick^="setApiTradeMode"]');
   if (apiModeBtns.length) {
     if (!cfg.apiTrading) cfg.apiTrading = {};
-    cfg.apiTrading.mode    = STATE._apiTradeMode || cfg.apiTrading.mode || 'off';
-    cfg.apiTrading.usdSize = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
-    cfg.apiTrading.maxLive = parseInt(document.getElementById('api-max-live')?.value) || 1;
+    cfg.apiTrading.mode         = STATE._apiTradeMode     || cfg.apiTrading.mode         || 'off';
+    cfg.apiTrading.execStrategy = STATE._apiExecStrategy  || cfg.apiTrading.execStrategy || 'top1';
+    cfg.apiTrading.usdSize      = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
+    cfg.apiTrading.maxLive      = parseInt(document.getElementById('api-max-live')?.value) || 1;
   }
 
   // Save per-condition enabled state + rule channels
@@ -648,7 +656,7 @@ async function flushDigest() {
 
 function switchCfgTab(tab) {
   STATE._cfgTab = tab;
-  const ALL_TABS = ['telegram','rules','leaderboard','sync','positions','tracker','audit'];
+  const ALL_TABS = ['telegram','rules','leaderboard','sync','positions','tracker','audit','apitrading'];
   ALL_TABS.forEach(t => {
     const panel = document.getElementById('cfg-panel-' + t);
     if (panel) {
@@ -664,8 +672,9 @@ function switchCfgTab(tab) {
     btn.style.fontWeight        = active ? '700' : '400';
   });
   // Load data panels on demand
-  if (tab === 'positions' && typeof refreshHeadlessPositions === 'function') refreshHeadlessPositions();
-  if (tab === 'audit'     && typeof refreshAuditLog          === 'function') refreshAuditLog();
+  if (tab === 'positions'   && typeof refreshHeadlessPositions === 'function') refreshHeadlessPositions();
+  if (tab === 'audit'       && typeof refreshAuditLog          === 'function') refreshAuditLog();
+  if (tab === 'apitrading') renderAlertCfgPage(); // re-render so mode/strategy buttons reflect current STATE
 }
 
 function resetSuppression() {
@@ -1049,6 +1058,7 @@ function renderAlertCfgPage() {
   ${(() => {
     const at    = cfg.apiTrading || {};
     const mode  = at.mode || 'off';
+    const strategy = at.execStrategy || 'top1';
     const isOff  = mode === 'off';
     const isPaper= mode === 'paper';
     const isLive = mode === 'live';
@@ -1063,14 +1073,14 @@ function renderAlertCfgPage() {
     <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid ${modeColor};border-radius:8px;padding:16px;">
       <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${modeColor};letter-spacing:2px;margin-bottom:4px;">⚡ MEXC API TRADING</div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
-        Auto-trades the <b style="color:var(--text-bright)">⭐ top-ranked buy signal</b> each cycle via MEXC Spot API.<br>
+        Auto-trades the <b style="color:var(--text-bright)">⭐ top-ranked buy signal(s)</b> each cycle via MEXC Spot API.<br>
         Mode is written to <code>scripts/trade-state.json</code> in your repo and picked up by the headless Job B runner.<br>
         You can also send <code>/pause</code> or <code>/resume</code> in Telegram at any time.
       </div>
 
       <!-- Mode toggle row -->
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;">MODE</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;min-width:44px;">MODE</span>
         ${['off','paper','live'].map(m => {
           const active = mode === m;
           const col = m === 'live' ? '#3dff78' : m === 'paper' ? '#f0c040' : 'var(--text-dim)';
@@ -1091,9 +1101,34 @@ function renderAlertCfgPage() {
         ${modeDesc}
       </div>
 
+      <!-- Execution strategy -->
+      <div style="margin-bottom:16px;">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">EXECUTION STRATEGY (when 3+ signals fire)</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${[['top1','⭐ Top #1 only','Buy only the highest-ranked pick, full order size'],
+             ['topN','⭐⭐⭐ Top N split','Buy all starred picks, USDT split equally between them']].map(([val, label, desc]) => {
+            const active = strategy === val;
+            return `<div onclick="setApiExecStrategy('${val}')"
+              style="flex:1;min-width:160px;padding:10px 14px;border-radius:6px;cursor:pointer;transition:.15s;
+                     background:${active ? 'rgba(61,155,255,0.08)' : 'var(--bg)'};
+                     border:1px solid ${active ? 'rgba(61,155,255,0.4)' : 'var(--border2)'};">
+              <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${active ? 'var(--accent)' : 'var(--text-bright)'};margin-bottom:3px;">${label}</div>
+              <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);line-height:1.5;">${desc}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-top:8px;line-height:1.7;" id="api-strategy-note">
+          ${strategy === 'topN'
+            ? '💡 Split example: $75 total ÷ 3 starred picks = <b style="color:var(--text-bright)">$25 each</b>. If only 1 signal fires, it gets the full amount.'
+            : '💡 If fewer than 3 signals fire, top #1 always gets the full order size.'}
+        </div>
+      </div>
+
       <!-- Position size -->
       <div style="margin-bottom:12px;">
-        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">ORDER SIZE (USDT per buy)</label>
+        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">
+          ${strategy === 'topN' ? 'TOTAL ORDER SIZE (split equally across picks)' : 'ORDER SIZE (USDT per buy)'}
+        </label>
         <input type="number" id="api-usd-size" value="${at.usdSize || 25}" min="1" step="1"
           style="width:140px;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
                  padding:8px 12px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;">
@@ -1117,7 +1152,7 @@ function renderAlertCfgPage() {
         ⚠ <b>LIVE MODE</b> — real money at risk.<br>
         Add <code>MEXC_API_KEY</code> and <code>MEXC_API_SECRET</code> as GitHub repository secrets.<br>
         Set IP whitelist on the MEXC key to your GitHub Actions IP range (or leave open, rotate quarterly).<br>
-        Start with a small <code>TRADE_USD_SIZE</code> until you've verified the first few fills.
+        Start with a small order size until you've verified the first few fills.
       </div>
 
       <!-- How mode is applied note -->
