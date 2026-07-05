@@ -286,9 +286,132 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(b  => b.classList.remove('on'));
   document.getElementById('tab-' + tab).classList.add('on');
   btn.classList.add('on');
-  if (tab === 'alerts')       renderAlertCfgPage();
+  if (tab === 'alerts')        renderAlertCfgPage();
   if (tab === 'watchlist-mgr') renderWatchlistManager();
+  if (tab === 'journal')       renderApiTrades();  // always refresh on open
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// API TRADES TRACKER
+// Reads positions.json from GitHub (same raw.githubusercontent pull used by
+// Position Tracker) and renders every position that has a `liveOrder` field —
+// i.e. every buy/sell placed via the MEXC auto-trader.
+// ══════════════════════════════════════════════════════════════════════════════
+const _apiTradesState = { loading: false, lastFetched: 0, positions: {} };
+
+async function refreshApiTrades() {
+  if (_apiTradesState.loading) return;
+  _apiTradesState.loading = true;
+  setApiTradesFooter('Loading…');
+  try {
+    const cfg     = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
+    const repo    = cfg.repo  || window.__GH_REPO || '';
+    const branch  = cfg.branch || 'main';
+    const fpath   = (cfg.path || 'scripts/positions.json');
+    if (!repo) { setApiTradesFooter('GitHub repo not configured — set GH_REPO in sync settings.'); return; }
+
+    const url  = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`;
+    const res  = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const positions = await res.json();
+
+    _apiTradesState.positions    = positions;
+    _apiTradesState.lastFetched  = Date.now();
+    renderApiTrades(positions);
+    setApiTradesFooter(`Last synced ${new Date().toLocaleTimeString()} from ${repo}`);
+  } catch (e) {
+    setApiTradesFooter(`Error loading positions: ${e.message}`);
+  } finally {
+    _apiTradesState.loading = false;
+  }
+}
+
+function setApiTradesFooter(msg) {
+  const el = document.getElementById('api-trades-footer');
+  if (el) el.textContent = msg;
+}
+
+function renderApiTrades(positions) {
+  positions = positions || _apiTradesState.positions;
+  const tbody  = document.getElementById('api-trades-tbody');
+  const stats  = document.getElementById('api-trades-stats');
+  const badge  = document.getElementById('api-trade-mode-badge');
+  if (!tbody) return;
+
+  // Collect only positions that were touched by the MEXC auto-trader
+  const rows = Object.values(positions)
+    .filter(p => p.liveOrder)
+    .sort((a, b) => (b.liveOrder.buyAt || b.alertedAt || 0) - (a.liveOrder.buyAt || a.alertedAt || 0));
+
+  // Infer the current trade mode from positions on record
+  const modes = [...new Set(rows.map(r => r.liveOrder.mode || 'paper'))];
+  const mode  = modes.includes('live') ? 'live' : modes.includes('paper') ? 'paper' : 'off';
+  if (badge) {
+    badge.textContent = mode.toUpperCase();
+    badge.className   = 'api-trades-mode' + (mode === 'live' ? ' live' : mode === 'off' ? ' off' : '');
+  }
+
+  // Summary stats
+  const closed    = rows.filter(r => r.liveOrder.closedAt);
+  const wins      = closed.filter(r => (r.liveOrder.pnlPct || 0) > 0);
+  const totalPnl  = closed.reduce((s, r) => s + (r.liveOrder.pnlPct || 0), 0);
+  const winRate   = closed.length ? Math.round(wins.length / closed.length * 100) : null;
+  if (stats) stats.innerHTML = [
+    `<span>${rows.length}</span> trades`,
+    closed.length ? `<span>${winRate}%</span> win rate` : null,
+    closed.length ? `<span>${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}%</span> total P&L` : null,
+  ].filter(Boolean).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-dim);padding:20px;">No API trades on record yet — they appear here once the ⭐ auto-trader places its first buy.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(p => {
+    const lo      = p.liveOrder;
+    const buyAt   = lo.buyAt   ? new Date(lo.buyAt).toLocaleString()  : '—';
+    const sellAt  = lo.closedAt? new Date(lo.closedAt).toLocaleString(): null;
+    const buyQty  = lo.qty     ? lo.qty.toFixed(6)  : '—';
+    const buyP    = lo.fillPrice? '$' + lo.fillPrice.toFixed(6) : '—';
+    const sellQty = lo.closedAt && lo.qty ? lo.qty.toFixed(6) : '—';
+    const sellP   = lo.exitFillPrice ? '$' + lo.exitFillPrice.toFixed(6) : '—';
+    const pnlPct  = lo.fillPrice && lo.exitFillPrice
+      ? ((lo.exitFillPrice - lo.fillPrice) / lo.fillPrice * 100)
+      : lo.pnlPct || null;
+    const pnlStr  = pnlPct !== null
+      ? `<span class="${pnlPct >= 0 ? 'pnl-pos' : 'pnl-neg'}">${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%</span>`
+      : '—';
+
+    // Status badge
+    const terminated = ['stopped', 'tp2_hit'].includes(p.status);
+    const statusLabel = lo.closedAt
+      ? (p.status === 'stopped' ? '🔴 stopped' : '🏆 tp2 hit')
+      : (terminated ? '🟡 closing' : '🟢 open');
+    const statusCls   = lo.closedAt
+      ? (p.status === 'stopped' ? 'status-stopped' : 'status-closed')
+      : 'status-open';
+
+    // Show time info: buy time on first row, sell time if closed
+    const timeCell = sellAt
+      ? `<span title="Bought: ${buyAt}&#10;Sold: ${sellAt}">B: ${buyAt.split(', ')[1] || buyAt}<br><span style="color:var(--text-dim)">S: ${sellAt.split(', ')[1] || sellAt}</span></span>`
+      : `<span title="${buyAt}">${buyAt}</span>`;
+
+    return `<tr>
+      <td style="font-size:9px">${timeCell}</td>
+      <td><b style="color:var(--text-bright)">${p.base}</b><br><span style="font-size:8px;color:var(--text-dim)">${lo.mode || 'paper'}</span></td>
+      <td><span style="font-size:8px;padding:2px 6px;border-radius:3px;background:rgba(61,155,255,0.1);color:#4da6ff">BUY</span></td>
+      <td>${buyQty}</td>
+      <td>${buyP}</td>
+      <td class="ord-id" title="${lo.buyOrderId || '—'}">${lo.buyOrderId || '—'}</td>
+      <td>${sellQty}</td>
+      <td>${sellP}</td>
+      <td class="ord-id" title="${lo.sellOrderId || '—'}">${lo.sellOrderId || '—'}</td>
+      <td>${pnlStr}</td>
+      <td class="${statusCls}" style="font-size:9px">${statusLabel}</td>
+    </tr>`;
+  }).join('');
+}
+
 
 function sortBy(k) {
   STATE.sortD = STATE.sortK === k ? STATE.sortD * -1 : -1;

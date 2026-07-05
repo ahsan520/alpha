@@ -361,6 +361,83 @@ function checkAlertRules(sym, d, shock, bias4h) {
 }
 
 // ── Save ──
+// ── API Trading mode toggle (live in-tab, no page reload) ──
+function setApiTradeMode(mode) {
+  STATE._apiTradeMode = mode;
+  if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
+  STATE.alertCfg.apiTrading.mode = mode;
+  // Re-render just the apitrading tab so the button states and warning update
+  switchCfgTab('apitrading');
+}
+
+// ── Save API Trading settings + push trade-state.json to GitHub ──
+async function saveApiTradingCfg() {
+  const result = document.getElementById('api-trade-save-result');
+  if (result) result.textContent = 'Saving…';
+
+  // Collect values
+  const mode    = STATE._apiTradeMode || STATE.alertCfg.apiTrading?.mode || 'off';
+  const usdSize = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
+  const maxLive = parseInt(document.getElementById('api-max-live')?.value) || 1;
+
+  if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
+  STATE.alertCfg.apiTrading = { mode, usdSize, maxLive };
+
+  // Persist to localStorage via the normal saveAlertCfg path
+  const cfg = STATE.alertCfg;
+  cfg._version = ALERT_CFG_VERSION;
+  localStorage.setItem(`${_REPO_NS}_alertcfg`, JSON.stringify(cfg));
+
+  // Also push a minimal trade-state.json update to GitHub so the headless
+  // runner picks up the new mode within the next 15-min Job B cycle.
+  // We GET the current file first to preserve `lastUpdateId` and other fields.
+  try {
+    const ghCfg       = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
+    const token       = ghCfg.token || window.__GH_PAT || '';
+    const repo        = ghCfg.repo  || window.__GH_REPO || '';
+    const branch      = ghCfg.branch || 'main';
+    const fpath       = 'scripts/trade-state.json';
+    const apiBase     = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+    const headers     = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+
+    if (!token || !repo) throw new Error('GitHub token/repo not configured in Sync settings');
+
+    // GET existing to read sha + merge fields
+    let sha  = null;
+    let prev = { tradingEnabled: true, lastUpdateId: 0, changedAt: 0 };
+    const getRes = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) {
+      const j = await getRes.json();
+      sha = j.sha;
+      try { prev = JSON.parse(atob((j.content || '').replace(/\n/g,''))); } catch {}
+    }
+
+    const newState = { ...prev, tradeMode: mode, usdSize, maxLive, modeChangedAt: Date.now() };
+    const content  = btoa(unescape(encodeURIComponent(JSON.stringify(newState, null, 2))));
+    const body     = { message: `chore: api trade mode → ${mode} [skip ci]`, content, branch };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiBase, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(()=>({}));
+      throw new Error(`GitHub PUT ${putRes.status}: ${e.message || ''}`);
+    }
+
+    if (result) result.textContent = `✓ Saved — mode set to ${mode.toUpperCase()}. Job B picks this up within 15 min.`;
+    logAlertItem('info', `⚡ API trade mode → ${mode.toUpperCase()} (USDT: $${usdSize}, max live: ${maxLive})`);
+  } catch (e) {
+    if (result) result.style.color = 'var(--bear)';
+    if (result) result.textContent = `✓ Saved locally — GitHub push failed: ${e.message}. TRADE_MODE var in repo still controls headless behavior.`;
+    logAlertItem('warn', `⚡ API trade cfg local only — GitHub push failed: ${e.message}`);
+  }
+
+  renderAlertCfgPage();
+}
+
 function saveAlertCfg() {
   // Track leaderboard score changes in audit before saving
   try {
@@ -384,6 +461,15 @@ function saveAlertCfg() {
   cfg.telegram.chatId         = document.getElementById('al-tg-chat').value.trim();
   cfg.cooldownHours           = parseFloat(document.getElementById('al-cooldown').value) || 1;
   cfg.digestMode              = document.getElementById('al-digest').checked;
+
+  // API Trading settings — only present when the apitrading tab has been rendered
+  const apiModeBtns = document.querySelectorAll('[onclick^="setApiTradeMode"]');
+  if (apiModeBtns.length) {
+    if (!cfg.apiTrading) cfg.apiTrading = {};
+    cfg.apiTrading.mode    = STATE._apiTradeMode || cfg.apiTrading.mode || 'off';
+    cfg.apiTrading.usdSize = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
+    cfg.apiTrading.maxLive = parseInt(document.getElementById('api-max-live')?.value) || 1;
+  }
 
   // Save per-condition enabled state + rule channels
   [
@@ -764,8 +850,8 @@ function renderAlertCfgPage() {
 
   <!-- ── Mobile tab bar ───────────────────────────────────────────────────── -->
   <div id="cfg-tabs" style="display:flex;border-bottom:1px solid var(--border);background:var(--bg);overflow-x:auto;flex-shrink:0;">
-    ${['telegram','rules','leaderboard','sync','positions','tracker','audit'].map((t,i) => {
-      const labels = ['✈ Telegram','📡 Rules','🏆 Leaderboard','☁ Sync','🤖 Tracker Alerts','📍 Tracker','📋 Audit'];
+    ${['telegram','rules','leaderboard','sync','positions','tracker','audit','apitrading'].map((t,i) => {
+      const labels = ['✈ Telegram','📡 Rules','🏆 Leaderboard','☁ Sync','🤖 Tracker Alerts','📍 Tracker','📋 Audit','⚡ API Trading'];
       const active = (STATE._cfgTab || 'telegram') === t;
       return `<button onclick="switchCfgTab('${t}')"
         style="flex:1;min-width:70px;padding:10px 6px;border:none;border-bottom:2px solid ${active ? 'var(--accent)' : 'transparent'};
@@ -958,6 +1044,97 @@ function renderAlertCfgPage() {
       </div>
     </div>
   </div>
+
+  <!-- ══ TAB: API TRADING ══ -->
+  ${(() => {
+    const at    = cfg.apiTrading || {};
+    const mode  = at.mode || 'off';
+    const isOff  = mode === 'off';
+    const isPaper= mode === 'paper';
+    const isLive = mode === 'live';
+    const modeColor = isLive ? '#3dff78' : isPaper ? '#f0c040' : 'var(--text-dim)';
+    const modeDesc  = isLive
+      ? '⚡ LIVE — real MEXC orders will be placed when the ⭐ top-ranked alert fires.'
+      : isPaper
+      ? '📝 PAPER — trades are simulated and logged. No real orders are sent.'
+      : '⏹ OFF — auto-trading is disabled. Signals still send Telegram alerts.';
+    return `
+  <div id="cfg-panel-apitrading" style="display:${(STATE._cfgTab||'telegram')==='apitrading'?'flex':'none'};flex-direction:column;gap:12px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid ${modeColor};border-radius:8px;padding:16px;">
+      <div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${modeColor};letter-spacing:2px;margin-bottom:4px;">⚡ MEXC API TRADING</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
+        Auto-trades the <b style="color:var(--text-bright)">⭐ top-ranked buy signal</b> each cycle via MEXC Spot API.<br>
+        Mode is written to <code>scripts/trade-state.json</code> in your repo and picked up by the headless Job B runner.<br>
+        You can also send <code>/pause</code> or <code>/resume</code> in Telegram at any time.
+      </div>
+
+      <!-- Mode toggle row -->
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;">MODE</span>
+        ${['off','paper','live'].map(m => {
+          const active = mode === m;
+          const col = m === 'live' ? '#3dff78' : m === 'paper' ? '#f0c040' : 'var(--text-dim)';
+          return `<button onclick="setApiTradeMode('${m}')"
+            style="padding:6px 18px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;transition:.15s;
+                   background:${active ? `rgba(${m==='live'?'61,255,120':m==='paper'?'240,192,64':'120,120,120'},.12)` : 'transparent'};
+                   color:${active ? col : 'var(--text-dim)'};
+                   border:1px solid ${active ? col : 'var(--border2)'};">
+            ${m.toUpperCase()}
+          </button>`;
+        }).join('')}
+      </div>
+
+      <!-- Current mode description -->
+      <div id="api-mode-desc" style="font-family:var(--mono);font-size:9px;color:${modeColor};
+           background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;
+           padding:10px 14px;margin-bottom:16px;line-height:1.6;">
+        ${modeDesc}
+      </div>
+
+      <!-- Position size -->
+      <div style="margin-bottom:12px;">
+        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">ORDER SIZE (USDT per buy)</label>
+        <input type="number" id="api-usd-size" value="${at.usdSize || 25}" min="1" step="1"
+          style="width:140px;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                 padding:8px 12px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;">
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-left:8px;">USDT</span>
+      </div>
+
+      <!-- Max concurrent live trades -->
+      <div style="margin-bottom:16px;">
+        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">MAX CONCURRENT LIVE TRADES</label>
+        <select id="api-max-live"
+          style="background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                 padding:7px 10px;border-radius:5px;font-family:var(--mono);font-size:10px;outline:none;">
+          ${[1,2,3,5].map(n => `<option value="${n}" ${(at.maxLive||1)===n?'selected':''}>${n}</option>`).join('')}
+        </select>
+      </div>
+
+      <!-- LIVE-only warning -->
+      <div style="display:${isLive?'block':'none'};background:rgba(255,69,96,.08);border:1px solid rgba(255,69,96,.3);
+                  border-radius:6px;padding:10px 14px;margin-bottom:16px;font-family:var(--mono);font-size:8px;
+                  color:var(--bear);line-height:1.7;" id="api-live-warn">
+        ⚠ <b>LIVE MODE</b> — real money at risk.<br>
+        Add <code>MEXC_API_KEY</code> and <code>MEXC_API_SECRET</code> as GitHub repository secrets.<br>
+        Set IP whitelist on the MEXC key to your GitHub Actions IP range (or leave open, rotate quarterly).<br>
+        Start with a small <code>TRADE_USD_SIZE</code> until you've verified the first few fills.
+      </div>
+
+      <!-- How mode is applied note -->
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);line-height:1.7;margin-bottom:14px;">
+        💾 Saving pushes a <code>trade-state.json</code> update to GitHub — picked up by the next Job B cycle (≤15 min).<br>
+        The Telegram kill-switch (<code>/pause</code> / <code>/resume</code>) overrides this setting without a save.
+      </div>
+
+      <button onclick="saveApiTradingCfg()"
+        style="background:var(--accent);border:none;color:#000;padding:10px 24px;border-radius:5px;
+               cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:700;width:100%;">
+        💾 SAVE API TRADING SETTINGS
+      </button>
+      <div id="api-trade-save-result" style="font-family:var(--mono);font-size:9px;margin-top:10px;min-height:16px;color:var(--bull);"></div>
+    </div>
+  </div>`;
+  })()}
 
   </div>`;
 
