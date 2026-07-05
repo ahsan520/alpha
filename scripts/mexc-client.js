@@ -1,0 +1,108 @@
+// ══════════════════════════════════════════════════════════════════════════════
+// mexc-client.js — minimal signed REST client for MEXC Spot API v3
+//
+// Scope: exactly what leaderboard-decider.js needs for auto-trading —
+// market buy (sized in USDT via quoteOrderQty), market sell (sized in base
+// asset quantity), free-balance lookup, and lot-size precision lookup so
+// sell quantities don't get rejected for too many decimals.
+//
+// CAUTION — verify against a small live order before trusting this at size:
+//   MEXC's MARKET order response `price` field has been reported unreliable
+//   (returns a stale/incorrect value, not the actual fill price — see
+//   github.com/mexcdevelop/mexc-api-sdk/issues/77). This client always
+//   derives fill price from cummulativeQuoteQty / executedQty instead of
+//   trusting the `price` field on the order response.
+// ══════════════════════════════════════════════════════════════════════════════
+
+import crypto from 'crypto';
+
+const MEXC_BASE = 'https://api.mexc.com';
+
+function sign(secret, query) {
+  return crypto.createHmac('sha256', secret).update(query).digest('hex');
+}
+
+function toQueryString(params) {
+  return Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+}
+
+async function signedRequest(apiKey, apiSecret, method, endpoint, params = {}) {
+  if (!apiKey || !apiSecret) throw new Error('MEXC API key/secret not configured');
+  const query     = toQueryString({ ...params, timestamp: Date.now(), recvWindow: 5000 });
+  const signature = sign(apiSecret, query);
+  const url       = `${MEXC_BASE}${endpoint}?${query}&signature=${signature}`;
+
+  const res  = await fetch(url, { method, headers: { 'X-MEXC-APIKEY': apiKey } });
+  const body = await res.json().catch(() => ({}));
+
+  // MEXC sometimes returns HTTP 200 with an error {code, msg} body — check both.
+  if (!res.ok || (body && body.code && body.code !== 200)) {
+    throw new Error(`MEXC ${method} ${endpoint} failed (HTTP ${res.status}): ${body?.msg || JSON.stringify(body)}`);
+  }
+  return body;
+}
+
+// Public endpoint — no signature needed. Cached per symbol for the lifetime
+// of one Job B process (a fresh process each run, so this just avoids
+// hitting it twice for the same symbol within a single cycle).
+const _lotSizeCache = new Map();
+export async function getBaseSizePrecision(symbol) {
+  if (_lotSizeCache.has(symbol)) return _lotSizeCache.get(symbol);
+  const res  = await fetch(`${MEXC_BASE}/api/v3/exchangeInfo?symbol=${symbol}`);
+  const data = await res.json().catch(() => ({}));
+  const info = (data.symbols || [])[0];
+  const step = info ? parseFloat(info.baseSizePrecision || '0.00000001') : 0.00000001;
+  _lotSizeCache.set(symbol, step);
+  return step;
+}
+
+// Floors DOWN to the exchange's allowed step size — never rounds up, since
+// that could try to sell more than the wallet actually holds after fees.
+export function floorToStep(qty, step) {
+  if (!step || step <= 0) return qty;
+  const precision = Math.max(0, Math.round(-Math.log10(step)));
+  const factor    = Math.pow(10, precision);
+  return Math.floor(qty * factor) / factor;
+}
+
+function deriveFillPrice(order) {
+  const qty   = parseFloat(order.executedQty || '0');
+  const quote = parseFloat(order.cummulativeQuoteQty || '0');
+  // Prefer qty/quote (actual fill) — only fall back to the reported `price`
+  // field if execution data isn't present, since that field is unreliable
+  // for MARKET orders on MEXC.
+  return qty > 0 && quote > 0 ? quote / qty : parseFloat(order.price || '0');
+}
+
+export async function mexcMarketBuy(apiKey, apiSecret, symbol, usdAmount) {
+  const order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
+    symbol, side: 'BUY', type: 'MARKET', quoteOrderQty: usdAmount,
+  });
+  return {
+    orderId:     order.orderId,
+    executedQty: parseFloat(order.executedQty || '0'),
+    fillPrice:   deriveFillPrice(order),
+    raw:         order,
+  };
+}
+
+export async function mexcMarketSell(apiKey, apiSecret, symbol, quantity) {
+  const order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
+    symbol, side: 'SELL', type: 'MARKET', quantity,
+  });
+  return {
+    orderId:     order.orderId,
+    executedQty: parseFloat(order.executedQty || '0'),
+    fillPrice:   deriveFillPrice(order),
+    raw:         order,
+  };
+}
+
+export async function mexcFreeBalance(apiKey, apiSecret, asset) {
+  const acct = await signedRequest(apiKey, apiSecret, 'GET', '/api/v3/account', {});
+  const row  = (acct.balances || []).find(b => b.asset === asset);
+  return row ? parseFloat(row.free) : 0;
+}
