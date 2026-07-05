@@ -243,6 +243,7 @@
       </div>
     </div>
     <div class="j-right">
+      <!-- ── Manual Journal stats + table ── -->
       <div class="j-stats">
         <div class="jst"><div class="jst-v" id="js-total" style="color:var(--accent)">0</div><div class="jst-l">TRADES</div></div>
         <div class="jst"><div class="jst-v" id="js-wr" style="color:var(--bull)">0%</div><div class="jst-l">WIN RATE</div></div>
@@ -254,6 +255,33 @@
           <thead><tr><th>DATE</th><th>SYMBOL</th><th>DIR</th><th>ENTRY</th><th>EXIT</th><th>SIZE</th><th>P&L $</th><th>P&L %</th><th>SIGNAL</th><th>STATUS</th><th></th></tr></thead>
           <tbody id="j-tbody"></tbody>
         </table>
+      </div>
+
+      <!-- ── API Trades tracker — fed by positions.json liveOrder data ── -->
+      <div class="api-trades-section">
+        <div class="api-trades-header">
+          <span class="api-trades-title">⚡ API TRADES <span class="api-trades-mode" id="api-trade-mode-badge"></span></span>
+          <div class="api-trades-stats" id="api-trades-stats"></div>
+          <button class="bsm" onclick="refreshApiTrades()" title="Reload from GitHub">↻ Refresh</button>
+        </div>
+        <div class="api-tbl-wrap">
+          <table class="jtbl api-tbl">
+            <thead>
+              <tr>
+                <th>TIME</th><th>SYMBOL</th><th>MODE</th>
+                <th>BUY QTY</th><th>BUY @ $</th><th>BUY ORDER ID</th>
+                <th>SELL QTY</th><th>SELL @ $</th><th>SELL ORDER ID</th>
+                <th>P&L %</th><th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="api-trades-tbody">
+              <tr><td colspan="11" style="text-align:center;color:var(--text-dim);padding:20px;">
+                Click ↻ Refresh to load API trade history from GitHub
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="api-trades-footer" id="api-trades-footer"></div>
       </div>
     </div>
   </div>
