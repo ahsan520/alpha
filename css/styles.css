@@ -378,6 +378,54 @@ canvas.sp{display:block;}
 .jst-v{font-family:var(--mono);font-size:15px;font-weight:700;margin-bottom:2px;}
 .jst-l{font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;}
 .j-tbl-wrap{overflow-y:auto;flex:1;padding:8px;}
+
+/* ── API Trades tracker panel ── */
+.api-trades-section{
+  border-top:2px solid var(--border2);
+  flex-shrink:0;
+  display:flex;flex-direction:column;
+  max-height:45%;min-height:140px;
+}
+.api-trades-header{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.api-trades-title{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--text-bright);letter-spacing:2px;flex:1;
+}
+.api-trades-mode{
+  font-size:8px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;
+  background:rgba(255,200,0,0.12);color:#f0c040;border:1px solid rgba(240,192,64,0.3);
+}
+.api-trades-mode.live{
+  background:rgba(61,255,120,0.10);color:#3dff78;border-color:rgba(61,255,120,0.3);
+}
+.api-trades-mode.off{
+  background:rgba(120,120,120,0.10);color:var(--text-dim);border-color:var(--border);
+}
+.api-trades-stats{
+  font-family:var(--mono);font-size:9px;color:var(--text-dim);
+  display:flex;gap:16px;
+}
+.api-trades-stats span{color:var(--text-bright);}
+.api-tbl-wrap{overflow-y:auto;flex:1;}
+.api-tbl .pnl-pos{color:var(--bull);}
+.api-tbl .pnl-neg{color:var(--bear);}
+.api-tbl .status-open{color:#4da6ff;}
+.api-tbl .status-closed{color:var(--text-dim);}
+.api-tbl .status-stopped{color:var(--bear);}
+.api-tbl .ord-id{
+  font-size:8px;color:var(--text-dim);
+  max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  cursor:default;
+}
+.api-trades-footer{
+  padding:4px 12px;font-family:var(--mono);font-size:8px;
+  color:var(--text-dim);border-top:1px solid var(--border);flex-shrink:0;
+}
 .jtbl{width:100%;border-collapse:collapse;}
 .jtbl th{font-family:var(--mono);font-size:8px;color:var(--text-dim);padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;letter-spacing:1px;}
 .jtbl td{font-family:var(--mono);font-size:10px;padding:9px 9px;border-bottom:1px solid rgba(30,37,48,.6);}
