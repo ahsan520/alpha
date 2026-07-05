@@ -804,6 +804,31 @@ async function renderPositionTracker() {
   const MAX_CONCURRENT = parseInt(localStorage.getItem(`${_REPO_NS}_max_positions`) || '4');
   const slotsAvailable = Math.max(0, MAX_CONCURRENT - activeCount);
 
+  // ── Browser alerts pause/resume pill ──
+  const paused   = STATE.browserAlertsPaused;
+  const pausePill = `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:8px;
+                background:${paused ? 'rgba(255,140,0,.07)' : 'rgba(61,255,120,.05)'};
+                border:1px solid ${paused ? 'rgba(255,140,0,.3)' : 'rgba(61,255,120,.2)'};
+                border-radius:5px;font-family:var(--mono);font-size:8px;">
+      <span style="color:${paused ? '#ff8c00' : '#3dff78'};font-weight:700;letter-spacing:1px;">
+        ${paused ? '⏸ BROWSER ALERTS PAUSED' : '▶ BROWSER ALERTS ACTIVE'}
+      </span>
+      <span style="color:var(--text-dim);flex:1;">
+        ${paused
+          ? 'Telegram alerts from this browser tab are suppressed. Headless Job B alerts still fire.'
+          : 'This browser tab will send Telegram alerts when price conditions are met.'}
+      </span>
+      <button onclick="toggleBrowserAlerts()"
+        style="padding:4px 14px;border-radius:4px;cursor:pointer;font-family:var(--mono);
+               font-size:8px;font-weight:700;letter-spacing:1px;border:1px solid;
+               background:${paused ? 'rgba(61,255,120,.1)' : 'rgba(255,140,0,.1)'};
+               color:${paused ? '#3dff78' : '#ff8c00'};
+               border-color:${paused ? 'rgba(61,255,120,.4)' : 'rgba(255,140,0,.4)'};">
+        ${paused ? '▶ RESUME' : '⏸ PAUSE'}
+      </button>
+    </div>`;
+
   // Queue panel HTML
   const queueHTML = queueEntries.length ? `
     <div style="background:rgba(77,166,255,.07);border:1px solid rgba(77,166,255,.2);
@@ -832,16 +857,25 @@ async function renderPositionTracker() {
     </div>` : '';
 
   if (!entries.length && !queueEntries.length) {
-    el.innerHTML = `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:12px;">
+    el.innerHTML = pausePill + `<div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:12px;">
       No active positions — leaderboard buy alert will create entries here.</div>`;
     return;
   }
+
+  // Pause pill — managed element so it doesn't force a full innerHTML wipe
+  let pillEl = el.querySelector('.pt-pause-pill');
+  if (!pillEl) {
+    pillEl = document.createElement('div');
+    pillEl.className = 'pt-pause-pill';
+    el.prepend(pillEl);
+  }
+  pillEl.innerHTML = pausePill;
 
   // Prepend queue panel to output
   const queuePanelEl = el.querySelector('.pt-queue-panel') || (() => {
     const d = document.createElement('div');
     d.className = 'pt-queue-panel';
-    el.prepend(d);
+    pillEl.after(d);
     return d;
   })();
   queuePanelEl.innerHTML = queueHTML;

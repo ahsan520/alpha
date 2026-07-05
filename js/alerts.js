@@ -167,6 +167,11 @@ async function sendEmailAlert(msg) {
 
 // ── Telegram ──
 async function sendTelegramAlert(msg) {
+  // Browser-side pause toggle — set from Position Tracker header button
+  if (STATE.browserAlertsPaused) {
+    logAlertItem('info', `[TG PAUSED] ${msg.substring(0,60)}…`);
+    return;
+  }
   const { telegram } = STATE.alertCfg;
   // Fall back to window globals injected by env.js (GitHub Actions secrets)
   const token  = telegram.botToken || window.__TG_TOKEN || '';
@@ -675,6 +680,24 @@ function switchCfgTab(tab) {
   if (tab === 'positions'   && typeof refreshHeadlessPositions === 'function') refreshHeadlessPositions();
   if (tab === 'audit'       && typeof refreshAuditLog          === 'function') refreshAuditLog();
   if (tab === 'apitrading') renderAlertCfgPage(); // re-render so mode/strategy buttons reflect current STATE
+}
+
+// ── Browser-side Telegram alert pause/resume ──
+// Persisted to localStorage so it survives a page refresh.
+// Only gates browser-triggered sendTelegramAlert() calls —
+// headless Job B alerts are completely unaffected.
+(function _restoreBrowserAlertsPaused() {
+  STATE.browserAlertsPaused = localStorage.getItem(`${_REPO_NS}_browser_alerts_paused`) === 'true';
+})();
+
+function toggleBrowserAlerts() {
+  STATE.browserAlertsPaused = !STATE.browserAlertsPaused;
+  localStorage.setItem(`${_REPO_NS}_browser_alerts_paused`, STATE.browserAlertsPaused);
+  logAlertItem('info', STATE.browserAlertsPaused
+    ? '⏸ Browser Telegram alerts PAUSED — headless Job B alerts still active'
+    : '▶️ Browser Telegram alerts RESUMED');
+  // Re-render the tracker panel so the button state updates immediately
+  if (typeof renderPositionTracker === 'function') renderPositionTracker();
 }
 
 function resetSuppression() {
