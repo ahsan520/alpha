@@ -1,39 +1,5 @@
 [
   {
-    "timestamp": "2026-07-05T14:41:11.677Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-05T14:41:11.683Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-05T14:41:11.683Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-05T14:41:12.042Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 8,
-    "monitored": 8
-  },
-  {
     "timestamp": "2026-07-05T15:01:18.625Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -143,6 +109,123 @@
   },
   {
     "timestamp": "2026-07-05T15:39:00.476Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
+  },
+  {
+    "timestamp": "2026-07-05T15:54:30.840Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-05T15:54:30.842Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "ageHrs": 25
+  },
+  {
+    "timestamp": "2026-07-05T15:54:30.843Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:RENDERUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-07-05T15:54:30.843Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-07-05T15:54:31.763Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-05T15:54:33.077Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 5,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-07-05T15:54:33.079Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-05T15:54:33.079Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-07-05T15:54:33.079Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-05T15:54:33.187Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_paper_buy",
+    "sym": "ZECUSDT",
+    "usdSize": 25,
+    "fillPrice": 466.39
+  },
+  {
+    "timestamp": "2026-07-05T15:54:34.133Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-07-05T15:54:34.416Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "ZEC",
+      "RENDER",
+      "SOL"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-05T15:54:34.416Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-05T15:54:34.768Z",
     "job": "alert-runner",
     "action": "positions_check",
     "total": 8,
