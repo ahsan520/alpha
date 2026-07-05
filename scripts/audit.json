@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-07-05T07:44:19.171Z",
+    "timestamp": "2026-07-05T09:58:34.817Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -16,202 +16,96 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-07-05T07:44:19.175Z",
+    "timestamp": "2026-07-05T09:58:34.821Z",
     "job": "leaderboard-decider",
     "action": "stop_hit",
-    "sym": "BINANCE:XRPUSDT",
-    "price": 1.1363,
-    "stop": 1.1404,
-    "entry": 1.1714,
-    "pnlPct": "-3.00"
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.002286,
+    "stop": 0.0023,
+    "entry": 0.0025,
+    "pnlPct": "-8.56"
   },
   {
-    "timestamp": "2026-07-05T07:44:19.176Z",
+    "timestamp": "2026-07-05T09:58:35.913Z",
     "job": "leaderboard-decider",
-    "action": "stop_hit",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-07-05T09:58:35.914Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1
+  },
+  {
+    "timestamp": "2026-07-05T09:58:36.516Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 8,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-07-05T09:58:36.518Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
     "sym": "BINANCE:IMXUSDT",
-    "price": 0.1346,
-    "stop": 0.136,
-    "entry": 0.1397,
-    "pnlPct": "-3.65"
+    "setup": "BREAKOUT",
+    "score": 9
   },
   {
-    "timestamp": "2026-07-05T07:44:20.417Z",
+    "timestamp": "2026-07-05T09:58:36.518Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-05T09:58:37.749Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
     "count": 10
   },
   {
-    "timestamp": "2026-07-05T07:44:20.417Z",
+    "timestamp": "2026-07-05T09:58:38.480Z",
     "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 2,
-    "totalKept": 2
+    "action": "positions_pushed",
+    "count": 10
   },
   {
-    "timestamp": "2026-07-05T07:44:21.516Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 10,
-    "openAfter": 10,
-    "alerts": 2
-  },
-  {
-    "timestamp": "2026-07-05T07:44:21.519Z",
+    "timestamp": "2026-07-05T09:58:38.760Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
-    "signalsFound": 0
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [],
+    "caution": []
   },
   {
-    "timestamp": "2026-07-05T07:44:21.519Z",
+    "timestamp": "2026-07-05T09:58:38.760Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-07-05T07:44:22.024Z",
+    "timestamp": "2026-07-05T09:58:39.233Z",
     "job": "alert-runner",
     "action": "positions_check",
     "total": 10,
-    "monitored": 8
+    "monitored": 9
   },
   {
-    "timestamp": "2026-07-05T07:44:24.031Z",
+    "timestamp": "2026-07-05T09:58:40.737Z",
     "job": "alert-runner",
     "action": "stop_hit",
-    "sym": "BINANCE:GALAUSDT",
-    "pair": "GALA",
-    "price": 0.002285,
-    "entry": 0.0025,
-    "stop": 0.0023,
-    "pnlPct": "-8.60"
-  },
-  {
-    "timestamp": "2026-07-05T08:17:47.514Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 10,
-    "monitored": 8
-  },
-  {
-    "timestamp": "2026-07-05T08:17:49.987Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 2,
-    "remaining": 8
-  },
-  {
-    "timestamp": "2026-07-05T08:17:50.817Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 2,
-    "remaining": 8
-  },
-  {
-    "timestamp": "2026-07-05T08:19:19.665Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 13,
-    "cryptoCount": 14,
-    "stockScored": 0,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": 5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": 9,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": 5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "HYPEUSDT",
-        "status": "failed",
-        "assetType": "crypto"
-      }
-    ]
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 0.7406,
+    "entry": 0.7625,
+    "stop": 0.7424,
+    "pnlPct": "-2.87"
   }
 ]
