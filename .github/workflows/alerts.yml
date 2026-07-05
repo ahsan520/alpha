@@ -159,6 +159,11 @@ jobs:
           LB_CVD_CYCLES:      ${{ vars.LB_CVD_CYCLES || '3' }}
           LB_ALERT_STATE_TTL_HOURS: ${{ vars.LB_ALERT_STATE_TTL_HOURS || '6' }}
           LB_LEGACY_SCAN:     ${{ vars.LB_LEGACY_SCAN || 'false' }}
+          TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
+          TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
+          TRADE_MAX_CONCURRENT_LIVE: ${{ vars.TRADE_MAX_CONCURRENT_LIVE || '1' }}
+          MEXC_API_KEY:       ${{ secrets.MEXC_API_KEY }}
+          MEXC_API_SECRET:    ${{ secrets.MEXC_API_SECRET }}
           RUN_MODE:           ${{ steps.mode.outputs.value }}
         run: |
           echo "Running in mode: $RUN_MODE"
@@ -238,6 +243,7 @@ jobs:
           git add scripts/.alert-state.json    || true
           git add scripts/.lb-scan-state.json  || true
           git add scripts/lb-alert-state.json  || true
+          git add scripts/trade-state.json     || true
 
           # STEP 6 — Verify env.js staged content has no real tokens
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
