@@ -23,6 +23,7 @@ const COOLDOWN_STATE_PATH = path.join(process.cwd(), '.lb-scan-state.json');
 const CVD_STATE_PATH      = path.join(process.cwd(), '.cvd-decline-state.json');
 const SYMBOL_HISTORY_PATH = path.join(process.cwd(), 'symbol-history.json');
 const TRADE_STATE_PATH    = path.join(process.cwd(), 'trade-state.json');
+const TRADE_LOG_PATH      = path.join(process.cwd(), 'trade-log.json');
 
 // ── Shared env constants ──
 export const DRY_RUN    = process.argv.includes('--dry-run');
@@ -68,6 +69,116 @@ export const saveHistory    = h  => fs.writeFileSync(SYMBOL_HISTORY_PATH, JSON.s
 
 export const loadTradeState = () => loadJSON(TRADE_STATE_PATH, { tradingEnabled: true, lastUpdateId: 0, changedAt: 0 });
 export const saveTradeState = s  => saveJSON(TRADE_STATE_PATH, s);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// trade-log.json — PERMANENT record of every API buy/sell placed by the
+// MEXC auto-trader (paper or live). Unlike positions.json, entries here are
+// never evicted — this is the durable audit trail the GUI "API Trades" panel
+// should read for full history, since positions.json only keeps a position
+// around for 5-20 min after it closes (TERMINAL_EVICT_MS) before deleting it.
+// ══════════════════════════════════════════════════════════════════════════════
+export const loadTradeLog = () => loadJSON(TRADE_LOG_PATH, []);
+export const saveTradeLog = t  => saveJSON(TRADE_LOG_PATH, t);
+
+// Called the moment a buy (paper or live) is placed.
+export function recordTradeOpen(pos, { mode, orderId, qty, fillPrice, usdSize }) {
+  const log = loadTradeLog();
+  log.push({
+    id:          `${pos.sym}_${orderId}`,
+    sym:         pos.sym,
+    base:        pos.base,
+    assetType:   pos.assetType,
+    setup:       pos.setup,
+    mode,
+    status:      'open',
+    buyAt:       Date.now(),
+    buyOrderId:  orderId,
+    buyQty:      qty,
+    buyPrice:    fillPrice,
+    usdSize,
+    sellAt:      null,
+    sellOrderId: null,
+    sellQty:     null,
+    sellPrice:   null,
+    reason:      null,
+    pnlPct:      null,
+  });
+  saveTradeLog(log);
+  return log;
+}
+
+// Called the moment a position closes (stop/T1/T2/exit/rotation), for both
+// paper and live trades. Matches the open entry by buyOrderId, falling back
+// to the most recent still-open entry for the same symbol.
+export function recordTradeClose(pos, reason, sell = {}) {
+  const log      = loadTradeLog();
+  const orderId  = pos.liveOrder?.buyOrderId;
+  let   entry    = log.find(t => t.status === 'open' && t.buyOrderId === orderId);
+  if (!entry) {
+    entry = [...log].reverse().find(t => t.status === 'open' && t.sym === pos.sym);
+  }
+  if (!entry) return log; // no matching open trade — nothing to record
+
+  entry.status      = 'closed';
+  entry.sellAt      = Date.now();
+  entry.sellOrderId = sell.orderId || null;
+  entry.sellQty     = sell.qty ?? entry.buyQty;
+  entry.sellPrice   = sell.fillPrice ?? null;
+  entry.reason      = reason;
+  entry.pnlPct      = (entry.buyPrice && entry.sellPrice)
+    ? parseFloat(((entry.sellPrice - entry.buyPrice) / entry.buyPrice * 100).toFixed(2))
+    : null;
+
+  saveTradeLog(log);
+  return log;
+}
+
+// ── Push trade-log.json to GitHub so the GUI's API Trades panel can read
+// the full permanent history (same pattern as pushPositionsToGitHub) ──
+export async function pushTradeLogToGitHub(tradeLog) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH         || 'main';
+  const fpath  = process.env.GH_TRADE_LOG_PATH || 'scripts/trade-log.json';
+
+  if (!token || !repo) {
+    console.log('[trade-log-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    Authorization:          `Bearer ${token}`,
+    Accept:                 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) sha = (await getRes.json()).sha || null;
+    else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
+
+    const body = {
+      message: `chore: trade log update (${tradeLog.length} trades) [skip ci]`,
+      content: Buffer.from(JSON.stringify(tradeLog, null, 2)).toString('base64'),
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[trade-log-push] ✓ ${tradeLog.length} trade(s) on record`);
+    logAudit('trade_log_pushed', { count: tradeLog.length });
+  } catch (e) {
+    console.warn(`[trade-log-push] ⚠ ${e.message}`);
+    logAudit('trade_log_push_failed', { error: e.message });
+  }
+}
 
 // ── Audit ──
 export function logAudit(action, details = {}) {

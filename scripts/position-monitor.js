@@ -16,7 +16,10 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 import { mexcMarketSell, mexcFreeBalance, getBaseSizePrecision, floorToStep } from './mexc-client.js';
-import { logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET } from './job-state.js';
+import {
+  logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET,
+  loadTradeLog, recordTradeClose, pushTradeLogToGitHub,
+} from './job-state.js';
 
 const LB_STALE_WATCH_HRS = parseFloat(process.env.LB_STALE_WATCH_HRS || '24');
 const LB_HOLD_LOCK       = parseInt(process.env.LB_HOLD_LOCK       || '20');
@@ -35,7 +38,19 @@ export function countLiveOpenPositions(positions) {
 // changed it) and floors to the exchange's lot-size step so the order
 // isn't rejected for too many decimals.
 export async function closeLiveOrder(pos, reason, telegramAlerts) {
-  if (pos.liveOrder?.mode !== 'live' || pos.liveOrder.closedAt) return;
+  if (!pos.liveOrder || pos.liveOrder.closedAt) return;
+
+  // Paper trades never touch the exchange — just record the close using the
+  // exit price the caller already computed (pos.exitPrice), so the permanent
+  // trade log has a full paper buy/sell record too, not just live ones.
+  if (pos.liveOrder.mode !== 'live') {
+    pos.liveOrder.closedAt      = Date.now();
+    pos.liveOrder.exitFillPrice = pos.exitPrice || pos.liveOrder.fillPrice;
+    recordTradeClose(pos, reason, { qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.exitFillPrice });
+    await pushTradeLogToGitHub(loadTradeLog());
+    return;
+  }
+
   const symbol = pos.base + 'USDT';
   try {
     const [step, free] = await Promise.all([
@@ -54,6 +69,8 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
     pos.liveOrder.closedAt      = Date.now();
     telegramAlerts.push(`🟢 *LIVE SELL* — closed ${sellQty} ${pos.base} @ $${sell.fillPrice.toFixed(6)} on MEXC (${reason})`);
     logAudit('mexc_sell', { sym: symbol, reason, qty: sellQty, fillPrice: sell.fillPrice, orderId: sell.orderId });
+    recordTradeClose(pos, reason, { orderId: sell.orderId, qty: sellQty, fillPrice: sell.fillPrice });
+    await pushTradeLogToGitHub(loadTradeLog());
   } catch (e) {
     telegramAlerts.push(`🚨 *LIVE SELL FAILED* — ${pos.base} ${reason} but MEXC order errored: ${e.message} — CLOSE MANUALLY on the exchange.`);
     logAudit('mexc_sell_failed', { sym: symbol, reason, error: e.message });

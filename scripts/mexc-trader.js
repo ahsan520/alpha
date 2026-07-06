@@ -22,7 +22,10 @@
 import { mexcMarketBuy } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
 import { sendTelegram } from './telegram-commands.js';
-import { logAudit, MEXC_API_KEY, MEXC_API_SECRET } from './job-state.js';
+import {
+  logAudit, MEXC_API_KEY, MEXC_API_SECRET,
+  loadTradeLog, recordTradeOpen, pushTradeLogToGitHub,
+} from './job-state.js';
 
 // ── A/A+ rotation — sell all live positions to make room for stronger signals ──
 async function executeRotation({ candidates, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
@@ -151,6 +154,11 @@ async function executeAutoBuys({
         buyOrderId: `PAPER_${Date.now()}`,
       };
       logAudit('mexc_paper_buy', { sym: symbol, usdSize: perPickUsd, fillPrice: pos.liveOrder.fillPrice });
+      recordTradeOpen(pos, {
+        mode: 'paper', orderId: pos.liveOrder.buyOrderId,
+        qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.fillPrice, usdSize: perPickUsd,
+      });
+      await pushTradeLogToGitHub(loadTradeLog());
       await sendTelegram(
         `📝 *PAPER BUY* — ${pick.pair.replace('USDT','')} $${perPickUsd} USDT @ ~$${pos.liveOrder.fillPrice.toFixed(6)}\n` +
         `  Strategy: ${effectiveExecStrategy === 'topN' ? `top${picks.length} split` : 'top 1'}\n` +
@@ -166,6 +174,11 @@ async function executeAutoBuys({
           qty: buy.executedQty, fillPrice: buy.fillPrice, buyOrderId: buy.orderId,
         };
         logAudit('mexc_live_buy', { sym: symbol, usdSize: perPickUsd, qty: buy.executedQty, fillPrice: buy.fillPrice, orderId: buy.orderId });
+        recordTradeOpen(pos, {
+          mode: 'live', orderId: buy.orderId,
+          qty: buy.executedQty, fillPrice: buy.fillPrice, usdSize: perPickUsd,
+        });
+        await pushTradeLogToGitHub(loadTradeLog());
         await sendTelegram(
           `⚡ *LIVE BUY PLACED* — ${pick.pair.replace('USDT','')} — ${utc}\n` +
           `  MEXC MARKET BUY: ${buy.executedQty} @ $${buy.fillPrice.toFixed(6)}\n` +
