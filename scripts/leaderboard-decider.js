@@ -68,7 +68,7 @@ const TRADE_MAX_LIVE    = parseInt(process.env.TRADE_MAX_CONCURRENT_LIVE || '1')
 const TERMINAL_EVICT_MS = {
   stopped:  5  * 60 * 1000,   //  5 min
   tp2_hit:  8  * 60 * 1000,   //  8 min
-  tp1_hit:  20 * 60 * 1000,   // 20 min (still watching T2)
+  tp1_hit:  5  * 60 * 1000,   //  5 min — now a full sell at T1, slot freed immediately
   exiting:  10 * 60 * 1000,   // 10 min
 };
 
@@ -382,9 +382,11 @@ async function monitorPositions(positions, marketSymbols) {
       continue; // no further checks needed
     }
 
-    // T2 hit (only if T1 already hit)
+    // T2 hit — retained for paper/legacy positions that were opened before T1-sell
+    // was introduced. In normal operation this is unreachable since T1 now closes
+    // the position and the slot is freed before T2 can be checked.
     if (isBull && t2 > 0 && price >= t2 && pos.status === 'tp1_hit') {
-      console.log(`  🏆  T2 HIT — ${pos.base} price:${price} t2:${t2}`);
+      console.log(`  🏆  T2 HIT (legacy) — ${pos.base} price:${price} t2:${t2}`);
       pos.status          = 'tp2_hit';
       pos.statusChangedAt = now;
       pos.exitPrice       = price;
@@ -401,22 +403,33 @@ async function monitorPositions(positions, marketSymbols) {
         `  P&L +${pnlPct}%  Full target reached\n` +
         `  _Position removed in 8 min_`
       );
+      await closeLiveOrder(pos, 'T2 hit', telegramAlerts);
       continue;
     }
 
-    // T1 hit (only when still watching)
+    // T1 hit — sell full position, take profit, free the slot
+    // Strategy: take the guaranteed gain at T1 rather than waiting for T2.
+    // The slot immediately re-opens for the next A/A+ signal.
     if (isBull && t1 > 0 && price >= t1 && pos.status === 'watching') {
-      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1}`);
+      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1} — selling full position`);
       pos.status          = 'tp1_hit';
       pos.statusChangedAt = now;
+      pos.exitPrice       = price;
       changed = true;
       logAudit('tp1_hit', { sym, price, t1, entry, pnlPct });
+      closedOutcomes.push({
+        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        outcome: 'tp1_hit', score: pos.score, spikeScore: pos.spikeScore,
+        pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
+      });
       telegramAlerts.push(
-        `✅ *T1 HIT* — ${pos.base} — ${utc}\n` +
-        `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
-        `  P&L +${pnlPct}%  Trail stop, watching for T2 $${t2}`
+        `✅ *T1 HIT — SOLD* — ${pos.base} — ${utc}\n` +
+        `  T1 $${t1}  Fill ~$${price}  Entry $${entry}\n` +
+        `  P&L +${pnlPct}%  Full position closed — slot freed\n` +
+        `  _Position removed in 5 min_`
       );
-      // Don't continue — still run exit score below
+      await closeLiveOrder(pos, 'T1 hit', telegramAlerts);
+      continue; // slot freed, skip exit scoring
     }
 
     // ── 5. Hold lock — no exit score during first N minutes ──
@@ -682,7 +695,7 @@ async function main() {
     const sym = buildSymKey(pair);
     const existingPos = positions[sym];
     if (existingPos) {
-      const isTerminal = ['stopped', 'tp2_hit'].includes(existingPos.status);
+      const isTerminal = ['stopped', 'tp1_hit', 'tp2_hit'].includes(existingPos.status);
       if (!isTerminal) {
         console.log(`  ⏭  ${pair} — open position (${existingPos.status})`);
         continue;
@@ -711,6 +724,78 @@ async function main() {
     logAudit('job_complete');
     console.log('\n✅  Job B complete.\n');
     return;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // A/A+ ROTATION — if any NEW candidate qualifies (Grade A or A+ from whale
+  // grading in leaderboard-scanner.js), sell ALL currently live positions on
+  // MEXC first, then free their slots so the new picks can open cleanly.
+  //
+  // Gate: entry.grade === 'A+' || entry.grade === 'A'
+  // This is already a combined BullConf + whaleScore signal (see calcGrade in
+  // leaderboard-scanner.js) — no separate BullConf check needed.
+  //
+  // Only fires when effectiveTradeMode !== 'off' AND tradingEnabled.
+  // Paper mode logs the rotation without exchange calls.
+  // ══════════════════════════════════════════════════════════════════════════
+  const rotationCandidates = candidates.filter(c =>
+    c.entry.grade === 'A+' || c.entry.grade === 'A'
+  );
+  const shouldRotate = rotationCandidates.length > 0
+    && effectiveTradeMode !== 'off'
+    && tradeState.tradingEnabled;
+
+  if (shouldRotate) {
+    const livePosEntries = Object.entries(positions).filter(
+      ([, p]) => p.liveOrder?.mode === effectiveTradeMode
+             && !p.liveOrder?.closedAt
+             && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
+    );
+
+    if (livePosEntries.length) {
+      console.log(`  🔄  A/A+ ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${livePosEntries.length} live position(s) first`);
+      const rotationSells = [];
+
+      for (const [sym, pos] of livePosEntries) {
+        const sellAlerts = [];
+        await closeLiveOrder(pos, 'A/A+ rotation', sellAlerts);
+
+        // Record the rotation exit in symbol history
+        const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
+        const mData = (market.symbols || {})[mKey];
+        const exitPrice = pos.liveOrder?.exitFillPrice || parseFloat(mData?.d?.p || pos.entryPrice || 0);
+        const pnlPct    = pos.entryPrice > 0
+          ? parseFloat(((exitPrice - pos.entryPrice) / pos.entryPrice * 100).toFixed(2))
+          : 0;
+
+        closedOutcomes.push({
+          base: pos.base, pair: pos.base + 'USDT',
+          outcome: 'rotation', score: pos.score, spikeScore: pos.spikeScore,
+          pnlPct, closedAt: Date.now(),
+        });
+        rotationSells.push({ base: pos.base, pnlPct });
+
+        // Mark as evicted immediately — slot freed for rotation buy
+        pos.status          = 'stopped'; // treated as a close
+        pos.statusChangedAt = Date.now();
+        pos.exitPrice       = exitPrice;
+        pos.rotatedOut      = true;
+        changed = true;
+
+        for (const m of sellAlerts) await sendTelegram(m);
+      }
+
+      const sellSummary = rotationSells
+        .map(r => `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%`)
+        .join(', ');
+      await sendTelegram(
+        `🔄 *A/A+ ROTATION* — ${utc}\n` +
+        `  Sold: ${sellSummary}\n` +
+        `  Rotating into: ${rotationCandidates.map(c => c.entry.grade + ' ' + c.pair.replace('USDT','')).join(', ')}\n` +
+        `  _Grade A/A+ signal — upgrading positions_`
+      );
+      logAudit('rotation_sell', { sold: rotationSells, into: rotationCandidates.map(c=>c.pair) });
+    }
   }
 
   // Open new positions
