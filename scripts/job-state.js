@@ -1,0 +1,126 @@
+// ══════════════════════════════════════════════════════════════════════════════
+// job-state.js — shared I/O layer for the Job B pipeline
+//
+// Every module in the split (leaderboard-decider, position-monitor, mexc-trader,
+// telegram-commands) reads/writes the same handful of JSON state files and the
+// same handful of env-derived constants. Centralizing them here avoids each
+// module re-declaring its own copy of MEXC_API_KEY, TERMINAL_EVICT_MS, etc. —
+// and avoids a circular-import mess between the other four files.
+//
+// This file has NO business logic — just paths, env constants, load/save,
+// logAudit, and the GitHub positions.json push.
+// ══════════════════════════════════════════════════════════════════════════════
+
+import fs   from 'fs';
+import path from 'path';
+
+// ── Paths ──
+const MARKET_DATA_PATH    = path.join(process.cwd(), 'market-data.json');
+const POSITIONS_PATH      = path.join(process.cwd(), 'positions.json');
+const LB_ALERT_STATE_PATH = path.join(process.cwd(), 'lb-alert-state.json');
+const AUDIT_PATH          = path.join(process.cwd(), 'audit.json');
+const COOLDOWN_STATE_PATH = path.join(process.cwd(), '.lb-scan-state.json');
+const CVD_STATE_PATH      = path.join(process.cwd(), '.cvd-decline-state.json');
+const SYMBOL_HISTORY_PATH = path.join(process.cwd(), 'symbol-history.json');
+const TRADE_STATE_PATH    = path.join(process.cwd(), 'trade-state.json');
+
+// ── Shared env constants ──
+export const DRY_RUN    = process.argv.includes('--dry-run');
+export const TG_TOKEN   = process.env.TELEGRAM_BOT_TOKEN || '';
+export const TG_CHAT    = process.env.TELEGRAM_CHAT_ID   || '';
+export const TG_ENABLED = (process.env.TELEGRAM_ENABLED ?? 'true') === 'true';
+
+// off   → no exchange calls at all, alerts only (default-safe if unset)
+// paper → logs what would have traded, no exchange calls
+// live  → places real MEXC orders — requires MEXC_API_KEY/MEXC_API_SECRET
+export const MEXC_API_KEY    = process.env.MEXC_API_KEY    || '';
+export const MEXC_API_SECRET = process.env.MEXC_API_SECRET || '';
+export const TRADE_MODE      = (process.env.TRADE_MODE || 'paper').toLowerCase();
+export const TRADE_USD_SIZE  = parseFloat(process.env.TRADE_USD_SIZE || '25');
+export const TRADE_MAX_LIVE  = parseInt(process.env.TRADE_MAX_CONCURRENT_LIVE || '1');
+
+// ── How long terminal positions stay in positions.json before removal ──
+export const TERMINAL_EVICT_MS = {
+  stopped:  5  * 60 * 1000,   //  5 min
+  tp2_hit:  8  * 60 * 1000,   //  8 min
+  tp1_hit:  5  * 60 * 1000,   //  5 min — now a full sell at T1, slot freed immediately
+  exiting:  10 * 60 * 1000,   // 10 min
+};
+
+export const SKIP_SETUPS = new Set(['SHORT SETUP']);
+
+// ── Generic I/O helpers ──
+function loadJSON(p, fb) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fb; } }
+function saveJSON(p, o)  { fs.writeFileSync(p, JSON.stringify(o, null, 2)); }
+
+export const loadMarketData = () => loadJSON(MARKET_DATA_PATH, { fetchedAt: 0, symbols: {} });
+export const saveMarketData = d  => saveJSON(MARKET_DATA_PATH, d);
+export const loadPositions  = () => loadJSON(POSITIONS_PATH, {});
+export const savePositions  = p  => saveJSON(POSITIONS_PATH, p);
+export const loadAlertState = () => loadJSON(LB_ALERT_STATE_PATH, {});
+export const saveAlertState = s  => saveJSON(LB_ALERT_STATE_PATH, s);
+export const loadCooldowns  = () => loadJSON(COOLDOWN_STATE_PATH, {});
+export const saveCooldowns  = s  => saveJSON(COOLDOWN_STATE_PATH, s);
+export const loadCvdState   = () => loadJSON(CVD_STATE_PATH, {});
+export const saveCvdState   = s  => saveJSON(CVD_STATE_PATH, s);
+export const loadHistory    = () => loadJSON(SYMBOL_HISTORY_PATH, []);
+export const saveHistory    = h  => fs.writeFileSync(SYMBOL_HISTORY_PATH, JSON.stringify(h)); // compact — it's log data, not something you hand-edit
+
+export const loadTradeState = () => loadJSON(TRADE_STATE_PATH, { tradingEnabled: true, lastUpdateId: 0, changedAt: 0 });
+export const saveTradeState = s  => saveJSON(TRADE_STATE_PATH, s);
+
+// ── Audit ──
+export function logAudit(action, details = {}) {
+  const entry = { timestamp: new Date().toISOString(), job: 'leaderboard-decider', action, ...details };
+  let logs = [];
+  try { logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8')); if (!Array.isArray(logs)) logs = []; } catch {}
+  logs.push(entry);
+  logs = logs.filter(e => new Date(e.timestamp).getTime() >= Date.now() - 3_600_000);
+  fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
+}
+
+// ── Push positions.json to GitHub so the browser GUI stays in sync ──
+export async function pushPositionsToGitHub(positions) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH        || 'main';
+  const fpath  = process.env.GH_POSITIONS_PATH || 'scripts/positions.json';
+
+  if (!token || !repo) {
+    console.log('[positions-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    Authorization:          `Bearer ${token}`,
+    Accept:                 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) sha = (await getRes.json()).sha || null;
+    else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
+
+    const body = {
+      message: `chore: positions update (${Object.keys(positions).length} open) [skip ci]`,
+      content: Buffer.from(JSON.stringify(positions, null, 2)).toString('base64'),
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[positions-push] ✓ ${Object.keys(positions).length} position(s) pushed`);
+    logAudit('positions_pushed', { count: Object.keys(positions).length });
+  } catch (e) {
+    console.warn(`[positions-push] ⚠ ${e.message}`);
+    logAudit('positions_push_failed', { error: e.message });
+  }
+}
