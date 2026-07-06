@@ -604,6 +604,19 @@ async function main() {
   let positions = loadPositions();
   const openCount = Object.keys(positions).length;
 
+  // GUI toggle writes `tradeMode` and `execStrategy` to trade-state.json —
+  // both take precedence over env vars so the browser control works without
+  // a repo-variable change. Loaded early so rotation logic (below) and the
+  // execution block (later) can both reference effectiveTradeMode.
+  let tradeState = loadTradeState();
+  tradeState = await pollTelegramCommands(tradeState);
+  saveTradeState(tradeState);
+
+  const effectiveTradeMode     = tradeState.tradeMode     || TRADE_MODE;
+  const effectiveExecStrategy  = tradeState.execStrategy  || 'top1'; // 'top1' | 'topN'
+  const effectiveUsdSize       = tradeState.usdSize       || TRADE_USD_SIZE;
+  const effectiveMaxLive       = tradeState.maxLive       || TRADE_MAX_LIVE;
+
   if (openCount > 0) {
     console.log(`\n📊  Monitoring ${openCount} open position(s)...`);
     const monitored = await monitorPositions(positions, market.symbols || {});
@@ -902,18 +915,6 @@ async function main() {
   //   4. Not already holding too many live open trades (TRADE_MAX_CONCURRENT_LIVE)
   //   5. Idempotency: positions[sym].liveOrder not already set
   // ══════════════════════════════════════════════════════════════════════════
-  let tradeState = loadTradeState();
-  tradeState = await pollTelegramCommands(tradeState);
-  saveTradeState(tradeState);
-
-  // GUI toggle writes `tradeMode` and `execStrategy` to trade-state.json —
-  // both take precedence over env vars so the browser control works without
-  // a repo-variable change.
-  const effectiveTradeMode     = tradeState.tradeMode     || TRADE_MODE;
-  const effectiveExecStrategy  = tradeState.execStrategy  || 'top1'; // 'top1' | 'topN'
-  const effectiveUsdSize       = tradeState.usdSize       || TRADE_USD_SIZE;
-  const effectiveMaxLive       = tradeState.maxLive       || TRADE_MAX_LIVE;
-
   if (effectiveTradeMode !== 'off' && showRecoTags) {
     // Determine the picks for this cycle based on strategy
     const allStarred   = ranked.filter(r => r.recommended);
