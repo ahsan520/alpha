@@ -1,128 +1,5 @@
 [
   {
-    "timestamp": "2026-07-06T22:38:46.157Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 7,
-    "monitored": 7
-  },
-  {
-    "timestamp": "2026-07-06T22:38:46.322Z",
-    "job": "alert-runner",
-    "action": "t1_hit",
-    "sym": "BINANCE:IMXUSDT",
-    "pair": "IMX",
-    "price": 0.1444,
-    "t1": 0.1437,
-    "entry": 0.1401,
-    "pnlPct": "3.07"
-  },
-  {
-    "timestamp": "2026-07-06T22:38:49.108Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 7
-  },
-  {
-    "timestamp": "2026-07-06T22:38:49.852Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 7,
-    "statusChanged": true
-  },
-  {
-    "timestamp": "2026-07-06T22:39:02.200Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-06T22:39:02.926Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-07-06T22:39:02.926Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XLMUSDT",
-    "sym": "BINANCE:XLMUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-07-06T22:39:04.077Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 1
-  },
-  {
-    "timestamp": "2026-07-06T22:39:04.378Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "SOL",
-        "pnlPct": 0
-      }
-    ],
-    "into": [
-      "APTUSDT",
-      "XLMUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-07-06T22:39:04.379Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1,
-    "source": "rotation"
-  },
-  {
-    "timestamp": "2026-07-06T22:39:05.350Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 9
-  },
-  {
-    "timestamp": "2026-07-06T22:39:05.662Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-07-06T22:39:05.663Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-06T22:39:06.158Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 9,
-    "monitored": 8
-  },
-  {
     "timestamp": "2026-07-06T22:51:20.296Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -229,5 +106,94 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-06T23:50:09.369Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-06T23:50:09.685Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:IMXUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-07-06T23:50:09.687Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-06T23:50:10.572Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-06T23:50:10.572Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 7,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-06T23:50:10.574Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-06T23:50:10.575Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-06T23:50:10.864Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 scripts/positions.json does not match 54ab71b0f9140fcbd424011a9f235622e472fc60"
+  },
+  {
+    "timestamp": "2026-07-06T23:50:11.251Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-06T23:50:11.251Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-06T23:50:11.590Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
