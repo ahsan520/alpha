@@ -152,7 +152,7 @@ const HEADLESS_EVICT_MS = {
   exiting: 30 * 60 * 1000,
 };
 
-async function sweepAndPushPositions(positions) {
+async function sweepAndPushPositions(positions, statusChanged = false) {
   const now     = Date.now();
   const cleaned = { ...positions };
   let   swept   = 0;
@@ -169,7 +169,11 @@ async function sweepAndPushPositions(positions) {
     }
   }
 
-  if (!swept) return; // nothing to do
+  // Push whenever a status changed this cycle (stop/T1/T2/exit fired), even
+  // if nothing was evicted yet — otherwise those in-memory status updates
+  // are silently discarded and positions.json stays stuck on the old status
+  // (e.g. 'watching') until a later run happens to also evict something.
+  if (!swept && !statusChanged) return; // nothing to do
 
   logAudit('positions_sweep_start', { swept, remaining: Object.keys(cleaned).length });
 
@@ -200,15 +204,17 @@ async function sweepAndPushPositions(positions) {
 
     const content = Buffer.from(JSON.stringify(cleaned, null, 2), 'utf8').toString('base64');
     const body    = {
-      message: `chore: sweep ${swept} terminal position(s) [skip ci]`,
+      message: swept
+        ? `chore: sweep ${swept} terminal position(s) [skip ci]`
+        : `chore: position status update [skip ci]`,
       content, branch,
     };
     if (sha) body.sha = sha;
 
     const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
     if (!putRes.ok) throw new Error(`PUT ${putRes.status}`);
-    console.log(`[sweep] ✓ Pushed cleaned positions.json (${swept} removed, ${Object.keys(cleaned).length} remaining)`);
-    logAudit('positions_sweep_pushed', { swept, remaining: Object.keys(cleaned).length });
+    console.log(`[sweep] ✓ Pushed positions.json (${swept} removed, ${Object.keys(cleaned).length} remaining)`);
+    logAudit('positions_sweep_pushed', { swept, remaining: Object.keys(cleaned).length, statusChanged });
   } catch (e) {
     console.warn(`[sweep] ⚠ Failed to push: ${e.message}`);
     logAudit('positions_sweep_failed', { error: e.message });
@@ -795,6 +801,7 @@ async function checkPositions(state) {
   const TIER2_COOLDOWN   = 2 * 60 * 60 * 1000;
 
   const STALE_HOURS = 48; // positions older than this with no close = warn once then skip
+  let statusChanged = false;
 
   for (const [sym, pos] of entries) {
     if (pos.status === 'stopped' || pos.status === 'tp2_hit') continue;
@@ -860,6 +867,7 @@ async function checkPositions(state) {
         );
         pos.status          = 'stopped';
         pos.statusChangedAt = now;
+        statusChanged       = true;
       }
       continue;
     }
@@ -875,6 +883,11 @@ async function checkPositions(state) {
           `  T1 $${t1}  Current $${price}  Entry $${entry}\n` +
           `  P&L +${pnlPct}%  → Trail stop, watch T2 $${t2}`
         );
+        // Was missing entirely before — status never advanced past 'watching'
+        // so positions.json looked stuck even after T1 fired.
+        pos.status          = 'tp1_hit';
+        pos.statusChangedAt = now;
+        statusChanged       = true;
       }
     }
 
@@ -891,6 +904,7 @@ async function checkPositions(state) {
         );
         pos.status          = 'tp2_hit';
         pos.statusChangedAt = now;
+        statusChanged       = true;
       }
     }
 
@@ -982,6 +996,7 @@ async function checkPositions(state) {
       // Mark exiting so grace period timer starts
       pos.status          = 'exiting';
       pos.statusChangedAt = now;
+      statusChanged       = true;
     }
   }
 
@@ -991,7 +1006,12 @@ async function checkPositions(state) {
   // GUI Tracker Alerts panel clean, without needing manual intervention.
   // fire-key deduplication in .alert-state.json ensures no re-alerts even
   // if a symbol re-enters the leaderboard after being swept here.
-  await sweepAndPushPositions(positions);
+  //
+  // statusChanged is passed through so a stop/T1/T2/exit that fired THIS
+  // cycle gets pushed immediately too — previously these in-memory status
+  // updates were silently dropped unless a sweep also happened to run,
+  // which is why positions.json could get stuck showing 'watching' forever.
+  await sweepAndPushPositions(positions, statusChanged);
 }
 
 // ════════════════════════════════════════════════════
