@@ -32,7 +32,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
   let changed = false;
 
   const rotationCandidates = candidates.filter(c =>
-    c.entry.grade === 'A+' || c.entry.grade === 'A'
+    c.entry.assetType === 'crypto' && (c.entry.grade === 'A+' || c.entry.grade === 'A')
   );
   const shouldRotate = rotationCandidates.length > 0
     && effectiveTradeMode !== 'off'
@@ -114,7 +114,11 @@ async function executeAutoBuys({
 }) {
   if (effectiveTradeMode === 'off' || !showRecoTags) return;
 
-  const allStarred = ranked.filter(r => r.recommended);
+  // MEXC is crypto-only — stocks/ETFs can be starred/recommended for the
+  // Telegram alert and GUI, but must never be routed to a MEXC order. Without
+  // this filter, a starred stock pick (e.g. TSX:ETHY.TO) would fall through
+  // to the symbol-building logic below and produce a garbage MEXC pair.
+  const allStarred = ranked.filter(r => r.recommended && r.a.entry.assetType === 'crypto');
   const picks      = effectiveExecStrategy === 'topN' ? allStarred : allStarred.slice(0, 1);
   const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
     ? parseFloat((effectiveUsdSize / picks.length).toFixed(2))
@@ -135,6 +139,7 @@ async function executeAutoBuys({
     const symbol = pick.pair.replace(/[^A-Z]/g, '') + (pick.pair.includes('USDT') ? '' : 'USDT');
 
     const blockedReasons = [
+      pick.entry?.assetType !== 'crypto' ? `assetType:${pick.entry?.assetType} — MEXC is crypto-only` : null,
       pos?.liveOrder                    ? 'liveOrder already set (idempotency guard)' : null,
       liveLock >= effectiveMaxLive      ? `already ${liveLock}/${effectiveMaxLive} live trades open` : null,
     ].filter(Boolean);
