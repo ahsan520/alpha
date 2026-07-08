@@ -165,6 +165,8 @@ export async function monitorPositions(positions, marketSymbols) {
     const isBull = pos.dir !== 'bear';
     const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
 
+    const isCrypto = pos.assetType === 'crypto';
+
     // ── 4. Price-based exits (immediate, no hold lock, no score needed) ──
 
     // Stop hit
@@ -176,23 +178,21 @@ export async function monitorPositions(positions, marketSymbols) {
       changed = true;
       logAudit('stop_hit', { sym, price, stop, entry, pnlPct });
       closedOutcomes.push({
-        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'stopped', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `🔴 *STOP HIT* — ${pos.base} — ${utc}\n` +
+        `🔴 *STOP HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
         `  P&L ${pnlPct}%  Setup: ${pos.setup}\n` +
-        `  _Position removed in 5 min_`
+        (isCrypto ? `  _Position removed in 5 min_` : `  _Close your position manually on the exchange_`)
       );
       await closeLiveOrder(pos, 'stop hit', telegramAlerts);
-      continue; // no further checks needed
+      continue;
     }
 
-    // T2 hit — retained for paper/legacy positions that were opened before T1-sell
-    // was introduced. In normal operation this is unreachable since T1 now closes
-    // the position and the slot is freed before T2 can be checked.
+    // T2 hit — retained for paper/legacy positions opened before T1-sell was introduced.
     if (isBull && t2 > 0 && price >= t2 && pos.status === 'tp1_hit') {
       console.log(`  🏆  T2 HIT (legacy) — ${pos.base} price:${price} t2:${t2}`);
       pos.status          = 'tp2_hit';
@@ -201,43 +201,41 @@ export async function monitorPositions(positions, marketSymbols) {
       changed = true;
       logAudit('tp2_hit', { sym, price, t2, entry, pnlPct });
       closedOutcomes.push({
-        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'tp2_hit', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `🏆 *T2 HIT* — ${pos.base} — ${utc}\n` +
+        `🏆 *T2 HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
         `  P&L +${pnlPct}%  Full target reached\n` +
-        `  _Position removed in 8 min_`
+        (isCrypto ? `  _Position removed in 8 min_` : `  _Close your position manually on the exchange_`)
       );
       await closeLiveOrder(pos, 'T2 hit', telegramAlerts);
       continue;
     }
 
     // T1 hit — sell full position, take profit, free the slot
-    // Strategy: take the guaranteed gain at T1 rather than waiting for T2.
-    // The slot immediately re-opens for the next A/A+ signal.
     if (isBull && t1 > 0 && price >= t1 && pos.status === 'watching') {
-      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1} — selling full position`);
+      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1}${isCrypto ? ' — auto selling' : ' — manual close required'}`);
       pos.status          = 'tp1_hit';
       pos.statusChangedAt = now;
       pos.exitPrice       = price;
       changed = true;
       logAudit('tp1_hit', { sym, price, t1, entry, pnlPct });
       closedOutcomes.push({
-        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'tp1_hit', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `✅ *T1 HIT — SOLD* — ${pos.base} — ${utc}\n` +
-        `  T1 $${t1}  Fill ~$${price}  Entry $${entry}\n` +
-        `  P&L +${pnlPct}%  Full position closed — slot freed\n` +
-        `  _Position removed in 5 min_`
+        `✅ *T1 HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `  T1 $${t1}  Price ~$${price}  Entry $${entry}\n` +
+        `  P&L +${pnlPct}%\n` +
+        (isCrypto ? `  _Auto-sold on MEXC — slot freed_` : `  _Close your position manually on the exchange_`)
       );
       await closeLiveOrder(pos, 'T1 hit', telegramAlerts);
-      continue; // slot freed, skip exit scoring
+      continue;
     }
 
     // ── 5. Hold lock — no exit score during first N minutes ──
@@ -315,10 +313,10 @@ export async function monitorPositions(positions, marketSymbols) {
       logAudit('exit_signal_sell', { sym, exitScore, signals, price, pnlPct });
 
       telegramAlerts.push(
-        `🟡 *MOMENTUM EXIT — SOLD* — ${pos.base} — ${utc}\n` +
+        `🟡 *MOMENTUM EXIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  Score ${exitScore}/6 · ${signals}\n` +
-        `  Fill ~$${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
-        `  _Sold to minimise loss — slot freed for next signal_`
+        `  ${isCrypto ? 'Fill' : 'Price'} ~$${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
+        (isCrypto ? `  _Auto-sold on MEXC — slot freed for next signal_` : `  _Close your position manually on the exchange_`)
       );
 
       await closeLiveOrder(pos, 'momentum exit', telegramAlerts);
