@@ -1,143 +1,83 @@
 [
   {
-    "timestamp": "2026-07-08T06:17:01.367Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 13,
-    "cryptoCount": 14,
-    "stockScored": 0,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "HYPEUSDT",
-        "status": "failed",
-        "assetType": "crypto"
-      }
-    ]
+    "timestamp": "2026-07-08T08:45:09.391Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
   },
   {
-    "timestamp": "2026-07-08T06:38:54.935Z",
+    "timestamp": "2026-07-08T08:45:10.084Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-08T08:45:11.331Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 3
+  },
+  {
+    "timestamp": "2026-07-08T08:45:11.331Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 3,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-08T08:45:11.332Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 3
+  },
+  {
+    "timestamp": "2026-07-08T08:45:11.333Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-08T08:45:11.999Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 5,
-    "monitored": 4
+    "total": 3,
+    "monitored": 3
   },
   {
-    "timestamp": "2026-07-08T06:38:55.485Z",
+    "timestamp": "2026-07-08T08:45:12.739Z",
     "job": "alert-runner",
     "action": "stop_hit",
-    "sym": "BINANCE:ZECUSDT",
-    "pair": "ZEC",
-    "price": 475.02,
-    "entry": 490.13,
-    "stop": 477.2,
-    "pnlPct": "-3.08"
+    "sym": "BINANCE:ETHUSDT",
+    "pair": "ETH",
+    "price": 1733.91,
+    "entry": 1791.26,
+    "stop": 1743.98,
+    "pnlPct": "-3.20"
   },
   {
-    "timestamp": "2026-07-08T06:38:56.379Z",
+    "timestamp": "2026-07-08T08:45:14.129Z",
     "job": "alert-runner",
     "action": "positions_sweep_start",
-    "swept": 1,
-    "remaining": 4
+    "swept": 0,
+    "remaining": 3
   },
   {
-    "timestamp": "2026-07-08T06:38:57.326Z",
+    "timestamp": "2026-07-08T08:45:16.362Z",
     "job": "alert-runner",
     "action": "positions_sweep_pushed",
-    "swept": 1,
-    "remaining": 4,
+    "swept": 0,
+    "remaining": 3,
     "statusChanged": true
   }
 ]
