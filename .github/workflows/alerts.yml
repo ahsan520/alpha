@@ -218,49 +218,67 @@ jobs:
           printf "window.__TG_TOKEN = '';\n" >> scripts/env.js
           printf "window.__TG_CHAT  = '';\n" >> scripts/env.js
 
-          # STEP 2 — Stash ALL working-tree changes before pulling.
-          # Scripts write files (market-data.json, audit.json, env.js) to disk
-          # during the run. git pull --rebase refuses if ANY file is unstaged.
-          # Stashing preserves those changes, lets rebase complete cleanly,
-          # then pops them back so we can stage and commit them below.
-          git stash --include-untracked
+          # STEP 2 — Copy our freshly-written files to a temp location BEFORE
+          # touching git. These are the authoritative values this job computed —
+          # they always win over whatever is in origin/main (a concurrent job
+          # may have pushed a different version since we started).
+          mkdir -p /tmp/alpha-state
+          FILES="env.js market-data.json audit.json .alert-state.json \
+                 .lb-scan-state.json lb-alert-state.json trade-state.json \
+                 .cvd-decline-state.json symbol-history.json"
+          for f in $FILES; do
+            [ -f "scripts/$f" ] && cp "scripts/$f" "/tmp/alpha-state/$f" || true
+          done
 
-          # STEP 3 — Pull latest to pick up any Contents API push from Job B
-          # (positions.json mid-job push advances HEAD — we need to be on top of it).
-          git pull --rebase origin main
+          # STEP 3 — Hard-reset to whatever origin/main currently is.
+          # This replaces the stash+rebase approach — no conflict possible
+          # because we discard the working tree entirely and restore from tmp.
+          git fetch origin main
+          git reset --hard origin/main
 
-          # STEP 4 — Restore our written files on top of the updated HEAD.
-          git stash pop
+          # STEP 4 — Restore our authoritative files on top of the reset HEAD.
+          for f in $FILES; do
+            [ -f "/tmp/alpha-state/$f" ] && cp "/tmp/alpha-state/$f" "scripts/$f" || true
+          done
 
-          # STEP 5 — Stage files individually so a missing file doesn't
-          # silently block the others from staging.
-          # NOTE: positions.json is intentionally excluded — leaderboard-decider.js
-          # pushes it via the Contents API mid-job, so including it here would
-          # cause a non-fast-forward push conflict.
-          git add scripts/env.js               || true
-          git add scripts/market-data.json     || true
-          git add scripts/audit.json           || true
-          git add scripts/.alert-state.json    || true
-          git add scripts/.lb-scan-state.json  || true
-          git add scripts/lb-alert-state.json  || true
-          git add scripts/trade-state.json     || true
+          # STEP 5 — Stage files individually. positions.json is intentionally
+          # excluded — leaderboard-decider.js pushes it via the Contents API
+          # mid-job; including it here would cause a non-fast-forward conflict.
+          git add scripts/env.js                    || true
+          git add scripts/market-data.json          || true
+          git add scripts/audit.json                || true
+          git add scripts/.alert-state.json         || true
+          git add scripts/.lb-scan-state.json       || true
+          git add scripts/lb-alert-state.json       || true
+          git add scripts/trade-state.json          || true
+          git add scripts/.cvd-decline-state.json   || true
+          git add scripts/symbol-history.json       || true
 
-          # STEP 6 — Verify env.js staged content has no real tokens
+          # STEP 6 — Safety check: verify env.js has no real tokens
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
             echo "🚨 SAFETY ABORT — env.js appears to contain real tokens, refusing to commit"
             exit 1
           fi
 
           # STEP 7 — Commit and push with one retry.
-          # A second concurrent job could push between our pull and push —
-          # retry once with a fresh rebase if that happens.
+          # A concurrent job could push between our fetch (step 3) and now —
+          # retry once with a fresh fetch+reset+restore if push is rejected.
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "chore: update alert state [skip ci]"
-            git push || {
-              echo "⚠ Push failed — rebasing and retrying once..."
-              git pull --rebase origin main
-              git push
+            git push origin main || {
+              echo "⚠ Push rejected — concurrent job pushed ahead of us. Retrying..."
+              git fetch origin main
+              git reset --hard origin/main
+              for f in $FILES; do
+                [ -f "/tmp/alpha-state/$f" ] && cp "/tmp/alpha-state/$f" "scripts/$f" || true
+              done
+              git add scripts/env.js scripts/market-data.json scripts/audit.json \
+                      scripts/.alert-state.json scripts/.lb-scan-state.json \
+                      scripts/lb-alert-state.json scripts/trade-state.json \
+                      scripts/.cvd-decline-state.json scripts/symbol-history.json 2>/dev/null || true
+              git diff --cached --quiet || git commit -m "chore: update alert state (retry) [skip ci]"
+              git push origin main
             }
           fi
