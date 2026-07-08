@@ -28,7 +28,7 @@ const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
 
 export function countLiveOpenPositions(positions) {
   return Object.values(positions).filter(
-    p => p.liveOrder?.mode === 'live' && !p.liveOrder?.closedAt && !['stopped', 'tp2_hit'].includes(p.status)
+    p => p.liveOrder?.mode === 'live' && !p.liveOrder?.closedAt && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
   ).length;
 }
 
@@ -39,6 +39,16 @@ export function countLiveOpenPositions(positions) {
 // isn't rejected for too many decimals.
 export async function closeLiveOrder(pos, reason, telegramAlerts) {
   if (!pos.liveOrder || pos.liveOrder.closedAt) return;
+
+  // MEXC is crypto-only — never attempt an exchange call for stocks/ETFs.
+  // This shouldn't happen (buy-side already filters assetType === 'crypto')
+  // but acts as a hard safety net in case a non-crypto position ever
+  // acquires a liveOrder through a future code path.
+  if (pos.assetType && pos.assetType !== 'crypto') {
+    console.log(`  ⚠  closeLiveOrder skipped — ${pos.base} is assetType:${pos.assetType}, MEXC is crypto-only`);
+    logAudit('mexc_sell_skipped_noncrypto', { base: pos.base, assetType: pos.assetType, reason });
+    return;
+  }
 
   // Paper trades never touch the exchange — just record the close using the
   // exit price the caller already computed (pos.exitPrice), so the permanent
@@ -238,15 +248,7 @@ export async function monitorPositions(positions, marketSymbols) {
       continue;
     }
 
-    // ── 6. Skip exit scoring for exiting positions (already fired) ──
-    if (pos.status === 'exiting') {
-      const exitedAt = pos.statusChangedAt || 0;
-      // Still within eviction window — just log
-      console.log(`  🟡  ${pos.base} — exiting, ${Math.round((now - exitedAt)/60000)}min since signal`);
-      continue;
-    }
-
-    // ── 7. Exit score — CVD + OI + FR + RSI ──
+    // ── 6. Exit score — CVD + OI + FR + RSI ──
     // CVD is the hard gate: must decline LB_EXIT_CVD_CYCLES consecutive Job B runs
     const cvdTrending  = d.cvd?.trending || d.cvdTrend || 'up';
     const cvdDeclines  = trackCvdDecline(sym, cvdTrending);
@@ -284,30 +286,43 @@ export async function monitorPositions(positions, marketSymbols) {
       );
     }
 
-    // ── Tier 2: Distribution confirmed — exit signal ──
-    const tier2Cooldown = 2 * 60 * 60 * 1000;
-    if (cvdConfirmed
-        && exitScore >= LB_EXIT_SCORE_MIN
-        && (!pos.exitAlertedAt || now - pos.exitAlertedAt > tier2Cooldown)) {
+    // ── Tier 2: Distribution confirmed — SELL immediately ──
+    // CVD declining 3+ cycles + supporting signals = real distribution.
+    // Sell now to minimise loss and free the slot for the next buy signal.
+    // No cooldown guard needed — once we sell, status becomes 'exiting'
+    // (terminal) so this block can't fire again on the same position.
+    if (cvdConfirmed && exitScore >= LB_EXIT_SCORE_MIN) {
+      const signals = [
+        `CVD↓ ${cvdDeclines} cycles`,
+        oiExiting   ? 'OI distributing'      : null,
+        fundingHot  ? `FR ${fr.toFixed(3)}%` : null,
+        rsiExtended ? `RSI ${Math.round(r15)}` : null,
+      ].filter(Boolean).join(' · ');
+
+      console.log(`  🟡  ${pos.base} — EXIT SIGNAL score:${exitScore}/6 [${signals}] — selling`);
       pos.status          = 'exiting';
       pos.statusChangedAt = now;
+      pos.exitPrice       = price;
       pos.exitAlertedAt   = now;
-      changed = true;
-      const signals = [
-        cvdConfirmed ? `CVD↓ ${cvdDeclines} cycles` : null,
-        oiExiting    ? 'OI distributing'             : null,
-        fundingHot   ? `FR ${fr.toFixed(3)}%`        : null,
-        rsiExtended  ? `RSI ${Math.round(r15)}`      : null,
-      ].filter(Boolean).join(' · ');
-      console.log(`  🟡  ${pos.base} — EXIT SIGNAL score:${exitScore}/6 [${signals}]`);
-      logAudit('exit_signal', { sym, exitScore, signals, price, pnlPct });
+      changed             = true;
+
+      closedOutcomes.push({
+        base: pos.base, pair: pos.base + (pos.assetType === 'crypto' ? 'USDT' : ''),
+        outcome: 'exit_score', score: pos.score, spikeScore: pos.spikeScore,
+        pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
+      });
+
+      logAudit('exit_signal_sell', { sym, exitScore, signals, price, pnlPct });
+
       telegramAlerts.push(
-        `🟡 *EXIT SIGNAL* — ${pos.base} — ${utc}\n` +
+        `🟡 *MOMENTUM EXIT — SOLD* — ${pos.base} — ${utc}\n` +
         `  Score ${exitScore}/6 · ${signals}\n` +
-        `  Current $${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
-        `  T2 $${t2} — consider partial exit or trail stop\n` +
-        `  _Position removed in 10 min_`
+        `  Fill ~$${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
+        `  _Sold to minimise loss — slot freed for next signal_`
       );
+
+      await closeLiveOrder(pos, 'momentum exit', telegramAlerts);
+      continue; // slot freed, no further checks
     }
   }
 

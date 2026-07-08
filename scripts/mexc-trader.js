@@ -41,9 +41,10 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
   if (!shouldRotate) return { changed, rotationCandidates };
 
   const livePosEntries = Object.entries(positions).filter(
-    ([, p]) => p.liveOrder?.mode === effectiveTradeMode
-           && !p.liveOrder?.closedAt
-           && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
+    ([, p]) => p.assetType === 'crypto'              // MEXC is crypto-only — never rotate stocks/ETFs
+            && p.liveOrder?.mode === effectiveTradeMode
+            && !p.liveOrder?.closedAt
+            && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
   );
 
   if (livePosEntries.length) {
@@ -132,11 +133,13 @@ async function executeAutoBuys({
     return;
   }
 
-  const liveLock = countLiveOpenPositions(positions);
-
   for (const { a: pick } of picks) {
     const pos    = positions[pick.sym];
     const symbol = pick.pair.replace(/[^A-Z]/g, '') + (pick.pair.includes('USDT') ? '' : 'USDT');
+
+    // Re-count AFTER each buy — topN must not exceed effectiveMaxLive
+    // even if rotation just freed some slots at the start of this cycle.
+    const liveLock = countLiveOpenPositions(positions);
 
     const blockedReasons = [
       pick.entry?.assetType !== 'crypto' ? `assetType:${pick.entry?.assetType} — MEXC is crypto-only` : null,
