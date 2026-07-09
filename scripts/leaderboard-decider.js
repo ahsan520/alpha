@@ -188,7 +188,9 @@ async function main() {
 
   if (openCount > 0) {
     console.log(`\n📊  Monitoring ${openCount} open position(s)...`);
-    const monitored = await monitorPositions(positions, market.symbols || {});
+    const monitored = await monitorPositions(positions, market.symbols || {}, {
+      LB_MIN_SCORE, LB_BULL_CONF_MIN,
+    });
     positions = monitored.positions;
 
     if (monitored.changed) {

@@ -20,6 +20,7 @@ import {
   logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET,
   loadTradeLog, recordTradeClose, pushTradeLogToGitHub,
 } from './job-state.js';
+import { calcConviction } from './leaderboard-scanner.js';
 
 const LB_STALE_WATCH_HRS = parseFloat(process.env.LB_STALE_WATCH_HRS || '24');
 const LB_HOLD_LOCK       = parseInt(process.env.LB_HOLD_LOCK       || '20');
@@ -102,7 +103,11 @@ function trackCvdDecline(sym, trending) {
 
 // Returns { positions, changed, telegramAlerts[], closedOutcomes[] }
 // Caller saves positions.json, pushes to GitHub, and sends telegramAlerts.
-export async function monitorPositions(positions, marketSymbols) {
+export async function monitorPositions(positions, marketSymbols, cfg = {}) {
+  const {
+    LB_MIN_SCORE    = parseInt(process.env.LB_MIN_SCORE    || '9'),
+    LB_BULL_CONF_MIN= parseInt(process.env.LB_BULL_CONF_MIN|| '5'),
+  } = cfg;
   const now           = Date.now();
   const staleMs       = LB_STALE_WATCH_HRS * 60 * 60 * 1000;
   const holdLockMs    = LB_HOLD_LOCK * 60 * 1000;
@@ -116,6 +121,10 @@ export async function monitorPositions(positions, marketSymbols) {
     // ── 1. Remove terminal positions past their eviction window ──
     const termDelay = TERMINAL_EVICT_MS[pos.status];
     if (termDelay) {
+      // tp1_hit has two sub-states:
+      //   - holding to T2 (no exitPrice, liveOrder still open) → do NOT evict
+      //   - sold at T1 (exitPrice set, liveOrder closed)       → evict normally
+      if (pos.status === 'tp1_hit' && !pos.exitPrice) continue; // still holding
       const changedAt = pos.statusChangedAt || pos.alertedAt || 0;
       if (now - changedAt >= termDelay) {
         console.log(`  🗑  ${pos.base} (${pos.status}) past eviction window → removed`);
@@ -215,14 +224,44 @@ export async function monitorPositions(positions, marketSymbols) {
       continue;
     }
 
-    // T1 hit — sell full position, take profit, free the slot
+    // ── T1 hit — re-evaluate before selling ──
+    // If signal is still strong (conv ≥ LB_MIN_SCORE AND bullConf ≥ LB_BULL_CONF_MIN),
+    // hold the position and let it run to T2 — no fees, no spread, no re-entry cost.
+    // Only sell if the signal has faded, meaning holding is no longer justified.
     if (isBull && t1 > 0 && price >= t1 && pos.status === 'watching') {
-      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} t1:${t1}${isCrypto ? ' — auto selling' : ' — manual close required'}`);
+      const mKey   = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
+      const live   = marketSymbols[mKey];
+      const liveD  = live?.d || {};
+      const liveConv    = calcConviction(liveD);
+      const liveBullConf = parseFloat(liveD.bullConf ?? liveD.bull_conf ?? 0);
+      const stillQualifies = liveConv >= LB_MIN_SCORE && liveBullConf >= LB_BULL_CONF_MIN;
+
+      if (stillQualifies) {
+        // Signal still strong — hold, move to tp1_hit status (watching for T2/stop/exit)
+        // but do NOT sell and do NOT call closeLiveOrder
+        if (pos.status !== 'tp1_hit') {
+          pos.status          = 'tp1_hit';
+          pos.statusChangedAt = now;
+          pos.t1HitAt         = now;
+          changed             = true;
+          logAudit('tp1_hit_hold', { sym, price, t1, liveConv, liveBullConf });
+          telegramAlerts.push(
+            `✅ *T1 HIT — HOLDING* — ${pos.base} — ${utc}\n` +
+            `  T1 $${t1}  Price $${price}  Entry $${entry}\n` +
+            `  P&L +${pnlPct}%  Conv:${liveConv} BullConf:${liveBullConf}/10 — signal still strong\n` +
+            `  _Holding to T2 $${t2} — stop moved mentally to T1_`
+          );
+        }
+        continue; // keep watching — T2/stop/exit score will handle exit
+      }
+
+      // Signal faded — sell now, take profit at T1
+      console.log(`  ✅  T1 HIT — ${pos.base} price:${price} conv:${liveConv}(need ${LB_MIN_SCORE}) bullConf:${liveBullConf}(need ${LB_BULL_CONF_MIN})${isCrypto ? ' — selling (signal faded)' : ' — close manually'}`);
       pos.status          = 'tp1_hit';
       pos.statusChangedAt = now;
       pos.exitPrice       = price;
-      changed = true;
-      logAudit('tp1_hit', { sym, price, t1, entry, pnlPct });
+      changed             = true;
+      logAudit('tp1_hit_sell', { sym, price, t1, liveConv, liveBullConf, pnlPct });
       closedOutcomes.push({
         base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'tp1_hit', score: pos.score, spikeScore: pos.spikeScore,
@@ -231,10 +270,10 @@ export async function monitorPositions(positions, marketSymbols) {
       telegramAlerts.push(
         `✅ *T1 HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  T1 $${t1}  Price ~$${price}  Entry $${entry}\n` +
-        `  P&L +${pnlPct}%\n` +
+        `  P&L +${pnlPct}%  Conv:${liveConv} BullConf:${liveBullConf}/10 — signal faded\n` +
         (isCrypto ? `  _Auto-sold on MEXC — slot freed_` : `  _Close your position manually on the exchange_`)
       );
-      await closeLiveOrder(pos, 'T1 hit', telegramAlerts);
+      await closeLiveOrder(pos, 'T1 hit (signal faded)', telegramAlerts);
       continue;
     }
 

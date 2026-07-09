@@ -27,12 +27,30 @@ import {
   loadTradeLog, recordTradeOpen, pushTradeLogToGitHub,
 } from './job-state.js';
 
+// ── Symbols that can alert/star normally but must NEVER be auto-traded ──
+// Default: empty — ALL symbols are tradeable unless explicitly listed here.
+// These still flow through leaderboard-decider's scan and Telegram messages
+// either way; listing a symbol only excludes it from A/A+ rotation and the
+// star-pick auto-buy (e.g. so capital stays in alts that spike/dip harder
+// than BTC once you decide to exclude it).
+// Set via repo Variable MEXC_NO_TRADE_SYMBOLS, e.g. "BTCUSDT,ETHUSDT".
+// Leave the variable unset/empty to allow auto-trading on every symbol.
+const NO_TRADE_SYMBOLS = (process.env.MEXC_NO_TRADE_SYMBOLS || '')
+  .split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+
+function isNoTradeSymbol(pair) {
+  const bare = (pair || '').replace(/^BINANCE:/, '').toUpperCase();
+  return NO_TRADE_SYMBOLS.includes(bare);
+}
+
+
 // ── A/A+ rotation — sell all live positions to make room for stronger signals ──
 async function executeRotation({ candidates, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
   let changed = false;
 
   const rotationCandidates = candidates.filter(c =>
     c.entry.assetType === 'crypto' && (c.entry.grade === 'A+' || c.entry.grade === 'A')
+    && !isNoTradeSymbol(c.pair)   // BTC/ETH alert/star fine, but never trigger rotation
   );
   const shouldRotate = rotationCandidates.length > 0
     && effectiveTradeMode !== 'off'
@@ -119,7 +137,9 @@ async function executeAutoBuys({
   // Telegram alert and GUI, but must never be routed to a MEXC order. Without
   // this filter, a starred stock pick (e.g. TSX:ETHY.TO) would fall through
   // to the symbol-building logic below and produce a garbage MEXC pair.
-  const allStarred = ranked.filter(r => r.recommended && r.a.entry.assetType === 'crypto');
+  const allStarred = ranked.filter(r =>
+    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair)
+  );
   const picks      = effectiveExecStrategy === 'topN' ? allStarred : allStarred.slice(0, 1);
   const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
     ? parseFloat((effectiveUsdSize / picks.length).toFixed(2))
@@ -143,6 +163,7 @@ async function executeAutoBuys({
 
     const blockedReasons = [
       pick.entry?.assetType !== 'crypto' ? `assetType:${pick.entry?.assetType} — MEXC is crypto-only` : null,
+      isNoTradeSymbol(pick.pair)         ? `${pick.pair} in MEXC_NO_TRADE_SYMBOLS — alert-only, no auto-buy` : null,
       pos?.liveOrder                    ? 'liveOrder already set (idempotency guard)' : null,
       liveLock >= effectiveMaxLive      ? `already ${liveLock}/${effectiveMaxLive} live trades open` : null,
     ].filter(Boolean);
