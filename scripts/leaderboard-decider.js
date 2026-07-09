@@ -33,6 +33,7 @@ import {
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
 import { monitorPositions } from './position-monitor.js';
 import { executeTradeCycle } from './mexc-trader.js';
+import { runAllBuyGuards, isDivergingFromBtc } from './market-guard.js';
 
 const LB_MIN_SCORE       = parseInt(process.env.LB_MIN_SCORE       || '9');
 const LB_BULL_CONF_MIN   = parseInt(process.env.LB_BULL_CONF_MIN   || '5');
@@ -243,6 +244,69 @@ async function main() {
     return;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // MARKET GUARD — 5-layer news-shock / dip protection
+  // Runs AFTER monitoring (so fresh position P&L is available for circuit
+  // breaker) and BEFORE opening any new positions.
+  // ══════════════════════════════════════════════════════════════════════════
+  const guard = runAllBuyGuards(market, positions);
+
+  if (guard.reasons.length) {
+    console.log('  🛡  Market guard fired:');
+    guard.reasons.forEach(r => console.log(`     → ${r}`));
+    logAudit('market_guard', { canBuy: guard.canBuy, closeAll: guard.closeAll, sizeMult: guard.sizeMult, reasons: guard.reasons });
+  }
+
+  // Layer 2 / BTC panic: close ALL live positions immediately
+  if (guard.closeAll && effectiveTradeMode !== 'off') {
+    const livePosEntries = Object.entries(positions).filter(
+      ([, p]) => p.assetType === 'crypto'
+              && p.liveOrder?.mode === effectiveTradeMode
+              && !p.liveOrder?.closedAt
+              && !['stopped', 'tp1_hit', 'tp2_hit', 'exiting'].includes(p.status)
+    );
+
+    if (livePosEntries.length) {
+      console.log(`  🚨  Emergency close — ${livePosEntries.length} live position(s)`);
+      const guardSells = [];
+      for (const [, pos] of livePosEntries) {
+        await closeLiveOrder(pos, `market guard: ${guard.reasons[0]}`, guardSells);
+        pos.status          = 'stopped';
+        pos.statusChangedAt = Date.now();
+        pos.rotatedOut      = true;
+      }
+      savePositions(positions);
+      await pushPositionsToGitHub(positions);
+      await sendTelegram(
+        `🚨 *MARKET GUARD — EMERGENCY CLOSE* — ${new Date().toUTCString().slice(17, 22)} UTC\n` +
+        `  Reason: ${guard.reasons[0]}\n` +
+        `  Closed ${livePosEntries.length} live position(s)\n` +
+        `  _New buys blocked until market stabilises_`
+      );
+      for (const m of guardSells) await sendTelegram(m);
+    }
+  }
+
+  // Apply guard size multiplier to the effective USD size for this cycle
+  const guardedUsdSize = guard.sizeMult < 1
+    ? parseFloat((effectiveUsdSize * guard.sizeMult).toFixed(2))
+    : effectiveUsdSize;
+
+  if (guard.sizeMult < 1) {
+    console.log(`  📉  Position size reduced: $${effectiveUsdSize} → $${guardedUsdSize} (×${guard.sizeMult})`);
+  }
+
+  // If any hard block gate fired, skip all new buys this cycle
+  if (!guard.canBuy) {
+    console.log('  🛡  Buy gates blocked — no new positions opened this cycle.');
+    saveMarketData(resetPeaks(market));
+    saveCooldowns(loadCooldowns());
+    saveAlertState(pruneAlertState(loadAlertState()));
+    logAudit('buy_blocked_by_guard', { reasons: guard.reasons });
+    console.log('\n✅  Job B complete (guard active).\n');
+    return;
+  }
+
   const cooldowns  = loadCooldowns();
   const alertState = pruneAlertState(loadAlertState());
   const candidates = [];
@@ -257,6 +321,20 @@ async function main() {
     const evald = evaluateSymbol(entry);
     if (evald.conv < LB_MIN_SCORE)          continue;
     if (SKIP_SETUPS.has(evald.setup.label)) continue;
+
+    // Fear & Greed divergence gate — only active when F&G ≤ FEAR_BLOCK_THRESHOLD
+    // (fearRegime flag set by runAllBuyGuards above).
+    // If BTC is dropping and this symbol is ALSO dropping → block it.
+    // If this symbol is UP while BTC is down → real relative strength → allow.
+    // This is how IMX +4.29% would have passed this morning while BTC was red.
+    if (guard.fearRegime && entry.assetType === 'crypto') {
+      const symChg = parseFloat(entry.d?.chg ?? entry.chg ?? 0);
+      if (!isDivergingFromBtc(symChg, guard.btcChg)) {
+        console.log(`  🛡  ${pair} — Extreme Fear + no BTC divergence (symChg:${symChg}% btcChg:${guard.btcChg}%) — skipped`);
+        continue;
+      }
+      console.log(`  ✅  ${pair} — Extreme Fear but diverging +${symChg}% vs BTC ${guard.btcChg}% — allowing at ${guard.sizeMult * 100}% size`);
+    }
 
     // CAP BUY bypasses bull confirmation gate
     const isCapBuy = entry.assetType === 'crypto' && (entry.capBuy?.isCapBuy ?? false);
@@ -409,7 +487,7 @@ async function main() {
   await executeTradeCycle({
     candidates, positions, market, tradeState,
     closedOutcomes: rotationOutcomes, utc,
-    effectiveTradeMode, effectiveExecStrategy, effectiveUsdSize, effectiveMaxLive,
+    effectiveTradeMode, effectiveExecStrategy, effectiveUsdSize: guardedUsdSize, effectiveMaxLive,
     ranked, showRecoTags,
   });
 

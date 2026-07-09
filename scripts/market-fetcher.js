@@ -102,6 +102,50 @@ function freezeEntry(prev, session) {
   return { ...prev, session, marketClosed: true };
 }
 
+async function fetchBtcShortTermChange() {
+  // Fetch last 4 × 5m candles for BTC to compute 15m change and recent volatility
+  // (candle range as a proxy for intraday shock size).
+  try {
+    const res = await fetch(
+      'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=4',
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const klines = await res.json();
+    if (!Array.isArray(klines) || klines.length < 2) return null;
+
+    const latest   = klines[klines.length - 1];
+    const oldest   = klines[0];
+    const openOld  = parseFloat(oldest[1]);
+    const closeNew = parseFloat(latest[4]);
+    const btcChg15m = openOld > 0 ? parseFloat(((closeNew - openOld) / openOld * 100).toFixed(3)) : null;
+
+    // Volatility = max high - min low across all 4 candles, as % of close
+    const highs = klines.map(k => parseFloat(k[2]));
+    const lows  = klines.map(k => parseFloat(k[3]));
+    const range = Math.max(...highs) - Math.min(...lows);
+    const btcVolatility = closeNew > 0 ? parseFloat((range / closeNew * 100).toFixed(3)) : null;
+
+    return { btcChg15m, btcVolatility };
+  } catch (e) {
+    console.log(`  ⚠  btcShortTerm fetch failed: ${e.message}`);
+    return null;
+  }
+}
+
+async function fetchFearGreed() {
+  try {
+    const res = await fetch('https://api.alternative.me/fng/?limit=1',
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const data = await res.json();
+    const val  = parseInt(data?.data?.[0]?.value ?? '-1');
+    return val >= 0 ? val : null;
+  } catch (e) {
+    console.log(`  ⚠  F&G fetch failed: ${e.message}`);
+    return null;
+  }
+}
+
 async function main() {
   const { crypto: cryptoPairs, stocks: stockSyms } = loadWatchlist();
   const totalSymbols = cryptoPairs.length + stockSyms.length;
@@ -133,10 +177,12 @@ async function main() {
   // Init Yahoo once if any stocks need scoring
   if (stocksToScore.length) await initYahoo();
 
-  // ── Fetch in parallel ──
-  const [cryptoResults, stockResults] = await Promise.all([
+  // ── Fetch in parallel — symbols + global guard data ──
+  const [cryptoResults, stockResults, btcShort, fgVal] = await Promise.all([
     Promise.all(cryptoPairs.map(scoreSymbol)),
     Promise.all(stocksToScore.map(({ sym }) => scoreStock(sym))),
+    fetchBtcShortTermChange(),
+    fetchFearGreed(),
   ]);
 
   const symbols      = {};
@@ -187,7 +233,20 @@ async function main() {
     fetchResults.push({ pair: sym, status: 'ok', conv: r.conv, session, setup: r.setup.label, assetType: 'stock' });
   }
 
-  const out = { fetchedAt: now, staleAfterMinutes: STALE_MINUTES, symbols };
+  // ── Global market guard data ──
+  const global = {
+    btcChg15m:    btcShort?.btcChg15m    ?? null,
+    btcVolatility:btcShort?.btcVolatility ?? null,
+    fearGreed:    fgVal,
+    updatedAt:    now,
+  };
+
+  if (btcShort) {
+    const arrow = (btcShort.btcChg15m || 0) >= 0 ? '▲' : '▼';
+    console.log(`  📊  BTC 15m: ${arrow}${btcShort.btcChg15m}%  volatility: ${btcShort.btcVolatility}%  F&G: ${fgVal ?? '—'}`);
+  }
+
+  const out = { fetchedAt: now, staleAfterMinutes: STALE_MINUTES, global, symbols };
   saveMarketData(out);
 
   logAudit('fetch_complete', {
