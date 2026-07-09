@@ -26,28 +26,16 @@ const AV_BEARISH_THRESHOLD  = -0.35; // matches Alpha Vantage's own "Bearish" bu
 const AV_MAX_TICKERS = 15; // keep the request URL/relevance reasonable
 const AV_MARKET_TOPICS = 'blockchain,financial_markets'; // watchlist-independent general market news
 
-window.SENTIMENT_PAUSED = true;
+// Auto-start state — unpaused if key is present, paused otherwise.
+// app.js init() calls _startAvClusteredPoll() / fetchSentimentIfActive()
+// after all scripts including env.js are loaded.
+window.SENTIMENT_PAUSED = !window.__AV_KEY;
 
-function _avKeyStorageKey() { return `${_REPO_NS}_av_key`; }
-function getAvApiKey()      { return (localStorage.getItem(_avKeyStorageKey()) || '').trim(); }
-
-function saveAvApiKey() {
-  const input = document.getElementById('av-key-input');
-  if (!input) return;
-  const key = input.value.trim();
-  if (!key) return;
-  localStorage.setItem(_avKeyStorageKey(), key);
-  logAlertItem('info', '🔑 Alpha Vantage API key saved');
-  fetchSentimentIfActive(true);
-}
-
-function clearAvApiKey() {
-  localStorage.removeItem(_avKeyStorageKey());
-  STATE.sentimentItems = [];
-  STATE.sentimentBySymbol = {};
-  STATE.marketNewsItems = [];
-  renderSentiment();
-}
+// ── API key — injected via env.js (GitHub Actions secret AV_API_KEY) ──
+// Never stored in localStorage. If cache is cleared, the key is still
+// available on the next page load because env.js is re-served by GitHub Pages
+// on every workflow run.
+function getAvApiKey() { return (window.__AV_KEY || '').trim(); }
 
 
 // ── Which crypto symbols to track — derived from the live watchlist ──
@@ -273,16 +261,11 @@ function renderSentiment() {
 
   const apiKey = getAvApiKey();
   if (!apiKey) {
-    if (badge) badge.textContent = 'no API key';
-    body.innerHTML = `
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <div>Paste your free Alpha Vantage API key to enable crypto sentiment polling (every 5 min) and Telegram alerts.</div>
-        <div style="display:flex;gap:6px;">
-          <input id="av-key-input" type="password" placeholder="Alpha Vantage API key" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:3px;color:var(--text-bright);padding:5px 8px;font-family:var(--mono);font-size:11px;">
-          <button onclick="saveAvApiKey()" style="font-family:var(--mono);font-size:11px;padding:4px 10px;background:var(--accent);color:#000;border:none;border-radius:3px;cursor:pointer;font-weight:700;">SAVE</button>
-        </div>
-        <div style="font-size:9px;opacity:.7;">Get a free key at alphavantage.co/support/#api-key. This is alert-only — sentiment never triggers a buy/sell, it just pings Telegram.</div>
-      </div>`;
+    if (badge) badge.textContent = 'no key in env.js';
+    body.innerHTML = `<div style="padding:16px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.7;">
+      Alpha Vantage API key not configured.<br>
+      Add <code style="color:var(--text-bright)">AV_API_KEY</code> as a GitHub repository secret — it will be injected into <code>env.js</code> on the next workflow run.
+    </div>`;
     return;
   }
 
@@ -332,9 +315,8 @@ function renderSentiment() {
   body.innerHTML = `
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">${tiles}</div>
     <div>${headlines}</div>
-    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Alert-only · thresholds ±${AV_BULLISH_THRESHOLD} · cooldown ${AV_SENTIMENT_COOLDOWN_HOURS}h/symbol</span>
-      <button onclick="clearAvApiKey()" style="font-family:var(--mono);font-size:8px;padding:2px 6px;background:transparent;color:var(--text-dim);border:1px solid var(--border);border-radius:3px;cursor:pointer;">clear API key</button>
+    <div style="margin-top:8px;">
+      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Alert-only · thresholds ±${AV_BULLISH_THRESHOLD} · cooldown ${AV_SENTIMENT_COOLDOWN_HOURS}h/symbol · key via AV_API_KEY secret</span>
     </div>
     ${_renderMarketNewsSection()}`;
 }

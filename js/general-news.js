@@ -20,26 +20,13 @@ const GNEWS_INTERVAL_MS = 1_800_000; // 30 min
 const GNEWS_QUERY = '"Iran" OR "White House" OR "Federal Reserve" OR "interest rate" OR "jobs report" OR crypto OR bitcoin';
 const GNEWS_MAX_ARTICLES = 25;
 
-window.GNEWS_PAUSED = true;
+// Auto-start state — unpaused if key is present, paused otherwise.
+// app.js init() calls fetchGeneralNewsIfActive() after all scripts are loaded.
+window.GNEWS_PAUSED = !window.__GNEWS_KEY;
 
-function _gnewsKeyStorageKey() { return `${_REPO_NS}_gnews_key`; }
-function getGnewsApiKey()      { return (localStorage.getItem(_gnewsKeyStorageKey()) || '').trim(); }
-
-function saveGnewsApiKey() {
-  const input = document.getElementById('gnews-key-input');
-  if (!input) return;
-  const key = input.value.trim();
-  if (!key) return;
-  localStorage.setItem(_gnewsKeyStorageKey(), key);
-  logAlertItem('info', '🔑 GNews API key saved');
-  fetchGeneralNewsIfActive(true);
-}
-
-function clearGnewsApiKey() {
-  localStorage.removeItem(_gnewsKeyStorageKey());
-  STATE.generalNewsItems = [];
-  renderGeneralNews();
-}
+// ── API key — injected via env.js (GitHub Actions secret GNEWS_API_KEY) ──
+// Never stored in localStorage. Cache-clear safe.
+function getGnewsApiKey() { return (window.__GNEWS_KEY || '').trim(); }
 
 function toggleGeneralNews() {
   STATE.generalNewsOpen = !STATE.generalNewsOpen;
@@ -112,16 +99,11 @@ function renderGeneralNews(noteMsg) {
 
   const apiKey = getGnewsApiKey();
   if (!apiKey) {
-    if (badge) badge.textContent = 'no API key';
-    body.innerHTML = `
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);display:flex;flex-direction:column;gap:8px;max-width:420px;">
-        <div>Paste your free GNews API key to enable geopolitical / rates / jobs / crypto headlines (polls every 30 min).</div>
-        <div style="display:flex;gap:6px;">
-          <input id="gnews-key-input" type="password" placeholder="GNews API key" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:3px;color:var(--text-bright);padding:5px 8px;font-family:var(--mono);font-size:11px;">
-          <button onclick="saveGnewsApiKey()" style="font-family:var(--mono);font-size:11px;padding:4px 10px;background:var(--accent);color:#000;border:none;border-radius:3px;cursor:pointer;font-weight:700;">SAVE</button>
-        </div>
-        <div style="font-size:9px;opacity:.7;">Get a free key at gnews.io. Display-only — headlines never trigger a buy/sell or Telegram alert.</div>
-      </div>`;
+    if (badge) badge.textContent = 'no key in env.js';
+    body.innerHTML = `<div style="padding:16px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.7;">
+      GNews API key not configured.<br>
+      Add <code style="color:var(--text-bright)">GNEWS_API_KEY</code> as a GitHub repository secret — it will be injected into <code>env.js</code> on the next workflow run.
+    </div>`;
     return;
   }
 
@@ -141,8 +123,7 @@ function renderGeneralNews(noteMsg) {
 
   body.innerHTML = `
     <div>${rows}</div>
-    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Display-only · geopolitics/rates/jobs/crypto search · no Telegram alerts</span>
-      <button onclick="clearGnewsApiKey()" style="font-family:var(--mono);font-size:8px;padding:2px 6px;background:transparent;color:var(--text-dim);border:1px solid var(--border);border-radius:3px;cursor:pointer;">clear API key</button>
+    <div style="margin-top:8px;">
+      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Display-only · geopolitics/rates/jobs/crypto · no Telegram alerts · key via GNEWS_API_KEY secret</span>
     </div>`;
 }

@@ -103,13 +103,20 @@ async function init() {
   updateLastUpdBar();
 
   if (typeof renderSentiment === 'function') {
+    const sentBtn = document.getElementById('sentiment-pause-btn');
+    if (sentBtn) sentBtn.textContent = window.SENTIMENT_PAUSED ? '▶' : '⏸';
     renderSentiment();
-    _startAvClusteredPoll(); // clustered around known news-heavy hours instead of flat interval
+    if (!window.SENTIMENT_PAUSED) fetchSentimentIfActive(true); // immediate first fetch if key present
+    _startAvClusteredPoll();
   }
 
   if (typeof renderGeneralNews === 'function') {
+    // Sync pause button to reflect auto-start state (set by window.__GNEWS_KEY presence)
+    const gnewsBtn = document.getElementById('general-news-pause-btn');
+    if (gnewsBtn) gnewsBtn.textContent = window.GNEWS_PAUSED ? '▶' : '⏸';
     renderGeneralNews();
-    setInterval(fetchGeneralNewsIfActive, GNEWS_INTERVAL_MS); // 30 min — free GNews tier is 100 req/day, 1 call/poll
+    if (!window.GNEWS_PAUSED) fetchGeneralNewsIfActive(true); // immediate first fetch if key present
+    setInterval(fetchGeneralNewsIfActive, GNEWS_INTERVAL_MS);
   }
 }
 
