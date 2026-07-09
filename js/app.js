@@ -71,6 +71,7 @@ async function init() {
   STATE.alertsOpen   = false;
   STATE.activeNewsTag = 'ALL';
   STATE.collapsedCols = {};
+  STATE.sentimentOpen = true;
 
   let base = DEFAULT_WATCHLIST;
   try { const r = await fetch('watchlist.json'); if (r.ok) base = await r.json(); } catch {}
@@ -100,6 +101,16 @@ async function init() {
   initAlertCfg();
   renderAlertCfgPage();
   updateLastUpdBar();
+
+  if (typeof renderSentiment === 'function') {
+    renderSentiment();
+    _startAvClusteredPoll(); // clustered around known news-heavy hours instead of flat interval
+  }
+
+  if (typeof renderGeneralNews === 'function') {
+    renderGeneralNews();
+    setInterval(fetchGeneralNewsIfActive, GNEWS_INTERVAL_MS); // 30 min — free GNews tier is 100 req/day, 1 call/poll
+  }
 }
 
 function _renderChartPlaceholder() {
@@ -114,7 +125,36 @@ function _renderChartPlaceholder() {
     </div>`;
 }
 
-// ── ADAPTIVE SYNC LOOP ──
+// ── AV clustered poll schedule ──
+// Alpha Vantage's free tier (~25 req/day, 2 calls/poll here) doesn't stretch
+// to even 2hr flat polling around the clock. News volume isn't evenly spread
+// either — it clusters around known events. Instead of firing every N hours
+// blindly, check every 5 min whether we've just entered one of these UTC
+// windows, and fire once per window if so:
+//   12:30 — US econ data (jobs/CPI/PPI)   13:30 — US market open
+//   16:00 — midday / Fed speakers         18:00 — FOMC announcements (Fed days)
+//   20:00 — US market close (heaviest headline volume of the day)
+//   00:00 — Asia trading day begins (crypto-heavy)
+//   06:00 — Europe morning open
+const AV_POLL_HOURS_UTC = [0, 6, 12, 13, 16, 18, 20];
+let _avLastFiredHour = null;
+
+function _startAvClusteredPoll() {
+  setInterval(_avClusteredTick, 300_000); // check every 5 min, fire at most once per listed hour
+  _avClusteredTick(); // catch the case where we load mid-window
+}
+
+function _avClusteredTick() {
+  const now = new Date();
+  const hour = now.getUTCHours();
+  if (!AV_POLL_HOURS_UTC.includes(hour)) return;
+  const key = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${hour}`;
+  if (_avLastFiredHour === key) return; // already fired this window
+  _avLastFiredHour = key;
+  fetchSentimentIfActive();
+}
+
+
 let _syncRunning  = false;
 let _lastSyncTime = {};
 
