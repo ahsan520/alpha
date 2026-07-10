@@ -106,8 +106,8 @@ async function init() {
     const sentBtn = document.getElementById('sentiment-pause-btn');
     if (sentBtn) sentBtn.textContent = window.SENTIMENT_PAUSED ? '▶' : '⏸';
     renderSentiment();
-    if (!window.SENTIMENT_PAUSED) fetchSentimentIfActive(true); // immediate first fetch if key present
-    _startAvClusteredPoll();
+    if (!window.SENTIMENT_PAUSED) fetchSentimentIfActive(true); // immediate first fetch
+    setInterval(fetchSentimentIfActive, SENTIMENT_DATA_POLL_MS);
   }
 
   if (typeof renderGeneralNews === 'function') {
@@ -132,34 +132,13 @@ function _renderChartPlaceholder() {
     </div>`;
 }
 
-// ── AV clustered poll schedule ──
-// Alpha Vantage's free tier (~25 req/day, 2 calls/poll here) doesn't stretch
-// to even 2hr flat polling around the clock. News volume isn't evenly spread
-// either — it clusters around known events. Instead of firing every N hours
-// blindly, check every 5 min whether we've just entered one of these UTC
-// windows, and fire once per window if so:
-//   12:30 — US econ data (jobs/CPI/PPI)   13:30 — US market open
-//   16:00 — midday / Fed speakers         18:00 — FOMC announcements (Fed days)
-//   20:00 — US market close (heaviest headline volume of the day)
-//   00:00 — Asia trading day begins (crypto-heavy)
-//   06:00 — Europe morning open
-const AV_POLL_HOURS_UTC = [0, 6, 12, 13, 16, 18, 20];
-let _avLastFiredHour = null;
-
-function _startAvClusteredPoll() {
-  setInterval(_avClusteredTick, 300_000); // check every 5 min, fire at most once per listed hour
-  _avClusteredTick(); // catch the case where we load mid-window
-}
-
-function _avClusteredTick() {
-  const now = new Date();
-  const hour = now.getUTCHours();
-  if (!AV_POLL_HOURS_UTC.includes(hour)) return;
-  const key = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${hour}`;
-  if (_avLastFiredHour === key) return; // already fired this window
-  _avLastFiredHour = key;
-  fetchSentimentIfActive();
-}
+// ── Sentiment data refresh ──
+// The browser no longer calls Alpha Vantage directly (that quota-gating now
+// lives server-side in scripts/sentiment-fetcher.js, on the actual 12-window
+// UTC schedule). Here we just periodically re-fetch the committed
+// sentiment-data.json so the dashboard picks up whatever the last workflow
+// run wrote — a plain interval is fine since re-reading a static file is free.
+const SENTIMENT_DATA_POLL_MS = 300_000; // 5 min — matches Job A's cadence
 
 
 let _syncRunning  = false;
