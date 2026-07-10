@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-07-10T12:08:46.179Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 12,
-    "monitored": 12
-  },
-  {
     "timestamp": "2026-07-10T12:57:03.139Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -115,5 +108,97 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-10T13:45:53.396Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-10T13:45:53.775Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.5,
+    "reasons": [
+      "Fear & Greed: 23 (Fear) — halving position size"
+    ]
+  },
+  {
+    "timestamp": "2026-07-10T13:45:53.776Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-10T13:45:56.156Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 3
+  },
+  {
+    "timestamp": "2026-07-10T13:45:56.521Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "APT",
+        "pnlPct": 0,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "ZECUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-10T13:45:56.522Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 3,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-10T13:45:57.459Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-07-10T13:45:57.736Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-10T13:45:57.736Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-10T13:45:58.243Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
