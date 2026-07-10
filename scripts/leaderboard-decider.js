@@ -356,7 +356,15 @@ async function main() {
     const sym = buildSymKey(pair);
     const existingPos = positions[sym];
     if (existingPos) {
-      const isTerminal = ['stopped', 'tp1_hit', 'tp2_hit'].includes(existingPos.status);
+      // tp1_hit has two sub-states (see position-monitor.js): still holding
+      // to T2 (no exitPrice — a real position, do NOT touch it) vs actually
+      // sold at T1 (exitPrice set — genuinely terminal). Only the latter is
+      // safe to evict/replace here; the former must stay tracked exactly
+      // like position-monitor.js already protects it, or this gate would
+      // silently delete the live tracking record for a real open position
+      // (and open a duplicate) the moment TERMINAL_EVICT_MS elapses.
+      const isTerminal = ['stopped', 'tp2_hit'].includes(existingPos.status)
+        || (existingPos.status === 'tp1_hit' && !!existingPos.exitPrice);
       if (!isTerminal) {
         console.log(`  ⏭  ${pair} — open position (${existingPos.status})`);
         continue;
