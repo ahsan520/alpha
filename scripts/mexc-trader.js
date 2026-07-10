@@ -65,13 +65,46 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
             && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
   );
 
-  if (livePosEntries.length) {
-    console.log(`  🔄  A/A+ ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${livePosEntries.length} live position(s) first`);
+  // ── T1-holding positions (status tp1_hit, no exitPrice — genuinely still
+  // held, running toward T2) get their own rotation rule, separate from
+  // normal open trades above:
+  //   - still grades A/A+ itself this cycle → PROTECTED. Left completely
+  //     untouched in positions.json; only ever sold at T2/stop/exit-score
+  //     (position-monitor.js's own logic), never by rotation.
+  //   - no longer grades A/A+ → sold now (same as a normal rotation sell)
+  //     AND removed from positions.json immediately (not left for the
+  //     usual 5-min TERMINAL_EVICT_MS window), freeing the slot right away
+  //     for the star-pick buy that runs immediately after this function.
+  // A held symbol never re-appears in `candidates` on its own (the buy-side
+  // open-position gate skips symbols that already have an open position),
+  // so its current grade has to be read straight from market data here.
+  const holdingT1Entries = Object.entries(positions).filter(
+    ([, p]) => p.assetType === 'crypto'
+            && p.liveOrder?.mode === effectiveTradeMode
+            && !p.liveOrder?.closedAt
+            && p.status === 'tp1_hit' && !p.exitPrice
+  );
+
+  const rotatableT1Entries = holdingT1Entries.filter(([sym]) => {
+    const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
+    const grade = (market.symbols || {})[mKey]?.grade;
+    return grade !== 'A' && grade !== 'A+'; // no longer top-grade → eligible to rotate out
+  });
+
+  if (holdingT1Entries.length && !rotatableT1Entries.length) {
+    console.log(`  🔒  ${holdingT1Entries.length} T1-holding position(s) still grade A/A+ — protected from rotation`);
+  }
+
+  const allSellEntries = [...livePosEntries, ...rotatableT1Entries];
+
+  if (allSellEntries.length) {
+    console.log(`  🔄  A/A+ ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${allSellEntries.length} live position(s) first`);
     const rotationSells = [];
 
-    for (const [sym, pos] of livePosEntries) {
+    for (const [sym, pos] of allSellEntries) {
       const sellAlerts = [];
-      await closeLiveOrder(pos, 'A/A+ rotation', sellAlerts);
+      const wasHoldingT1 = pos.status === 'tp1_hit' && !pos.exitPrice;
+      await closeLiveOrder(pos, wasHoldingT1 ? 'A/A+ rotation — no longer top grade' : 'A/A+ rotation', sellAlerts);
 
       // Record the rotation exit in symbol history
       const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
@@ -83,23 +116,30 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
 
       closedOutcomes.push({
         base: pos.base, pair: pos.base + 'USDT',
-        outcome: 'rotation', score: pos.score, spikeScore: pos.spikeScore,
+        outcome: wasHoldingT1 ? 'rotation_t1_downgrade' : 'rotation', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct, closedAt: Date.now(),
       });
-      rotationSells.push({ base: pos.base, pnlPct });
+      rotationSells.push({ base: pos.base, pnlPct, wasHoldingT1 });
 
-      // Mark as evicted immediately — slot freed for rotation buy
-      pos.status          = 'stopped'; // treated as a close
-      pos.statusChangedAt = Date.now();
-      pos.exitPrice       = exitPrice;
-      pos.rotatedOut      = true;
+      if (wasHoldingT1) {
+        // No longer top-grade — remove now rather than waiting on the usual
+        // TERMINAL_EVICT_MS window, so the slot/capital frees immediately
+        // for the star-pick buy that runs right after this function.
+        delete positions[sym];
+      } else {
+        // Mark as evicted immediately — slot freed for rotation buy
+        pos.status          = 'stopped'; // treated as a close
+        pos.statusChangedAt = Date.now();
+        pos.exitPrice       = exitPrice;
+        pos.rotatedOut      = true;
+      }
       changed = true;
 
       for (const m of sellAlerts) await sendTelegram(m);
     }
 
     const sellSummary = rotationSells
-      .map(r => `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%`)
+      .map(r => `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
       .join(', ');
     await sendTelegram(
       `🔄 *A/A+ ROTATION* — ${utc}\n` +
