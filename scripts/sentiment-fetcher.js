@@ -25,7 +25,9 @@ import path from 'path';
 const WATCHLIST_PATH = path.join(process.cwd(), '..', 'watchlist.json');
 const OUT_PATH        = path.join(process.cwd(), 'sentiment-data.json');
 
-const AV_POLL_HOURS_UTC   = [0, 6, 12, 13, 16, 18, 20]; // must match old js/app.js clustering
+// Covers Tokyo/Shanghai/Sydney opens, London open, US pre-market/open/close —
+// 12 windows × 2 calls = 24/25 daily calls, 1 call held as a safety buffer.
+const AV_POLL_HOURS_UTC = [0, 1, 6, 8, 12, 13, 16, 18, 20, 21, 22, 23];
 const AV_MAX_TICKERS      = 15;
 const AV_MARKET_TOPICS    = 'blockchain,financial_markets';
 const AV_BULLISH_THRESHOLD = 0.35;
@@ -88,9 +90,19 @@ async function main() {
     return;
   }
 
-  const hour = new Date().getUTCHours();
+  const now = new Date();
+  const hour = now.getUTCHours();
   if (!AV_POLL_HOURS_UTC.includes(hour)) {
     console.log(`UTC hour ${hour} not in poll window ${JSON.stringify(AV_POLL_HOURS_UTC)} — skipping (quota gate)`);
+    return;
+  }
+
+  // Job A runs every 5 min, so a bare hour-of-day check alone would fire
+  // ~12 times within the same allowed hour. Persist which hour-slot we've
+  // already fired so each window only ever costs 2 calls, not up to 24.
+  const hourKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${hour}`;
+  if (existing.lastFiredHourKey === hourKey) {
+    console.log(`Already fired for window ${hourKey} — skipping (quota gate)`);
     return;
   }
 
@@ -154,7 +166,7 @@ async function main() {
     console.log(`Market news fetch failed: ${e.message} — keeping cached items`);
   }
 
-  saveOutput({ fetchedAt: Date.now(), items, bySymbol, marketNewsItems });
+  saveOutput({ fetchedAt: Date.now(), items, bySymbol, marketNewsItems, lastFiredHourKey: hourKey });
 }
 
 main().catch(e => { console.error('sentiment-fetcher fatal error:', e); process.exit(0); });
