@@ -27,9 +27,10 @@ const AV_BEARISH_THRESHOLD = -0.35;
 // small set of major coins. Mixing an unsupported small-cap ticker (e.g.
 // RENDER, GALA, SUI, APT, IMX) into the same `tickers=` request appears to
 // invalidate the ENTIRE request ("Invalid inputs..."), not just drop that
-// one symbol. If the full watchlist-derived list fails, we retry once with
-// only these known-good majors so one unsupported alt doesn't zero out the
-// whole day's sentiment data.
+// one symbol. loadWatchlistTickers() below pre-filters crypto entries
+// against this allowlist BEFORE ever calling the API, so unsupported alts
+// never enter the request in the first place (and don't waste a call
+// finding that out via a failed response).
 const AV_KNOWN_GOOD_CRYPTO = ['BTC', 'ETH', 'DOGE', 'XRP', 'SOL', 'LINK', 'LTC', 'XMR'];
 
 // Exchange suffixes used elsewhere in the repo (exchange-registry.js) for
@@ -49,15 +50,15 @@ const FOREIGN_SUFFIXES = ['.TO', '.L', '.DE', '.T', '.HK', '.NS'];
 function toAvTicker(sym) {
   if (sym.startsWith('BINANCE:')) {
     const base = sym.replace('BINANCE:', '').replace(/USDT?$/, '');
-    return { avTicker: 'CRYPTO:' + base, displayBase: base };
+    return { avTicker: 'CRYPTO:' + base, displayBase: base, isCrypto: true };
   }
   const suffix = FOREIGN_SUFFIXES.find(s => sym.toUpperCase().endsWith(s));
   if (suffix) {
     const bare = sym.slice(0, sym.length - suffix.length);
-    return { avTicker: bare, displayBase: sym };
+    return { avTicker: bare, displayBase: sym, isCrypto: false };
   }
   // Bare US-style symbol (stock or ETF)
-  return { avTicker: sym, displayBase: sym };
+  return { avTicker: sym, displayBase: sym, isCrypto: false };
 }
 
 function _sentLabel(score) {
@@ -68,13 +69,25 @@ function _sentLabel(score) {
   return 'Neutral';
 }
 
-// Returns array of { avTicker, displayBase } across ALL asset types on the
-// watchlist (crypto, stocks, ETFs) — not just BINANCE: crypto pairs.
+// Returns array of { avTicker, displayBase, isCrypto } across ALL asset
+// types on the watchlist — stocks/ETFs pass through unfiltered; crypto is
+// pre-filtered to AV_KNOWN_GOOD_CRYPTO, since mixing an unsupported
+// small-cap coin (RENDER, GALA, SUI, APT, IMX, ...) into the same
+// `tickers=` request appears to invalidate the ENTIRE request, not just
+// drop that one symbol. Filtering here avoids wasting a call finding that out.
 function loadWatchlistTickers() {
   try {
     const raw  = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
     const list = Array.isArray(raw) ? raw : raw.symbols || [];
-    const mapped = list.map(toAvTicker).filter(Boolean);
+    const mapped = list
+      .map(toAvTicker)
+      .filter(Boolean)
+      .filter(t => {
+        if (!t.isCrypto) return true; // stocks/ETFs always pass through
+        const supported = AV_KNOWN_GOOD_CRYPTO.includes(t.displayBase);
+        if (!supported) console.log(`  ⏭  ${t.displayBase} — not in AV_KNOWN_GOOD_CRYPTO, skipping (unsupported by AV NEWS_SENTIMENT)`);
+        return supported;
+      });
     // De-dupe by avTicker (two watchlist entries could collapse to the same one)
     const seen = new Set();
     const deduped = [];
@@ -85,7 +98,7 @@ function loadWatchlistTickers() {
     }
     return deduped.slice(0, AV_MAX_TICKERS);
   } catch {
-    return [{ avTicker: 'CRYPTO:BTC', displayBase: 'BTC' }, { avTicker: 'CRYPTO:ETH', displayBase: 'ETH' }];
+    return [{ avTicker: 'CRYPTO:BTC', displayBase: 'BTC', isCrypto: true }, { avTicker: 'CRYPTO:ETH', displayBase: 'ETH', isCrypto: true }];
   }
 }
 
@@ -139,21 +152,8 @@ async function main() {
     const tickerEntries = loadWatchlistTickers();
     if (tickerEntries.length) {
       try {
-        let usedEntries = tickerEntries;
-        let feed;
-        try {
-          const tickers = tickerEntries.map(t => t.avTicker).join(',');
-          feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50`, tickerKey);
-        } catch (e) {
-          // Likely an unsupported small-cap ticker invalidated the whole
-          // request. Retry once with only well-known majors so one bad
-          // symbol doesn't zero out the entire day's sentiment data.
-          console.log(`Full ticker list failed (${e.message}) — retrying with known-good majors only`);
-          usedEntries = tickerEntries.filter(t => AV_KNOWN_GOOD_CRYPTO.includes(t.displayBase));
-          if (!usedEntries.length) throw e;
-          const tickers = usedEntries.map(t => t.avTicker).join(',');
-          feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50`, tickerKey);
-        }
+        const tickers = tickerEntries.map(t => t.avTicker).join(',');
+        const feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50`, tickerKey);
 
         items = feed.slice(0, 40).map(a => ({
           title:  a.title,
@@ -167,7 +167,7 @@ async function main() {
         }));
 
         const next = {};
-        for (const { avTicker, displayBase } of usedEntries) {
+        for (const { avTicker, displayBase } of tickerEntries) {
           let weightSum = 0, scoreSum = 0, count = 0;
           for (const item of items) {
             const hit = item.tickerSentiments.find(t => t.ticker === avTicker);
@@ -183,7 +183,7 @@ async function main() {
         }
         bySymbol = next;
         tickerFiredHourKey = hourKey;
-        console.log(`Sentiment: ${items.length} items, ${Object.keys(bySymbol).length}/${usedEntries.length} symbols scored`);
+        console.log(`Sentiment: ${items.length} items, ${Object.keys(bySymbol).length}/${tickerEntries.length} symbols scored`);
       } catch (e) {
         console.log(`Sentiment fetch failed: ${e.message} — keeping cached items`);
       }
