@@ -181,6 +181,7 @@ jobs:
           MEXC_API_KEY:       ${{ secrets.MEXC_API_KEY }}
           MEXC_API_SECRET:    ${{ secrets.MEXC_API_SECRET }}
           AV_API_KEY:         ${{ secrets.AV_API_KEY }}
+          AV_API_KEY_NEWS:    ${{ secrets.AV_API_KEY_NEWS }}
           GNEWS_API_KEY:      ${{ secrets.GNEWS_API_KEY }}
           RUN_MODE:           ${{ steps.mode.outputs.value }}
         run: |
@@ -190,6 +191,7 @@ jobs:
           echo "GITHUB_TOKEN: $([ -n "$GITHUB_TOKEN" ] && echo '✓ set' || echo '✗ MISSING')"
           echo "TELEGRAM_BOT_TOKEN: $([ -n "$TELEGRAM_BOT_TOKEN" ] && echo '✓ set' || echo '✗ MISSING')"
           echo "AV_API_KEY: $([ -n "$AV_API_KEY" ] && echo '✓ set' || echo '✗ MISSING')"
+          echo "AV_API_KEY_NEWS: $([ -n "$AV_API_KEY_NEWS" ] && echo '✓ set' || echo '✗ MISSING')"
           echo "GNEWS_API_KEY: $([ -n "$GNEWS_API_KEY" ] && echo '✓ set' || echo '✗ MISSING')"
           DRY_FLAG=""
           if [ "$DRY_RUN" = "true" ]; then
