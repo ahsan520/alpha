@@ -26,16 +26,21 @@ const AV_BEARISH_THRESHOLD  = -0.35; // matches Alpha Vantage's own "Bearish" bu
 const AV_MAX_TICKERS = 15; // keep the request URL/relevance reasonable
 const AV_MARKET_TOPICS = 'blockchain,financial_markets'; // watchlist-independent general market news
 
-// Auto-start state — unpaused if key is present, paused otherwise.
-// app.js init() calls _startAvClusteredPoll() / fetchSentimentIfActive()
-// after all scripts including env.js are loaded.
-window.SENTIMENT_PAUSED = !window.__AV_KEY;
+// ── Data source ──
+// AV_API_KEY is a server-side-only secret. The GitHub Actions workflow runs
+// scripts/sentiment-fetcher.js on every "fetch" job (using the real key from
+// process.env) and commits its output to scripts/sentiment-data.json. The
+// browser never sees the key — it just reads that committed JSON file via
+// raw.githubusercontent.com (bypassing GitHub Pages' CDN cache).
+const SENTIMENT_DATA_REPO   = () => (window.__GH_REPO || 'ahsan520/alpha');
+const SENTIMENT_DATA_BRANCH = 'main';
+const SENTIMENT_DATA_PATH   = 'scripts/sentiment-data.json';
 
-// ── API key — injected via env.js (GitHub Actions secret AV_API_KEY) ──
-// Never stored in localStorage. If cache is cleared, the key is still
-// available on the next page load because env.js is re-served by GitHub Pages
-// on every workflow run.
-function getAvApiKey() { return (window.__AV_KEY || '').trim(); }
+// Auto-start state — always unpaused; app.js init() calls
+// _startAvClusteredPoll() / fetchSentimentIfActive() after scripts load.
+// Whether there's actually data depends on whether the workflow has a
+// server-side AV_API_KEY configured (see renderSentiment()'s no-data path).
+window.SENTIMENT_PAUSED = false;
 
 
 // ── Which crypto symbols to track — derived from the live watchlist ──
@@ -64,76 +69,37 @@ function toggleSentimentPause() {
 function fetchSentimentIfActive(force) {
   if (!force && window.SENTIMENT_PAUSED) return;
   fetchSentiment();
-  fetchMarketNews();
 }
 
-// ── Fetch + parse ──
+// ── Fetch (reads the workflow-committed sentiment-data.json — no browser-side API key) ──
 async function fetchSentiment() {
-  const apiKey = getAvApiKey();
-  if (!apiKey) { renderSentiment(); return; }
+  const repo = SENTIMENT_DATA_REPO();
+  if (!repo) { renderSentiment(); return; }
 
-  const bases = sentimentCryptoBases();
-  if (!bases.length) { renderSentiment(); return; }
-
-  const tickers = bases.map(b => 'CRYPTO:' + b).join(',');
-  const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50&apikey=${encodeURIComponent(apiKey)}`;
+  const url = `https://raw.githubusercontent.com/${repo}/${SENTIMENT_DATA_BRANCH}/${SENTIMENT_DATA_PATH}?t=${Date.now()}`;
 
   let data;
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
+    if (r.status === 404) { renderSentiment('sentiment-data.json not found yet — waiting for first workflow run.'); return; }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     data = await r.json();
   } catch (e) {
-    logAlertItem('info', `📰 Sentiment fetch FAILED: ${e.message}`);
+    logAlertItem('info', `📰 Sentiment data fetch FAILED: ${e.message}`);
     _useSentimentCache();
     return;
   }
 
-  if (data?.Information || data?.Note || data?.['Error Message']) {
-    const msg = data.Information || data.Note || data['Error Message'];
-    logAlertItem('info', `📰 Alpha Vantage: ${msg.substring(0, 140)}`);
-    _useSentimentCache(msg);
-    return;
-  }
-
-  const feed = Array.isArray(data.feed) ? data.feed : [];
-  if (!feed.length) { _useSentimentCache(); return; }
-
-  const items = feed.slice(0, 40).map(a => ({
-    title:  a.title,
-    url:    a.url,
-    source: a.source || 'AlphaVantage',
-    time:   (() => { try { return new Date(
-              a.time_published.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:$6')
-            ).toLocaleTimeString(); } catch { return ''; } })(),
-    ts:     (() => { try { return new Date(
-              a.time_published.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:$6')
-            ).getTime(); } catch { return 0; } })(),
-    score:  typeof a.overall_sentiment_score === 'number' ? a.overall_sentiment_score : 0,
-    label:  a.overall_sentiment_label || 'Neutral',
-    tickerSentiments: Array.isArray(a.ticker_sentiment) ? a.ticker_sentiment : [],
-  }));
-
-  // Aggregate per watched symbol, weighted by relevance_score
-  const bySymbol = {};
-  for (const base of bases) {
-    const avTicker = 'CRYPTO:' + base;
-    let weightSum = 0, scoreSum = 0, count = 0;
-    for (const item of items) {
-      const hit = item.tickerSentiments.find(t => t.ticker === avTicker);
-      if (!hit) continue;
-      const rel = parseFloat(hit.relevance_score) || 0;
-      const sc  = parseFloat(hit.ticker_sentiment_score) || 0;
-      weightSum += rel; scoreSum += sc * rel; count++;
-    }
-    if (count > 0) {
-      const avgScore = weightSum > 0 ? scoreSum / weightSum : 0;
-      bySymbol[base] = { score: avgScore, label: _sentLabel(avgScore), count };
-    }
-  }
+  const items    = Array.isArray(data.items) ? data.items : [];
+  const bySymbol = data.bySymbol && typeof data.bySymbol === 'object' ? data.bySymbol : {};
+  const marketNewsItems = Array.isArray(data.marketNewsItems) ? data.marketNewsItems : [];
 
   STATE.sentimentItems     = items;
   STATE.sentimentBySymbol  = bySymbol;
   STATE.sentimentCache     = { items, bySymbol, ts: Date.now() };
+  STATE.marketNewsItems    = marketNewsItems;
+  STATE.marketNewsCache    = { items: marketNewsItems, ts: Date.now() };
+  STATE.sentimentFetchedAt = data.fetchedAt || 0;
 
   renderSentiment();
   checkSentimentAlerts();
@@ -146,52 +112,6 @@ function _useSentimentCache(noteMsg) {
     STATE.sentimentBySymbol = cached.bySymbol;
   }
   renderSentiment(noteMsg);
-}
-
-// ── General market news (watchlist-independent) ──
-// Uses topics= instead of tickers= so it's not filtered by what's on the
-// watchlist. Display-only: no per-item Telegram alerts, since there's no
-// single symbol to attach an alert to.
-async function fetchMarketNews() {
-  const apiKey = getAvApiKey();
-  if (!apiKey) { return; }
-
-  const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&topics=${encodeURIComponent(AV_MARKET_TOPICS)}&limit=50&apikey=${encodeURIComponent(apiKey)}`;
-
-  let data;
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    data = await r.json();
-  } catch (e) {
-    logAlertItem('info', `📰 Market news fetch FAILED: ${e.message}`);
-    _useMarketNewsCache();
-    return;
-  }
-
-  if (data?.Information || data?.Note || data?.['Error Message']) {
-    const msg = data.Information || data.Note || data['Error Message'];
-    logAlertItem('info', `📰 Alpha Vantage (market news): ${msg.substring(0, 140)}`);
-    _useMarketNewsCache();
-    return;
-  }
-
-  const feed = Array.isArray(data.feed) ? data.feed : [];
-  if (!feed.length) { _useMarketNewsCache(); return; }
-
-  const items = feed.slice(0, 30).map(a => ({
-    title:  a.title,
-    url:    a.url,
-    source: a.source || 'AlphaVantage',
-    time:   (() => { try { return new Date(
-              a.time_published.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/, '$1-$2-$3T$4:$5:$6')
-            ).toLocaleTimeString(); } catch { return ''; } })(),
-    score:  typeof a.overall_sentiment_score === 'number' ? a.overall_sentiment_score : 0,
-    label:  a.overall_sentiment_label || 'Neutral',
-  }));
-
-  STATE.marketNewsItems  = items;
-  STATE.marketNewsCache  = { items, ts: Date.now() };
-  renderSentiment();
 }
 
 function _useMarketNewsCache() {
@@ -259,17 +179,16 @@ function renderSentiment() {
   const body   = document.getElementById('sentiment-body');
   if (!body) return;
 
-  const apiKey = getAvApiKey();
-  if (!apiKey) {
-    if (badge) badge.textContent = 'no key in env.js';
+  const items = STATE.sentimentItems || [];
+  if (!items.length && !STATE.sentimentFetchedAt) {
+    if (badge) badge.textContent = 'no data yet';
     body.innerHTML = `<div style="padding:16px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.7;">
-      Alpha Vantage API key not configured.<br>
-      Add <code style="color:var(--text-bright)">AV_API_KEY</code> as a GitHub repository secret — it will be injected into <code>env.js</code> on the next workflow run.
+      No sentiment data yet.<br>
+      Make sure <code style="color:var(--text-bright)">AV_API_KEY</code> is set as a GitHub repository secret — it's used server-side by <code>sentiment-fetcher.js</code>, which writes <code>sentiment-data.json</code> on the next workflow run.
     </div>`;
     return;
   }
 
-  const items = STATE.sentimentItems || [];
   const bySymbol = STATE.sentimentBySymbol || {};
   const bulls = Object.values(bySymbol).filter(a => a.score >= AV_BULLISH_THRESHOLD).length;
   const bears = Object.values(bySymbol).filter(a => a.score <= AV_BEARISH_THRESHOLD).length;
@@ -316,7 +235,7 @@ function renderSentiment() {
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">${tiles}</div>
     <div>${headlines}</div>
     <div style="margin-top:8px;">
-      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Alert-only · thresholds ±${AV_BULLISH_THRESHOLD} · cooldown ${AV_SENTIMENT_COOLDOWN_HOURS}h/symbol · key via AV_API_KEY secret</span>
+      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Alert-only · thresholds ±${AV_BULLISH_THRESHOLD} · cooldown ${AV_SENTIMENT_COOLDOWN_HOURS}h/symbol · fetched server-side via AV_API_KEY secret</span>
     </div>
     ${_renderMarketNewsSection()}`;
 }

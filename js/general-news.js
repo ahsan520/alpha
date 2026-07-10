@@ -17,16 +17,23 @@
 // ══════════════════════════════════════════════
 
 const GNEWS_INTERVAL_MS = 1_800_000; // 30 min
-const GNEWS_QUERY = '"Iran" OR "White House" OR "Federal Reserve" OR "interest rate" OR "jobs report" OR crypto OR bitcoin';
-const GNEWS_MAX_ARTICLES = 25;
 
-// Auto-start state — unpaused if key is present, paused otherwise.
-// app.js init() calls fetchGeneralNewsIfActive() after all scripts are loaded.
-window.GNEWS_PAUSED = !window.__GNEWS_KEY;
+// ── Data source ──
+// GNEWS_API_KEY is a server-side-only secret. The GitHub Actions workflow
+// runs scripts/general-news-fetcher.js on every "fetch" job (using the real
+// key from process.env) and commits its output to
+// scripts/general-news-data.json. The browser never sees the key — it just
+// reads that committed JSON via raw.githubusercontent.com (bypassing GitHub
+// Pages' CDN cache).
+const GNEWS_DATA_REPO   = () => (window.__GH_REPO || 'ahsan520/alpha');
+const GNEWS_DATA_BRANCH = 'main';
+const GNEWS_DATA_PATH   = 'scripts/general-news-data.json';
 
-// ── API key — injected via env.js (GitHub Actions secret GNEWS_API_KEY) ──
-// Never stored in localStorage. Cache-clear safe.
-function getGnewsApiKey() { return (window.__GNEWS_KEY || '').trim(); }
+// Auto-start state — always unpaused; app.js init() calls
+// fetchGeneralNewsIfActive() after scripts load. Whether there's actually
+// data depends on whether the workflow has a server-side GNEWS_API_KEY
+// configured (see renderGeneralNews()'s no-data path).
+window.GNEWS_PAUSED = false;
 
 function toggleGeneralNews() {
   STATE.generalNewsOpen = !STATE.generalNewsOpen;
@@ -49,40 +56,29 @@ function fetchGeneralNewsIfActive(force) {
 }
 
 async function fetchGeneralNews() {
-  const apiKey = getGnewsApiKey();
-  if (!apiKey) { renderGeneralNews(); return; }
+  const repo = GNEWS_DATA_REPO();
+  if (!repo) { renderGeneralNews(); return; }
 
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(GNEWS_QUERY)}&lang=en&max=${GNEWS_MAX_ARTICLES}&sortby=publishedAt&token=${encodeURIComponent(apiKey)}`;
+  const url = `https://raw.githubusercontent.com/${repo}/${GNEWS_DATA_BRANCH}/${GNEWS_DATA_PATH}?t=${Date.now()}`;
 
   let data;
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(15000) });
+    if (r.status === 404) { renderGeneralNews('general-news-data.json not found yet — waiting for first workflow run.'); return; }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     data = await r.json();
   } catch (e) {
-    logAlertItem('info', `📰 GNews fetch FAILED: ${e.message}`);
+    logAlertItem('info', `📰 GNews data fetch FAILED: ${e.message}`);
     _useGeneralNewsCache();
     return;
   }
 
-  if (data?.errors) {
-    const msg = Array.isArray(data.errors) ? data.errors.join('; ') : String(data.errors);
-    logAlertItem('info', `📰 GNews: ${msg.substring(0, 140)}`);
-    _useGeneralNewsCache(msg);
-    return;
-  }
-
-  const articles = Array.isArray(data.articles) ? data.articles : [];
-  if (!articles.length) { _useGeneralNewsCache(); return; }
-
-  const items = articles.map(a => ({
-    title:  a.title,
-    url:    a.url,
-    source: a.source?.name || 'GNews',
-    time:   (() => { try { return new Date(a.publishedAt).toLocaleTimeString(); } catch { return ''; } })(),
-  }));
+  const items = Array.isArray(data.items) ? data.items : [];
+  if (!items.length) { _useGeneralNewsCache(); return; }
 
   STATE.generalNewsItems  = items;
   STATE.generalNewsCache  = { items, ts: Date.now() };
+  STATE.generalNewsFetchedAt = data.fetchedAt || 0;
   renderGeneralNews();
 }
 
@@ -97,17 +93,16 @@ function renderGeneralNews(noteMsg) {
   const body  = document.getElementById('general-news-body');
   if (!body) return;
 
-  const apiKey = getGnewsApiKey();
-  if (!apiKey) {
-    if (badge) badge.textContent = 'no key in env.js';
+  const items = STATE.generalNewsItems || [];
+  if (!items.length && !STATE.generalNewsFetchedAt) {
+    if (badge) badge.textContent = 'no data yet';
     body.innerHTML = `<div style="padding:16px;font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.7;">
-      GNews API key not configured.<br>
-      Add <code style="color:var(--text-bright)">GNEWS_API_KEY</code> as a GitHub repository secret — it will be injected into <code>env.js</code> on the next workflow run.
+      No general news data yet.<br>
+      Make sure <code style="color:var(--text-bright)">GNEWS_API_KEY</code> is set as a GitHub repository secret — it's used server-side by <code>general-news-fetcher.js</code>, which writes <code>general-news-data.json</code> on the next workflow run.
     </div>`;
     return;
   }
 
-  const items = STATE.generalNewsItems || [];
   if (badge) badge.textContent = items.length + ' items · poll 30m';
 
   if (!items.length) {
@@ -124,6 +119,6 @@ function renderGeneralNews(noteMsg) {
   body.innerHTML = `
     <div>${rows}</div>
     <div style="margin-top:8px;">
-      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Display-only · geopolitics/rates/jobs/crypto · no Telegram alerts · key via GNEWS_API_KEY secret</span>
+      <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">Display-only · geopolitics/rates/jobs/crypto · no Telegram alerts · fetched server-side via GNEWS_API_KEY secret</span>
     </div>`;
 }
