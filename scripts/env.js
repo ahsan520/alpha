@@ -5,5 +5,3 @@ window.__GH_PAT    = '';
 window.__GH_REPO   = '';
 window.__TG_TOKEN  = '';
 window.__TG_CHAT   = '';
-window.__AV_KEY    = '';
-window.__GNEWS_KEY = '';
