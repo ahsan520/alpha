@@ -25,13 +25,39 @@ import path from 'path';
 const WATCHLIST_PATH = path.join(process.cwd(), '..', 'watchlist.json');
 const OUT_PATH        = path.join(process.cwd(), 'sentiment-data.json');
 
-// Covers Tokyo/Shanghai/Sydney opens, London open, US pre-market/open/close —
-// 12 windows × 2 calls = 24/25 daily calls, 1 call held as a safety buffer.
-const AV_POLL_HOURS_UTC = [0, 1, 6, 8, 12, 13, 16, 18, 20, 21, 22, 23];
-const AV_MAX_TICKERS      = 15;
+const AV_POLL_HOURS_UTC   = [0, 1, 6, 8, 12, 13, 16, 18, 20, 21, 22, 23];
+const AV_MAX_TICKERS      = 40; // headroom above a ~30-symbol mixed watchlist
 const AV_MARKET_TOPICS    = 'blockchain,financial_markets';
 const AV_BULLISH_THRESHOLD = 0.35;
 const AV_BEARISH_THRESHOLD = -0.35;
+
+// Exchange suffixes used elsewhere in the repo (exchange-registry.js) for
+// non-US listings. AV's NEWS_SENTIMENT ticker coverage is effectively
+// US-equity + crypto + forex — it does not recognize these suffixes, so we
+// strip them and pass the bare symbol as a best-effort match. Foreign-listed
+// names (TSX/LSE/XETRA/TSE/HKEX/NSE) will often still return zero ticker
+// hits since AV likely has no sentiment coverage for that specific listing —
+// that's an AV data-coverage gap, not a bug in this script.
+const FOREIGN_SUFFIXES = ['.TO', '.L', '.DE', '.T', '.HK', '.NS'];
+
+// ── Build the AV `tickers=` value for one watchlist symbol ──
+// Returns { avTicker, displayBase } or null if the symbol can't be mapped.
+//   crypto  BINANCE:BTCUSDT  → CRYPTO:BTC        (display: BTC)
+//   US eq   AAPL             → AAPL              (display: AAPL)
+//   foreign SHOP.TO          → SHOP (best effort) (display: SHOP.TO)
+function toAvTicker(sym) {
+  if (sym.startsWith('BINANCE:')) {
+    const base = sym.replace('BINANCE:', '').replace(/USDT?$/, '');
+    return { avTicker: 'CRYPTO:' + base, displayBase: base };
+  }
+  const suffix = FOREIGN_SUFFIXES.find(s => sym.toUpperCase().endsWith(s));
+  if (suffix) {
+    const bare = sym.slice(0, sym.length - suffix.length);
+    return { avTicker: bare, displayBase: sym };
+  }
+  // Bare US-style symbol (stock or ETF)
+  return { avTicker: sym, displayBase: sym };
+}
 
 function _sentLabel(score) {
   if (score >= AV_BULLISH_THRESHOLD) return 'Bullish';
@@ -41,16 +67,24 @@ function _sentLabel(score) {
   return 'Neutral';
 }
 
-function loadWatchlistBases() {
+// Returns array of { avTicker, displayBase } across ALL asset types on the
+// watchlist (crypto, stocks, ETFs) — not just BINANCE: crypto pairs.
+function loadWatchlistTickers() {
   try {
     const raw  = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
     const list = Array.isArray(raw) ? raw : raw.symbols || [];
-    const bases = list
-      .filter(s => s.startsWith('BINANCE:') && s.endsWith('USDT'))
-      .map(s => s.replace('BINANCE:', '').replace('USDT', ''));
-    return [...new Set(bases)].slice(0, AV_MAX_TICKERS);
+    const mapped = list.map(toAvTicker).filter(Boolean);
+    // De-dupe by avTicker (two watchlist entries could collapse to the same one)
+    const seen = new Set();
+    const deduped = [];
+    for (const m of mapped) {
+      if (seen.has(m.avTicker)) continue;
+      seen.add(m.avTicker);
+      deduped.push(m);
+    }
+    return deduped.slice(0, AV_MAX_TICKERS);
   } catch {
-    return ['BTC', 'ETH', 'SOL'];
+    return [{ avTicker: 'CRYPTO:BTC', displayBase: 'BTC' }, { avTicker: 'CRYPTO:ETH', displayBase: 'ETH' }];
   }
 }
 
@@ -106,15 +140,15 @@ async function main() {
     return;
   }
 
-  const bases = loadWatchlistBases();
+  const tickerEntries = loadWatchlistTickers();
   let items = existing.items || [];
   let bySymbol = existing.bySymbol || {};
   let marketNewsItems = existing.marketNewsItems || [];
 
-  // ── Watchlist ticker sentiment ──
-  if (bases.length) {
+  // ── Watchlist ticker sentiment (crypto + stocks + ETFs) ──
+  if (tickerEntries.length) {
     try {
-      const tickers = bases.map(b => 'CRYPTO:' + b).join(',');
+      const tickers = tickerEntries.map(t => t.avTicker).join(',');
       const feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50`);
       items = feed.slice(0, 40).map(a => ({
         title:  a.title,
@@ -128,8 +162,7 @@ async function main() {
       }));
 
       const next = {};
-      for (const base of bases) {
-        const avTicker = 'CRYPTO:' + base;
+      for (const { avTicker, displayBase } of tickerEntries) {
         let weightSum = 0, scoreSum = 0, count = 0;
         for (const item of items) {
           const hit = item.tickerSentiments.find(t => t.ticker === avTicker);
@@ -140,11 +173,11 @@ async function main() {
         }
         if (count > 0) {
           const avgScore = weightSum > 0 ? scoreSum / weightSum : 0;
-          next[base] = { score: avgScore, label: _sentLabel(avgScore), count };
+          next[displayBase] = { score: avgScore, label: _sentLabel(avgScore), count };
         }
       }
       bySymbol = next;
-      console.log(`Sentiment: ${items.length} items, ${Object.keys(bySymbol).length} symbols scored`);
+      console.log(`Sentiment: ${items.length} items, ${Object.keys(bySymbol).length}/${tickerEntries.length} symbols scored`);
     } catch (e) {
       console.log(`Sentiment fetch failed: ${e.message} — keeping cached items`);
     }
