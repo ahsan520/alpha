@@ -155,10 +155,14 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
 
 // ── Star-pick auto-buy ──
 //
-// Two execution strategies (set via GUI toggle → trade-state.json):
+// Two execution strategies (GUI toggle → trade-state.json, OR repo Variables
+// EXEC_STRATEGY / EXEC_TOP_N_COUNT as the durable default the GUI overrides):
 //   'top1'  — buy only the ⭐ #1 ranked symbol, full TRADE_USD_SIZE
-//   'topN'  — buy every ⭐ starred symbol, TRADE_USD_SIZE split equally
-//             e.g. $75 / 3 starred picks = $25 each
+//   'topN'  — buy the top EXEC_TOP_N_COUNT starred symbols (e.g. 2 or 3;
+//             unset/0 = every currently-starred symbol, uncapped),
+//             TRADE_USD_SIZE split equally
+//             e.g. $75 / 3 picks = $25 each — this split is a fixed rule,
+//             not a separate config value (top1 is always 100% of size)
 //
 // Gates (per-symbol, all must pass):
 //   1. TRADE_MODE is 'paper' or 'live' (not 'off')
@@ -168,7 +172,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
 //   5. Idempotency: positions[sym].liveOrder not already set
 async function executeAutoBuys({
   ranked, showRecoTags, positions, tradeState,
-  effectiveTradeMode, effectiveExecStrategy, effectiveUsdSize, effectiveMaxLive,
+  effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount, effectiveUsdSize, effectiveMaxLive,
   utc,
 }) {
   if (effectiveTradeMode === 'off' || !showRecoTags) return;
@@ -180,7 +184,12 @@ async function executeAutoBuys({
   const allStarred = ranked.filter(r =>
     r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair)
   );
-  const picks      = effectiveExecStrategy === 'topN' ? allStarred : allStarred.slice(0, 1);
+  // 'topN' buys effectiveTopNCount picks (e.g. 2 or 3) if that repo Variable
+  // is set; unset/0 falls back to the original behavior of every starred
+  // symbol, uncapped.
+  const picks      = effectiveExecStrategy === 'topN'
+    ? (effectiveTopNCount ? allStarred.slice(0, effectiveTopNCount) : allStarred)
+    : allStarred.slice(0, 1);
   const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
     ? parseFloat((effectiveUsdSize / picks.length).toFixed(2))
     : effectiveUsdSize;
@@ -266,8 +275,8 @@ async function executeAutoBuys({
 
 // ── Single entry point the orchestrator calls ──
 // ctx: { candidates, positions, market, tradeState, closedOutcomes, utc,
-//        effectiveTradeMode, effectiveExecStrategy, effectiveUsdSize, effectiveMaxLive,
-//        ranked, showRecoTags }
+//        effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount,
+//        effectiveUsdSize, effectiveMaxLive, ranked, showRecoTags }
 // Returns { changed } — whether `positions` was mutated (caller persists/pushes either way, but
 // this lets the caller log/branch on it if desired).
 export async function executeTradeCycle(ctx) {

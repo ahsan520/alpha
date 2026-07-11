@@ -173,18 +173,34 @@ async function main() {
   let positions = loadPositions();
   const openCount = Object.keys(positions).length;
 
-  // GUI toggle writes `tradeMode` and `execStrategy` to trade-state.json —
-  // both take precedence over env vars so the browser control works without
-  // a repo-variable change. Loaded early so rotation logic and the execution
-  // block in mexc-trader.js can both reference effectiveTradeMode.
+  // GUI toggle writes `tradeMode`/`execStrategy`/etc to trade-state.json —
+  // these take precedence when set, so the browser control still works
+  // without a repo-variable change. BUT trade-state.json itself only ever
+  // gets written when someone actually uses the GUI toggle — if it's never
+  // touched (or gets reset/cleared), these fall back to repo Variables
+  // below rather than a silently different hardcoded default. This means a
+  // browser cache clear no longer risks reverting live trading behavior to
+  // an unexpected default — the repo Variable is the durable source of
+  // truth, and the GUI is an optional session-level override on top of it.
   let tradeState = loadTradeState();
   tradeState = await pollTelegramCommands(tradeState);
   saveTradeState(tradeState);
 
   const effectiveTradeMode     = tradeState.tradeMode     || TRADE_MODE;
-  const effectiveExecStrategy  = tradeState.execStrategy  || 'top1'; // 'top1' | 'topN'
+  // EXEC_STRATEGY: 'top1' | 'topN'. Repo Variable, defaults to 'top1' if unset.
+  const effectiveExecStrategy  = tradeState.execStrategy  || process.env.EXEC_STRATEGY || 'top1';
+  // EXEC_TOP_N_COUNT: how many starred picks 'topN' actually buys (e.g. 2 or
+  // 3), rather than every currently-starred symbol. Repo Variable; unset/0
+  // keeps the original behavior of buying ALL starred picks (uncapped).
+  const effectiveTopNCount     = tradeState.execTopNCount || parseInt(process.env.EXEC_TOP_N_COUNT || '0', 10) || null;
   const effectiveUsdSize       = tradeState.usdSize       || TRADE_USD_SIZE;
   const effectiveMaxLive       = tradeState.maxLive       || TRADE_MAX_LIVE;
+
+  // Sizing per pick is NOT a separate variable — it's a fixed rule, always:
+  //   top1 → 100% of effectiveUsdSize on the single pick
+  //   topN → effectiveUsdSize split EQUALLY across however many picks are
+  //          actually bought (capped at effectiveTopNCount if set)
+  // See mexc-trader.js's perPickUsd calculation — no config needed for this.
 
   if (openCount > 0) {
     console.log(`\n📊  Monitoring ${openCount} open position(s)...`);
@@ -497,7 +513,7 @@ async function main() {
   await executeTradeCycle({
     candidates, positions, market, tradeState,
     closedOutcomes: rotationOutcomes, utc,
-    effectiveTradeMode, effectiveExecStrategy, effectiveUsdSize: guardedUsdSize, effectiveMaxLive,
+    effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount, effectiveUsdSize: guardedUsdSize, effectiveMaxLive,
     ranked, showRecoTags,
   });
 
