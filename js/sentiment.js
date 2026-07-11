@@ -193,12 +193,12 @@ function renderSentiment() {
   const bulls = Object.values(bySymbol).filter(a => a.score >= AV_BULLISH_THRESHOLD).length;
   const bears = Object.values(bySymbol).filter(a => a.score <= AV_BEARISH_THRESHOLD).length;
 
-  if (badge) badge.textContent = items.length + ' items · poll 5m';
+  if (badge) badge.textContent = items.length + ' items · data hourly';
   if (bullEl) bullEl.textContent = '▲ ' + bulls;
   if (bearEl) bearEl.textContent = '▼ ' + bears;
 
   if (!items.length) {
-    body.innerHTML = `<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Waiting for first poll… click ▶ to start (refreshes every 5 min)</div>`;
+    body.innerHTML = `<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Polled server-side, no matching articles yet this cycle — data updates hourly (checked here every 5 min)</div>`;
     return;
   }
 
@@ -261,6 +261,6 @@ function _renderMarketNewsSection() {
       <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:6px;">
         ◆ MARKET NEWS — watchlist-independent (topics: ${AV_MARKET_TOPICS}) · display-only, no Telegram alerts
       </div>
-      ${rows || `<div style="padding:10px 0;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Waiting for first poll…</div>`}
+      ${rows || `<div style="padding:10px 0;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Waiting for first poll… (data updates hourly)</div>`}
     </div>`;
 }
