@@ -3,10 +3,19 @@
 // --------------------------------------------------------------------------
 // Runs inside the GitHub Actions job (Job A / "fetch" mode). Uses TWO separate
 // Alpha Vantage API keys, each with its own independent 25/day quota:
-//   AV_API_KEY       — watchlist ticker sentiment (tickers=CRYPTO:BTC,...)
+//   AV_API_KEY       — watchlist ticker sentiment, ONE symbol per hourly run,
+//                       round-robin through the watchlist (see below for why)
 //   AV_API_KEY_NEWS  — general market news (topics=blockchain,financial_markets)
-// Splitting them lets both run HOURLY (24 calls/day each, 1 spare) instead of
-// competing for one shared 25/day budget across both call types.
+//
+// IMPORTANT — why one ticker per call, not all of them combined: confirmed by
+// manual testing against the live API that AV's `tickers=` param combines
+// multiple values with AND logic, not OR. tickers=CRYPTO:BTC alone reliably
+// returns dozens of articles; tickers=CRYPTO:BTC,CRYPTO:ETH,... (all at once)
+// matched ZERO articles on every single run, because no article mentions all
+// of the watchlist's symbols simultaneously. So each hourly run queries just
+// the next symbol in rotation and merges its result into the accumulated
+// bySymbol/items state (rather than overwriting it) — with N symbols and 24
+// calls/day, each one refreshes roughly every N hours.
 //
 // The browser never sees either key — it only ever reads the committed
 // scripts/sentiment-data.json output file.
@@ -126,7 +135,13 @@ async function avRequest(params, apiKey) {
   if (data?.Information || data?.Note || data?.['Error Message']) {
     throw new Error(data.Information || data.Note || data['Error Message']);
   }
-  return Array.isArray(data.feed) ? data.feed : [];
+  // Diagnostic: log the raw shape of the response (not the full payload —
+  // that could be large) so we can tell "API call succeeded but genuinely
+  // has 0 matching articles" apart from "something silently went wrong" in
+  // the workflow logs, without needing to reproduce the issue locally.
+  const feed = Array.isArray(data.feed) ? data.feed : [];
+  console.log(`  ↳ AV response: feed=${feed.length} items, top-level keys=[${Object.keys(data).join(',')}]`);
+  return feed;
 }
 
 async function main() {
@@ -144,6 +159,22 @@ async function main() {
   let newsFiredHourKey   = existing.newsFiredHourKey   || null;
 
   // ── Watchlist ticker sentiment — own key, own hourly gate ──
+  //
+  // IMPORTANT: Alpha Vantage's `tickers=` filter combines multiple values
+  // with AND logic, not OR — an article must mention ALL listed tickers
+  // simultaneously to match. A single ticker (tickers=CRYPTO:BTC) reliably
+  // returns plenty of articles; our old combined 7-ticker request
+  // (tickers=CRYPTO:BTC,CRYPTO:ETH,...) matched essentially nothing, every
+  // single run, because no article mentions all 7 coins at once. Confirmed
+  // by manual testing against the live API.
+  //
+  // Fix: query ONE ticker per hourly run, round-robin through the
+  // watchlist-derived list, and MERGE each result into the accumulated
+  // bySymbol/items state rather than overwriting it. With N known-good
+  // symbols and 24 calls/day, each symbol refreshes roughly every N hours
+  // instead of getting zero data forever.
+  let tickerRotationIndex = existing.tickerRotationIndex || 0;
+
   if (!tickerKey) {
     console.log('AV_API_KEY not set — skipping watchlist ticker sentiment');
   } else if (tickerFiredHourKey === hourKey) {
@@ -151,11 +182,14 @@ async function main() {
   } else {
     const tickerEntries = loadWatchlistTickers();
     if (tickerEntries.length) {
+      const rotationIndex = tickerRotationIndex % tickerEntries.length;
+      const current = tickerEntries[rotationIndex];
       try {
-        const tickers = tickerEntries.map(t => t.avTicker).join(',');
-        const feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(tickers)}&limit=50`, tickerKey);
+        const timeFrom = new Date(Date.now() - 7 * 24 * 3600 * 1000)
+          .toISOString().replace(/[-:]/g, '').slice(0, 13); // YYYYMMDDTHHMM
+        const feed = await avRequest(`function=NEWS_SENTIMENT&tickers=${encodeURIComponent(current.avTicker)}&time_from=${timeFrom}&sort=LATEST&limit=50`, tickerKey);
 
-        items = feed.slice(0, 40).map(a => ({
+        const newItems = feed.slice(0, 20).map(a => ({
           title:  a.title,
           url:    a.url,
           source: a.source || 'AlphaVantage',
@@ -166,27 +200,36 @@ async function main() {
           tickerSentiments: Array.isArray(a.ticker_sentiment) ? a.ticker_sentiment : [],
         }));
 
-        const next = {};
-        for (const { avTicker, displayBase } of tickerEntries) {
-          let weightSum = 0, scoreSum = 0, count = 0;
-          for (const item of items) {
-            const hit = item.tickerSentiments.find(t => t.ticker === avTicker);
-            if (!hit) continue;
-            const rel = parseFloat(hit.relevance_score) || 0;
-            const sc  = parseFloat(hit.ticker_sentiment_score) || 0;
-            weightSum += rel; scoreSum += sc * rel; count++;
-          }
-          if (count > 0) {
-            const avgScore = weightSum > 0 ? scoreSum / weightSum : 0;
-            next[displayBase] = { score: avgScore, label: _sentLabel(avgScore), count };
-          }
+        // Merge into accumulated headline feed, de-duped by URL, newest first
+        const merged = [...newItems, ...items];
+        const seenUrls = new Set();
+        items = merged.filter(it => {
+          if (seenUrls.has(it.url)) return false;
+          seenUrls.add(it.url);
+          return true;
+        }).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 60);
+
+        // Re-score just this cycle's symbol from its own articles, merge into bySymbol
+        let weightSum = 0, scoreSum = 0, count = 0;
+        for (const item of newItems) {
+          const hit = item.tickerSentiments.find(t => t.ticker === current.avTicker);
+          if (!hit) continue;
+          const rel = parseFloat(hit.relevance_score) || 0;
+          const sc  = parseFloat(hit.ticker_sentiment_score) || 0;
+          weightSum += rel; scoreSum += sc * rel; count++;
         }
-        bySymbol = next;
+        if (count > 0) {
+          const avgScore = weightSum > 0 ? scoreSum / weightSum : 0;
+          bySymbol[current.displayBase] = { score: avgScore, label: _sentLabel(avgScore), count };
+        }
+
         tickerFiredHourKey = hourKey;
-        console.log(`Sentiment: ${items.length} items, ${Object.keys(bySymbol).length}/${tickerEntries.length} symbols scored`);
+        console.log(`Sentiment: ${current.displayBase} (${rotationIndex + 1}/${tickerEntries.length} in rotation) — ${newItems.length} article(s), ${count} tagged`);
       } catch (e) {
-        console.log(`Sentiment fetch failed: ${e.message} — keeping cached items`);
+        console.log(`Sentiment fetch failed for ${current.displayBase}: ${e.message} — keeping cached items`);
+        tickerFiredHourKey = hourKey; // still advance rotation past this symbol
       }
+      tickerRotationIndex = (rotationIndex + 1) % tickerEntries.length;
     }
   }
 
@@ -215,7 +258,7 @@ async function main() {
 
   saveOutput({
     fetchedAt: Date.now(), items, bySymbol, marketNewsItems,
-    tickerFiredHourKey, newsFiredHourKey,
+    tickerFiredHourKey, newsFiredHourKey, tickerRotationIndex,
   });
 }
 
