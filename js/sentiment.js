@@ -198,7 +198,9 @@ function renderSentiment() {
   if (bearEl) bearEl.textContent = '▼ ' + bears;
 
   if (!items.length) {
-    body.innerHTML = `<div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Polled server-side, no matching articles yet this cycle — data updates hourly (checked here every 5 min)</div>`;
+    body.innerHTML = `
+      <div style="padding:20px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Polled server-side, no matching articles yet this cycle — data updates hourly (checked here every 5 min)</div>
+      ${_renderMarketNewsSection()}`;
     return;
   }
 
