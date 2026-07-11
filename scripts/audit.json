@@ -1,87 +1,5 @@
 [
   {
-    "timestamp": "2026-07-11T22:25:59.899Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-11T22:26:00.540Z",
-    "job": "leaderboard-decider",
-    "action": "position_stale_evicted",
-    "sym": "BINANCE:APTUSDT",
-    "ageHrs": 24
-  },
-  {
-    "timestamp": "2026-07-11T22:26:01.787Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 9
-  },
-  {
-    "timestamp": "2026-07-11T22:26:02.243Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 10,
-    "openAfter": 9,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-07-11T22:26:02.245Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-07-11T22:26:02.245Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ZECUSDT",
-    "sym": "BINANCE:ZECUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-07-11T22:26:03.444Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 11
-  },
-  {
-    "timestamp": "2026-07-11T22:26:03.747Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-07-11T22:26:03.747Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-11T22:26:04.491Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-07-11T23:04:58.954Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -197,5 +115,65 @@
     "action": "positions_check",
     "total": 11,
     "monitored": 11
+  },
+  {
+    "timestamp": "2026-07-11T23:31:51.473Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-11T23:31:51.817Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-11T23:31:51.817Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-11T23:31:52.607Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
+  },
+  {
+    "timestamp": "2026-07-11T23:31:56.964Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "pair": "APT",
+    "price": 0.625,
+    "entry": 0.6446,
+    "stop": 0.6276,
+    "pnlPct": "-3.04"
+  },
+  {
+    "timestamp": "2026-07-11T23:31:57.730Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 11
+  },
+  {
+    "timestamp": "2026-07-11T23:31:59.906Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 11,
+    "statusChanged": true
   }
 ]
