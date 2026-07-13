@@ -109,6 +109,11 @@ function initAlertCfg() {
     cooldownHours: versionMismatch ? 1 : (raw.cooldownHours ?? 1),
     ovnBuyConditions:  mergeConditions(OVN_BUY_CONDITIONS,  raw.ovnBuyConditions),
     ovnSellConditions: mergeConditions(OVN_SELL_CONDITIONS, raw.ovnSellConditions),
+    // Preserve API Trading mode/strategy/sizing across reloads. This was
+    // previously dropped here (object literal never copied raw.apiTrading),
+    // so every refresh silently reset the GUI's displayed mode to 'off' even
+    // though localStorage and trade-state.json still had 'paper'/'live' saved.
+    apiTrading: { mode: 'off', execStrategy: 'top1', usdSize: 25, maxLive: 1, ...(raw.apiTrading || {}) },
     _version: ALERT_CFG_VERSION,
   };
 
@@ -679,7 +684,10 @@ function switchCfgTab(tab) {
   // Load data panels on demand
   if (tab === 'positions'   && typeof refreshHeadlessPositions === 'function') refreshHeadlessPositions();
   if (tab === 'audit'       && typeof refreshAuditLog          === 'function') refreshAuditLog();
-  if (tab === 'apitrading') renderAlertCfgPage(); // re-render so mode/strategy buttons reflect current STATE
+  if (tab === 'apitrading') {
+    renderAlertCfgPage(); // re-render so mode/strategy buttons reflect current STATE
+    if (typeof refreshApiTrades === 'function') refreshApiTrades(); // load full trade-log.json record on demand
+  }
 }
 
 // ── Browser-side Telegram alert pause/resume ──
