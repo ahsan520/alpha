@@ -489,6 +489,15 @@ canvas.sp{display:block;}
   .tbl-scroll{overflow-x:scroll;-webkit-overflow-scrolling:touch;}
   table.mx{min-width:980px;}
   table.mx td,table.mx th{padding:5px 6px;font-size:9px;}
+
+  /* ── Matrix-tab extras (market bar, live ticker, leaderboard, news feed,
+     sentiment, general news) are outside the .tc tab system so they can stay
+     visible on desktop no matter which tab is open. On mobile that means they
+     were always rendered — bleeding through behind Alerts/Journal/Watchlist —
+     since nothing here actually hid them. Hide by default on mobile, only
+     show when the Signal Matrix tab is the active one. ── */
+  #matrix-extras{display:none;}
+  body:has(#tab-matrix.on) #matrix-extras{display:block;}
 }
 
 /* ── Alert log (cfg panel) ── */
