@@ -77,32 +77,81 @@ function deriveFillPrice(order) {
   return qty > 0 && quote > 0 ? quote / qty : parseFloat(order.price || '0');
 }
 
+async function getOrder(apiKey, apiSecret, symbol, orderId) {
+  return signedRequest(apiKey, apiSecret, 'GET', '/api/v3/order', { symbol, orderId });
+}
+
+// MEXC market order responses sometimes come back with executedQty and
+// cummulativeQuoteQty both still 0 even though the order genuinely filled —
+// the fill data just hasn't propagated to the API yet. If a caller trusts
+// that initial 0 straight into positions.json, every later sell computes
+// Math.min(0, freeBalance) = 0 regardless of what's actually in the wallet,
+// which surfaces as a false "LIVE SELL SKIPPED — balance reads 0" even
+// though the coins are sitting right there. This polls GET /api/v3/order a
+// few times (400ms apart, ~2s total) until real fill data shows up.
+async function pollForFill(apiKey, apiSecret, symbol, orderId, initialOrder) {
+  let order = initialOrder;
+  for (let i = 0; i < 5 && parseFloat(order.executedQty || '0') <= 0; i++) {
+    await new Promise(r => setTimeout(r, 400));
+    try {
+      order = await getOrder(apiKey, apiSecret, symbol, orderId);
+    } catch {
+      break; // status check itself failed — fall through with last known data
+    }
+  }
+  return order;
+}
+
 export async function mexcMarketBuy(apiKey, apiSecret, symbol, usdAmount) {
-  const order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
+  let order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
     symbol, side: 'BUY', type: 'MARKET', quoteOrderQty: usdAmount,
   });
+  if (parseFloat(order.executedQty || '0') <= 0 && order.orderId) {
+    order = await pollForFill(apiKey, apiSecret, symbol, order.orderId, order);
+  }
+  let executedQty = parseFloat(order.executedQty || '0');
+  let estimated = false;
+  // Still 0 after polling — MEXC just hasn't reported fill data. Rather than
+  // record a real qty of 0 (which silently disables all future stop/T2/
+  // rotation sells for this position), fall back to a USD/price estimate so
+  // there's at least a sellable quantity tracked, flagged as estimated so
+  // callers can warn the user to verify it against the exchange.
+  const fillPrice = deriveFillPrice(order);
+  if (executedQty <= 0 && fillPrice > 0) {
+    executedQty = usdAmount / fillPrice;
+    estimated = true;
+  }
   return {
-    orderId:     order.orderId,
-    executedQty: parseFloat(order.executedQty || '0'),
-    fillPrice:   deriveFillPrice(order),
-    raw:         order,
+    orderId: order.orderId,
+    executedQty, fillPrice, estimated,
+    raw: order,
   };
 }
 
 export async function mexcMarketSell(apiKey, apiSecret, symbol, quantity) {
-  const order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
+  let order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
     symbol, side: 'SELL', type: 'MARKET', quantity,
   });
+  if (parseFloat(order.executedQty || '0') <= 0 && order.orderId) {
+    order = await pollForFill(apiKey, apiSecret, symbol, order.orderId, order);
+  }
+  const executedQty = parseFloat(order.executedQty || '0') || quantity; // fall back to requested qty, never 0
   return {
     orderId:     order.orderId,
-    executedQty: parseFloat(order.executedQty || '0'),
+    executedQty,
     fillPrice:   deriveFillPrice(order),
     raw:         order,
   };
 }
 
-export async function mexcFreeBalance(apiKey, apiSecret, asset) {
+// withLocked=true returns { free, locked } instead of just the free number —
+// useful right before a sell so a 0-free-balance skip can report whether the
+// funds are actually sitting locked in another open order rather than truly
+// absent (very different problems to diagnose on the exchange).
+export async function mexcFreeBalance(apiKey, apiSecret, asset, withLocked = false) {
   const acct = await signedRequest(apiKey, apiSecret, 'GET', '/api/v3/account', {});
   const row  = (acct.balances || []).find(b => b.asset === asset);
-  return row ? parseFloat(row.free) : 0;
+  const free   = row ? parseFloat(row.free)   : 0;
+  const locked = row ? parseFloat(row.locked) : 0;
+  return withLocked ? { free, locked } : free;
 }

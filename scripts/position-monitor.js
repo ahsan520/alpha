@@ -39,8 +39,11 @@ export function countLiveOpenPositions(positions) {
 // locally-tracked qty alone — fees or manual intervention could have
 // changed it) and floors to the exchange's lot-size step so the order
 // isn't rejected for too many decimals.
+// Returns { closed, reason } so callers know whether the exchange position
+// was ACTUALLY closed before they mark the local position record terminal.
+// reason ∈ 'already_closed' | 'noncrypto' | 'paper' | 'sold' | 'zero_balance' | 'error'
 export async function closeLiveOrder(pos, reason, telegramAlerts) {
-  if (!pos.liveOrder || pos.liveOrder.closedAt) return;
+  if (!pos.liveOrder || pos.liveOrder.closedAt) return { closed: false, reason: 'already_closed' };
 
   // MEXC is crypto-only — never attempt an exchange call for stocks/ETFs.
   // This shouldn't happen (buy-side already filters assetType === 'crypto')
@@ -49,7 +52,7 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
   if (pos.assetType && pos.assetType !== 'crypto') {
     console.log(`  ⚠  closeLiveOrder skipped — ${pos.base} is assetType:${pos.assetType}, MEXC is crypto-only`);
     logAudit('mexc_sell_skipped_noncrypto', { base: pos.base, assetType: pos.assetType, reason });
-    return;
+    return { closed: false, reason: 'noncrypto' };
   }
 
   // Paper trades never touch the exchange — just record the close using the
@@ -67,20 +70,27 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
       const proceeds = pos.liveOrder.qty * pos.liveOrder.exitFillPrice;
       adjustPaperBalance(proceeds);
     }
-    return;
+    return { closed: true, reason: 'paper' };
   }
 
   const symbol = pos.base + 'USDT';
   try {
-    const [step, free] = await Promise.all([
+    const [step, bal] = await Promise.all([
       getBaseSizePrecision(symbol),
-      mexcFreeBalance(MEXC_API_KEY, MEXC_API_SECRET, pos.base),
+      mexcFreeBalance(MEXC_API_KEY, MEXC_API_SECRET, pos.base, true),
     ]);
+    const free = typeof bal === 'object' ? bal.free : bal;
+    const locked = typeof bal === 'object' ? bal.locked : 0;
     const sellQty = floorToStep(Math.min(pos.liveOrder.qty || 0, free), step);
     if (sellQty <= 0) {
-      telegramAlerts.push(`🚨 *LIVE SELL SKIPPED* — ${pos.base} ${reason} but exchange balance reads 0 — check MEXC manually.`);
-      logAudit('mexc_sell_skipped', { sym: symbol, reason, free });
-      return;
+      // Give the actual locked amount too — a 0 *free* balance while coins
+      // are sitting *locked* (e.g. tied up in another open order) is a very
+      // different problem from truly having nothing, and this used to be
+      // invisible in the alert.
+      const lockedNote = locked > 0 ? ` (${locked} ${pos.base} is LOCKED in another order)` : '';
+      telegramAlerts.push(`🚨 *LIVE SELL SKIPPED* — ${pos.base} ${reason} but exchange free balance reads 0${lockedNote} — check MEXC manually. Position kept open in tracking, will retry next cycle.`);
+      logAudit('mexc_sell_skipped', { sym: symbol, reason, free, locked });
+      return { closed: false, reason: 'zero_balance' };
     }
     const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, symbol, sellQty);
     pos.liveOrder.sellOrderId   = sell.orderId;
@@ -90,9 +100,11 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
     logAudit('mexc_sell', { sym: symbol, reason, qty: sellQty, fillPrice: sell.fillPrice, orderId: sell.orderId });
     recordTradeClose(pos, reason, { orderId: sell.orderId, qty: sellQty, fillPrice: sell.fillPrice });
     await pushTradeLogToGitHub(loadTradeLog());
+    return { closed: true, reason: 'sold' };
   } catch (e) {
-    telegramAlerts.push(`🚨 *LIVE SELL FAILED* — ${pos.base} ${reason} but MEXC order errored: ${e.message} — CLOSE MANUALLY on the exchange.`);
+    telegramAlerts.push(`🚨 *LIVE SELL FAILED* — ${pos.base} ${reason} but MEXC order errored: ${e.message} — CLOSE MANUALLY on the exchange. Position kept open in tracking, will retry next cycle.`);
     logAudit('mexc_sell_failed', { sym: symbol, reason, error: e.message });
+    return { closed: false, reason: 'error', error: e.message };
   }
 }
 
@@ -189,46 +201,60 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
     // Stop hit
     if (isBull && stop > 0 && price <= stop) {
       console.log(`  🔴  STOP HIT — ${pos.base} price:${price} stop:${stop}`);
+      pos.exitPrice = price; // tentative fill price, used by closeLiveOrder's paper branch
+      const closeResult  = await closeLiveOrder(pos, 'stop hit', telegramAlerts);
+      const isLiveCrypto = isCrypto && pos.liveOrder?.mode === 'live';
+      if (isLiveCrypto && !closeResult.closed) {
+        // Exchange sell didn't actually happen (zero balance / API error) —
+        // closeLiveOrder already alerted. Don't mark this terminal or the
+        // position gets evicted while possibly still open on the exchange;
+        // leave it tracked so this same stop check fires again next cycle.
+        delete pos.exitPrice;
+        continue;
+      }
       pos.status          = 'stopped';
       pos.statusChangedAt = now;
-      pos.exitPrice       = price;
       changed = true;
-      logAudit('stop_hit', { sym, price, stop, entry, pnlPct });
+      logAudit('stop_hit', { sym, price, stop, entry, pnlPct, closeReason: closeResult.reason });
       closedOutcomes.push({
         base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'stopped', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `🔴 *STOP HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `🔴 *STOP HIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
         `  P&L ${pnlPct}%  Setup: ${pos.setup}\n` +
         (isCrypto ? `  _Position removed in 5 min_` : `  _Close your position manually on the exchange_`)
       );
-      await closeLiveOrder(pos, 'stop hit', telegramAlerts);
       continue;
     }
 
     // T2 hit — retained for paper/legacy positions opened before T1-sell was introduced.
     if (isBull && t2 > 0 && price >= t2 && pos.status === 'tp1_hit') {
       console.log(`  🏆  T2 HIT (legacy) — ${pos.base} price:${price} t2:${t2}`);
+      pos.exitPrice = price;
+      const closeResult  = await closeLiveOrder(pos, 'T2 hit', telegramAlerts);
+      const isLiveCrypto = isCrypto && pos.liveOrder?.mode === 'live';
+      if (isLiveCrypto && !closeResult.closed) {
+        delete pos.exitPrice;
+        continue; // sell didn't complete — retry next cycle, don't evict
+      }
       pos.status          = 'tp2_hit';
       pos.statusChangedAt = now;
-      pos.exitPrice       = price;
       changed = true;
-      logAudit('tp2_hit', { sym, price, t2, entry, pnlPct });
+      logAudit('tp2_hit', { sym, price, t2, entry, pnlPct, closeReason: closeResult.reason });
       closedOutcomes.push({
         base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'tp2_hit', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `🏆 *T2 HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `🏆 *T2 HIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
         `  P&L +${pnlPct}%  Full target reached\n` +
         (isCrypto ? `  _Position removed in 8 min_` : `  _Close your position manually on the exchange_`)
       );
-      await closeLiveOrder(pos, 'T2 hit', telegramAlerts);
       continue;
     }
 
@@ -265,23 +291,28 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
 
       // Signal faded — sell now, take profit at T1
       console.log(`  ✅  T1 HIT — ${pos.base} price:${price} conv:${liveConv}(need ${LB_MIN_SCORE}) bullConf:${liveBullConf}(need ${LB_BULL_CONF_MIN})${isCrypto ? ' — selling (signal faded)' : ' — close manually'}`);
+      pos.exitPrice = price;
+      const closeResult  = await closeLiveOrder(pos, 'T1 hit (signal faded)', telegramAlerts);
+      const isLiveCrypto = isCrypto && pos.liveOrder?.mode === 'live';
+      if (isLiveCrypto && !closeResult.closed) {
+        delete pos.exitPrice;
+        continue; // sell didn't complete — retry next cycle, don't evict
+      }
       pos.status          = 'tp1_hit';
       pos.statusChangedAt = now;
-      pos.exitPrice       = price;
       changed             = true;
-      logAudit('tp1_hit_sell', { sym, price, t1, liveConv, liveBullConf, pnlPct });
+      logAudit('tp1_hit_sell', { sym, price, t1, liveConv, liveBullConf, pnlPct, closeReason: closeResult.reason });
       closedOutcomes.push({
         base: pos.base, pair: pos.base + (isCrypto ? 'USDT' : ''),
         outcome: 'tp1_hit', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `✅ *T1 HIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `✅ *T1 HIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  T1 $${t1}  Price ~$${price}  Entry $${entry}\n` +
         `  P&L +${pnlPct}%  Conv:${liveConv} BullConf:${liveBullConf}/10 — signal faded\n` +
-        (isCrypto ? `  _Auto-sold on MEXC — slot freed_` : `  _Close your position manually on the exchange_`)
+        (isCrypto ? `  _Sold on MEXC — slot freed_` : `  _Close your position manually on the exchange_`)
       );
-      await closeLiveOrder(pos, 'T1 hit (signal faded)', telegramAlerts);
       continue;
     }
 
@@ -345,9 +376,15 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
       ].filter(Boolean).join(' · ');
 
       console.log(`  🟡  ${pos.base} — EXIT SIGNAL score:${exitScore}/6 [${signals}] — selling`);
+      pos.exitPrice = price;
+      const closeResult  = await closeLiveOrder(pos, 'momentum exit', telegramAlerts);
+      const isLiveCrypto = isCrypto && pos.liveOrder?.mode === 'live';
+      if (isLiveCrypto && !closeResult.closed) {
+        delete pos.exitPrice;
+        continue; // sell didn't complete — retry next cycle, don't evict
+      }
       pos.status          = 'exiting';
       pos.statusChangedAt = now;
-      pos.exitPrice       = price;
       pos.exitAlertedAt   = now;
       changed             = true;
 
@@ -357,16 +394,14 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
 
-      logAudit('exit_signal_sell', { sym, exitScore, signals, price, pnlPct });
+      logAudit('exit_signal_sell', { sym, exitScore, signals, price, pnlPct, closeReason: closeResult.reason });
 
       telegramAlerts.push(
-        `🟡 *MOMENTUM EXIT${isCrypto ? ' — AUTO SELL' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `🟡 *MOMENTUM EXIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  Score ${exitScore}/6 · ${signals}\n` +
         `  ${isCrypto ? 'Fill' : 'Price'} ~$${price}  Entry $${entry}  P&L ${pnlPct}%\n` +
-        (isCrypto ? `  _Auto-sold on MEXC — slot freed for next signal_` : `  _Close your position manually on the exchange_`)
+        (isCrypto ? `  _Sold on MEXC — slot freed for next signal_` : `  _Close your position manually on the exchange_`)
       );
-
-      await closeLiveOrder(pos, 'momentum exit', telegramAlerts);
       continue; // slot freed, no further checks
     }
   }

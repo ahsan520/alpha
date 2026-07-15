@@ -45,19 +45,33 @@ function isNoTradeSymbol(pair) {
 }
 
 
-// ── A/A+ rotation — sell all live positions to make room for stronger signals ──
-async function executeRotation({ candidates, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
+// ── Rotation — sell all live positions to make room for the latest topN/star buy alert ──
+// Fires on ANY cycle where a star-pick/topN buy alert actually fires (not
+// just grade A/A+ signals as before) — every fresh top-ranked buy alert
+// rotates out existing live positions in favor of it. Exception: a position
+// that has already hit T1 and is holding toward T2 is left alone AS LONG AS
+// it still reads as a qualifying (A/A+ grade) signal in current market data
+// — no reason to sell a still-strong winner just to immediately not replace
+// it. Stop-loss and T2-hit exits are entirely separate (position-monitor.js)
+// and are unaffected by any of this.
+async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, effectiveTopNCount, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
   let changed = false;
 
-  const rotationCandidates = candidates.filter(c =>
-    c.entry.assetType === 'crypto' && (c.entry.grade === 'A+' || c.entry.grade === 'A')
-    && !isNoTradeSymbol(c.pair)   // BTC/ETH alert/star fine, but never trigger rotation
+  const allStarred = (ranked || []).filter(r =>
+    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair)
   );
-  const shouldRotate = rotationCandidates.length > 0
+  const rotationPicks = effectiveExecStrategy === 'topN'
+    ? (effectiveTopNCount ? allStarred.slice(0, effectiveTopNCount) : allStarred)
+    : allStarred.slice(0, 1);
+
+  const shouldRotate = showRecoTags
+    && rotationPicks.length > 0
     && effectiveTradeMode !== 'off'
     && tradeState.tradingEnabled;
 
-  if (!shouldRotate) return { changed, rotationCandidates };
+  const rotationCandidates = rotationPicks.map(r => r.a); // shape compatible with old {pair, entry} usage below
+
+  if (!shouldRotate) return { changed, rotationCandidates: [] };
 
   const livePosEntries = Object.entries(positions).filter(
     ([, p]) => p.assetType === 'crypto'              // MEXC is crypto-only — never rotate stocks/ETFs
@@ -76,7 +90,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
   //     AND removed from positions.json immediately (not left for the
   //     usual 5-min TERMINAL_EVICT_MS window), freeing the slot right away
   //     for the star-pick buy that runs immediately after this function.
-  // A held symbol never re-appears in `candidates` on its own (the buy-side
+  // A held symbol never re-appears in `ranked` on its own (the buy-side
   // open-position gate skips symbols that already have an open position),
   // so its current grade has to be read straight from market data here.
   const holdingT1Entries = Object.entries(positions).filter(
@@ -99,7 +113,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
   const allSellEntries = [...livePosEntries, ...rotatableT1Entries];
 
   if (allSellEntries.length) {
-    console.log(`  🔄  A/A+ ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${allSellEntries.length} live position(s) first`);
+    console.log(`  🔄  ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${allSellEntries.length} live position(s) first`);
     const rotationSells = [];
 
     for (const [sym, pos] of allSellEntries) {
@@ -115,7 +129,22 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
       const exitPrice = parseFloat(mData?.d?.p || pos.entryPrice || 0);
       pos.exitPrice = exitPrice;
 
-      await closeLiveOrder(pos, wasHoldingT1 ? 'A/A+ rotation — no longer top grade' : 'A/A+ rotation', sellAlerts);
+      const closeResult = await closeLiveOrder(pos, wasHoldingT1 ? 'rotation — no longer top grade' : 'rotation', sellAlerts);
+      const isLiveCrypto = pos.assetType === 'crypto' && pos.liveOrder?.mode === 'live';
+
+      if (isLiveCrypto && !closeResult.closed) {
+        // The exchange sell did NOT actually happen (0 balance / API error).
+        // closeLiveOrder already pushed a SKIPPED/FAILED alert with detail.
+        // Do NOT delete/mark-stopped this position — it's still tracked as
+        // open (occupying its slot, keeping its own stop/T2 monitoring
+        // active) and rotation will retry it again next cycle. This is the
+        // fix for the old behavior where "Sold: XRP -1.56%" was reported in
+        // the rotation summary even when the real MEXC sell never happened.
+        delete pos.exitPrice;
+        rotationSells.push({ base: pos.base, skipped: true, reason: closeResult.reason });
+        for (const m of sellAlerts) await sendTelegram(m);
+        continue;
+      }
 
       // Record the rotation exit in symbol history — prefer the actual fill
       // price closeLiveOrder captured (live mode gets a real MEXC fill; paper
@@ -150,13 +179,17 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
     }
 
     const sellSummary = rotationSells
-      .map(r => `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
+      .map(r => r.skipped
+        ? `${r.base} SKIPPED (${r.reason === 'zero_balance' ? '0 balance' : r.reason})`
+        : `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
       .join(', ');
+    const anySkipped = rotationSells.some(r => r.skipped);
     await sendTelegram(
-      `🔄 *A/A+ ROTATION* — ${utc}\n` +
-      `  Sold: ${sellSummary}\n` +
+      `🔄 *ROTATION* — ${utc}\n` +
+      `  ${sellSummary}\n` +
       `  Rotating into: ${rotationCandidates.map(c => c.entry.grade + ' ' + c.pair.replace('USDT','')).join(', ')}\n` +
-      `  _Grade A/A+ signal — upgrading positions_`
+      (anySkipped ? `  ⚠️ _Some sells were skipped — see alert above. That position stays tracked and will retry next cycle; its slot stays occupied until it actually clears._\n` : '') +
+      `  _Fresh topN buy alert — rotating positions_`
     );
     logAudit('rotation_sell', { sold: rotationSells, into: rotationCandidates.map(c=>c.pair) });
   }
@@ -296,8 +329,9 @@ async function executeAutoBuys({
         pos.liveOrder = {
           mode: 'live', buyAt: Date.now(), usdSize: perPickUsd,
           qty: buy.executedQty, fillPrice: buy.fillPrice, buyOrderId: buy.orderId,
+          qtyEstimated: buy.estimated || false,
         };
-        logAudit('mexc_live_buy', { sym: symbol, usdSize: perPickUsd, qty: buy.executedQty, fillPrice: buy.fillPrice, orderId: buy.orderId });
+        logAudit('mexc_live_buy', { sym: symbol, usdSize: perPickUsd, qty: buy.executedQty, fillPrice: buy.fillPrice, orderId: buy.orderId, estimated: buy.estimated });
         recordTradeOpen(pos, {
           mode: 'live', orderId: buy.orderId,
           qty: buy.executedQty, fillPrice: buy.fillPrice, usdSize: perPickUsd,
@@ -305,10 +339,11 @@ async function executeAutoBuys({
         await pushTradeLogToGitHub(loadTradeLog());
         await sendTelegram(
           `⚡ *LIVE BUY PLACED* — ${pick.pair.replace('USDT','')} — ${utc}\n` +
-          `  MEXC MARKET BUY: ${buy.executedQty} @ $${buy.fillPrice.toFixed(6)}\n` +
+          `  MEXC MARKET BUY: ${buy.executedQty}${buy.estimated ? ' (estimated — MEXC did not report a fill qty)' : ''} @ $${buy.fillPrice.toFixed(6)}\n` +
           `  Size: $${perPickUsd} USDT  Order ID: \`${buy.orderId}\`\n` +
           (effectiveExecStrategy === 'topN' ? `  Strategy: top${picks.length} split ($${effectiveUsdSize} ÷ ${picks.length})\n` : '') +
           `  Stop/T2 exits will close this position automatically.\n` +
+          (buy.estimated ? `  ⚠️ _MEXC didn't confirm a fill quantity yet — verify the actual holding on MEXC matches before trusting auto-sells._\n` : '') +
           `  _Send /pause to halt further auto-buys_`
         );
       } catch (e) {

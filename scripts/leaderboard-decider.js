@@ -28,6 +28,7 @@ import {
   loadCooldowns, saveCooldowns,
   loadHistory, saveHistory,
   loadTradeState, saveTradeState,
+  saveTradeLog, pushTradeLogToGitHub,
 } from './job-state.js';
 
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
@@ -171,7 +172,6 @@ async function main() {
   // Runs BEFORE buy scan so freed slots are available.
   // ══════════════════════════════════════════════════════
   let positions = loadPositions();
-  const openCount = Object.keys(positions).length;
 
   // GUI toggle writes `tradeMode`/`execStrategy`/etc to trade-state.json —
   // these take precedence when set, so the browser control still works
@@ -205,6 +205,36 @@ async function main() {
   //   topN → effectiveUsdSize split EQUALLY across however many picks are
   //          actually bought (capped at effectiveTopNCount if set)
   // See mexc-trader.js's perPickUsd calculation — no config needed for this.
+
+  // ── Fresh start on off/paper → live transition ──
+  // Paper (and off) mode can leave behind positions.json entries and
+  // trade-log.json rows that mean nothing once real money is involved (paper
+  // fills, test qty values, etc.) — and they'd otherwise sit there confusing
+  // the "API Trades" journal and occupying live-slot counts the moment you
+  // flip to live. Detect the transition once (tracked in trade-state.json so
+  // it only fires on the actual switch, not every cycle you stay in live)
+  // and wipe both files so live trading always starts from a clean slate.
+  // NOTE: this only clears the bot's own tracking — it never touches your
+  // real MEXC wallet balance.
+  const previousTradeMode = tradeState.lastTradeMode || TRADE_MODE;
+  if (previousTradeMode !== 'live' && effectiveTradeMode === 'live') {
+    console.log(`  🔄  TRADE MODE CHANGED: ${previousTradeMode} → live — resetting positions.json and trade-log.json`);
+    positions = {};
+    savePositions(positions);
+    await pushPositionsToGitHub(positions);
+    saveTradeLog([]);
+    await pushTradeLogToGitHub([]);
+    logAudit('trade_mode_reset', { from: previousTradeMode, to: 'live' });
+    await sendTelegram(
+      `🔄 *TRADE MODE → LIVE* — ${new Date().toUTCString().slice(17, 22)} UTC\n` +
+      `  Switched from *${previousTradeMode}* to *live*.\n` +
+      `  positions.json and the API Trades journal have been reset to start fresh.\n` +
+      `  _Your real MEXC wallet balance is untouched — this only clears the bot's own tracking._`
+    );
+  }
+  tradeState.lastTradeMode = effectiveTradeMode;
+  saveTradeState(tradeState);
+  const openCount = Object.keys(positions).length;
 
   if (openCount > 0) {
     console.log(`\n📊  Monitoring ${openCount} open position(s)...`);
