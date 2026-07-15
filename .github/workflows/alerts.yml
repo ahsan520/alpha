@@ -178,6 +178,9 @@ jobs:
           TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
           TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
           TRADE_MAX_CONCURRENT_LIVE: ${{ vars.TRADE_MAX_CONCURRENT_LIVE || '1' }}
+          TRADE_SIZE_MODE:    ${{ vars.TRADE_SIZE_MODE || 'usd' }}
+          TRADE_SIZE_PCT:     ${{ vars.TRADE_SIZE_PCT || '100' }}
+          PAPER_STARTING_BALANCE: ${{ vars.PAPER_STARTING_BALANCE || '1000' }}
           MEXC_API_KEY:       ${{ secrets.MEXC_API_KEY }}
           MEXC_API_SECRET:    ${{ secrets.MEXC_API_SECRET }}
           AV_API_KEY:         ${{ secrets.AV_API_KEY }}
@@ -250,7 +253,7 @@ jobs:
           FILES="env.js market-data.json audit.json .alert-state.json \
                  .lb-scan-state.json lb-alert-state.json trade-state.json \
                  .cvd-decline-state.json symbol-history.json \
-                 sentiment-data.json general-news-data.json"
+                 sentiment-data.json general-news-data.json paper-balance.json"
           for f in $FILES; do
             [ -f "scripts/$f" ] && cp "scripts/$f" "/tmp/alpha-state/$f" || true
           done
@@ -280,6 +283,7 @@ jobs:
           git add scripts/symbol-history.json       || true
           git add scripts/sentiment-data.json       || true
           git add scripts/general-news-data.json    || true
+          git add scripts/paper-balance.json        || true
 
           # STEP 6 — Safety check: verify env.js has no real tokens
           if git diff --cached -- scripts/env.js | grep -E "ghp_|ghs_|bot[0-9]+:" > /dev/null 2>&1; then
@@ -304,7 +308,8 @@ jobs:
               git add scripts/env.js scripts/market-data.json scripts/audit.json \
                       scripts/.alert-state.json scripts/.lb-scan-state.json \
                       scripts/lb-alert-state.json scripts/trade-state.json \
-                      scripts/.cvd-decline-state.json scripts/symbol-history.json 2>/dev/null || true
+                      scripts/.cvd-decline-state.json scripts/symbol-history.json \
+                      scripts/paper-balance.json 2>/dev/null || true
               git diff --cached --quiet || git commit -m "chore: update alert state (retry) [skip ci]"
               git push origin main
             }
