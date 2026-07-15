@@ -113,7 +113,7 @@ function initAlertCfg() {
     // previously dropped here (object literal never copied raw.apiTrading),
     // so every refresh silently reset the GUI's displayed mode to 'off' even
     // though localStorage and trade-state.json still had 'paper'/'live' saved.
-    apiTrading: { mode: 'off', execStrategy: 'top1', usdSize: 25, maxLive: 1, ...(raw.apiTrading || {}) },
+    apiTrading: { mode: 'off', execStrategy: 'top1', usdSize: 25, maxLive: 1, sizeMode: 'usd', sizePct: 100, ...(raw.apiTrading || {}) },
     _version: ALERT_CFG_VERSION,
   };
 
@@ -386,6 +386,13 @@ function setApiExecStrategy(strategy) {
   switchCfgTab('apitrading');
 }
 
+function setApiSizeMode(mode) {
+  STATE._apiSizeMode = mode;
+  if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
+  STATE.alertCfg.apiTrading.sizeMode = mode;
+  switchCfgTab('apitrading');
+}
+
 // ── Save API Trading settings + push trade-state.json to GitHub ──
 async function saveApiTradingCfg() {
   const result = document.getElementById('api-trade-save-result');
@@ -394,11 +401,13 @@ async function saveApiTradingCfg() {
   // Collect values
   const mode     = STATE._apiTradeMode     || STATE.alertCfg.apiTrading?.mode         || 'off';
   const strategy = STATE._apiExecStrategy  || STATE.alertCfg.apiTrading?.execStrategy || 'top1';
+  const sizeMode = STATE._apiSizeMode      || STATE.alertCfg.apiTrading?.sizeMode     || 'usd';
   const usdSize  = parseFloat(document.getElementById('api-usd-size')?.value) || 25;
+  const sizePct  = parseFloat(document.getElementById('api-size-pct')?.value) || 100;
   const maxLive  = parseInt(document.getElementById('api-max-live')?.value) || 1;
 
   if (!STATE.alertCfg.apiTrading) STATE.alertCfg.apiTrading = {};
-  STATE.alertCfg.apiTrading = { mode, execStrategy: strategy, usdSize, maxLive };
+  STATE.alertCfg.apiTrading = { mode, execStrategy: strategy, usdSize, maxLive, sizeMode, sizePct };
 
   // Persist to localStorage via the normal saveAlertCfg path
   const cfg = STATE.alertCfg;
@@ -433,7 +442,7 @@ async function saveApiTradingCfg() {
       try { prev = JSON.parse(atob((j.content || '').replace(/\n/g,''))); } catch {}
     }
 
-    const newState = { ...prev, tradeMode: mode, execStrategy: strategy, usdSize, maxLive, modeChangedAt: Date.now() };
+    const newState = { ...prev, tradeMode: mode, execStrategy: strategy, usdSize, maxLive, sizeMode, sizePct, modeChangedAt: Date.now() };
     const content  = btoa(unescape(encodeURIComponent(JSON.stringify(newState, null, 2))));
     const body     = { message: `chore: api trade mode → ${mode} [skip ci]`, content, branch };
     if (sha) body.sha = sha;
@@ -1090,6 +1099,8 @@ function renderAlertCfgPage() {
     const at    = cfg.apiTrading || {};
     const mode  = at.mode || 'off';
     const strategy = at.execStrategy || 'top1';
+    const sizeMode  = at.sizeMode || 'usd';
+    const sizePct   = at.sizePct  ?? 100;
     const isOff  = mode === 'off';
     const isPaper= mode === 'paper';
     const isLive = mode === 'live';
@@ -1155,15 +1166,48 @@ function renderAlertCfgPage() {
         </div>
       </div>
 
+      <!-- Order size mode toggle -->
+      <div style="margin-bottom:10px;">
+        <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">ORDER SIZE MODE</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${[['usd','$ Fixed amount','Always the same dollar amount per cycle'],
+             ['percent','% Of balance','Compounds — grows/shrinks with your balance']].map(([val, label, desc]) => {
+            const active = sizeMode === val;
+            return `<div onclick="setApiSizeMode('${val}')"
+              style="flex:1;min-width:160px;padding:10px 14px;border-radius:6px;cursor:pointer;transition:.15s;
+                     background:${active ? 'rgba(61,155,255,0.08)' : 'var(--bg)'};
+                     border:1px solid ${active ? 'rgba(61,155,255,0.4)' : 'var(--border2)'};">
+              <div style="font-family:var(--mono);font-size:9px;font-weight:700;color:${active ? 'var(--accent)' : 'var(--text-bright)'};margin-bottom:3px;">${label}</div>
+              <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);line-height:1.5;">${desc}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
       <!-- Position size -->
       <div style="margin-bottom:12px;">
-        <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">
-          ${strategy === 'topN' ? 'TOTAL ORDER SIZE (split equally across picks)' : 'ORDER SIZE (USDT per buy)'}
-        </label>
-        <input type="number" id="api-usd-size" value="${at.usdSize || 25}" min="1" step="1"
-          style="width:140px;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
-                 padding:8px 12px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;">
-        <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-left:8px;">USDT</span>
+        <div style="display:${sizeMode === 'usd' ? 'block' : 'none'};">
+          <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">
+            ${strategy === 'topN' ? 'TOTAL ORDER SIZE (split equally across picks)' : 'ORDER SIZE (USDT per buy)'}
+          </label>
+          <input type="number" id="api-usd-size" value="${at.usdSize || 25}" min="1" step="1"
+            style="width:140px;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                   padding:8px 12px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;">
+          <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-left:8px;">USDT</span>
+        </div>
+        <div style="display:${sizeMode === 'percent' ? 'block' : 'none'};">
+          <label style="font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:4px;">
+            ${strategy === 'topN' ? 'TOTAL % OF BALANCE (split equally across picks)' : '% OF BALANCE PER BUY'}
+          </label>
+          <input type="number" id="api-size-pct" value="${sizePct}" min="1" max="100" step="1"
+            style="width:140px;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+                   padding:8px 12px;border-radius:5px;font-family:var(--mono);font-size:12px;outline:none;">
+          <span style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-left:8px;">%</span>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-top:8px;line-height:1.7;">
+            💡 100% = your whole ${isPaper ? 'paper' : 'MEXC USDT'} balance. Live mode reads your real balance each cycle;
+            paper mode tracks a virtual balance that compounds paper P&amp;L the same way.
+          </div>
+        </div>
       </div>
 
       <!-- Max concurrent live trades -->
