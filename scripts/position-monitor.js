@@ -19,6 +19,7 @@ import { mexcMarketSell, mexcFreeBalance, getBaseSizePrecision, floorToStep } fr
 import {
   logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET,
   loadTradeLog, recordTradeClose, pushTradeLogToGitHub,
+  TRADE_SIZE_MODE, adjustPaperBalance,
 } from './job-state.js';
 import { calcConviction } from './leaderboard-scanner.js';
 
@@ -59,6 +60,13 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
     pos.liveOrder.exitFillPrice = pos.exitPrice || pos.liveOrder.fillPrice;
     recordTradeClose(pos, reason, { qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.exitFillPrice });
     await pushTradeLogToGitHub(loadTradeLog());
+    // Credit the virtual paper balance back (proceeds = qty × exit price) so
+    // percentage-based sizing compounds paper gains/losses into the next buy,
+    // same as a real MEXC balance would once live.
+    if (TRADE_SIZE_MODE === 'percent') {
+      const proceeds = pos.liveOrder.qty * pos.liveOrder.exitFillPrice;
+      adjustPaperBalance(proceeds);
+    }
     return;
   }
 

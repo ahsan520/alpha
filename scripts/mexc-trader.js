@@ -19,12 +19,13 @@
 // actually fired. Fixed here by taking closedOutcomes as an explicit param.
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketBuy } from './mexc-client.js';
+import { mexcMarketBuy, mexcFreeBalance } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
 import { sendTelegram } from './telegram-commands.js';
 import {
   logAudit, MEXC_API_KEY, MEXC_API_SECRET,
   loadTradeLog, recordTradeOpen, pushTradeLogToGitHub,
+  loadPaperBalance, adjustPaperBalance,
 } from './job-state.js';
 
 // ── Symbols that can alert/star normally but must NEVER be auto-traded ──
@@ -104,14 +105,24 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
     for (const [sym, pos] of allSellEntries) {
       const sellAlerts = [];
       const wasHoldingT1 = pos.status === 'tp1_hit' && !pos.exitPrice;
-      await closeLiveOrder(pos, wasHoldingT1 ? 'A/A+ rotation — no longer top grade' : 'A/A+ rotation', sellAlerts);
 
-      // Record the rotation exit in symbol history
+      // Look up the real current market price BEFORE closing — closeLiveOrder's
+      // paper branch reads pos.exitPrice to log the sell, so this must be set
+      // ahead of that call or it silently falls back to the buy price (the
+      // bug that made every rotation-closed paper trade show 0.00% P&L).
       const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
       const mData = (market.symbols || {})[mKey];
-      const exitPrice = pos.liveOrder?.exitFillPrice || parseFloat(mData?.d?.p || pos.entryPrice || 0);
+      const exitPrice = parseFloat(mData?.d?.p || pos.entryPrice || 0);
+      pos.exitPrice = exitPrice;
+
+      await closeLiveOrder(pos, wasHoldingT1 ? 'A/A+ rotation — no longer top grade' : 'A/A+ rotation', sellAlerts);
+
+      // Record the rotation exit in symbol history — prefer the actual fill
+      // price closeLiveOrder captured (live mode gets a real MEXC fill; paper
+      // mode echoes back pos.exitPrice), falling back to the market price above.
+      const finalExitPrice = pos.liveOrder?.exitFillPrice || exitPrice;
       const pnlPct    = pos.entryPrice > 0
-        ? parseFloat(((exitPrice - pos.entryPrice) / pos.entryPrice * 100).toFixed(2))
+        ? parseFloat(((finalExitPrice - pos.entryPrice) / pos.entryPrice * 100).toFixed(2))
         : 0;
 
       closedOutcomes.push({
@@ -130,7 +141,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
         // Mark as evicted immediately — slot freed for rotation buy
         pos.status          = 'stopped'; // treated as a close
         pos.statusChangedAt = Date.now();
-        pos.exitPrice       = exitPrice;
+        pos.exitPrice       = finalExitPrice; // already set pre-close; keep in sync with the fill actually recorded
         pos.rotatedOut      = true;
       }
       changed = true;
@@ -157,12 +168,20 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
 //
 // Two execution strategies (GUI toggle → trade-state.json, OR repo Variables
 // EXEC_STRATEGY / EXEC_TOP_N_COUNT as the durable default the GUI overrides):
-//   'top1'  — buy only the ⭐ #1 ranked symbol, full TRADE_USD_SIZE
+//   'top1'  — buy only the ⭐ #1 ranked symbol, full order size
 //   'topN'  — buy the top EXEC_TOP_N_COUNT starred symbols (e.g. 2 or 3;
 //             unset/0 = every currently-starred symbol, uncapped),
-//             TRADE_USD_SIZE split equally
+//             order size split equally
 //             e.g. $75 / 3 picks = $25 each — this split is a fixed rule,
 //             not a separate config value (top1 is always 100% of size)
+//
+// Order size itself has two modes (TRADE_SIZE_MODE / GUI toggle):
+//   'usd'     — fixed-dollar TRADE_USD_SIZE, unchanged from before
+//   'percent' — TRADE_SIZE_PCT% of available balance, fetched fresh each
+//               cycle (live: real MEXC USDT balance; paper: tracked virtual
+//               balance in paper-balance.json). 100% + topN splits the WHOLE
+//               balance across picks. A profitable close feeds straight back
+//               into the balance, so the NEXT buy compounds automatically.
 //
 // Gates (per-symbol, all must pass):
 //   1. TRADE_MODE is 'paper' or 'live' (not 'off')
@@ -173,6 +192,7 @@ async function executeRotation({ candidates, positions, market, tradeState, effe
 async function executeAutoBuys({
   ranked, showRecoTags, positions, tradeState,
   effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount, effectiveUsdSize, effectiveMaxLive,
+  effectiveSizeMode, effectiveSizePct, effectiveGuardSizeMult = 1,
   utc,
 }) {
   if (effectiveTradeMode === 'off' || !showRecoTags) return;
@@ -187,14 +207,39 @@ async function executeAutoBuys({
   // 'topN' buys effectiveTopNCount picks (e.g. 2 or 3) if that repo Variable
   // is set; unset/0 falls back to the original behavior of every starred
   // symbol, uncapped.
-  const picks      = effectiveExecStrategy === 'topN'
+  const picks = effectiveExecStrategy === 'topN'
     ? (effectiveTopNCount ? allStarred.slice(0, effectiveTopNCount) : allStarred)
     : allStarred.slice(0, 1);
-  const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
-    ? parseFloat((effectiveUsdSize / picks.length).toFixed(2))
-    : effectiveUsdSize;
 
-  console.log(`  ⚡  Exec strategy: ${effectiveExecStrategy} — ${picks.length} pick(s) @ $${perPickUsd} each`);
+  // ── Total USD allocated this cycle ──
+  // 'usd'     → effectiveUsdSize is already a fixed dollar figure (unchanged
+  //             behavior).
+  // 'percent' → effectiveSizePct% of available balance, fetched fresh each
+  //             cycle. 100% + topN naturally splits the WHOLE balance across
+  //             picks below, same as the dollar case. Live mode reads the
+  //             real MEXC USDT balance (so a profitable close compounds
+  //             straight into the next buy's size); paper mode reads the
+  //             tracked virtual paper balance (credited/debited by
+  //             position-monitor.js) for the same compounding behavior.
+  let totalUsd = effectiveUsdSize;
+  if (effectiveSizeMode === 'percent') {
+    const balance = effectiveTradeMode === 'live'
+      ? await mexcFreeBalance(MEXC_API_KEY, MEXC_API_SECRET, 'USDT')
+      : loadPaperBalance();
+    totalUsd = parseFloat((balance * (effectiveSizePct / 100) * effectiveGuardSizeMult).toFixed(2));
+    console.log(`  💰  Sizing: ${effectiveSizePct}% of ${effectiveTradeMode} balance $${balance.toFixed(2)}${effectiveGuardSizeMult < 1 ? ` ×${effectiveGuardSizeMult} (market guard)` : ''} = $${totalUsd}`);
+    if (totalUsd <= 0) {
+      console.log(`  🚫  Skipping buys — $0 available (balance $${balance.toFixed(2)})`);
+      logAudit('mexc_blocked', { strategy: effectiveExecStrategy, reasons: [`zero balance (${effectiveTradeMode})`] });
+      return;
+    }
+  }
+
+  const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
+    ? parseFloat((totalUsd / picks.length).toFixed(2))
+    : totalUsd;
+
+  console.log(`  ⚡  Exec strategy: ${effectiveExecStrategy} (${effectiveSizeMode === 'percent' ? effectiveSizePct + '%' : '$' + effectiveUsdSize}) — ${picks.length} pick(s) @ $${perPickUsd} each`);
 
   if (!tradeState.tradingEnabled) {
     console.log(`  🚫  Auto-trade blocked — trading paused via Telegram /pause`);
@@ -237,6 +282,7 @@ async function executeAutoBuys({
         qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.fillPrice, usdSize: perPickUsd,
       });
       await pushTradeLogToGitHub(loadTradeLog());
+      if (effectiveSizeMode === 'percent') adjustPaperBalance(-perPickUsd);
       await sendTelegram(
         `📝 *PAPER BUY* — ${pick.pair.replace('USDT','')} $${perPickUsd} USDT @ ~$${pos.liveOrder.fillPrice.toFixed(6)}\n` +
         `  Strategy: ${effectiveExecStrategy === 'topN' ? `top${picks.length} split` : 'top 1'}\n` +

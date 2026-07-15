@@ -195,6 +195,10 @@ async function main() {
   const effectiveTopNCount     = tradeState.execTopNCount || parseInt(process.env.EXEC_TOP_N_COUNT || '0', 10) || null;
   const effectiveUsdSize       = tradeState.usdSize       || TRADE_USD_SIZE;
   const effectiveMaxLive       = tradeState.maxLive       || TRADE_MAX_LIVE;
+  // TRADE_SIZE_MODE: 'usd' (fixed dollar, default) | 'percent' (% of balance,
+  // compounds — see mexc-trader.js executeAutoBuys for the balance lookup).
+  const effectiveSizeMode      = tradeState.sizeMode      || process.env.TRADE_SIZE_MODE || 'usd';
+  const effectiveSizePct       = tradeState.sizePct       || parseFloat(process.env.TRADE_SIZE_PCT || '100');
 
   // Sizing per pick is NOT a separate variable — it's a fixed rule, always:
   //   top1 → 100% of effectiveUsdSize on the single pick
@@ -514,6 +518,7 @@ async function main() {
     candidates, positions, market, tradeState,
     closedOutcomes: rotationOutcomes, utc,
     effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount, effectiveUsdSize: guardedUsdSize, effectiveMaxLive,
+    effectiveSizeMode, effectiveSizePct, effectiveGuardSizeMult: guard.sizeMult,
     ranked, showRecoTags,
   });
 

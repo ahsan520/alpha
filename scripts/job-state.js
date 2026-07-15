@@ -24,6 +24,7 @@ const CVD_STATE_PATH      = path.join(process.cwd(), '.cvd-decline-state.json');
 const SYMBOL_HISTORY_PATH = path.join(process.cwd(), 'symbol-history.json');
 const TRADE_STATE_PATH    = path.join(process.cwd(), 'trade-state.json');
 const TRADE_LOG_PATH      = path.join(process.cwd(), 'trade-log.json');
+const PAPER_BALANCE_PATH  = path.join(process.cwd(), 'paper-balance.json');
 
 // ── Shared env constants ──
 export const DRY_RUN    = process.argv.includes('--dry-run');
@@ -39,6 +40,20 @@ export const MEXC_API_SECRET = process.env.MEXC_API_SECRET || '';
 export const TRADE_MODE      = (process.env.TRADE_MODE || 'paper').toLowerCase();
 export const TRADE_USD_SIZE  = parseFloat(process.env.TRADE_USD_SIZE || '25');
 export const TRADE_MAX_LIVE  = parseInt(process.env.TRADE_MAX_CONCURRENT_LIVE || '1');
+
+// ── Percentage-based order sizing ──
+// 'usd'     → fixed-dollar sizing (TRADE_USD_SIZE), original behavior
+// 'percent' → TRADE_SIZE_PCT% of available balance is allocated each cycle
+//             (100% = full balance; split equally across picks in topN mode),
+//             so a profitable close compounds into a bigger next buy.
+//   - live mode  → available balance = real MEXC USDT free balance (fetched
+//     fresh each cycle via mexcFreeBalance — automatically reflects gains).
+//   - paper mode → no real balance exists, so a virtual balance is tracked
+//     in paper-balance.json, seeded from PAPER_STARTING_BALANCE, debited on
+//     paper buy and credited back (qty × exitPrice) on paper close.
+export const TRADE_SIZE_MODE          = (process.env.TRADE_SIZE_MODE || 'usd').toLowerCase();
+export const TRADE_SIZE_PCT           = parseFloat(process.env.TRADE_SIZE_PCT || '100');
+export const PAPER_STARTING_BALANCE   = parseFloat(process.env.PAPER_STARTING_BALANCE || '1000');
 
 // ── How long terminal positions stay in positions.json before removal ──
 export const TERMINAL_EVICT_MS = {
@@ -69,6 +84,21 @@ export const saveHistory    = h  => fs.writeFileSync(SYMBOL_HISTORY_PATH, JSON.s
 
 export const loadTradeState = () => loadJSON(TRADE_STATE_PATH, { tradingEnabled: true, lastUpdateId: 0, changedAt: 0 });
 export const saveTradeState = s  => saveJSON(TRADE_STATE_PATH, s);
+
+// ── Virtual paper-trading balance (only used when TRADE_SIZE_MODE=percent) ──
+// Real balance isn't available in paper mode (no exchange account involved),
+// so this file stands in for it: seeded once from PAPER_STARTING_BALANCE,
+// then debited on every paper buy and credited back (qty × exit price) on
+// every paper close — so percentage sizing compounds in paper mode the same
+// way it will once you're live and pulling the real MEXC USDT balance.
+export const loadPaperBalance = () => loadJSON(PAPER_BALANCE_PATH, { balance: PAPER_STARTING_BALANCE, updatedAt: 0 }).balance;
+export function adjustPaperBalance(delta) {
+  const state = loadJSON(PAPER_BALANCE_PATH, { balance: PAPER_STARTING_BALANCE, updatedAt: 0 });
+  state.balance   = Math.max(0, parseFloat((state.balance + delta).toFixed(2)));
+  state.updatedAt = Date.now();
+  saveJSON(PAPER_BALANCE_PATH, state);
+  return state.balance;
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // trade-log.json — PERMANENT record of every API buy/sell placed by the
