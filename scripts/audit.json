@@ -1,6 +1,13 @@
 [
   {
-    "timestamp": "2026-07-15T14:56:54.926Z",
+    "timestamp": "2026-07-15T15:52:30.685Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
+  },
+  {
+    "timestamp": "2026-07-15T16:19:49.234Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -16,39 +23,49 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-07-15T14:56:55.396Z",
+    "timestamp": "2026-07-15T16:19:49.544Z",
     "job": "leaderboard-decider",
-    "action": "tp1_hit_sell",
-    "sym": "BINANCE:XLMUSDT",
-    "price": 0.1915,
-    "t1": 0.1903,
-    "liveConv": 9,
-    "liveBullConf": 0,
-    "pnlPct": "3.23"
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "ageHrs": 25
   },
   {
-    "timestamp": "2026-07-15T14:56:56.729Z",
+    "timestamp": "2026-07-15T16:19:49.545Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "ageHrs": 25
+  },
+  {
+    "timestamp": "2026-07-15T16:19:49.545Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "ageHrs": 25
+  },
+  {
+    "timestamp": "2026-07-15T16:19:49.545Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XLMUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-07-15T16:19:50.469Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
-    "count": 9
+    "count": 8
   },
   {
-    "timestamp": "2026-07-15T14:56:56.729Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 8
-  },
-  {
-    "timestamp": "2026-07-15T14:56:57.203Z",
+    "timestamp": "2026-07-15T16:19:51.576Z",
     "job": "leaderboard-decider",
     "action": "monitor_complete",
-    "openBefore": 9,
-    "openAfter": 9,
-    "alerts": 1
+    "openBefore": 12,
+    "openAfter": 8,
+    "alerts": 3
   },
   {
-    "timestamp": "2026-07-15T14:56:57.204Z",
+    "timestamp": "2026-07-15T16:19:51.577Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": true,
@@ -59,194 +76,120 @@
     ]
   },
   {
-    "timestamp": "2026-07-15T14:56:57.205Z",
+    "timestamp": "2026-07-15T16:19:51.578Z",
     "job": "leaderboard-decider",
     "action": "position_opened",
-    "pair": "IMXUSDT",
-    "sym": "BINANCE:IMXUSDT",
+    "pair": "XRPUSDT",
+    "sym": "BINANCE:XRPUSDT",
     "setup": "BREAKOUT",
     "score": 10
   },
   {
-    "timestamp": "2026-07-15T14:56:57.205Z",
+    "timestamp": "2026-07-15T16:19:51.579Z",
     "job": "leaderboard-decider",
     "action": "position_opened",
-    "pair": "ZECUSDT",
-    "sym": "BINANCE:ZECUSDT",
+    "pair": "APTUSDT",
+    "sym": "BINANCE:APTUSDT",
     "setup": "BREAKOUT",
-    "score": 10
+    "score": 6
   },
   {
-    "timestamp": "2026-07-15T14:56:57.205Z",
+    "timestamp": "2026-07-15T16:19:51.579Z",
     "job": "leaderboard-decider",
     "action": "position_opened",
-    "pair": "LINKUSDT",
-    "sym": "BINANCE:LINKUSDT",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
     "setup": "BREAKOUT",
     "score": 7
   },
   {
-    "timestamp": "2026-07-15T14:56:57.464Z",
+    "timestamp": "2026-07-15T16:19:51.579Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-15T16:19:51.952Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "ZECUSDT",
+    "reason": "A/A+ rotation",
+    "free": 0.021627
+  },
+  {
+    "timestamp": "2026-07-15T16:19:52.487Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "ZEC",
+        "pnlPct": -1.5,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "XRPUSDT",
+      "APTUSDT",
+      "DOGEUSDT",
+      "XLMUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-15T16:19:52.679Z",
     "job": "leaderboard-decider",
     "action": "mexc_live_buy",
-    "sym": "ZECUSDT",
+    "sym": "XRPUSDT",
     "usdSize": 12.5,
     "qty": 0,
-    "fillPrice": 606.7,
-    "orderId": "C02__706090868284502016036"
+    "fillPrice": 1.1394,
+    "orderId": "C02__706111735785750530036"
   },
   {
-    "timestamp": "2026-07-15T14:56:58.483Z",
+    "timestamp": "2026-07-15T16:19:53.596Z",
     "job": "leaderboard-decider",
     "action": "trade_log_pushed",
-    "count": 8
+    "count": 9
   },
   {
-    "timestamp": "2026-07-15T14:56:59.924Z",
+    "timestamp": "2026-07-15T16:19:56.996Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 9,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-15T16:19:57.926Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
     "count": 12
   },
   {
-    "timestamp": "2026-07-15T14:57:00.262Z",
+    "timestamp": "2026-07-15T16:19:58.262Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
-    "signalsFound": 3,
-    "positionsOpened": 3,
+    "signalsFound": 4,
+    "positionsOpened": 4,
     "recommended": [
-      "ZEC",
-      "IMX",
-      "LINK"
+      "XRP",
+      "XLM",
+      "DOGE"
     ],
     "caution": []
   },
   {
-    "timestamp": "2026-07-15T14:57:00.262Z",
+    "timestamp": "2026-07-15T16:19:58.262Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-07-15T14:57:00.761Z",
+    "timestamp": "2026-07-15T16:19:58.557Z",
     "job": "alert-runner",
     "action": "positions_check",
     "total": 12,
-    "monitored": 12
-  },
-  {
-    "timestamp": "2026-07-15T15:03:02.162Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 14,
-    "cryptoCount": 14,
-    "stockScored": 0,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": 7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": 9,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": 7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-07-15T15:52:30.685Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 12,
-    "monitored": 12
+    "monitored": 11
   }
 ]
