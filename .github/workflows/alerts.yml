@@ -190,6 +190,7 @@ jobs:
           LB_HISTORY_MAX_ROWS: ${{ vars.LB_HISTORY_MAX_ROWS || '1500' }}
           EXEC_STRATEGY:      ${{ vars.EXEC_STRATEGY || 'top1' }}
           EXEC_TOP_N_COUNT:   ${{ vars.EXEC_TOP_N_COUNT || '0' }}
+          EXEC_MIN_GRADE:     ${{ vars.EXEC_MIN_GRADE || 'A' }}
           MEXC_NO_TRADE_SYMBOLS: ${{ vars.MEXC_NO_TRADE_SYMBOLS || '' }}
           TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
           TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
