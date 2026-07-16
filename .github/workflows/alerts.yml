@@ -170,11 +170,27 @@ jobs:
           DIGEST_MODE:        ${{ vars.DIGEST_MODE || 'true' }}
           DRY_RUN:            ${{ inputs.dry_run || vars.DRY_RUN || 'false' }}
           LB_MIN_SCORE:       ${{ vars.LB_MIN_SCORE || '9' }}
+          LB_BULL_CONF_MIN:   ${{ vars.LB_BULL_CONF_MIN || '5' }}
           LB_COOLDOWN_MIN:    ${{ vars.LB_COOLDOWN_MIN || '60' }}
           LB_HOLD_LOCK:       ${{ vars.LB_HOLD_LOCK || '20' }}
-          LB_CVD_CYCLES:      ${{ vars.LB_CVD_CYCLES || '3' }}
+          LB_EXIT_CVD_CYCLES: ${{ vars.LB_EXIT_CVD_CYCLES || vars.LB_CVD_CYCLES || '3' }}
+          LB_EXIT_SCORE_MIN:  ${{ vars.LB_EXIT_SCORE_MIN || '3' }}
+          LB_STALE_WATCH_HRS: ${{ vars.LB_STALE_WATCH_HRS || '24' }}
+          LB_ALLOW_PRE_MARKET: ${{ vars.LB_ALLOW_PRE_MARKET || 'false' }}
+          LB_ALLOW_AH:        ${{ vars.LB_ALLOW_AH || 'false' }}
           LB_ALERT_STATE_TTL_HOURS: ${{ vars.LB_ALERT_STATE_TTL_HOURS || '6' }}
           LB_LEGACY_SCAN:     ${{ vars.LB_LEGACY_SCAN || 'false' }}
+          LB_RECO_MIN_SIGNALS: ${{ vars.LB_RECO_MIN_SIGNALS || '3' }}
+          LB_RECO_TOP_N:      ${{ vars.LB_RECO_TOP_N || '3' }}
+          LB_RECO_LOOKBACK_DAYS: ${{ vars.LB_RECO_LOOKBACK_DAYS || '30' }}
+          LB_RECO_HIST_BOOST_WEIGHT: ${{ vars.LB_RECO_HIST_BOOST_WEIGHT || '0.5' }}
+          LB_RECO_CAUTION_WIN_RATE: ${{ vars.LB_RECO_CAUTION_WIN_RATE || '0.3' }}
+          LB_RECO_CAUTION_MIN_SAMPLE: ${{ vars.LB_RECO_CAUTION_MIN_SAMPLE || '3' }}
+          LB_HISTORY_RETENTION_DAYS: ${{ vars.LB_HISTORY_RETENTION_DAYS || '45' }}
+          LB_HISTORY_MAX_ROWS: ${{ vars.LB_HISTORY_MAX_ROWS || '1500' }}
+          EXEC_STRATEGY:      ${{ vars.EXEC_STRATEGY || 'top1' }}
+          EXEC_TOP_N_COUNT:   ${{ vars.EXEC_TOP_N_COUNT || '0' }}
+          MEXC_NO_TRADE_SYMBOLS: ${{ vars.MEXC_NO_TRADE_SYMBOLS || '' }}
           TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
           TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
           TRADE_MAX_CONCURRENT_LIVE: ${{ vars.TRADE_MAX_CONCURRENT_LIVE || '1' }}
