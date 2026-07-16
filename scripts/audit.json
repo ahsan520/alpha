@@ -1,38 +1,5 @@
 [
   {
-    "timestamp": "2026-07-16T09:28:01.437Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 8
-  },
-  {
-    "timestamp": "2026-07-16T09:28:02.180Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:ZECUSDT",
-    "pair": "ZEC",
-    "price": 544.78,
-    "entry": 573.36,
-    "stop": 551.13,
-    "pnlPct": "-4.98"
-  },
-  {
-    "timestamp": "2026-07-16T09:28:04.080Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 3,
-    "remaining": 8
-  },
-  {
-    "timestamp": "2026-07-16T09:28:04.981Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 3,
-    "remaining": 8,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-07-16T10:26:03.248Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -141,5 +108,71 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-16T10:30:50.045Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-16T10:30:50.537Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-16T10:30:51.651Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-16T10:30:51.652Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 7,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-16T10:30:51.653Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.5,
+    "reasons": [
+      "Fear & Greed: 25 (Fear) — halving position size"
+    ]
+  },
+  {
+    "timestamp": "2026-07-16T10:30:51.654Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-16T10:30:51.655Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-16T10:30:52.177Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
