@@ -1,50 +1,5 @@
 [
   {
-    "timestamp": "2026-07-16T21:48:08.825Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-16T21:48:09.407Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.5,
-    "reasons": [
-      "Fear & Greed: 25 (Fear) — halving position size"
-    ]
-  },
-  {
-    "timestamp": "2026-07-16T21:48:09.409Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-16T21:48:09.410Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-16T21:48:09.908Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 5
-  },
-  {
     "timestamp": "2026-07-16T22:17:59.236Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -223,6 +178,39 @@
     "action": "positions_sweep_pushed",
     "swept": 0,
     "remaining": 5,
+    "statusChanged": true
+  },
+  {
+    "timestamp": "2026-07-16T23:10:57.198Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 4
+  },
+  {
+    "timestamp": "2026-07-16T23:10:57.945Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "pair": "XLM",
+    "price": 0.186,
+    "entry": 0.1933,
+    "stop": 0.1882,
+    "pnlPct": "-3.78"
+  },
+  {
+    "timestamp": "2026-07-16T23:10:58.824Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 4
+  },
+  {
+    "timestamp": "2026-07-16T23:10:59.626Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 1,
+    "remaining": 4,
     "statusChanged": true
   }
 ]
