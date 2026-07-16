@@ -1,71 +1,5 @@
 [
   {
-    "timestamp": "2026-07-16T15:59:11.499Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-16T15:59:11.832Z",
-    "job": "leaderboard-decider",
-    "action": "position_stale_evicted",
-    "sym": "BINANCE:LINKUSDT",
-    "ageHrs": 25
-  },
-  {
-    "timestamp": "2026-07-16T15:59:12.909Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 8
-  },
-  {
-    "timestamp": "2026-07-16T15:59:13.292Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 9,
-    "openAfter": 8,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-07-16T15:59:13.293Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.5,
-    "reasons": [
-      "Fear & Greed: 25 (Fear) — halving position size"
-    ]
-  },
-  {
-    "timestamp": "2026-07-16T15:59:13.294Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-16T15:59:13.295Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-16T15:59:13.662Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 8,
-    "monitored": 8
-  },
-  {
     "timestamp": "2026-07-16T16:41:37.725Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -181,5 +115,200 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-16T17:21:17.640Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-16T17:21:18.145Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:XLMUSDT",
+    "ageHrs": 25
+  },
+  {
+    "timestamp": "2026-07-16T17:21:19.459Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-16T17:21:19.892Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 7,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-07-16T17:21:19.893Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.5,
+    "reasons": [
+      "Fear & Greed: 25 (Fear) — halving position size"
+    ]
+  },
+  {
+    "timestamp": "2026-07-16T17:21:19.894Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-16T17:21:19.894Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-16T17:21:20.388Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_untracked_failed",
+    "sym": "SUIUSDT",
+    "error": "MEXC POST /api/v3/order failed (HTTP 400): The minimum transaction volume cannot be less than：1USDT"
+  },
+  {
+    "timestamp": "2026-07-16T17:21:21.370Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "SUI",
+        "skipped": true,
+        "reason": "error"
+      },
+      {
+        "base": "DOGE",
+        "pnlPct": -0.77,
+        "wasHoldingT1": false
+      },
+      {
+        "base": "XRP",
+        "pnlPct": -0.99,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "XLMUSDT",
+      "IMXUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-16T17:21:22.090Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_live_buy",
+    "sym": "XLMUSDT",
+    "usdSize": 6.25,
+    "qty": 32.82,
+    "fillPrice": 0.1904,
+    "orderId": "C02__706489595927113728036",
+    "estimated": false
+  },
+  {
+    "timestamp": "2026-07-16T17:21:23.270Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-07-16T17:21:23.567Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "sym": "IMXUSDT",
+    "reasons": [
+      "already 1/1 live trades open"
+    ]
+  },
+  {
+    "timestamp": "2026-07-16T17:21:23.568Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 15,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-16T17:21:24.576Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-07-16T17:21:24.881Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "XLM",
+      "IMX"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-16T17:21:26.201Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-16T17:21:26.202Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-16T17:21:27.835Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 7
+  },
+  {
+    "timestamp": "2026-07-16T17:21:29.326Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:ETHUSDT",
+    "pair": "ETH",
+    "price": 1871.62,
+    "entry": 1928.46,
+    "stop": 1877.56,
+    "pnlPct": "-2.95"
+  },
+  {
+    "timestamp": "2026-07-16T17:21:30.567Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 9
+  },
+  {
+    "timestamp": "2026-07-16T17:21:31.564Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 9,
+    "statusChanged": true
   }
 ]
