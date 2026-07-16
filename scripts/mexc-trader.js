@@ -19,7 +19,7 @@
 // actually fired. Fixed here by taking closedOutcomes as an explicit param.
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep } from './mexc-client.js';
+import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep, mexcPlaceStopLimit } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
 import { sendTelegram } from './telegram-commands.js';
 import {
@@ -44,31 +44,53 @@ function isNoTradeSymbol(pair) {
   return NO_TRADE_SYMBOLS.includes(bare);
 }
 
+// ── Minimum grade required to actually move real money ──
+// 'recommended' (top-ranked by rankScore = conviction + bullConf, plus a
+// history bonus) does NOT by itself require a strong grade — a symbol can
+// rank #1 this cycle purely on current signal strength while its own
+// grade (calcGrade, from bullConf + whaleScore) still reads B or C. This
+// gate adds a hard floor so buys and rotation-sells only fire on A/A+
+// setups; a weaker recommended pick still shows up starred in the
+// Telegram alert and Position Tracker as informational, it just isn't
+// traded. Especially important with LB_RECO_MIN_SIGNALS=1, where a single
+// mediocre-grade signal would otherwise be enough to rotate and buy.
+// Set via repo Variable EXEC_MIN_GRADE: 'A' (default — A or A+ both pass),
+// 'A+' (A+ only), or 'off' (no gate — every recommended pick is tradeable).
+const EXEC_MIN_GRADE = (process.env.EXEC_MIN_GRADE || 'A').toUpperCase();
+function meetsGradeGate(grade) {
+  if (EXEC_MIN_GRADE === 'OFF') return true;
+  if (EXEC_MIN_GRADE === 'A+')  return grade === 'A+';
+  return grade === 'A' || grade === 'A+';
+}
+
 // Never treat these as "open positions" to rotate out of — they're buying
 // power, not a trade.
 const QUOTE_ASSETS = new Set(['USDT', 'USDC', 'BUSD', 'TUSD', 'DAI', 'FDUSD']);
 
 
-// ── Rotation — sell anything held that's no longer a top A/A+ pick ──
-// Fires on ANY cycle where a star-pick/topN buy alert actually fires. Rule is
-// now uniform for every currently-held position (tracked or not):
-//   - still qualifies (is itself one of this cycle's topN A/A+ candidates,
-//     OR its own current market grade still reads A/A+) → PROTECTED, left
-//     alone. This is what lets a position that's already hit T1 and is still
-//     running strong stay held instead of being sold just to make room.
-//   - otherwise → sold now, to fund the new pick(s).
+// ── Rotation — sell anything held that's not in THIS cycle's buy alert ──
+// Fires on ANY cycle where a star-pick/topN buy alert actually fires. Rule
+// is strict and uniform for every currently-held position (tracked or not):
+//   - base symbol IS one of this cycle's buy-alert candidates → PROTECTED,
+//     left alone.
+//   - base symbol is NOT one of this cycle's candidates → sold now, to fund
+//     the new pick(s) — including a position that's already hit T1 and is
+//     being held for T2. Only a symbol actually named in today's alert
+//     survives; "still looks strong on its own" is not enough.
 // In LIVE mode this is reconciled against the REAL MEXC account balance, not
 // just positions.json — so a coin bought manually outside the bot (which the
 // bot would otherwise have no idea about) is still seen and rotated exactly
 // like a bot-opened position. Paper mode has no real balance to check
 // against, so it still uses positions.json only.
-// Stop-loss and T2-hit exits are entirely separate (position-monitor.js) and
-// are unaffected by any of this.
+// Stop-loss exits are entirely separate (position-monitor.js) and are
+// unaffected by any of this — but note the exchange-side stop for a
+// rotated-out position gets cancelled here via closeLiveOrder's own
+// reconciliation logic before the rotation sell executes.
 async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, effectiveTopNCount, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
   let changed = false;
 
   const allStarred = (ranked || []).filter(r =>
-    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair)
+    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair) && meetsGradeGate(r.a.entry.grade)
   );
   const rotationPicks = effectiveExecStrategy === 'topN'
     ? (effectiveTopNCount ? allStarred.slice(0, effectiveTopNCount) : allStarred)
@@ -85,16 +107,14 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
 
   // Bases that qualify as this cycle's top A/A+ picks — anything currently
   // held that's already one of these is left alone; everything else gets
-  // sold to fund the new picks. A held symbol that ISN'T a fresh candidate
-  // (buy-side skips symbols with an existing open position, so it can't
-  // reappear in `ranked` on its own) can still count as "still top" if its
-  // OWN current market grade reads A/A+ — same logic previously reserved for
-  // T1 holders, now applied uniformly to every held position.
+  // sold to fund the new picks. Protection is strict: a held symbol must be
+  // one of THIS cycle's actual buy-alert candidates to survive. A symbol
+  // that merely still reads A/A+ grade on its own (but isn't in today's
+  // alert) is NOT protected — it gets sold like anything else, including a
+  // position that's already hit T1. This applies uniformly whether the
+  // held position was ever tracked by the bot or bought manually.
   const topBases = new Set(rotationCandidates.map(c => c.pair.replace(/[^A-Z]/g, '').replace(/USDT$/, '')));
-  const gradeStillTop = (base) => {
-    const grade = (market.symbols || {})[base + 'USDT']?.grade;
-    return topBases.has(base) || grade === 'A' || grade === 'A+';
-  };
+  const gradeStillTop = (base) => topBases.has(base);
 
   const sellTargets = []; // [{ base, sym, freeQty?, pos?, key? }]
 
@@ -264,6 +284,36 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
 //   3. Symbol is in the ⭐ recommended set (showRecoTags fired)
 //   4. Not already holding too many live open trades (TRADE_MAX_CONCURRENT_LIVE)
 //   5. Idempotency: positions[sym].liveOrder not already set
+// ── Places an exchange-side stop-loss immediately after a live buy fills ──
+// Failure here does NOT fail the buy — the position stays open and the
+// existing 15-min software stop check (position-monitor.js) still watches
+// it as a fallback. But it does mean that fallback is the ONLY protection
+// until the next successful attempt, so this alerts loudly on failure.
+const STOP_SLIPPAGE_PAD = parseFloat(process.env.MEXC_STOP_SLIPPAGE_PAD || '0.005'); // 0.5% below stop
+async function placeExchangeStop(pos, symbol) {
+  if (!pos.stop || pos.stop <= 0) return;
+  try {
+    const step = await getBaseSizePrecision(symbol);
+    const qty  = floorToStep(pos.liveOrder.qty, step);
+    if (qty <= 0) return;
+    const dp         = pos.stop < 1 ? 6 : pos.stop < 10 ? 4 : 2;
+    const stopPrice  = pos.stop.toFixed(dp);
+    const limitPrice = (pos.stop * (1 - STOP_SLIPPAGE_PAD)).toFixed(dp);
+    const order = await mexcPlaceStopLimit(MEXC_API_KEY, MEXC_API_SECRET, symbol, qty, stopPrice, limitPrice);
+    pos.liveOrder.stopOrderId = order.orderId;
+    pos.liveOrder.stopPrice   = parseFloat(stopPrice);
+    pos.liveOrder.stopLimit   = parseFloat(limitPrice);
+    logAudit('mexc_stop_placed', { sym: symbol, qty, stopPrice, limitPrice, orderId: order.orderId });
+  } catch (e) {
+    logAudit('mexc_stop_place_failed', { sym: symbol, error: e.message });
+    await sendTelegram(
+      `⚠️ *STOP ORDER NOT PLACED* — ${pos.base}\n` +
+      `  Buy succeeded but the exchange-side stop failed: ${e.message}\n` +
+      `  _The 15-min software stop check is still watching this position as a fallback — verify manually on MEXC if you rely on the exchange stop._`
+    );
+  }
+}
+
 async function executeAutoBuys({
   ranked, showRecoTags, positions, tradeState,
   effectiveTradeMode, effectiveExecStrategy, effectiveTopNCount, effectiveUsdSize, effectiveMaxLive,
@@ -277,8 +327,21 @@ async function executeAutoBuys({
   // this filter, a starred stock pick (e.g. TSX:ETHY.TO) would fall through
   // to the symbol-building logic below and produce a garbage MEXC pair.
   const allStarred = ranked.filter(r =>
-    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair)
+    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair) && meetsGradeGate(r.a.entry.grade)
   );
+
+  // Recommended picks that exist but got filtered out purely on grade —
+  // surfaced once here so "nothing bought" has an obvious explanation
+  // instead of looking like a silent failure.
+  const gradeSkipped = ranked.filter(r =>
+    r.recommended && r.a.entry.assetType === 'crypto' && !isNoTradeSymbol(r.a.pair) && !meetsGradeGate(r.a.entry.grade)
+  );
+  if (gradeSkipped.length && !allStarred.length) {
+    const list = gradeSkipped.map(r => `${r.a.pair.replace('USDT','')} (${r.a.entry.grade || '—'})`).join(', ');
+    console.log(`  🚫  No buy — recommended pick(s) below EXEC_MIN_GRADE=${EXEC_MIN_GRADE}: ${list}`);
+    logAudit('mexc_blocked', { strategy: effectiveExecStrategy, reasons: [`grade below EXEC_MIN_GRADE (${EXEC_MIN_GRADE})`], symbols: gradeSkipped.map(r => r.a.pair) });
+    await sendTelegram(`🚫 *NO BUY* — ${list} ranked #1 but grade is below EXEC_MIN_GRADE (${EXEC_MIN_GRADE}) — skipped, no positions touched.`);
+  }
   // 'topN' buys effectiveTopNCount picks (e.g. 2 or 3) if that repo Variable
   // is set; unset/0 falls back to the original behavior of every starred
   // symbol, uncapped.
@@ -379,11 +442,23 @@ async function executeAutoBuys({
           qty: buy.executedQty, fillPrice: buy.fillPrice, usdSize: perPickUsd,
         });
         await pushTradeLogToGitHub(loadTradeLog());
+
+        // Exchange-side stop-loss — placed right after the buy fills so the
+        // position is protected on MEXC itself, not just by the 15-min
+        // software check. Skipped if buy.estimated — we don't yet trust the
+        // qty enough to size a resting sell order off it; the software stop
+        // still covers the position until a later cycle confirms the real
+        // fill quantity.
+        if (!buy.estimated) await placeExchangeStop(pos, symbol);
+
         await sendTelegram(
           `⚡ *LIVE BUY PLACED* — ${pick.pair.replace('USDT','')} — ${utc}\n` +
           `  MEXC MARKET BUY: ${buy.executedQty}${buy.estimated ? ' (estimated — MEXC did not report a fill qty)' : ''} @ $${buy.fillPrice.toFixed(6)}\n` +
           `  Size: $${perPickUsd} USDT  Order ID: \`${buy.orderId}\`\n` +
           (effectiveExecStrategy === 'topN' ? `  Strategy: top${picks.length} split ($${effectiveUsdSize} ÷ ${picks.length})\n` : '') +
+          (pos.liveOrder.stopOrderId
+            ? `  🛡 Exchange stop placed: sell ${buy.executedQty} @ trigger $${pos.liveOrder.stopPrice} (limit $${pos.liveOrder.stopLimit})\n`
+            : `  ⚠️ Exchange stop NOT placed — see warning above. Software stop check still active.\n`) +
           `  Stop/T2 exits will close this position automatically.\n` +
           (buy.estimated ? `  ⚠️ _MEXC didn't confirm a fill quantity yet — verify the actual holding on MEXC matches before trusting auto-sells._\n` : '') +
           `  _Send /pause to halt further auto-buys_`

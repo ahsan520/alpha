@@ -15,7 +15,7 @@
 // directly, so it stays decoupled from the Telegram layer).
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketSell, mexcFreeBalance, getBaseSizePrecision, floorToStep } from './mexc-client.js';
+import { mexcMarketSell, mexcFreeBalance, getBaseSizePrecision, floorToStep, mexcGetOrderStatus, mexcCancelOrder } from './mexc-client.js';
 import {
   logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET,
   loadTradeLog, recordTradeClose, pushTradeLogToGitHub,
@@ -74,6 +74,48 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
   }
 
   const symbol = pos.base + 'USDT';
+
+  // ── Reconcile the exchange-side stop before attempting any other sell ──
+  // A live position can carry a resting STOP_LOSS_LIMIT order (see
+  // mexc-trader.js placeExchangeStop). Two cases matter here:
+  //   1. It already FILLED — MEXC closed the position before this check
+  //      ran (this is the whole point of having it: it beats the 15-min
+  //      cycle). Reconcile using that fill instead of attempting a second
+  //      sell, which would fail (nothing left to sell).
+  //   2. It's still resting (NEW/PARTIALLY_FILLED) — its quantity is LOCKED
+  //      on the exchange, so a market sell below would fail with a false
+  //      "0 balance" for T1/T2/rotation/exit-signal closes. Cancel it first
+  //      to free that quantity, then fall through to the normal sell path.
+  if (pos.liveOrder.stopOrderId) {
+    try {
+      const status = await mexcGetOrderStatus(MEXC_API_KEY, MEXC_API_SECRET, symbol, pos.liveOrder.stopOrderId);
+      if (status.status === 'FILLED') {
+        const qty  = parseFloat(status.executedQty || '0');
+        const fill = qty > 0 ? parseFloat(status.cummulativeQuoteQty || '0') / qty : pos.exitPrice || pos.liveOrder.fillPrice;
+        pos.liveOrder.sellOrderId   = pos.liveOrder.stopOrderId;
+        pos.liveOrder.exitFillPrice = fill;
+        pos.liveOrder.closedAt      = Date.now();
+        telegramAlerts.push(`🔴 *EXCHANGE STOP FILLED* — ${pos.base} closed via the resting MEXC stop order (ahead of this ${reason} check) @ $${fill.toFixed(6)}`);
+        logAudit('mexc_stop_reconciled_filled', { sym: symbol, qty, fillPrice: fill, orderId: pos.liveOrder.stopOrderId });
+        recordTradeClose(pos, 'exchange_stop_fill', { orderId: pos.liveOrder.stopOrderId, qty, fillPrice: fill });
+        await pushTradeLogToGitHub(loadTradeLog());
+        return { closed: true, reason: 'sold' };
+      }
+      if (status.status === 'NEW' || status.status === 'PARTIALLY_FILLED') {
+        await mexcCancelOrder(MEXC_API_KEY, MEXC_API_SECRET, symbol, pos.liveOrder.stopOrderId);
+        logAudit('mexc_stop_cancelled', { sym: symbol, orderId: pos.liveOrder.stopOrderId, forReason: reason });
+      }
+      // Any other terminal status (CANCELED/EXPIRED/etc.) — nothing to do,
+      // fall through to the normal sell path below.
+    } catch (e) {
+      // Order may already be gone (cancelled elsewhere, or the exchange is
+      // just erroring on the lookup) — log and continue. Worst case the
+      // sell below fails with zero_balance and gets the usual Telegram
+      // alert + retry-next-cycle handling, same as before this change.
+      logAudit('mexc_stop_reconcile_failed', { sym: symbol, orderId: pos.liveOrder.stopOrderId, error: e.message });
+    }
+  }
+
   try {
     const [step, bal] = await Promise.all([
       getBaseSizePrecision(symbol),
