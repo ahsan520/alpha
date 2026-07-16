@@ -101,6 +101,15 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .tc{display:none;flex-direction:column;}
 .tc.on{display:flex;}
 
+/* ── NEWS TAB — subtabs ── */
+#tab-news{overflow-y:auto;overflow-x:hidden;padding:10px;gap:0;}
+.news-subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:10px;flex-shrink:0;}
+.news-subtab{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:7px 14px;border:none;background:none;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;}
+.news-subtab:hover{color:var(--text);}
+.news-subtab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.news-sub{display:none;}
+.news-sub.on{display:block;}
+
 /* ── MATRIX LAYOUT ── */
 #tab-matrix{overflow-y:auto;overflow-x:hidden;}
 .grid2{display:grid;grid-template-columns:230px 1fr;height:calc(100vh - 80px);}
@@ -416,6 +425,7 @@ canvas.sp{display:block;}
 .api-tbl .pnl-neg{color:var(--bear);}
 .api-tbl .status-open{color:#4da6ff;}
 .api-tbl .status-closed{color:var(--text-dim);}
+.api-tbl .status-stale{color:#e0a030;}
 .api-tbl .status-stopped{color:var(--bear);}
 .api-tbl .ord-id{
   font-size:8px;color:var(--text-dim);
