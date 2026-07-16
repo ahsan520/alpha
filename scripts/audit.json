@@ -1,134 +1,5 @@
 [
   {
-    "timestamp": "2026-07-16T18:42:54.437Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-16T18:42:54.908Z",
-    "job": "leaderboard-decider",
-    "action": "position_stale_evicted",
-    "sym": "BINANCE:SOLUSDT",
-    "ageHrs": 25
-  },
-  {
-    "timestamp": "2026-07-16T18:42:56.172Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-07-16T18:42:56.604Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 6,
-    "openAfter": 5,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-07-16T18:42:56.605Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.5,
-    "reasons": [
-      "Fear & Greed: 25 (Fear) — halving position size"
-    ]
-  },
-  {
-    "timestamp": "2026-07-16T18:42:56.606Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "SUIUSDT",
-    "sym": "BINANCE:SUIUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-07-16T18:42:57.736Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_untracked",
-    "sym": "DOGEUSDT",
-    "qty": 13557,
-    "fillPrice": 0.0733,
-    "orderId": "C02__706510129838596096036"
-  },
-  {
-    "timestamp": "2026-07-16T18:42:58.464Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "DOGE",
-        "untracked": true
-      },
-      {
-        "base": "XRP",
-        "skipped": true,
-        "reason": "zero_balance"
-      }
-    ],
-    "into": [
-      "SUIUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-07-16T18:42:58.465Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "sym": "SUIUSDT",
-    "reasons": [
-      "already 1/1 live trades open"
-    ]
-  },
-  {
-    "timestamp": "2026-07-16T18:42:59.517Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-07-16T18:42:59.821Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "SUI"
-    ],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-07-16T18:43:00.968Z",
-    "job": "leaderboard-decider",
-    "action": "live_balances_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-07-16T18:43:00.968Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-16T18:43:02.720Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-07-16T19:20:29.974Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -237,5 +108,50 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-16T19:49:10.413Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-16T19:49:10.751Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.5,
+    "reasons": [
+      "Fear & Greed: 25 (Fear) — halving position size"
+    ]
+  },
+  {
+    "timestamp": "2026-07-16T19:49:10.752Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-16T19:49:10.752Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-16T19:49:11.140Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
