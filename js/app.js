@@ -437,7 +437,7 @@ function renderApiTrades(trades) {
   ].filter(Boolean).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-dim);padding:20px;">No API trades on record yet — they appear here once the ⭐ auto-trader places its first buy.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--text-dim);padding:20px;">No API trades on record yet — they appear here once the ⭐ auto-trader places its first buy.</td></tr>';
     return;
   }
 
@@ -457,11 +457,21 @@ function renderApiTrades(trades) {
       : (isLiveOpenRowStale(t) ? '⚠ not found on MEXC' : '🟢 open');
     const statusCls = t.status === 'closed' ? 'status-closed' : (isLiveOpenRowStale(t) ? 'status-stale' : 'status-open');
 
+    // DATE column: buy date, plus sell date on its own line if it differs
+    // from the buy date (a trade held overnight spans two dates).
+    const fmtDate = ms => { const d = new Date(ms); return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`; };
+    const buyDateStr  = t.buyAt  ? fmtDate(t.buyAt)  : '—';
+    const sellDateStr = t.sellAt ? fmtDate(t.sellAt) : null;
+    const dateCell = (sellDateStr && sellDateStr !== buyDateStr)
+      ? `${buyDateStr}<br><span style="color:var(--text-dim)">${sellDateStr}</span>`
+      : buyDateStr;
+
     const timeCell = sellAt
       ? `<span title="Bought: ${buyAt}&#10;Sold: ${sellAt}">B: ${buyAt.split(', ')[1] || buyAt}<br><span style="color:var(--text-dim)">S: ${sellAt.split(', ')[1] || sellAt}</span></span>`
-      : `<span title="${buyAt}">${buyAt}</span>`;
+      : `<span title="${buyAt}">${buyAt.split(', ')[1] || buyAt}</span>`;
 
     return `<tr>
+      <td style="font-size:9px;color:var(--text-dim)">${dateCell}</td>
       <td style="font-size:9px">${timeCell}</td>
       <td><b style="color:var(--text-bright)">${t.base}</b><br><span style="font-size:8px;color:var(--text-dim)">${t.mode || 'paper'}</span></td>
       <td><span style="font-size:8px;padding:2px 6px;border-radius:3px;background:rgba(61,155,255,0.1);color:#4da6ff">BUY</span></td>
