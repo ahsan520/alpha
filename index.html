@@ -26,7 +26,9 @@
 <!-- TABS -->
 <div class="tabs">
   <button class="tab on"  onclick="switchTab('matrix',this)">◆ SIGNAL MATRIX</button>
+  <button class="tab"     onclick="switchTab('news',this)">📰 NEWS</button>
   <button class="tab"     onclick="switchTab('journal',this)">◆ TRADE JOURNAL</button>
+  <button class="tab"     onclick="switchTab('api-audit',this)">🛡 API AUDIT</button>
   <button class="tab"     onclick="switchTab('alerts',this)">🔔 ALERTS</button>
   <button class="tab"     onclick="switchTab('watchlist-mgr',this)">⚙ WATCHLIST</button>
 </div>
@@ -190,48 +192,70 @@
   <div class="hcl-alertbar" id="hcl-alertbar"></div>
 </div>
 
-<!-- ◆ NEWS FEED — collapsible, outside tabs, always accessible -->
-<div class="bnews">
-  <div class="bnews-hdr" onclick="toggleNews()">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="pt">◆ NEWS FEED</span>
-      <button id="news-pause-btn" onclick="event.stopPropagation();toggleNewsPause()" title="Pause/resume news feed" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
-      <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
-      <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
-      <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
-      <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
-    </div>
-    <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
-  </div>
-  <div class="bnews-body" id="bnews-body"></div>
-</div>
+<!-- News Feed / Sentiment / General News panels moved to the dedicated
+     ◆ NEWS tab (with subtabs) — see #tab-news below. -->
 
-<!-- ◆ SENTIMENT PANEL — Alpha Vantage News/Sentiment, alert-only -->
-<div class="bnews">
-  <div class="bnews-hdr" onclick="toggleSentiment()">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="pt">◆ SENTIMENT (Alpha Vantage)</span>
-      <button id="sentiment-pause-btn" onclick="event.stopPropagation();toggleSentimentPause()" title="Pause/resume sentiment polling" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
-      <span id="sentiment-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
-      <span id="sentiment-bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
-      <span id="sentiment-bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
-    </div>
-    <span id="sentiment-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+<!-- ══ NEWS TAB ══ -->
+<!-- Subtabs: News Feed / Sentiment (Alpha Vantage) / General News (GNews).
+     Panels + all their existing polling/render JS (news.js, sentiment.js,
+     general-news.js) are unchanged — only the container moved here from the
+     old always-visible strip under the Signal Matrix. -->
+<div id="tab-news" class="tc">
+  <div class="news-subtabs">
+    <button class="news-subtab on" onclick="switchNewsSubtab('feed',this)">◆ NEWS FEED</button>
+    <button class="news-subtab"    onclick="switchNewsSubtab('sentiment',this)">◆ SENTIMENT</button>
+    <button class="news-subtab"    onclick="switchNewsSubtab('general',this)">◆ GENERAL NEWS</button>
   </div>
-  <div class="bnews-body" id="sentiment-body"></div>
-</div>
 
-<!-- ◆ GENERAL NEWS PANEL — GNews.io, geopolitics/rates/jobs/crypto, display-only -->
-<div class="bnews">
-  <div class="bnews-hdr" onclick="toggleGeneralNews()">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="pt">◆ GENERAL NEWS (GNews)</span>
-      <button id="general-news-pause-btn" onclick="event.stopPropagation();toggleGeneralNewsPause()" title="Pause/resume general news polling" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
-      <span id="general-news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+  <!-- ◆ NEWS FEED — crypto/stock headlines -->
+  <div id="news-sub-feed" class="news-sub on">
+    <div class="bnews">
+      <div class="bnews-hdr" onclick="toggleNews()">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="pt">◆ NEWS FEED</span>
+          <button id="news-pause-btn" onclick="event.stopPropagation();toggleNewsPause()" title="Pause/resume news feed" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
+          <div id="news-tag-bar" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
+          <span id="news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+          <span id="bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
+          <span id="bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
+        </div>
+        <span id="news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+      </div>
+      <div class="bnews-body" id="bnews-body"></div>
     </div>
-    <span id="general-news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
   </div>
-  <div class="bnews-body" id="general-news-body"></div>
+
+  <!-- ◆ SENTIMENT PANEL — Alpha Vantage News/Sentiment, alert-only -->
+  <div id="news-sub-sentiment" class="news-sub">
+    <div class="bnews">
+      <div class="bnews-hdr" onclick="toggleSentiment()">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="pt">◆ SENTIMENT (Alpha Vantage)</span>
+          <button id="sentiment-pause-btn" onclick="event.stopPropagation();toggleSentimentPause()" title="Pause/resume sentiment polling" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
+          <span id="sentiment-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+          <span id="sentiment-bull-n" style="font-family:var(--mono);font-size:8px;color:var(--bull);">▲ 0</span>
+          <span id="sentiment-bear-n" style="font-family:var(--mono);font-size:8px;color:var(--bear);">▼ 0</span>
+        </div>
+        <span id="sentiment-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+      </div>
+      <div class="bnews-body" id="sentiment-body"></div>
+    </div>
+  </div>
+
+  <!-- ◆ GENERAL NEWS PANEL — GNews.io, geopolitics/rates/jobs/crypto, display-only -->
+  <div id="news-sub-general" class="news-sub">
+    <div class="bnews">
+      <div class="bnews-hdr" onclick="toggleGeneralNews()">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="pt">◆ GENERAL NEWS (GNews)</span>
+          <button id="general-news-pause-btn" onclick="event.stopPropagation();toggleGeneralNewsPause()" title="Pause/resume general news polling" style="font-family:var(--mono);font-size:11px;padding:2px 7px;background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);border-radius:3px;cursor:pointer;letter-spacing:1px;">▶</button>
+          <span id="general-news-badge" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);">—</span>
+        </div>
+        <span id="general-news-chevron" style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">▲ COLLAPSE</span>
+      </div>
+      <div class="bnews-body" id="general-news-body"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ JOURNAL TAB ══ -->
@@ -318,6 +342,33 @@
 <!-- ══ ALERTS TAB ══ -->
 <div id="tab-alerts" class="tc" style="height:calc(100vh - 80px);overflow:hidden;flex-direction:column;">
   <!-- Populated by renderAlertCfgPage() in alerts.js -->
+</div>
+
+<!-- ══ API AUDIT TAB ══ -->
+<!-- Fed by audit-log.json — every API/trade action the headless job takes -->
+<!-- (buys, sells, skips, failures, GitHub pushes, mode changes, etc). Read- -->
+<!-- only, most-recent-first; capped server-side at ~3000 rows. -->
+<div id="tab-api-audit" class="tc" style="height:calc(100vh - 80px);overflow:hidden;">
+  <div class="api-trades-section" style="max-height:none;height:100%;border-top:none;">
+    <div class="api-trades-header">
+      <span class="api-trades-title">🛡 API AUDIT</span>
+      <div class="api-trades-stats" id="api-audit-stats"></div>
+      <button class="bsm" onclick="refreshApiAudit()" title="Reload from GitHub">↻ Refresh</button>
+    </div>
+    <div class="api-tbl-wrap">
+      <table class="jtbl api-tbl">
+        <thead>
+          <tr><th>TIME</th><th>ACTION</th><th>DETAILS</th></tr>
+        </thead>
+        <tbody id="api-audit-tbody">
+          <tr><td colspan="3" style="text-align:center;color:var(--text-dim);padding:20px;">
+            Click ↻ Refresh to load the API audit trail from GitHub
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="api-trades-footer" id="api-audit-footer"></div>
+  </div>
 </div>
 
 <!-- ══ WATCHLIST MANAGER TAB ══ -->
