@@ -29,7 +29,7 @@
   <button class="tab"     onclick="switchTab('news',this)">📰 NEWS</button>
   <button class="tab"     onclick="switchTab('journal',this)">◆ TRADE JOURNAL</button>
   <button class="tab"     onclick="switchTab('api-audit',this)">🛡 API AUDIT</button>
-  <button class="tab"     onclick="switchTab('alerts',this)">🔔 ALERTS</button>
+  <button class="tab"     onclick="switchTab('alerts',this)">⚙ CONFIG</button>
   <button class="tab"     onclick="switchTab('watchlist-mgr',this)">⚙ WATCHLIST</button>
 </div>
 
@@ -82,7 +82,14 @@
 
 </div><!-- /tab-matrix -->
 
-<!-- ◆ UNIFIED MARKET BAR — outside all tabs, always visible -->
+<!-- ◆ MATRIX-TAB EXTRAS — market bar + leaderboard panel. These live outside
+     the .tc tab divs so they stay visible on desktop no matter which tab is
+     open. On mobile (see #matrix-extras rule in styles.css) this wrapper is
+     hidden whenever a non-Matrix tab (News/Journal/Config/API Audit/Watchlist)
+     is active, so those pages don't get buried under this content. -->
+<div id="matrix-extras">
+
+<!-- ◆ UNIFIED MARKET BAR — outside all tabs, always visible on desktop -->
 <div class="mbar" id="mpulse-panel">
 
   <!-- Row 1: Market Pulse Tiles -->
@@ -191,6 +198,8 @@
   </div>
   <div class="hcl-alertbar" id="hcl-alertbar"></div>
 </div>
+
+</div><!-- /matrix-extras -->
 
 <!-- News Feed / Sentiment / General News panels moved to the dedicated
      ◆ NEWS tab (with subtabs) — see #tab-news below. -->
@@ -320,14 +329,14 @@
           <table class="jtbl api-tbl">
             <thead>
               <tr>
-                <th>TIME</th><th>SYMBOL</th><th>MODE</th>
+                <th>DATE</th><th>TIME</th><th>SYMBOL</th><th>MODE</th>
                 <th>BUY QTY</th><th>BUY @ $</th><th>BUY ORDER ID</th>
                 <th>SELL QTY</th><th>SELL @ $</th><th>SELL ORDER ID</th>
                 <th>P&L %</th><th>STATUS</th>
               </tr>
             </thead>
             <tbody id="api-trades-tbody">
-              <tr><td colspan="11" style="text-align:center;color:var(--text-dim);padding:20px;">
+              <tr><td colspan="12" style="text-align:center;color:var(--text-dim);padding:20px;">
                 Click ↻ Refresh to load API trade history from GitHub
               </td></tr>
             </tbody>
@@ -339,7 +348,7 @@
   </div>
 </div>
 
-<!-- ══ ALERTS TAB ══ -->
+<!-- ══ CONFIG TAB (nav label renamed from "Alerts"; internal id/tab key unchanged) ══ -->
 <div id="tab-alerts" class="tc" style="height:calc(100vh - 80px);overflow:hidden;flex-direction:column;">
   <!-- Populated by renderAlertCfgPage() in alerts.js -->
 </div>
