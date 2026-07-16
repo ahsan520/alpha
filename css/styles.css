@@ -450,7 +450,7 @@ canvas.sp{display:block;}
 .pc-vn{font-weight:700;margin-top:2px;}
 
 /* ── ALERT CONFIG TAB ── */
-#tab-alerts{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
+#tab-alerts{overflow-y:auto;padding:20px;flex-direction:column;gap:16px;} /* display intentionally NOT set here — .tc/.tc.on controls visibility; an ID-scoped display:flex here previously beat .tc{display:none} on specificity and made this panel render on every tab */
 .alert-cfg{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;}
 .alert-cfg-title{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-bright);letter-spacing:2px;margin-bottom:12px;}
 .alert-cfg label{font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:1px;display:block;margin-bottom:3px;}
