@@ -315,6 +315,18 @@ function switchTab(tab, btn) {
   if (tab === 'alerts')        renderAlertCfgPage();
   if (tab === 'watchlist-mgr') renderWatchlistManager();
   if (tab === 'journal')       renderApiTrades();  // always refresh on open
+  if (tab === 'api-audit')     refreshApiAudit();  // always refresh on open
+}
+
+// News tab has its own subtab switcher (News Feed / Sentiment / General News)
+// — separate from the top-level switchTab since these are nested one level
+// down. Existing panel content/polling (news.js, sentiment.js, general-news.js)
+// is untouched; this only toggles which subtab panel is visible.
+function switchNewsSubtab(sub, btn) {
+  document.querySelectorAll('.news-sub').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.news-subtab').forEach(b => b.classList.remove('on'));
+  document.getElementById('news-sub-' + sub).classList.add('on');
+  btn.classList.add('on');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -326,7 +338,7 @@ function switchTab(tab, btn) {
 // (TERMINAL_EVICT_MS) before deleting it — trade-log.json entries are never
 // evicted, so history survives here even after positions.json has moved on.
 // ══════════════════════════════════════════════════════════════════════════════
-const _apiTradesState = { loading: false, lastFetched: 0, trades: [] };
+const _apiTradesState = { loading: false, lastFetched: 0, trades: [], liveBalances: null };
 
 async function refreshApiTrades() {
   if (_apiTradesState.loading) return;
@@ -337,6 +349,7 @@ async function refreshApiTrades() {
     const repo    = cfg.repo  || window.__GH_REPO || '';
     const branch  = cfg.branch || 'main';
     const fpath   = (cfg.tradeLogPath || 'scripts/trade-log.json');
+    const balPath = (cfg.liveBalancesPath || 'scripts/mexc-live-balances.json');
     if (!repo) { setApiTradesFooter('GitHub repo not configured — set GH_REPO in sync settings.'); return; }
 
     const url  = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`;
@@ -351,15 +364,43 @@ async function refreshApiTrades() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const trades = await res.json();
 
+    // Live balances snapshot — best-effort, not fatal if missing (paper mode
+    // never has one; 404 just means "no cross-check available yet").
+    _apiTradesState.liveBalances = null;
+    try {
+      const balUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${balPath}?t=${Date.now()}`;
+      const balRes = await fetch(balUrl, { cache: 'no-store' });
+      if (balRes.ok) _apiTradesState.liveBalances = await balRes.json();
+    } catch { /* cross-check just won't be available this refresh */ }
+
     _apiTradesState.trades      = Array.isArray(trades) ? trades : [];
     _apiTradesState.lastFetched = Date.now();
     renderApiTrades(_apiTradesState.trades);
-    setApiTradesFooter(`Last synced ${new Date().toLocaleTimeString()} from ${repo} · ${_apiTradesState.trades.length} trade(s) on permanent record`);
+    const balNote = _apiTradesState.liveBalances
+      ? ` · MEXC balance synced ${new Date(_apiTradesState.liveBalances.fetchedAt).toLocaleTimeString()}`
+      : '';
+    setApiTradesFooter(`Last synced ${new Date().toLocaleTimeString()} from ${repo} · ${_apiTradesState.trades.length} trade(s) on permanent record${balNote}`);
   } catch (e) {
     setApiTradesFooter(`Error loading trade log: ${e.message}`);
   } finally {
     _apiTradesState.loading = false;
   }
+}
+
+// A live 'open' row is "stale" if we have a live-balances snapshot to check
+// against and this asset genuinely isn't sitting in the account anymore —
+// e.g. it was sold manually outside the bot, or some other drift the bot's
+// own tracking wouldn't otherwise reveal. No snapshot available (paper mode,
+// or the snapshot just hasn't synced yet) → never flag, to avoid false
+// positives from a missing cross-check rather than a real mismatch.
+function isLiveOpenRowStale(t) {
+  if (t.mode !== 'live') return false;
+  const snap = _apiTradesState.liveBalances;
+  if (!snap || !Array.isArray(snap.balances)) return false;
+  const row = snap.balances.find(b => b.asset === t.base);
+  const held = row ? (row.free + (row.locked || 0)) : 0;
+  // Dust tolerance — a sliver left over from fees shouldn't count as "still open".
+  return held <= (t.buyQty || 0) * 0.01;
 }
 
 function setApiTradesFooter(msg) {
@@ -413,8 +454,8 @@ function renderApiTrades(trades) {
 
     const statusLabel = t.status === 'closed'
       ? (t.reason ? `🔴 ${t.reason}` : '✅ closed')
-      : '🟢 open';
-    const statusCls = t.status === 'closed' ? 'status-closed' : 'status-open';
+      : (isLiveOpenRowStale(t) ? '⚠ not found on MEXC' : '🟢 open');
+    const statusCls = t.status === 'closed' ? 'status-closed' : (isLiveOpenRowStale(t) ? 'status-stale' : 'status-open');
 
     const timeCell = sellAt
       ? `<span title="Bought: ${buyAt}&#10;Sold: ${sellAt}">B: ${buyAt.split(', ')[1] || buyAt}<br><span style="color:var(--text-dim)">S: ${sellAt.split(', ')[1] || sellAt}</span></span>`
@@ -436,6 +477,94 @@ function renderApiTrades(trades) {
   }).join('');
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// API AUDIT TAB
+// Reads audit-log.json from GitHub — every API/trade action the headless job
+// has logged (buys, sells, skips, failures, rotation decisions, GitHub
+// pushes, mode changes, etc), written by job-state.js's logAudit(). Capped
+// server-side at ~3000 entries; most-recent-first here.
+// ══════════════════════════════════════════════════════════════════════════════
+const _apiAuditState = { loading: false, entries: [] };
+
+async function refreshApiAudit() {
+  if (_apiAuditState.loading) return;
+  _apiAuditState.loading = true;
+  setApiAuditFooter('Loading…');
+  try {
+    const cfg    = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
+    const repo   = cfg.repo   || window.__GH_REPO || '';
+    const branch = cfg.branch || 'main';
+    const fpath  = (cfg.auditLogPath || 'scripts/audit-log.json');
+    if (!repo) { setApiAuditFooter('GitHub repo not configured — set GH_REPO in sync settings.'); return; }
+
+    const url = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (res.status === 404) {
+      _apiAuditState.entries = [];
+      renderApiAudit([]);
+      setApiAuditFooter('No audit log found yet — it is created after the first job run.');
+      return;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const entries = await res.json();
+
+    _apiAuditState.entries = Array.isArray(entries) ? entries : [];
+    renderApiAudit(_apiAuditState.entries);
+    setApiAuditFooter(`Last synced ${new Date().toLocaleTimeString()} from ${repo} · ${_apiAuditState.entries.length} entr${_apiAuditState.entries.length === 1 ? 'y' : 'ies'} on record`);
+  } catch (e) {
+    setApiAuditFooter(`Error loading audit log: ${e.message}`);
+  } finally {
+    _apiAuditState.loading = false;
+  }
+}
+
+function setApiAuditFooter(msg) {
+  const el = document.getElementById('api-audit-footer');
+  if (el) el.textContent = msg;
+}
+
+// Actions whose payload commonly carries an error/failure signal — colored
+// red in the table so problems stand out at a glance.
+function _isAuditActionFailure(action) {
+  return /fail|error|skip/i.test(action || '');
+}
+
+function renderApiAudit(entries) {
+  entries = entries || _apiAuditState.entries;
+  const tbody = document.getElementById('api-audit-tbody');
+  const stats = document.getElementById('api-audit-stats');
+  if (!tbody) return;
+
+  const rows = [...entries].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  if (stats) {
+    const failures = rows.filter(r => _isAuditActionFailure(r.action)).length;
+    stats.innerHTML = [
+      `<span>${rows.length}</span> entries`,
+      failures ? `<span style="color:var(--bear)">${failures}</span> skipped/failed` : null,
+    ].filter(Boolean).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-dim);padding:20px;">No audit entries on record yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(e => {
+    const time    = e.timestamp ? new Date(e.timestamp).toLocaleString() : '—';
+    const isFail  = _isAuditActionFailure(e.action);
+    const { timestamp, job, action, ...details } = e;
+    const detailStr = Object.keys(details).length
+      ? Object.entries(details).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('  ·  ')
+      : '—';
+    return `<tr>
+      <td style="font-size:9px;white-space:nowrap;color:var(--text-dim)">${time}</td>
+      <td style="font-size:9px;font-weight:700;color:${isFail ? 'var(--bear)' : 'var(--text-bright)'}">${e.action || '—'}</td>
+      <td style="font-size:9px;color:var(--text-dim);white-space:normal;word-break:break-word;">${detailStr}</td>
+    </tr>`;
+  }).join('');
+}
 
 function sortBy(k) {
   STATE.sortD = STATE.sortK === k ? STATE.sortD * -1 : -1;
