@@ -102,6 +102,16 @@ async function pollForFill(apiKey, apiSecret, symbol, orderId, initialOrder) {
   return order;
 }
 
+// Every non-zero crypto balance on the account, not just what positions.json
+// happens to track — this is what lets rotation see a manually-bought coin
+// (bought outside the bot, e.g. directly on MEXC) as a real open position.
+export async function mexcGetAllBalances(apiKey, apiSecret) {
+  const acct = await signedRequest(apiKey, apiSecret, 'GET', '/api/v3/account', {});
+  return (acct.balances || [])
+    .map(b => ({ asset: b.asset, free: parseFloat(b.free), locked: parseFloat(b.locked) }))
+    .filter(b => (b.free + b.locked) > 0);
+}
+
 export async function mexcMarketBuy(apiKey, apiSecret, symbol, usdAmount) {
   let order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
     symbol, side: 'BUY', type: 'MARKET', quoteOrderQty: usdAmount,

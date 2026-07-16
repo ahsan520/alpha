@@ -19,7 +19,7 @@
 // actually fired. Fixed here by taking closedOutcomes as an explicit param.
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketBuy, mexcFreeBalance } from './mexc-client.js';
+import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
 import { sendTelegram } from './telegram-commands.js';
 import {
@@ -44,16 +44,26 @@ function isNoTradeSymbol(pair) {
   return NO_TRADE_SYMBOLS.includes(bare);
 }
 
+// Never treat these as "open positions" to rotate out of — they're buying
+// power, not a trade.
+const QUOTE_ASSETS = new Set(['USDT', 'USDC', 'BUSD', 'TUSD', 'DAI', 'FDUSD']);
 
-// ── Rotation — sell all live positions to make room for the latest topN/star buy alert ──
-// Fires on ANY cycle where a star-pick/topN buy alert actually fires (not
-// just grade A/A+ signals as before) — every fresh top-ranked buy alert
-// rotates out existing live positions in favor of it. Exception: a position
-// that has already hit T1 and is holding toward T2 is left alone AS LONG AS
-// it still reads as a qualifying (A/A+ grade) signal in current market data
-// — no reason to sell a still-strong winner just to immediately not replace
-// it. Stop-loss and T2-hit exits are entirely separate (position-monitor.js)
-// and are unaffected by any of this.
+
+// ── Rotation — sell anything held that's no longer a top A/A+ pick ──
+// Fires on ANY cycle where a star-pick/topN buy alert actually fires. Rule is
+// now uniform for every currently-held position (tracked or not):
+//   - still qualifies (is itself one of this cycle's topN A/A+ candidates,
+//     OR its own current market grade still reads A/A+) → PROTECTED, left
+//     alone. This is what lets a position that's already hit T1 and is still
+//     running strong stay held instead of being sold just to make room.
+//   - otherwise → sold now, to fund the new pick(s).
+// In LIVE mode this is reconciled against the REAL MEXC account balance, not
+// just positions.json — so a coin bought manually outside the bot (which the
+// bot would otherwise have no idea about) is still seen and rotated exactly
+// like a bot-opened position. Paper mode has no real balance to check
+// against, so it still uses positions.json only.
+// Stop-loss and T2-hit exits are entirely separate (position-monitor.js) and
+// are unaffected by any of this.
 async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, effectiveTopNCount, positions, market, tradeState, effectiveTradeMode, closedOutcomes, utc }) {
   let changed = false;
 
@@ -73,126 +83,158 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
 
   if (!shouldRotate) return { changed, rotationCandidates: [] };
 
-  const livePosEntries = Object.entries(positions).filter(
-    ([, p]) => p.assetType === 'crypto'              // MEXC is crypto-only — never rotate stocks/ETFs
-            && p.liveOrder?.mode === effectiveTradeMode
-            && !p.liveOrder?.closedAt
-            && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
-  );
+  // Bases that qualify as this cycle's top A/A+ picks — anything currently
+  // held that's already one of these is left alone; everything else gets
+  // sold to fund the new picks. A held symbol that ISN'T a fresh candidate
+  // (buy-side skips symbols with an existing open position, so it can't
+  // reappear in `ranked` on its own) can still count as "still top" if its
+  // OWN current market grade reads A/A+ — same logic previously reserved for
+  // T1 holders, now applied uniformly to every held position.
+  const topBases = new Set(rotationCandidates.map(c => c.pair.replace(/[^A-Z]/g, '').replace(/USDT$/, '')));
+  const gradeStillTop = (base) => {
+    const grade = (market.symbols || {})[base + 'USDT']?.grade;
+    return topBases.has(base) || grade === 'A' || grade === 'A+';
+  };
 
-  // ── T1-holding positions (status tp1_hit, no exitPrice — genuinely still
-  // held, running toward T2) get their own rotation rule, separate from
-  // normal open trades above:
-  //   - still grades A/A+ itself this cycle → PROTECTED. Left completely
-  //     untouched in positions.json; only ever sold at T2/stop/exit-score
-  //     (position-monitor.js's own logic), never by rotation.
-  //   - no longer grades A/A+ → sold now (same as a normal rotation sell)
-  //     AND removed from positions.json immediately (not left for the
-  //     usual 5-min TERMINAL_EVICT_MS window), freeing the slot right away
-  //     for the star-pick buy that runs immediately after this function.
-  // A held symbol never re-appears in `ranked` on its own (the buy-side
-  // open-position gate skips symbols that already have an open position),
-  // so its current grade has to be read straight from market data here.
-  const holdingT1Entries = Object.entries(positions).filter(
-    ([, p]) => p.assetType === 'crypto'
-            && p.liveOrder?.mode === effectiveTradeMode
-            && !p.liveOrder?.closedAt
-            && p.status === 'tp1_hit' && !p.exitPrice
-  );
+  const sellTargets = []; // [{ base, sym, freeQty?, pos?, key? }]
 
-  const rotatableT1Entries = holdingT1Entries.filter(([sym]) => {
-    const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
-    const grade = (market.symbols || {})[mKey]?.grade;
-    return grade !== 'A' && grade !== 'A+'; // no longer top-grade → eligible to rotate out
-  });
-
-  if (holdingT1Entries.length && !rotatableT1Entries.length) {
-    console.log(`  🔒  ${holdingT1Entries.length} T1-holding position(s) still grade A/A+ — protected from rotation`);
+  if (effectiveTradeMode === 'live') {
+    // Reconcile against the REAL exchange, not just positions.json — this is
+    // what lets rotation see a coin bought manually outside the bot (or one
+    // whose tracked qty drifted from reality) as a genuine open position.
+    let balances = [];
+    try {
+      balances = await mexcGetAllBalances(MEXC_API_KEY, MEXC_API_SECRET);
+    } catch (e) {
+      console.log(`  ⚠️  Rotation: couldn't fetch MEXC balances (${e.message}) — falling back to tracked positions only`);
+    }
+    const seenBases = new Set();
+    for (const bal of balances) {
+      const base = bal.asset;
+      if (QUOTE_ASSETS.has(base) || isNoTradeSymbol(base + 'USDT')) continue;
+      if (gradeStillTop(base)) continue; // protected — still a top pick, leave it
+      seenBases.add(base);
+      const trackedEntry = Object.entries(positions).find(
+        ([, p]) => p.base === base && p.assetType === 'crypto' && !p.liveOrder?.closedAt
+      );
+      sellTargets.push({ base, sym: base + 'USDT', freeQty: bal.free, pos: trackedEntry?.[1], key: trackedEntry?.[0] });
+    }
+    // A tracked live position that didn't show up in the balance query at
+    // all (already at 0 on the exchange, but positions.json still has it
+    // open) still needs resolving so it doesn't sit stuck — route it through
+    // closeLiveOrder below, which reports "0 balance" clearly instead of
+    // leaving a ghost entry.
+    for (const [key, p] of Object.entries(positions)) {
+      if (p.assetType !== 'crypto' || p.liveOrder?.mode !== 'live' || p.liveOrder?.closedAt) continue;
+      if (['stopped', 'tp2_hit'].includes(p.status)) continue;
+      if (seenBases.has(p.base) || gradeStillTop(p.base)) continue;
+      sellTargets.push({ base: p.base, sym: p.base + 'USDT', freeQty: 0, pos: p, key });
+    }
+  } else {
+    // Paper mode has no real exchange balance to reconcile against — use
+    // tracked positions.json only, same as before.
+    for (const [key, p] of Object.entries(positions)) {
+      if (p.assetType !== 'crypto' || p.liveOrder?.mode !== 'paper' || p.liveOrder?.closedAt) continue;
+      if (['stopped', 'tp2_hit'].includes(p.status)) continue;
+      if (gradeStillTop(p.base)) continue;
+      sellTargets.push({ base: p.base, sym: p.base + 'USDT', pos: p, key });
+    }
   }
 
-  const allSellEntries = [...livePosEntries, ...rotatableT1Entries];
+  if (!sellTargets.length) return { changed, rotationCandidates };
 
-  if (allSellEntries.length) {
-    console.log(`  🔄  ROTATION — ${rotationCandidates.map(c=>c.pair).join(', ')} qualify → selling ${allSellEntries.length} live position(s) first`);
-    const rotationSells = [];
+  console.log(`  🔄  ROTATION — ${rotationCandidates.map(c => c.pair).join(', ')} qualify → selling ${sellTargets.length} position(s) first`);
+  const rotationSells = [];
 
-    for (const [sym, pos] of allSellEntries) {
-      const sellAlerts = [];
-      const wasHoldingT1 = pos.status === 'tp1_hit' && !pos.exitPrice;
+  for (const target of sellTargets) {
+    const { base, sym, pos, key } = target;
+    const sellAlerts = [];
+    const wasHoldingT1 = pos?.status === 'tp1_hit' && !pos?.exitPrice;
+    const mData = (market.symbols || {})[sym];
+    const marketPrice = parseFloat(mData?.d?.p || pos?.entryPrice || 0);
 
-      // Look up the real current market price BEFORE closing — closeLiveOrder's
-      // paper branch reads pos.exitPrice to log the sell, so this must be set
-      // ahead of that call or it silently falls back to the buy price (the
-      // bug that made every rotation-closed paper trade show 0.00% P&L).
-      const mKey  = sym.includes(':') ? sym.split(':').slice(1).join(':') : sym;
-      const mData = (market.symbols || {})[mKey];
-      const exitPrice = parseFloat(mData?.d?.p || pos.entryPrice || 0);
-      pos.exitPrice = exitPrice;
-
+    if (pos) {
+      // Tracked position — reuse the existing safe closeLiveOrder path (handles
+      // paper vs live, re-checks the real balance, records the trade-log close).
+      pos.exitPrice = marketPrice;
       const closeResult = await closeLiveOrder(pos, wasHoldingT1 ? 'rotation — no longer top grade' : 'rotation', sellAlerts);
       const isLiveCrypto = pos.assetType === 'crypto' && pos.liveOrder?.mode === 'live';
 
       if (isLiveCrypto && !closeResult.closed) {
-        // The exchange sell did NOT actually happen (0 balance / API error).
-        // closeLiveOrder already pushed a SKIPPED/FAILED alert with detail.
-        // Do NOT delete/mark-stopped this position — it's still tracked as
-        // open (occupying its slot, keeping its own stop/T2 monitoring
-        // active) and rotation will retry it again next cycle. This is the
-        // fix for the old behavior where "Sold: XRP -1.56%" was reported in
-        // the rotation summary even when the real MEXC sell never happened.
         delete pos.exitPrice;
-        rotationSells.push({ base: pos.base, skipped: true, reason: closeResult.reason });
+        rotationSells.push({ base, skipped: true, reason: closeResult.reason });
         for (const m of sellAlerts) await sendTelegram(m);
         continue;
       }
 
-      // Record the rotation exit in symbol history — prefer the actual fill
-      // price closeLiveOrder captured (live mode gets a real MEXC fill; paper
-      // mode echoes back pos.exitPrice), falling back to the market price above.
-      const finalExitPrice = pos.liveOrder?.exitFillPrice || exitPrice;
-      const pnlPct    = pos.entryPrice > 0
+      const finalExitPrice = pos.liveOrder?.exitFillPrice || marketPrice;
+      const pnlPct = pos.entryPrice > 0
         ? parseFloat(((finalExitPrice - pos.entryPrice) / pos.entryPrice * 100).toFixed(2))
         : 0;
 
       closedOutcomes.push({
-        base: pos.base, pair: pos.base + 'USDT',
+        base, pair: base + 'USDT',
         outcome: wasHoldingT1 ? 'rotation_t1_downgrade' : 'rotation', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct, closedAt: Date.now(),
       });
-      rotationSells.push({ base: pos.base, pnlPct, wasHoldingT1 });
+      rotationSells.push({ base, pnlPct, wasHoldingT1 });
 
       if (wasHoldingT1) {
         // No longer top-grade — remove now rather than waiting on the usual
-        // TERMINAL_EVICT_MS window, so the slot/capital frees immediately
-        // for the star-pick buy that runs right after this function.
-        delete positions[sym];
+        // TERMINAL_EVICT_MS window, so the slot/capital frees immediately.
+        delete positions[key];
       } else {
-        // Mark as evicted immediately — slot freed for rotation buy
         pos.status          = 'stopped'; // treated as a close
         pos.statusChangedAt = Date.now();
-        pos.exitPrice       = finalExitPrice; // already set pre-close; keep in sync with the fill actually recorded
+        pos.exitPrice       = finalExitPrice;
         pos.rotatedOut      = true;
       }
       changed = true;
-
       for (const m of sellAlerts) await sendTelegram(m);
+    } else {
+      // Untracked — a real MEXC balance with no matching positions.json entry
+      // (e.g. bought manually outside the bot). Sell it directly; there's no
+      // buy record in the trade journal for it since the bot never placed
+      // that buy, so this can't be logged as a P&L close, only as a sell.
+      try {
+        const step    = await getBaseSizePrecision(sym);
+        const sellQty = floorToStep(target.freeQty, step);
+        if (sellQty <= 0) {
+          rotationSells.push({ base, skipped: true, reason: 'zero_balance' });
+          continue;
+        }
+        const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, sym, sellQty);
+        logAudit('mexc_sell_untracked', { sym, qty: sellQty, fillPrice: sell.fillPrice, orderId: sell.orderId });
+        await sendTelegram(
+          `🟢 *LIVE SELL (untracked)* — closed ${sellQty} ${base} @ $${sell.fillPrice.toFixed(6)} on MEXC\n` +
+          `  _No matching bot buy record for this — likely bought manually. Sold to make room for the new A/A+ pick(s); no P&L entry in the journal._`
+        );
+        rotationSells.push({ base, untracked: true });
+        changed = true;
+      } catch (e) {
+        logAudit('mexc_sell_untracked_failed', { sym, error: e.message });
+        await sendTelegram(`🚨 *LIVE SELL FAILED (untracked)* — ${base}: ${e.message} — CLOSE MANUALLY on MEXC.`);
+        rotationSells.push({ base, skipped: true, reason: 'error' });
+      }
     }
-
-    const sellSummary = rotationSells
-      .map(r => r.skipped
-        ? `${r.base} SKIPPED (${r.reason === 'zero_balance' ? '0 balance' : r.reason})`
-        : `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
-      .join(', ');
-    const anySkipped = rotationSells.some(r => r.skipped);
-    await sendTelegram(
-      `🔄 *ROTATION* — ${utc}\n` +
-      `  ${sellSummary}\n` +
-      `  Rotating into: ${rotationCandidates.map(c => c.entry.grade + ' ' + c.pair.replace('USDT','')).join(', ')}\n` +
-      (anySkipped ? `  ⚠️ _Some sells were skipped — see alert above. That position stays tracked and will retry next cycle; its slot stays occupied until it actually clears._\n` : '') +
-      `  _Fresh topN buy alert — rotating positions_`
-    );
-    logAudit('rotation_sell', { sold: rotationSells, into: rotationCandidates.map(c=>c.pair) });
   }
+
+  const sellSummary = rotationSells
+    .map(r => r.skipped
+      ? `${r.base} SKIPPED (${r.reason === 'zero_balance' ? '0 balance' : r.reason})`
+      : r.untracked
+        ? `${r.base} sold (untracked)`
+        : `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
+    .join(', ');
+  const anySkipped = rotationSells.some(r => r.skipped);
+  await sendTelegram(
+    `🔄 *ROTATION* — ${utc}\n` +
+    `  ${sellSummary}\n` +
+    `  Rotating into: ${rotationCandidates.map(c => c.entry.grade + ' ' + c.pair.replace('USDT', '')).join(', ')}\n` +
+    (anySkipped ? `  ⚠️ _Some sells were skipped — see alert above. That position stays tracked/open and will retry next cycle._\n` : '') +
+    `  _Fresh topN buy alert — rotating positions_`
+  );
+  logAudit('rotation_sell', { sold: rotationSells, into: rotationCandidates.map(c => c.pair) });
 
   return { changed, rotationCandidates };
 }

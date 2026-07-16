@@ -22,6 +22,7 @@ import {
   logAudit, pushPositionsToGitHub, SKIP_SETUPS, TERMINAL_EVICT_MS,
   TRADE_MODE, TRADE_USD_SIZE, TRADE_MAX_LIVE,
   DRY_RUN, TG_ENABLED,
+  MEXC_API_KEY, MEXC_API_SECRET,
   loadMarketData, saveMarketData,
   loadPositions, savePositions,
   loadAlertState, saveAlertState,
@@ -29,7 +30,9 @@ import {
   loadHistory, saveHistory,
   loadTradeState, saveTradeState,
   saveTradeLog, pushTradeLogToGitHub,
+  loadAuditLog, pushAuditLogToGitHub, pushLiveBalancesToGitHub,
 } from './job-state.js';
+import { mexcGetAllBalances } from './mexc-client.js';
 
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
 import { monitorPositions } from './position-monitor.js';
@@ -614,7 +617,24 @@ async function main() {
     recommended: showRecoTags ? ranked.slice(0, RECO_TOP_N).map(r => base(r.a)) : [],
     caution: ranked.filter(r => r.caution).map(r => base(r.a)),
   });
+
+  // ── Live-balances snapshot for the GUI's Trade Journal cross-check ──
+  // Only meaningful in live mode — paper has no real exchange balance. Runs
+  // every cycle (not just on rotation) so the GUI always has a fresh view of
+  // what's actually sitting on MEXC right now, including anything bought
+  // manually outside the bot.
+  if (effectiveTradeMode === 'live' && MEXC_API_KEY && MEXC_API_SECRET) {
+    try {
+      const balances = await mexcGetAllBalances(MEXC_API_KEY, MEXC_API_SECRET);
+      await pushLiveBalancesToGitHub(balances);
+    } catch (e) {
+      console.warn(`[live-balances] ⚠ ${e.message}`);
+      logAudit('live_balances_fetch_failed', { error: e.message });
+    }
+  }
+
   logAudit('job_complete');
+  await pushAuditLogToGitHub(loadAuditLog());
   console.log('\n✅  Job B complete.\n');
 }
 

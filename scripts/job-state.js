@@ -25,6 +25,7 @@ const SYMBOL_HISTORY_PATH = path.join(process.cwd(), 'symbol-history.json');
 const TRADE_STATE_PATH    = path.join(process.cwd(), 'trade-state.json');
 const TRADE_LOG_PATH      = path.join(process.cwd(), 'trade-log.json');
 const PAPER_BALANCE_PATH  = path.join(process.cwd(), 'paper-balance.json');
+const LIVE_BALANCES_PATH  = path.join(process.cwd(), 'mexc-live-balances.json');
 
 // ── Shared env constants ──
 export const DRY_RUN    = process.argv.includes('--dry-run');
@@ -211,13 +212,124 @@ export async function pushTradeLogToGitHub(tradeLog) {
 }
 
 // ── Audit ──
+// Kept as a count-based cap rather than a time window — a 1-hour window
+// used to mean almost nothing survived between 15-min cron runs' worth of
+// useful history. 3000 entries is roughly several days of activity at
+// typical per-cycle volume, which is what the GUI's API Audit tab needs to
+// show something meaningful rather than just the last run or two.
+const AUDIT_MAX_ROWS = 3000;
+
 export function logAudit(action, details = {}) {
   const entry = { timestamp: new Date().toISOString(), job: 'leaderboard-decider', action, ...details };
   let logs = [];
   try { logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8')); if (!Array.isArray(logs)) logs = []; } catch {}
   logs.push(entry);
-  logs = logs.filter(e => new Date(e.timestamp).getTime() >= Date.now() - 3_600_000);
+  if (logs.length > AUDIT_MAX_ROWS) logs = logs.slice(logs.length - AUDIT_MAX_ROWS);
   fs.writeFileSync(AUDIT_PATH, JSON.stringify(logs, null, 2));
+}
+
+export function loadAuditLog() {
+  try { const logs = JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8')); return Array.isArray(logs) ? logs : []; }
+  catch { return []; }
+}
+
+// ── Push audit.json to GitHub so the GUI's new "API Audit" tab can read
+// every API/trade action the headless job has taken (same pattern as
+// pushPositionsToGitHub/pushTradeLogToGitHub) ──
+export async function pushAuditLogToGitHub(logs) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH        || 'main';
+  const fpath  = process.env.GH_AUDIT_PATH    || 'scripts/audit-log.json';
+
+  if (!token || !repo) {
+    console.log('[audit-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    Authorization:          `Bearer ${token}`,
+    Accept:                 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) sha = (await getRes.json()).sha || null;
+    else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
+
+    const body = {
+      message: `chore: audit log update (${logs.length} entries) [skip ci]`,
+      content: Buffer.from(JSON.stringify(logs, null, 2)).toString('base64'),
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[audit-push] ✓ ${logs.length} entr${logs.length === 1 ? 'y' : 'ies'} pushed`);
+  } catch (e) {
+    // Deliberately NOT calling logAudit here — a failure to push the audit
+    // log logging itself would just grow the very file that failed to push.
+    console.warn(`[audit-push] ⚠ ${e.message}`);
+  }
+}
+
+// ── Push a snapshot of real MEXC account balances to GitHub, so the GUI's
+// Trade Journal can cross-check whether a row it thinks is still "open"
+// actually still has a matching balance on the exchange — catches drift from
+// manual trading, missed sells, etc. that positions.json/trade-log.json
+// alone wouldn't reveal. Live mode only; paper mode has no real balance. ──
+export async function pushLiveBalancesToGitHub(balances) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH             || 'main';
+  const fpath  = process.env.GH_LIVE_BALANCES_PATH || 'scripts/mexc-live-balances.json';
+
+  if (!token || !repo) {
+    console.log('[live-balances-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const snapshot = { fetchedAt: new Date().toISOString(), balances };
+  const apiUrl   = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers  = {
+    Authorization:          `Bearer ${token}`,
+    Accept:                 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) sha = (await getRes.json()).sha || null;
+    else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
+
+    const body = {
+      message: `chore: live balances snapshot (${balances.length} asset(s)) [skip ci]`,
+      content: Buffer.from(JSON.stringify(snapshot, null, 2)).toString('base64'),
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[live-balances-push] ✓ ${balances.length} asset(s) pushed`);
+    logAudit('live_balances_pushed', { count: balances.length });
+  } catch (e) {
+    console.warn(`[live-balances-push] ⚠ ${e.message}`);
+    logAudit('live_balances_push_failed', { error: e.message });
+  }
 }
 
 // ── Push positions.json to GitHub so the browser GUI stays in sync ──
