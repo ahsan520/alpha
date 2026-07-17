@@ -1,97 +1,112 @@
 [
   {
-    "timestamp": "2026-07-17T01:14:58.019Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-17T01:14:59.188Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "DOGEUSDT",
-    "base": "DOGE",
-    "qty": 0.17,
-    "entryPrice": 0.07234,
-    "stop": "0.0707"
-  },
-  {
-    "timestamp": "2026-07-17T01:15:00.120Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 11
-  },
-  {
-    "timestamp": "2026-07-17T01:15:00.720Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "XRPUSDT",
-    "base": "XRP",
-    "qty": 0.005717,
-    "entryPrice": 1.0864,
-    "stop": "1.0620"
-  },
-  {
-    "timestamp": "2026-07-17T01:15:01.739Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 12
-  },
-  {
-    "timestamp": "2026-07-17T01:15:02.240Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "XLMUSDT",
-    "base": "XLM",
-    "qty": 32.82,
-    "entryPrice": 0.1841,
-    "stop": "0.1735"
-  },
-  {
-    "timestamp": "2026-07-17T01:15:03.095Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 13
-  },
-  {
-    "timestamp": "2026-07-17T01:15:03.845Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_stop_place_failed",
-    "sym": "XLMUSDT",
-    "error": "MEXC POST /api/v3/order failed (HTTP 400): invalid type"
-  },
-  {
-    "timestamp": "2026-07-17T01:15:05.434Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-07-17T01:15:05.436Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-17T01:15:05.436Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-17T01:15:05.794Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
+    "timestamp": "2026-07-17T03:37:57.640Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 14,
+    "successCount": 14,
+    "cryptoCount": 14,
+    "stockScored": 0,
+    "stockFrozen": 0,
+    "results": [
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": 6,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": 2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": 5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      }
+    ]
   }
 ]
