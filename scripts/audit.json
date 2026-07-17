@@ -1,27 +1,5 @@
 [
   {
-    "timestamp": "2026-07-17T07:29:31.010Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 7,
-    "monitored": 5
-  },
-  {
-    "timestamp": "2026-07-17T07:29:32.125Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 2,
-    "remaining": 5
-  },
-  {
-    "timestamp": "2026-07-17T07:29:32.961Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 2,
-    "remaining": 5,
-    "statusChanged": false
-  },
-  {
     "timestamp": "2026-07-17T08:23:49.700Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -130,5 +108,39 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-17T09:00:23.979Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-17T09:00:24.869Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 3
+  },
+  {
+    "timestamp": "2026-07-17T09:00:24.869Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-17T09:00:25.428Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
