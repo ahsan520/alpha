@@ -259,6 +259,103 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
   return { changed, rotationCandidates };
 }
 
+// ── Adopts manually-bought MEXC holdings into bot tracking ──
+// A coin bought directly on MEXC (outside the bot) has no positions.json
+// entry, no bot-placed stop, and is invisible to monitorPositions' T1/T2/
+// stop/exit checks — those only ever look at positions.json. Left
+// untracked, it would only ever get sold as a side effect of ROTATION
+// (see executeRotation's "untracked" branch above), and only once a
+// DIFFERENT symbol becomes the new pick — never on its own T1/T2/exit
+// signal, and never protected by a stop.
+//
+// Called every live-mode cycle, before the buy-signal scan: any live MEXC
+// balance with no matching non-terminal positions.json entry gets a
+// synthetic tracking record created for it — entry price = current market
+// price, since the bot has no way to know the real historical buy price —
+// plus an immediate real exchange-side stop. From the next monitorPositions
+// pass onward it's managed exactly like a bot-opened position: T1/T2/stop/
+// exit-signal all apply normally. It also can never get double-bought,
+// since the open-position gate in the scan loop sees it as already-tracked
+// the moment this function runs.
+//
+// P&L on an adopted position is measured from the ADOPTION price, not the
+// real cost basis — the Telegram alert says so explicitly so it's never
+// mistaken for the real entry/PnL.
+export async function adoptManualHoldings({ positions, market, evaluateSymbol, calcEntryLevels }) {
+  let changed = false;
+  let balances = [];
+  try {
+    balances = await mexcGetAllBalances(MEXC_API_KEY, MEXC_API_SECRET);
+  } catch (e) {
+    console.log(`  ⚠️  Manual-holding adoption: couldn't fetch MEXC balances (${e.message})`);
+    return { positions, changed };
+  }
+
+  for (const bal of balances) {
+    const base = bal.asset;
+    if (QUOTE_ASSETS.has(base) || isNoTradeSymbol(base + 'USDT')) continue;
+    if (bal.free <= 0) continue; // nothing sellable — fully locked elsewhere, skip
+    const sym = base + 'USDT';
+
+    const alreadyTracked = Object.values(positions).some(p =>
+      p.base === base && p.assetType === 'crypto' && !p.liveOrder?.closedAt
+      && !['stopped', 'tp2_hit'].includes(p.status)
+      && !(p.status === 'tp1_hit' && p.exitPrice)
+    );
+    if (alreadyTracked) continue; // bot-bought or already adopted — leave it
+
+    const entry = (market.symbols || {})[sym];
+    if (!entry || entry.assetType !== 'crypto') {
+      console.log(`  ⚠️  ${base} held on MEXC but not in market-data.json — can't compute stop/T1/T2, skipping adoption this cycle`);
+      continue;
+    }
+
+    const evald  = evaluateSymbol(entry);
+    const levels = calcEntryLevels(entry.price, evald.shock);
+
+    const usdSizeEst = parseFloat((bal.free * entry.price).toFixed(2));
+    positions[sym] = {
+      sym, base, assetType: 'crypto',
+      exchangePrefix: entry.exchangePrefix, session: entry.session,
+      setup: evald.setup.label, dir: evald.setup.label === 'SHORT SETUP' ? 'bear' : 'bull',
+      alertedAt: Date.now(), holdLockUntil: 0,
+      entryPrice: parseFloat(levels.entry), stop: parseFloat(levels.stop),
+      t1: parseFloat(levels.t1), t2: parseFloat(levels.t2),
+      score: evald.conv, spikeScore: evald.shock,
+      exitAlertedAt: null, tier1AlertedAt: null,
+      status: 'watching', source: 'manual_adopted', scoreSource: evald.source,
+      recommended: false,
+      liveOrder: {
+        mode: 'live', buyAt: Date.now(), usdSize: usdSizeEst,
+        qty: bal.free, fillPrice: entry.price, buyOrderId: `MANUAL_ADOPTED_${Date.now()}`,
+        adopted: true,
+      },
+    };
+    logAudit('manual_position_adopted', { sym, base, qty: bal.free, entryPrice: entry.price, stop: levels.stop });
+    changed = true;
+
+    recordTradeOpen(positions[sym], {
+      mode: 'live', orderId: positions[sym].liveOrder.buyOrderId,
+      qty: bal.free, fillPrice: entry.price, usdSize: usdSizeEst,
+    });
+    await pushTradeLogToGitHub(loadTradeLog());
+
+    await placeExchangeStop(positions[sym], sym);
+
+    await sendTelegram(
+      `🔍 *MANUAL POSITION ADOPTED* — ${base}\n` +
+      `  Found ${bal.free} ${base} on MEXC with no bot tracking — now under bot management.\n` +
+      `  Adoption price $${entry.price}  Stop $${levels.stop}  T1 $${levels.t1}  T2 $${levels.t2}\n` +
+      (positions[sym].liveOrder.stopOrderId
+        ? `  🛡 Exchange stop placed.\n`
+        : `  ⚠️ Exchange stop NOT placed — software stop check will cover it as a fallback.\n`) +
+      `  _P&L tracked from this adoption price, not your real buy price — the bot has no way to know your actual cost basis._`
+    );
+  }
+
+  return { positions, changed };
+}
+
 // ── Star-pick auto-buy ──
 //
 // Two execution strategies (GUI toggle → trade-state.json, OR repo Variables

@@ -36,7 +36,7 @@ import { mexcGetAllBalances } from './mexc-client.js';
 
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
 import { monitorPositions } from './position-monitor.js';
-import { executeTradeCycle } from './mexc-trader.js';
+import { executeTradeCycle, adoptManualHoldings } from './mexc-trader.js';
 import { runAllBuyGuards, isDivergingFromBtc } from './market-guard.js';
 
 const LB_MIN_SCORE       = parseInt(process.env.LB_MIN_SCORE       || '9');
@@ -272,6 +272,21 @@ async function main() {
         openAfter:  Object.keys(positions).length,
         alerts:     monitored.telegramAlerts.length,
       });
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // STEP 1.5 — Adopt untracked MEXC holdings (manual buys)
+  // Live only — paper mode has no real exchange balance to reconcile.
+  // Must run BEFORE the buy scan below so its open-position gate sees any
+  // newly-adopted symbol as already-tracked (no duplicate signal/buy).
+  // ══════════════════════════════════════════════════════
+  if (effectiveTradeMode === 'live') {
+    const adopted = await adoptManualHoldings({ positions, market, evaluateSymbol, calcEntryLevels });
+    positions = adopted.positions;
+    if (adopted.changed) {
+      savePositions(positions);
+      await pushPositionsToGitHub(positions);
     }
   }
 
