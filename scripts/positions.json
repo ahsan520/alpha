@@ -81,7 +81,7 @@
     "spikeScore": 5.097925009640221,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "peak",
     "recommended": false,
@@ -92,8 +92,14 @@
       "qty": 32.82,
       "fillPrice": 0.1841,
       "buyOrderId": "MANUAL_ADOPTED_1784250902240",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__706819327025704960036",
+      "exitFillPrice": 0.18480000000000002,
+      "closedAt": 1784301096159
+    },
+    "exitPrice": 0.18480000000000002,
+    "statusChangedAt": 1784301097115,
+    "rotatedOut": true
   },
   "SUIUSDT": {
     "sym": "SUIUSDT",
@@ -126,5 +132,32 @@
       "buyOrderId": "MANUAL_ADOPTED_1784270472922",
       "adopted": true
     }
+  },
+  "BINANCE:GALAUSDT": {
+    "sym": "BINANCE:GALAUSDT",
+    "base": "GALA",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1784301093401,
+    "holdLockUntil": 1784302293401,
+    "entryPrice": 0.0021,
+    "stop": 0.002,
+    "t1": 0.0021,
+    "t2": 0.0022,
+    "score": 8,
+    "spikeScore": 0.4585922215782087,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.35,
+    "histWinRate": null,
+    "histSample": 0,
+    "caution": false
   }
 }
