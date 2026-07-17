@@ -1,72 +1,5 @@
 [
   {
-    "timestamp": "2026-07-17T17:30:55.668Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 5
-  },
-  {
-    "timestamp": "2026-07-17T17:30:56.315Z",
-    "job": "alert-runner",
-    "action": "t1_hit",
-    "sym": "BINANCE:GALAUSDT",
-    "pair": "GALA",
-    "price": 0.002131,
-    "t1": 0.0021,
-    "entry": 0.0021,
-    "pnlPct": "1.48"
-  },
-  {
-    "timestamp": "2026-07-17T17:30:57.407Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 5
-  },
-  {
-    "timestamp": "2026-07-17T17:30:58.171Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 5,
-    "statusChanged": true
-  },
-  {
-    "timestamp": "2026-07-17T17:42:28.336Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-17T17:42:29.425Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-17T17:42:29.425Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-17T17:42:29.938Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 5
-  },
-  {
     "timestamp": "2026-07-17T17:56:22.324Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -175,5 +108,181 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-17T18:43:47.712Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-17T18:43:48.412Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "BTCUSDT",
+    "sym": "BINANCE:BTCUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-07-17T18:43:48.413Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-17T18:43:48.413Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-07-17T18:43:49.098Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_failed",
+    "sym": "SUIUSDT",
+    "reason": "rotation",
+    "error": "MEXC POST /api/v3/order failed (HTTP 400): The minimum transaction volume cannot be less than：1USDT"
+  },
+  {
+    "timestamp": "2026-07-17T18:43:49.653Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "DOGEUSDT",
+    "reason": "rotation",
+    "free": 0.17,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-17T18:43:50.116Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XRPUSDT",
+    "reason": "rotation",
+    "free": 2215.145717,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-17T18:43:50.806Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "SUI",
+        "skipped": true,
+        "reason": "error"
+      },
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "zero_balance"
+      }
+    ],
+    "into": [
+      "ZECUSDT",
+      "XLMUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-17T18:43:50.983Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "sym": "ZECUSDT",
+    "reasons": [
+      "already 4/1 live trades open"
+    ]
+  },
+  {
+    "timestamp": "2026-07-17T18:43:50.983Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "sym": "XLMUSDT",
+    "reasons": [
+      "already 4/1 live trades open"
+    ]
+  },
+  {
+    "timestamp": "2026-07-17T18:43:51.922Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-07-17T18:43:52.191Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "ZEC",
+      "BTC",
+      "XLM"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-17T18:43:53.177Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-17T18:43:53.177Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-17T18:43:54.343Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
+  },
+  {
+    "timestamp": "2026-07-17T18:43:56.460Z",
+    "job": "alert-runner",
+    "action": "t2_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "pair": "GALA",
+    "price": 0.002202,
+    "t2": 0.0022,
+    "entry": 0.0021,
+    "pnlPct": "4.86"
+  },
+  {
+    "timestamp": "2026-07-17T18:43:57.915Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 8
+  },
+  {
+    "timestamp": "2026-07-17T18:43:58.733Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 8,
+    "statusChanged": true
   }
 ]
