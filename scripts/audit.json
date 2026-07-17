@@ -149,5 +149,139 @@
     "action": "positions_check",
     "total": 8,
     "monitored": 8
+  },
+  {
+    "timestamp": "2026-07-17T23:29:30.142Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-17T23:29:31.297Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-07-17T23:29:32.112Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_failed",
+    "sym": "SUIUSDT",
+    "reason": "rotation",
+    "error": "MEXC POST /api/v3/order failed (HTTP 400): The minimum transaction volume cannot be less than：1USDT"
+  },
+  {
+    "timestamp": "2026-07-17T23:29:32.850Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "DOGEUSDT",
+    "reason": "rotation",
+    "free": 0.17,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-17T23:29:33.292Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XRPUSDT",
+    "reason": "rotation",
+    "free": 2215.145717,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-17T23:29:33.739Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XLMUSDT",
+    "reason": "rotation",
+    "free": 0.02,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-17T23:29:34.571Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "SUI",
+        "skipped": true,
+        "reason": "error"
+      },
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XLM",
+        "skipped": true,
+        "reason": "zero_balance"
+      }
+    ],
+    "into": [
+      "GALAUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-17T23:29:34.744Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "sym": "GALAUSDT",
+    "reasons": [
+      "already 4/1 live trades open"
+    ]
+  },
+  {
+    "timestamp": "2026-07-17T23:29:35.735Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-07-17T23:29:39.136Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-17T23:29:40.307Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-17T23:29:40.307Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-17T23:29:41.714Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 9
   }
 ]
