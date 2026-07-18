@@ -162,7 +162,7 @@
     "spikeScore": 3.052148411615616,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "peak",
     "recommended": false,
@@ -173,8 +173,14 @@
       "qty": 0.01,
       "fillPrice": 0.7335,
       "buyOrderId": "MANUAL_ADOPTED_1784383853152",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784383858390,
+      "exitFillPrice": 0.7335,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.7335,
+    "statusChangedAt": 1784383859184,
+    "rotatedOut": true
   },
   "LINKUSDT": {
     "sym": "LINKUSDT",
@@ -194,7 +200,7 @@
     "spikeScore": 2.3349420718490292,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "peak",
     "recommended": false,
@@ -205,8 +211,14 @@
       "qty": 292.3,
       "fillPrice": 8.268,
       "buyOrderId": "MANUAL_ADOPTED_1784383854355",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__707166465626705920036",
+      "exitFillPrice": 8.274000000000001,
+      "closedAt": 1784383860463
+    },
+    "exitPrice": 8.274000000000001,
+    "statusChangedAt": 1784383861264,
+    "rotatedOut": true
   },
   "XRPUSDT": {
     "sym": "XRPUSDT",
@@ -239,5 +251,32 @@
       "buyOrderId": "MANUAL_ADOPTED_1784383855476",
       "adopted": true
     }
+  },
+  "BINANCE:ZECUSDT": {
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1784383857719,
+    "holdLockUntil": 1784385057719,
+    "entryPrice": 546.73,
+    "stop": 532.3,
+    "t1": 560.89,
+    "t2": 577.22,
+    "score": 8,
+    "spikeScore": 0.011423130022673776,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.386,
+    "histWinRate": 0,
+    "histSample": 2,
+    "caution": false
   }
 }
