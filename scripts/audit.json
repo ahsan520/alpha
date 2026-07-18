@@ -130,5 +130,185 @@
     "swept": 2,
     "remaining": 7,
     "statusChanged": false
+  },
+  {
+    "timestamp": "2026-07-18T15:15:49.334Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-18T15:15:50.555Z",
+    "job": "leaderboard-decider",
+    "action": "manual_position_adopted",
+    "sym": "SUIUSDT",
+    "base": "SUI",
+    "qty": 0.01,
+    "entryPrice": 0.7353,
+    "stop": "0.7188"
+  },
+  {
+    "timestamp": "2026-07-18T15:15:51.589Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 26
+  },
+  {
+    "timestamp": "2026-07-18T15:15:52.737Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-07-18T15:15:53.182Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-07-18T15:15:53.182Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "LINKUSDT",
+    "sym": "BINANCE:LINKUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-07-18T15:15:53.678Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped_dust",
+    "sym": "SUIUSDT",
+    "reason": "rotation",
+    "sellQty": 0.01,
+    "estNotional": 0.007352999999999999,
+    "free": 0.01
+  },
+  {
+    "timestamp": "2026-07-18T15:15:54.569Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 26
+  },
+  {
+    "timestamp": "2026-07-18T15:15:55.026Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "DOGEUSDT",
+    "reason": "rotation",
+    "free": 0.17,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T15:15:55.462Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XRPUSDT",
+    "reason": "rotation",
+    "free": 0.005717,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T15:15:55.898Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XLMUSDT",
+    "reason": "rotation",
+    "free": 0.02,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T15:15:59.772Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "SUI",
+        "pnlPct": -0.39,
+        "wasHoldingT1": false
+      },
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XLM",
+        "skipped": true,
+        "reason": "zero_balance"
+      }
+    ],
+    "into": [
+      "LINKUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-18T15:16:00.256Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_live_buy_failed",
+    "sym": "LINKUSDT",
+    "error": "MEXC POST /api/v3/order failed (HTTP 400): Insufficient position"
+  },
+  {
+    "timestamp": "2026-07-18T15:16:00.761Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 25,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-18T15:16:01.633Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-07-18T15:16:01.919Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "LINK",
+      "XLM"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-18T15:16:03.163Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-18T15:16:03.163Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-18T15:16:04.348Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
