@@ -468,8 +468,19 @@ async function executeAutoBuys({
     const balance = effectiveTradeMode === 'live'
       ? await mexcFreeBalance(MEXC_API_KEY, MEXC_API_SECRET, 'USDT')
       : loadPaperBalance();
-    totalUsd = parseFloat((balance * (effectiveSizePct / 100) * effectiveGuardSizeMult).toFixed(2));
-    console.log(`  💰  Sizing: ${effectiveSizePct}% of ${effectiveTradeMode} balance $${balance.toFixed(2)}${effectiveGuardSizeMult < 1 ? ` ×${effectiveGuardSizeMult} (market guard)` : ''} = $${totalUsd}`);
+    // Reserve a small buffer even at TRADE_SIZE_PCT=100 — with zero margin,
+    // independent .toFixed(2) rounding on totalUsd and each perPickUsd slice
+    // can sum to a cent or two MORE than the real balance, and MEXC's own
+    // internal balance check for a quoteOrderQty buy can be marginally
+    // stricter than the "free" figure this just queried. Without a buffer,
+    // that reliably surfaces as "Insufficient position" (MEXC code 30004 —
+    // actually insufficient funds, not a real "position" issue) on the
+    // SECOND (or later) buy in a multi-pick cycle, since the first buy
+    // already consumed real balance before this rounding gap gets exposed.
+    const SIZING_BUFFER_PCT = parseFloat(process.env.MEXC_SIZING_BUFFER_PCT || '1');
+    const bufferedPct = Math.max(0, effectiveSizePct - SIZING_BUFFER_PCT);
+    totalUsd = parseFloat((balance * (bufferedPct / 100) * effectiveGuardSizeMult).toFixed(2));
+    console.log(`  💰  Sizing: ${bufferedPct}% of ${effectiveTradeMode} balance $${balance.toFixed(2)} (${effectiveSizePct}% target − ${SIZING_BUFFER_PCT}% buffer)${effectiveGuardSizeMult < 1 ? ` ×${effectiveGuardSizeMult} (market guard)` : ''} = $${totalUsd}`);
     if (totalUsd <= 0) {
       console.log(`  🚫  Skipping buys — $0 available (balance $${balance.toFixed(2)})`);
       logAudit('mexc_blocked', { strategy: effectiveExecStrategy, reasons: [`zero balance (${effectiveTradeMode})`] });
@@ -478,7 +489,7 @@ async function executeAutoBuys({
   }
 
   const perPickUsd = effectiveExecStrategy === 'topN' && picks.length > 1
-    ? parseFloat((totalUsd / picks.length).toFixed(2))
+    ? Math.floor((totalUsd / picks.length) * 100) / 100 // floor, not round — slices must never sum above totalUsd
     : totalUsd;
 
   console.log(`  ⚡  Exec strategy: ${effectiveExecStrategy} (${effectiveSizeMode === 'percent' ? effectiveSizePct + '%' : '$' + effectiveUsdSize}) — ${picks.length} pick(s) @ $${perPickUsd} each`);
