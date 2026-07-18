@@ -1,123 +1,6 @@
 [
   {
-    "timestamp": "2026-07-18T06:18:23.123Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 9,
-    "monitored": 9
-  },
-  {
-    "timestamp": "2026-07-18T06:48:39.860Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 14,
-    "cryptoCount": 14,
-    "stockScored": 0,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": 9,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-07-18T06:49:19.916Z",
+    "timestamp": "2026-07-18T08:09:46.592Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -133,338 +16,87 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-07-18T06:49:20.768Z",
+    "timestamp": "2026-07-18T08:09:47.021Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-18T08:09:47.022Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "SUIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-18T08:09:48.092Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-18T08:09:48.092Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 5,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-18T08:09:48.415Z",
     "job": "leaderboard-decider",
     "action": "manual_position_adopted",
     "sym": "SUIUSDT",
     "base": "SUI",
     "qty": 0.01,
-    "entryPrice": 0.7359,
-    "stop": "0.7193"
+    "entryPrice": 0.7343,
+    "stop": "0.7178"
   },
   {
-    "timestamp": "2026-07-18T06:49:21.639Z",
+    "timestamp": "2026-07-18T08:09:49.383Z",
     "job": "leaderboard-decider",
     "action": "trade_log_pushed",
-    "count": 18
+    "count": 21
   },
   {
-    "timestamp": "2026-07-18T06:49:22.021Z",
+    "timestamp": "2026-07-18T08:09:49.658Z",
     "job": "leaderboard-decider",
     "action": "manual_position_adopted",
-    "sym": "DOGEUSDT",
-    "base": "DOGE",
-    "qty": 0.17,
-    "entryPrice": 0.0724,
-    "stop": "0.0708"
-  },
-  {
-    "timestamp": "2026-07-18T06:49:22.858Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-07-18T06:49:23.122Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "XLMUSDT",
-    "base": "XLM",
-    "qty": 0.02,
-    "entryPrice": 0.1851,
-    "stop": "0.1809"
-  },
-  {
-    "timestamp": "2026-07-18T06:49:23.414Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_push_failed",
-    "error": "PUT 409 scripts/trade-log.json does not match 427e7212edceb9893e0a488e88d0c0c487a083d8"
-  },
-  {
-    "timestamp": "2026-07-18T06:49:24.471Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 4
-  },
-  {
-    "timestamp": "2026-07-18T06:49:24.472Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "BTCUSDT",
-    "sym": "BINANCE:BTCUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-07-18T06:49:24.473Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "GALAUSDT",
-    "sym": "BINANCE:GALAUSDT",
-    "setup": "BREAKOUT",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-07-18T06:49:24.473Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 8
-  },
-  {
-    "timestamp": "2026-07-18T06:49:24.846Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "SUIUSDT",
-    "reason": "rotation",
-    "sellQty": 0.01,
-    "estNotional": 0.007359,
-    "free": 0.01
-  },
-  {
-    "timestamp": "2026-07-18T06:49:25.686Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 20
-  },
-  {
-    "timestamp": "2026-07-18T06:49:26.093Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped",
-    "sym": "DOGEUSDT",
-    "reason": "rotation",
-    "free": 0.17,
-    "locked": 0
-  },
-  {
-    "timestamp": "2026-07-18T06:49:27.266Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell",
     "sym": "XRPUSDT",
-    "reason": "rotation",
-    "qty": 2208,
-    "fillPrice": 1.0892,
-    "orderId": "C02__707055345318449153036"
+    "base": "XRP",
+    "qty": 12.805717,
+    "entryPrice": 1.088,
+    "stop": "1.0635"
   },
   {
-    "timestamp": "2026-07-18T06:49:28.073Z",
+    "timestamp": "2026-07-18T08:09:50.573Z",
     "job": "leaderboard-decider",
     "action": "trade_log_pushed",
-    "count": 20
+    "count": 22
   },
   {
-    "timestamp": "2026-07-18T06:49:28.523Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped",
-    "sym": "XLMUSDT",
-    "reason": "rotation",
-    "free": 0.02,
-    "locked": 0
-  },
-  {
-    "timestamp": "2026-07-18T06:49:29.224Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "SUI",
-        "pnlPct": -0.39,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "DOGE",
-        "skipped": true,
-        "reason": "zero_balance"
-      },
-      {
-        "base": "XRP",
-        "pnlPct": -0.48,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "XLM",
-        "skipped": true,
-        "reason": "zero_balance"
-      }
-    ],
-    "into": [
-      "GALAUSDT",
-      "APTUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-07-18T06:49:29.379Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "sym": "GALAUSDT",
-    "reasons": [
-      "already 2/1 live trades open"
-    ]
-  },
-  {
-    "timestamp": "2026-07-18T06:49:29.379Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "sym": "APTUSDT",
-    "reasons": [
-      "already 2/1 live trades open"
-    ]
-  },
-  {
-    "timestamp": "2026-07-18T06:49:29.380Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 2,
-    "totalKept": 20,
-    "source": "rotation"
-  },
-  {
-    "timestamp": "2026-07-18T06:49:30.257Z",
+    "timestamp": "2026-07-18T08:09:51.652Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
     "count": 7
   },
   {
-    "timestamp": "2026-07-18T06:49:30.528Z",
+    "timestamp": "2026-07-18T08:09:51.653Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
-    "signalsFound": 3,
-    "positionsOpened": 3,
-    "recommended": [
-      "BTC",
-      "GALA",
-      "APT"
-    ],
-    "caution": []
+    "signalsFound": 0
   },
   {
-    "timestamp": "2026-07-18T06:49:31.488Z",
-    "job": "leaderboard-decider",
-    "action": "live_balances_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-07-18T06:49:31.491Z",
+    "timestamp": "2026-07-18T08:09:51.654Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-07-18T06:49:32.708Z",
+    "timestamp": "2026-07-18T08:09:52.060Z",
     "job": "alert-runner",
     "action": "positions_check",
     "total": 7,
-    "monitored": 5
-  },
-  {
-    "timestamp": "2026-07-18T07:08:27.959Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 14,
-    "successCount": 14,
-    "cryptoCount": 14,
-    "stockScored": 0,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": 7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      }
-    ]
+    "monitored": 7
   }
 ]
