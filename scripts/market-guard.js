@@ -40,9 +40,9 @@ const BLACKOUT_WINDOWS     = (process.env.GUARD_BLACKOUT_WINDOWS || '').split(',
 // Each guard now returns a sizeMult that scales SMOOTHLY between a "no
 // concern" point (mult = 1) and a "max concern" point (mult = floor for
 // that layer), instead of jumping in fixed steps. See lerpMult() below.
-const FEAR_FULL_FG          = parseFloat(process.env.GUARD_FEAR_FULL_FG          || '50');  // F&G ≥ this → no fear-based cut
-const FEAR_FLOOR_FG         = parseFloat(process.env.GUARD_FEAR_FLOOR_FG         || '10');  // F&G ≤ this → fear layer at its floor
-const FEAR_FLOOR_MULT       = parseFloat(process.env.GUARD_FEAR_FLOOR_MULT       || '0.2'); // fear layer's own floor (before global floor is applied)
+const FEAR_FULL_FG          = parseFloat(process.env.GUARD_FEAR_FULL_FG          || '25');  // F&G ≥ this → no fear-based cut (100%)
+const FEAR_REDUCED_MULT     = parseFloat(process.env.GUARD_FEAR_REDUCED_MULT      || '0.5'); // F&G between FEAR_BLOCK_THRESHOLD and FEAR_FULL_FG (21-24) → flat size cut (not a gradient — explicit spec)
+const FEAR_EXTREME_MULT     = parseFloat(process.env.GUARD_FEAR_EXTREME_MULT      || '0.25'); // F&G ≤ FEAR_BLOCK_THRESHOLD (Extreme Fear, ≤20) → separate, lower flat cut
 
 const BTC_FULL_PCT          = parseFloat(process.env.GUARD_BTC_FULL_PCT          || '-0.5'); // BTC 15m chg ≥ this → no BTC-based cut
 const BTC_FLOOR_PCT         = parseFloat(process.env.GUARD_BTC_FLOOR_PCT         || '-3');   // BTC 15m chg ≤ this → BTC layer at its floor (matches close threshold)
@@ -137,17 +137,18 @@ export function checkCircuitBreaker(positions = {}) {
 // ── Layer 3 — Fear & Greed ──
 // Two SEPARATE things happen here, deliberately kept apart:
 //
-// 1. SIZING (continuous): F&G scales sizeMult smoothly between FEAR_FULL_FG
-//    (no cut) and FEAR_FLOOR_FG (fear layer's floor). This is a risk-sizing
-//    decision — "how much of the account to risk" — and applies regardless
-//    of any single symbol's own behavior.
+// 1. SIZING: F&G 21-24 (between FEAR_BLOCK_THRESHOLD and FEAR_FULL_FG) is a
+//    FLAT ${FEAR_REDUCED_MULT} cut — not a gradient. This band is explicitly
+//    a two-step function per spec, unlike the BTC/volatility layers which
+//    still use a continuous curve. F&G ≥ FEAR_FULL_FG (default 25) → 100%,
+//    no cut at all.
 //
-// 2. SIGNAL QUALITY (still a hard step, unchanged): below FEAR_BLOCK_THRESHOLD
-//    (default 20), a candidate is only allowed through AT ALL if it's
-//    diverging from BTC (rising while BTC falls). This isn't a sizing
-//    decision — it's "is this candidate's signal even trustworthy right now" —
-//    so it stays a hard gate rather than being folded into the continuous
-//    curve. Conflating the two would mean a barely-passing size cut could
+// 2. SIGNAL QUALITY (still a hard step, unchanged): at or below
+//    FEAR_BLOCK_THRESHOLD (default 20), a candidate is only allowed through
+//    AT ALL if it's diverging from BTC (rising while BTC falls). This isn't
+//    a sizing decision — it's "is this candidate's signal even trustworthy
+//    right now" — so it stays a hard gate, separate from the sizing step
+//    above. Conflating the two would mean a barely-passing size cut could
 //    still let through non-diverging, low-conviction buys in extreme fear.
 export function checkFearGreed(global = {}) {
   const fg = global.fearGreed ?? null;
@@ -155,7 +156,9 @@ export function checkFearGreed(global = {}) {
   if (fg === null) return { pass: true, sizeMult: 1, fearRegime: false, reason: null };
 
   const fearRegime = fg <= FEAR_BLOCK_THRESHOLD;
-  const sizeMult    = lerpMult(fg, FEAR_FULL_FG, FEAR_FLOOR_FG, FEAR_FLOOR_MULT);
+  const sizeMult    = fearRegime ? FEAR_EXTREME_MULT
+                     : fg >= FEAR_FULL_FG ? 1
+                     : FEAR_REDUCED_MULT;
 
   if (fearRegime) return {
     pass:        true,           // NOT a hard block — per-symbol divergence check in caller
@@ -170,7 +173,7 @@ export function checkFearGreed(global = {}) {
     pass:        true,
     sizeMult,
     fearRegime:  false,          // fear but not extreme — no divergence check needed
-    reason:      `Fear & Greed: ${fg} — scaling size to ${(sizeMult * 100).toFixed(0)}%`,
+    reason:      `Fear & Greed: ${fg} — sizing at ${(sizeMult * 100).toFixed(0)}%`,
     level:       'FEAR',
   };
 
