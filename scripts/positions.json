@@ -302,7 +302,7 @@
     "spikeScore": 0.005767369237792421,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -313,8 +313,14 @@
       "qty": 0.01,
       "fillPrice": 0.7419,
       "buyOrderId": "MANUAL_ADOPTED_1784406175359",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784410023356,
+      "exitFillPrice": 0.7418,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.7418,
+    "statusChangedAt": 1784410024258,
+    "rotatedOut": true
   },
   "BINANCE:SUIUSDT": {
     "sym": "BINANCE:SUIUSDT",
@@ -341,6 +347,33 @@
     "rankScore": 0.24,
     "histWinRate": 0,
     "histSample": 7,
+    "caution": true
+  },
+  "BINANCE:XRPUSDT": {
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1784410022745,
+    "holdLockUntil": 1784411222745,
+    "entryPrice": 1.0987,
+    "stop": 1.0697,
+    "t1": 1.1271,
+    "t2": 1.16,
+    "score": 8,
+    "spikeScore": 0.12496541583168079,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.35,
+    "histWinRate": 0,
+    "histSample": 4,
     "caution": true
   }
 }
