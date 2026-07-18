@@ -1,105 +1,5 @@
 [
   {
-    "timestamp": "2026-07-18T08:09:46.592Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-07-18T08:09:47.021Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "XRPUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-07-18T08:09:47.022Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "SUIUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-07-18T08:09:48.092Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-07-18T08:09:48.092Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 7,
-    "openAfter": 5,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-07-18T08:09:48.415Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "SUIUSDT",
-    "base": "SUI",
-    "qty": 0.01,
-    "entryPrice": 0.7343,
-    "stop": "0.7178"
-  },
-  {
-    "timestamp": "2026-07-18T08:09:49.383Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 21
-  },
-  {
-    "timestamp": "2026-07-18T08:09:49.658Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "XRPUSDT",
-    "base": "XRP",
-    "qty": 12.805717,
-    "entryPrice": 1.088,
-    "stop": "1.0635"
-  },
-  {
-    "timestamp": "2026-07-18T08:09:50.573Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 22
-  },
-  {
-    "timestamp": "2026-07-18T08:09:51.652Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 7
-  },
-  {
-    "timestamp": "2026-07-18T08:09:51.653Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-18T08:09:51.654Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-18T08:09:52.060Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 7,
-    "monitored": 7
-  },
-  {
     "timestamp": "2026-07-18T08:56:49.736Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -241,5 +141,98 @@
     "swept": 0,
     "remaining": 7,
     "statusChanged": true
+  },
+  {
+    "timestamp": "2026-07-18T09:45:20.107Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-18T09:45:20.539Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-18T09:45:21.481Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-07-18T09:45:21.481Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-18T09:45:21.979Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-07-18T09:45:21.981Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "grade below EXEC_MIN_GRADE (A)"
+    ],
+    "symbols": [
+      "GALAUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-18T09:45:23.241Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-18T09:45:23.509Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-07-18T09:45:24.533Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-18T09:45:24.534Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-18T09:45:25.736Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
