@@ -115,5 +115,157 @@
     "action": "positions_check",
     "total": 10,
     "monitored": 10
+  },
+  {
+    "timestamp": "2026-07-18T19:32:34.715Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-18T19:32:36.121Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-18T19:32:36.564Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped_dust",
+    "sym": "SUIUSDT",
+    "reason": "rotation",
+    "sellQty": 0.01,
+    "estNotional": 0.007401,
+    "free": 0.01
+  },
+  {
+    "timestamp": "2026-07-18T19:32:37.637Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 27
+  },
+  {
+    "timestamp": "2026-07-18T19:32:38.235Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "DOGEUSDT",
+    "reason": "rotation",
+    "free": 0.17,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T19:32:38.724Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XRPUSDT",
+    "reason": "rotation",
+    "free": 2221.525717,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T19:32:39.182Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XLMUSDT",
+    "reason": "rotation",
+    "free": 0.02,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-18T19:32:39.943Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "SUI",
+        "pnlPct": 0.33,
+        "wasHoldingT1": false
+      },
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XLM",
+        "skipped": true,
+        "reason": "zero_balance"
+      }
+    ],
+    "into": [
+      "ETHUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-18T19:32:40.117Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (live)"
+    ]
+  },
+  {
+    "timestamp": "2026-07-18T19:32:40.117Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 26,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-18T19:32:40.896Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-07-18T19:32:44.303Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETH"
+    ],
+    "caution": [
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-07-18T19:32:45.453Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-18T19:32:45.453Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-18T19:32:46.669Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 10
   }
 ]
