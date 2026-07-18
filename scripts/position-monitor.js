@@ -35,9 +35,26 @@ const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
 // cycle forever. Set via repo Variable MEXC_MIN_SELL_NOTIONAL_USDT.
 const MIN_SELL_NOTIONAL_USDT = parseFloat(process.env.MEXC_MIN_SELL_NOTIONAL_USDT || '1');
 
+// A position too small to even sell (see MIN_SELL_NOTIONAL_USDT above)
+// shouldn't occupy a TRADE_MAX_CONCURRENT_LIVE slot either — otherwise a
+// leftover $0.01 dust fragment silently blocks every future real buy
+// forever, with no way to "close" something that can't be sold. Same
+// notional definition of "dust" used here as in closeLiveOrder below.
+function currentNotional(p) {
+  const usd = p.liveOrder?.usdSize;
+  if (usd && usd > 0) return usd;
+  // usdSize can be 0/missing on some adopted positions — fall back to
+  // qty × fill price so a $0-usdSize-but-real-qty position isn't
+  // miscounted as dust.
+  return (p.liveOrder?.qty || 0) * (p.liveOrder?.fillPrice || 0);
+}
+
 export function countLiveOpenPositions(positions) {
   return Object.values(positions).filter(
-    p => p.liveOrder?.mode === 'live' && !p.liveOrder?.closedAt && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
+    p => p.liveOrder?.mode === 'live'
+      && !p.liveOrder?.closedAt
+      && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
+      && currentNotional(p) >= MIN_SELL_NOTIONAL_USDT
   ).length;
 }
 

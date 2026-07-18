@@ -507,6 +507,17 @@ async function executeAutoBuys({
     if (blockedReasons.length) {
       console.log(`  🚫  ${symbol} skipped — ${blockedReasons.join(', ')}`);
       logAudit('mexc_blocked', { sym: symbol, reasons: blockedReasons });
+
+      // Alert specifically for max-live — this is the one case where a
+      // starred, grade-passing pick gets silently dropped for a reason
+      // that isn't obvious from the buy alert itself (unlike "already
+      // holding this symbol", which is expected/routine every cycle).
+      if (liveLock >= effectiveMaxLive) {
+        await sendTelegram(
+          `🚫 *NO BUY* — ${pick.pair.replace('USDT','')} ranked but already ${liveLock}/${effectiveMaxLive} live trades open — skipped, no positions touched.\n` +
+          `  _Raise TRADE_MAX_CONCURRENT_LIVE if you want more concurrent positions._`
+        );
+      }
       continue;
     }
 
