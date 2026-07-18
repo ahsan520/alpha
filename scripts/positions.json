@@ -135,7 +135,7 @@
     "spikeScore": 0.7932785710347868,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -146,8 +146,14 @@
       "qty": 0.01,
       "fillPrice": 0.7343,
       "buyOrderId": "MANUAL_ADOPTED_1784362188415",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784378377692,
+      "exitFillPrice": 0.7367,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.7367,
+    "statusChangedAt": 1784378378497,
+    "rotatedOut": true
   },
   "XRPUSDT": {
     "sym": "XRPUSDT",
@@ -167,7 +173,7 @@
     "spikeScore": 0.35725748565893056,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -178,8 +184,14 @@
       "qty": 12.805717,
       "fillPrice": 1.088,
       "buyOrderId": "MANUAL_ADOPTED_1784362189658",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__707143479523762176036",
+      "exitFillPrice": 1.0889,
+      "closedAt": 1784378380123
+    },
+    "exitPrice": 1.0889,
+    "statusChangedAt": 1784378380955,
+    "rotatedOut": true
   },
   "BINANCE:GALAUSDT": {
     "sym": "BINANCE:GALAUSDT",
@@ -206,6 +218,60 @@
     "rankScore": 0.22,
     "histWinRate": null,
     "histSample": 0,
+    "caution": false
+  },
+  "BINANCE:ZECUSDT": {
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1784378377273,
+    "holdLockUntil": 1784379577273,
+    "entryPrice": 547.52,
+    "stop": 519.32,
+    "t1": 580.04,
+    "t2": 614.73,
+    "score": 7,
+    "spikeScore": 4.241397485031263,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.346,
+    "histWinRate": 0,
+    "histSample": 2,
+    "caution": false
+  },
+  "BINANCE:LINKUSDT": {
+    "sym": "BINANCE:LINKUSDT",
+    "base": "LINK",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1784378377274,
+    "holdLockUntil": 1784379577274,
+    "entryPrice": 8.3352,
+    "stop": 8.0839,
+    "t1": 8.5928,
+    "t2": 8.8835,
+    "score": 10,
+    "spikeScore": 2.3349420718490292,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.58,
+    "histWinRate": 0,
+    "histSample": 1,
     "caution": false
   }
 }
