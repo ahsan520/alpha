@@ -90,30 +90,13 @@ export async function mexcCancelOrder(apiKey, apiSecret, symbol, orderId) {
   return signedRequest(apiKey, apiSecret, 'DELETE', '/api/v3/order', { symbol, orderId });
 }
 
-// ── Exchange-side stop-loss (STOP_LOSS_LIMIT) ──
-// Places a resting order on MEXC itself: once price trades at stopPrice,
-// MEXC converts it into a live LIMIT sell at limitPrice. This protects
-// against gaps between Job B's 15-min polling cycles (or the GitHub Actions
-// runner being briefly unavailable) that the software-only stop check can't
-// cover — the order sits on the exchange's own book, not in our process.
-//
-// limitPrice is intentionally set BELOW stopPrice by `slippagePad` — if
-// limitPrice == stopPrice and the market gaps down fast, the resulting limit
-// sell can end up resting above the market, unfilled, which defeats the
-// purpose of a stop. The pad trades a small amount of guaranteed worse fill
-// for a much higher chance of actually filling.
-//
-// CAUTION: verify this against a small live order before trusting it at
-// size — same caution as mexcMarketBuy/mexcMarketSell above regarding
-// MEXC's Binance-compatible-but-not-identical order handling. Confirm
-// STOP_LOSS_LIMIT is enabled for your account/symbol before relying on it.
-export async function mexcPlaceStopLimit(apiKey, apiSecret, symbol, quantity, stopPrice, limitPrice) {
-  const order = await signedRequest(apiKey, apiSecret, 'POST', '/api/v3/order', {
-    symbol, side: 'SELL', type: 'STOP_LOSS_LIMIT',
-    quantity, price: limitPrice, stopPrice, timeInForce: 'GTC',
-  });
-  return { orderId: order.orderId, raw: order };
-}
+// ── NOTE: exchange-side stop-loss removed ──
+// MEXC's /api/v3/order endpoint only accepts type LIMIT or MARKET, and its
+// documented parameter set has no stopPrice field and no OCO/stop endpoint
+// anywhere in the spot v3 API. STOP_LOSS_LIMIT (Binance-compatible naming)
+// is not a type MEXC has ever accepted — every call here failed with
+// HTTP 400 "invalid type". Removed rather than left as dead/misleading code;
+// the software stop check in position-monitor.js is the real stop mechanism.
 
 // MEXC market order responses sometimes come back with executedQty and
 // cummulativeQuoteQty both still 0 even though the order genuinely filled —

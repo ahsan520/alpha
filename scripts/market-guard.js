@@ -29,37 +29,75 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 // ── Tunable env vars (all optional — defaults are conservative but not paranoid) ──
-const BTC_WARN_PCT         = parseFloat(process.env.GUARD_BTC_WARN_PCT         || '-2');   // BTC 15m drop % → block new buys
-const BTC_CLOSE_PCT        = parseFloat(process.env.GUARD_BTC_CLOSE_PCT        || '-3');   // BTC 15m drop % → close ALL live positions
+const BTC_CLOSE_PCT        = parseFloat(process.env.GUARD_BTC_CLOSE_PCT        || '-3');   // BTC 15m drop % → close ALL live positions (hard gate, unchanged)
 const CIRCUIT_BREAKER_PCT  = parseFloat(process.env.GUARD_CIRCUIT_BREAKER_PCT  || '-5');   // portfolio unrealised P&L % → close all
-const FEAR_BLOCK_THRESHOLD = parseFloat(process.env.GUARD_FEAR_BLOCK           || '20');   // F&G ≤ this → block all buys
-const FEAR_REDUCE_THRESHOLD= parseFloat(process.env.GUARD_FEAR_REDUCE          || '25');   // F&G ≤ this → halve position size
-const VOLATILITY_REDUCE_PCT= parseFloat(process.env.GUARD_VOLATILITY_REDUCE_PCT|| '4');    // BTC candle range % → halve size
+const FEAR_BLOCK_THRESHOLD = parseFloat(process.env.GUARD_FEAR_BLOCK           || '20');   // F&G ≤ this → divergence-only hard gate (unchanged, NOT a sizing input)
 const BLACKOUT_WINDOWS     = (process.env.GUARD_BLACKOUT_WINDOWS || '').split(',').filter(Boolean);
 // GUARD_BLACKOUT_WINDOWS format: "13:30-14:30,20:00-20:30" (UTC, comma-separated)
 // Leave empty (default) = no blackout
 
+// ── Continuous sizing curve endpoints (replace old discrete cliffs) ──
+// Each guard now returns a sizeMult that scales SMOOTHLY between a "no
+// concern" point (mult = 1) and a "max concern" point (mult = floor for
+// that layer), instead of jumping in fixed steps. See lerpMult() below.
+const FEAR_FULL_FG          = parseFloat(process.env.GUARD_FEAR_FULL_FG          || '50');  // F&G ≥ this → no fear-based cut
+const FEAR_FLOOR_FG         = parseFloat(process.env.GUARD_FEAR_FLOOR_FG         || '10');  // F&G ≤ this → fear layer at its floor
+const FEAR_FLOOR_MULT       = parseFloat(process.env.GUARD_FEAR_FLOOR_MULT       || '0.2'); // fear layer's own floor (before global floor is applied)
+
+const BTC_FULL_PCT          = parseFloat(process.env.GUARD_BTC_FULL_PCT          || '-0.5'); // BTC 15m chg ≥ this → no BTC-based cut
+const BTC_FLOOR_PCT         = parseFloat(process.env.GUARD_BTC_FLOOR_PCT         || '-3');   // BTC 15m chg ≤ this → BTC layer at its floor (matches close threshold)
+const BTC_FLOOR_MULT        = parseFloat(process.env.GUARD_BTC_FLOOR_MULT        || '0.2');  // BTC layer's own floor
+
+const VOL_FULL_PCT          = parseFloat(process.env.GUARD_VOL_FULL_PCT          || '2');   // BTC candle range ≤ this → no vol-based cut
+const VOL_FLOOR_PCT         = parseFloat(process.env.GUARD_VOL_FLOOR_PCT         || '8');   // BTC candle range ≥ this → vol layer at its floor
+const VOL_FLOOR_MULT        = parseFloat(process.env.GUARD_VOL_FLOOR_MULT        || '0.2'); // vol layer's own floor
+
+const GLOBAL_FLOOR_MULT     = parseFloat(process.env.GUARD_GLOBAL_FLOOR_MULT     || '0.15'); // absolute minimum size, no matter how many layers compound
+
+// ── Linear interpolation helper ──
+// Maps `value` from the range [goodPoint, badPoint] to [1, floorMult].
+// Works whether badPoint > goodPoint (e.g. F&G, low = bad) or
+// badPoint < goodPoint (e.g. BTC chg, negative = bad) — direction-agnostic.
+// Clamped at both ends so out-of-range inputs don't overshoot.
+function lerpMult(value, goodPoint, badPoint, floorMult) {
+  if (value === null || value === undefined) return 1;
+  const span = badPoint - goodPoint;
+  if (span === 0) return 1; // misconfigured — don't divide by zero
+  let t = (value - goodPoint) / span; // 0 at goodPoint, 1 at badPoint
+  t = Math.max(0, Math.min(1, t));    // clamp
+  return 1 - t * (1 - floorMult);
+}
+
 // ── Layer 1 — BTC short-term change ──
+// Hard gate (closeAll) is UNCHANGED — BTC crashing fast still closes
+// everything regardless of the sizing curve below.
+// Sizing is now continuous: scales from full size at BTC_FULL_PCT down to
+// BTC_FLOOR_MULT at BTC_FLOOR_PCT (which matches the close threshold, so
+// the curve naturally bottoms out right where the hard gate takes over).
 export function checkBtcGuard(global = {}) {
   const btcChg15m = global.btcChg15m ?? null;
 
-  if (btcChg15m === null) return { pass: true, reason: null }; // no data yet — don't block
+  if (btcChg15m === null) return { pass: true, sizeMult: 1, reason: null };
 
   if (btcChg15m <= BTC_CLOSE_PCT) return {
     pass:          false,
     closeAll:      true,
+    sizeMult:      BTC_FLOOR_MULT,
     reason:        `BTC 15m: ${btcChg15m.toFixed(2)}% ≤ ${BTC_CLOSE_PCT}% — market panic, closing all positions`,
     level:         'PANIC',
   };
 
-  if (btcChg15m <= BTC_WARN_PCT) return {
-    pass:          false,
+  const sizeMult = lerpMult(btcChg15m, BTC_FULL_PCT, BTC_FLOOR_PCT, BTC_FLOOR_MULT);
+
+  if (sizeMult < 1) return {
+    pass:          true,
     closeAll:      false,
-    reason:        `BTC 15m: ${btcChg15m.toFixed(2)}% ≤ ${BTC_WARN_PCT}% — BTC dropping, blocking new buys`,
-    level:         'WARN',
+    sizeMult,
+    reason:        `BTC 15m: ${btcChg15m.toFixed(2)}% — scaling size to ${(sizeMult * 100).toFixed(0)}%`,
+    level:         'BTC_STRESS',
   };
 
-  return { pass: true, reason: null };
+  return { pass: true, sizeMult: 1, reason: null };
 }
 
 // ── Layer 2 — Portfolio circuit breaker ──
@@ -97,33 +135,42 @@ export function checkCircuitBreaker(positions = {}) {
 }
 
 // ── Layer 3 — Fear & Greed ──
-// Returns a regime descriptor rather than a hard pass/fail — the caller
-// (leaderboard-decider.js candidate loop) decides per-symbol whether the
-// candidate's own divergence overrides the fear regime.
+// Two SEPARATE things happen here, deliberately kept apart:
 //
-// Divergence override: if F&G ≤ FEAR_BLOCK_THRESHOLD but the symbol is
-// rising while BTC is falling, that's real relative strength — allow it
-// at reduced size (25% — meaningful position, not a full bet in a fear regime).
-// A symbol that is ALSO falling during fear gets blocked regardless.
+// 1. SIZING (continuous): F&G scales sizeMult smoothly between FEAR_FULL_FG
+//    (no cut) and FEAR_FLOOR_FG (fear layer's floor). This is a risk-sizing
+//    decision — "how much of the account to risk" — and applies regardless
+//    of any single symbol's own behavior.
+//
+// 2. SIGNAL QUALITY (still a hard step, unchanged): below FEAR_BLOCK_THRESHOLD
+//    (default 20), a candidate is only allowed through AT ALL if it's
+//    diverging from BTC (rising while BTC falls). This isn't a sizing
+//    decision — it's "is this candidate's signal even trustworthy right now" —
+//    so it stays a hard gate rather than being folded into the continuous
+//    curve. Conflating the two would mean a barely-passing size cut could
+//    still let through non-diverging, low-conviction buys in extreme fear.
 export function checkFearGreed(global = {}) {
   const fg = global.fearGreed ?? null;
 
   if (fg === null) return { pass: true, sizeMult: 1, fearRegime: false, reason: null };
 
-  if (fg <= FEAR_BLOCK_THRESHOLD) return {
+  const fearRegime = fg <= FEAR_BLOCK_THRESHOLD;
+  const sizeMult    = lerpMult(fg, FEAR_FULL_FG, FEAR_FLOOR_FG, FEAR_FLOOR_MULT);
+
+  if (fearRegime) return {
     pass:        true,           // NOT a hard block — per-symbol divergence check in caller
-    sizeMult:    0.25,           // reduced if allowed through
+    sizeMult,
     fearRegime:  true,           // signals: only let diverging symbols through
     btcChg:      global.btcChg15m ?? global.btcChg24h ?? null,
-    reason:      `Fear & Greed: ${fg} (Extreme Fear) — only symbols diverging from BTC allowed at 25% size`,
+    reason:      `Fear & Greed: ${fg} (Extreme Fear) — only symbols diverging from BTC allowed, sizing at ${(sizeMult * 100).toFixed(0)}%`,
     level:       'EXTREME_FEAR',
   };
 
-  if (fg <= FEAR_REDUCE_THRESHOLD) return {
+  if (sizeMult < 1) return {
     pass:        true,
-    sizeMult:    0.5,
+    sizeMult,
     fearRegime:  false,          // fear but not extreme — no divergence check needed
-    reason:      `Fear & Greed: ${fg} (Fear) — halving position size`,
+    reason:      `Fear & Greed: ${fg} — scaling size to ${(sizeMult * 100).toFixed(0)}%`,
     level:       'FEAR',
   };
 
@@ -145,9 +192,11 @@ export function checkVolatility(global = {}) {
 
   if (btcVolatility === null) return { sizeMult: 1, reason: null };
 
-  if (btcVolatility >= VOLATILITY_REDUCE_PCT) return {
-    sizeMult: 0.5,
-    reason:   `BTC candle range ${btcVolatility.toFixed(2)}% ≥ ${VOLATILITY_REDUCE_PCT}% — high volatility, halving position size`,
+  const sizeMult = lerpMult(btcVolatility, VOL_FULL_PCT, VOL_FLOOR_PCT, VOL_FLOOR_MULT);
+
+  if (sizeMult < 1) return {
+    sizeMult,
+    reason:   `BTC candle range ${btcVolatility.toFixed(2)}% — scaling size to ${(sizeMult * 100).toFixed(0)}%`,
     level:    'HIGH_VOLATILITY',
   };
 
@@ -182,33 +231,36 @@ export function checkTimeBlackout() {
 // runAllBuyGuards — convenience wrapper used by leaderboard-decider.js
 // Returns { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons[] }
 //
-// canBuy:     false → skip all buys this cycle (BTC panic / blackout)
+// canBuy:     false → skip all buys this cycle (circuit breaker / blackout)
 // closeAll:   true  → close all live MEXC positions before doing anything else
-// sizeMult:   0-1   → multiply TRADE_USD_SIZE by this (1 = full size)
-// fearRegime: true  → F&G ≤ 20 — caller must check per-symbol divergence
+// sizeMult:   0-1   → multiply effective USD size by this (1 = full size)
+// fearRegime: true  → F&G ≤ FEAR_BLOCK_THRESHOLD — caller must check per-symbol divergence
 // btcChg:     BTC 15m change % (for divergence check in caller)
 // reasons:    list of strings explaining every gate that fired
+//
+// SIZING COMBINATION: sizeMult layers now COMPOUND multiplicatively
+// (fgMult × btcMult × volMult) instead of taking the single worst factor.
+// Three independent moderate-stress signals firing together is a stronger
+// "something is genuinely wrong" signal than any one of them alone, and
+// compounding reflects that. A GLOBAL_FLOOR_MULT stops this from ever
+// compounding all the way to a near-zero/locked-up size.
 // ══════════════════════════════════════════════════════════════════════════════
 export function runAllBuyGuards(market, positions) {
   const global     = market.global || {};
   const reasons    = [];
   let   canBuy     = true;
   let   closeAll   = false;
-  let   sizeMult   = 1;
   let   fearRegime = false;
   const btcChg     = global.btcChg15m ?? null;
 
-  // Layer 1 — BTC
+  // Layer 1 — BTC (hard closeAll gate unchanged; sizing now continuous)
   const btc = checkBtcGuard(global);
   if (!btc.pass) {
     canBuy = false;
     reasons.push(btc.reason);
     if (btc.closeAll) closeAll = true;
-  } else if (btcChg !== null && btcChg <= BTC_WARN_PCT) {
-    // BTC in warn range but a diverging symbol may still pass —
-    // apply a size reduction even for those (BTC stress = smaller bet)
-    sizeMult = Math.min(sizeMult, 0.5);
-    reasons.push(`BTC 15m: ${btcChg.toFixed(2)}% — reducing size to 50% for any diverging buys`);
+  } else if (btc.reason) {
+    reasons.push(btc.reason);
   }
 
   // Layer 2 — Circuit breaker
@@ -219,29 +271,29 @@ export function runAllBuyGuards(market, positions) {
     reasons.push(cb.reason);
   }
 
-  // Layer 3 — F&G (sets fearRegime flag, no longer a hard canBuy block)
+  // Layer 3 — F&G (sets fearRegime flag — hard divergence gate, unchanged;
+  // sizing contribution is now continuous)
   const fg = checkFearGreed(global);
-  if (fg.fearRegime) {
-    fearRegime = true;
-    sizeMult   = Math.min(sizeMult, fg.sizeMult); // 0.25 in extreme fear
-    reasons.push(fg.reason);
-  } else if (fg.sizeMult < 1) {
-    sizeMult = Math.min(sizeMult, fg.sizeMult);   // 0.5 in normal fear
-    if (fg.reason) reasons.push(fg.reason);
-  }
+  if (fg.fearRegime) fearRegime = true;
+  if (fg.reason) reasons.push(fg.reason);
 
-  // Layer 4 — Volatility (size reduction only)
+  // Layer 4 — Volatility (sizing only, now continuous)
   const vol = checkVolatility(global);
-  if (vol.sizeMult < 1) {
-    sizeMult = Math.min(sizeMult, vol.sizeMult);
-    reasons.push(vol.reason);
-  }
+  if (vol.reason) reasons.push(vol.reason);
 
   // Layer 5 — Time blackout
   const time = checkTimeBlackout();
   if (!time.pass) {
     canBuy = false;
     reasons.push(time.reason);
+  }
+
+  // ── Combine sizing layers multiplicatively, then apply the global floor ──
+  const rawSizeMult = btc.sizeMult * fg.sizeMult * vol.sizeMult;
+  const sizeMult     = Math.max(GLOBAL_FLOOR_MULT, rawSizeMult);
+
+  if (rawSizeMult < GLOBAL_FLOOR_MULT) {
+    reasons.push(`Combined size ${(rawSizeMult * 100).toFixed(1)}% floored to global minimum ${(GLOBAL_FLOOR_MULT * 100).toFixed(0)}%`);
   }
 
   return { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons };

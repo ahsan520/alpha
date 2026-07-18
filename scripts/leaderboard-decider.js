@@ -358,12 +358,19 @@ async function main() {
   }
 
   // Apply guard size multiplier to the effective USD size for this cycle
+  // (only meaningful in 'usd' mode — 'percent' mode recomputes size from
+  // live balance in mexc-trader.js's executeAutoBuys, using this same
+  // guard.sizeMult passed through as effectiveGuardSizeMult)
   const guardedUsdSize = guard.sizeMult < 1
     ? parseFloat((effectiveUsdSize * guard.sizeMult).toFixed(2))
     : effectiveUsdSize;
 
   if (guard.sizeMult < 1) {
-    console.log(`  📉  Position size reduced: $${effectiveUsdSize} → $${guardedUsdSize} (×${guard.sizeMult})`);
+    if (effectiveSizeMode === 'percent') {
+      console.log(`  📉  Market guard active — sizing to ${(effectiveSizePct * guard.sizeMult).toFixed(1)}% of balance (×${guard.sizeMult} guard multiplier)`);
+    } else {
+      console.log(`  📉  Position size reduced: $${effectiveUsdSize} → $${guardedUsdSize} (×${guard.sizeMult})`);
+    }
   }
 
   // If any hard block gate fired, skip all new buys this cycle

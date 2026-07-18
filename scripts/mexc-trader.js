@@ -19,7 +19,7 @@
 // actually fired. Fixed here by taking closedOutcomes as an explicit param.
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep, mexcPlaceStopLimit } from './mexc-client.js';
+import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
 import { sendTelegram } from './telegram-commands.js';
 import {
@@ -372,15 +372,11 @@ export async function adoptManualHoldings({ positions, market, evaluateSymbol, c
     });
     await pushTradeLogToGitHub(loadTradeLog());
 
-    await placeExchangeStop(positions[sym], sym);
-
     await sendTelegram(
       `🔍 *MANUAL POSITION ADOPTED* — ${base}\n` +
       `  Found ${bal.free} ${base} on MEXC with no bot tracking — now under bot management.\n` +
       `  Adoption price $${entry.price}  Stop $${levels.stop}  T1 $${levels.t1}  T2 $${levels.t2}\n` +
-      (positions[sym].liveOrder.stopOrderId
-        ? `  🛡 Exchange stop placed.\n`
-        : `  ⚠️ Exchange stop NOT placed — software stop check will cover it as a fallback.\n`) +
+      `  🛡 Watched by the 15-min software stop check.\n` +
       `  _P&L tracked from this adoption price, not your real buy price — the bot has no way to know your actual cost basis._`
     );
   }
@@ -413,35 +409,14 @@ export async function adoptManualHoldings({ positions, market, evaluateSymbol, c
 //   3. Symbol is in the ⭐ recommended set (showRecoTags fired)
 //   4. Not already holding too many live open trades (TRADE_MAX_CONCURRENT_LIVE)
 //   5. Idempotency: positions[sym].liveOrder not already set
-// ── Places an exchange-side stop-loss immediately after a live buy fills ──
-// Failure here does NOT fail the buy — the position stays open and the
-// existing 15-min software stop check (position-monitor.js) still watches
-// it as a fallback. But it does mean that fallback is the ONLY protection
-// until the next successful attempt, so this alerts loudly on failure.
-const STOP_SLIPPAGE_PAD = parseFloat(process.env.MEXC_STOP_SLIPPAGE_PAD || '0.005'); // 0.5% below stop
-async function placeExchangeStop(pos, symbol) {
-  if (!pos.stop || pos.stop <= 0) return;
-  try {
-    const step = await getBaseSizePrecision(symbol);
-    const qty  = floorToStep(pos.liveOrder.qty, step);
-    if (qty <= 0) return;
-    const dp         = pos.stop < 1 ? 6 : pos.stop < 10 ? 4 : 2;
-    const stopPrice  = pos.stop.toFixed(dp);
-    const limitPrice = (pos.stop * (1 - STOP_SLIPPAGE_PAD)).toFixed(dp);
-    const order = await mexcPlaceStopLimit(MEXC_API_KEY, MEXC_API_SECRET, symbol, qty, stopPrice, limitPrice);
-    pos.liveOrder.stopOrderId = order.orderId;
-    pos.liveOrder.stopPrice   = parseFloat(stopPrice);
-    pos.liveOrder.stopLimit   = parseFloat(limitPrice);
-    logAudit('mexc_stop_placed', { sym: symbol, qty, stopPrice, limitPrice, orderId: order.orderId });
-  } catch (e) {
-    logAudit('mexc_stop_place_failed', { sym: symbol, error: e.message });
-    await sendTelegram(
-      `⚠️ *STOP ORDER NOT PLACED* — ${pos.base}\n` +
-      `  Buy succeeded but the exchange-side stop failed: ${e.message}\n` +
-      `  _The 15-min software stop check is still watching this position as a fallback — verify manually on MEXC if you rely on the exchange stop._`
-    );
-  }
-}
+// ── NOTE: exchange-side stop-loss removed ──
+// MEXC's /api/v3/order endpoint only accepts type LIMIT or MARKET — there is
+// no stopPrice param and no OCO/stop endpoint in MEXC's documented spot v3
+// API (confirmed against MEXC's own API docs). The previous STOP_LOSS_LIMIT
+// attempt here was Binance-endpoint naming that MEXC has never supported, so
+// it failed on every single live buy (HTTP 400 "invalid type"). Removed —
+// the 15-min software stop check in position-monitor.js is the only stop
+// mechanism MEXC's API allows, and is now PRIMARY, not a fallback.
 
 async function executeAutoBuys({
   ranked, showRecoTags, positions, tradeState,
@@ -572,22 +547,14 @@ async function executeAutoBuys({
         });
         await pushTradeLogToGitHub(loadTradeLog());
 
-        // Exchange-side stop-loss — placed right after the buy fills so the
-        // position is protected on MEXC itself, not just by the 15-min
-        // software check. Skipped if buy.estimated — we don't yet trust the
-        // qty enough to size a resting sell order off it; the software stop
-        // still covers the position until a later cycle confirms the real
-        // fill quantity.
-        if (!buy.estimated) await placeExchangeStop(pos, symbol);
+        await pushTradeLogToGitHub(loadTradeLog());
 
         await sendTelegram(
           `⚡ *LIVE BUY PLACED* — ${pick.pair.replace('USDT','')} — ${utc}\n` +
           `  MEXC MARKET BUY: ${buy.executedQty}${buy.estimated ? ' (estimated — MEXC did not report a fill qty)' : ''} @ $${buy.fillPrice.toFixed(6)}\n` +
           `  Size: $${perPickUsd} USDT  Order ID: \`${buy.orderId}\`\n` +
           (effectiveExecStrategy === 'topN' ? `  Strategy: top${picks.length} split ($${effectiveUsdSize} ÷ ${picks.length})\n` : '') +
-          (pos.liveOrder.stopOrderId
-            ? `  🛡 Exchange stop placed: sell ${buy.executedQty} @ trigger $${pos.liveOrder.stopPrice} (limit $${pos.liveOrder.stopLimit})\n`
-            : `  ⚠️ Exchange stop NOT placed — see warning above. Software stop check still active.\n`) +
+          `  🛡 Watched by the 15-min software stop check.\n` +
           `  Stop/T2 exits will close this position automatically.\n` +
           (buy.estimated ? `  ⚠️ _MEXC didn't confirm a fill quantity yet — verify the actual holding on MEXC matches before trusting auto-sells._\n` : '') +
           `  _Send /pause to halt further auto-buys_`
