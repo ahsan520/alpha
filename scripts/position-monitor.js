@@ -15,7 +15,7 @@
 // directly, so it stays decoupled from the Telegram layer).
 // ══════════════════════════════════════════════════════════════════════════════
 
-import { mexcMarketSell, mexcFreeBalance, getBaseSizePrecision, floorToStep, mexcGetOrderStatus, mexcCancelOrder } from './mexc-client.js';
+import { mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep, mexcGetOrderStatus, mexcCancelOrder } from './mexc-client.js';
 import {
   logAudit, loadCvdState, saveCvdState, TERMINAL_EVICT_MS, MEXC_API_KEY, MEXC_API_SECRET,
   loadTradeLog, recordTradeClose, pushTradeLogToGitHub,
@@ -34,6 +34,88 @@ const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
 // as dust instead of retrying (and re-alerting) the same failed order every
 // cycle forever. Set via repo Variable MEXC_MIN_SELL_NOTIONAL_USDT.
 const MIN_SELL_NOTIONAL_USDT = parseFloat(process.env.MEXC_MIN_SELL_NOTIONAL_USDT || '1');
+const QUOTE_ASSETS = new Set(['USDT', 'USDC', 'BUSD', 'TUSD', 'DAI', 'FDUSD']);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// reconcileTrackedLiveBalances — runs EVERY live cycle, independent of rotation.
+//
+// Previously, checking a tracked position's real MEXC balance only happened
+// (a) when its own stop/T1/T2 triggered a sell attempt, or (b) inside
+// executeRotation, which itself only runs when a new pick qualifies to
+// rotate into this cycle. A position that was sold manually (outside the
+// bot) but whose price never happened to cross its tracked stop/target, and
+// no new rotation-worthy signal came along, would sit "open" in
+// positions.json indefinitely — undetected, and blocking that symbol from
+// ever being re-alerted (STEP 2's "already open" check doesn't know the
+// difference).
+//
+// This closes that gap: every live cycle, check every tracked live
+// position's REAL exchange balance directly, independent of price action
+// or rotation. If the real balance has genuinely dropped to ~0 (not just
+// locked in another order), close the tracking entry out rather than
+// leaving it to loop forever.
+//
+// Uses a strike counter rather than closing on the very first zero read —
+// a fresh buy's balance can occasionally lag the exchange's own account
+// endpoint by a few seconds, and this avoids closing out a real position
+// on that kind of transient blip.
+// ══════════════════════════════════════════════════════════════════════════════
+export async function reconcileTrackedLiveBalances(positions, effectiveTradeMode, utc) {
+  const telegramAlerts = [];
+  if (effectiveTradeMode !== 'live') return { changed: false, telegramAlerts };
+
+  const tracked = Object.entries(positions).filter(
+    ([, p]) => p.assetType === 'crypto'
+      && p.liveOrder?.mode === 'live'
+      && !p.liveOrder?.closedAt
+      && !['stopped', 'tp2_hit'].includes(p.status)
+  );
+  if (!tracked.length) return { changed: false, telegramAlerts };
+
+  let balances = [];
+  try {
+    balances = await mexcGetAllBalances(MEXC_API_KEY, MEXC_API_SECRET);
+  } catch (e) {
+    console.log(`  ⚠️  Balance reconcile: couldn't fetch MEXC balances (${e.message}) — skipping this cycle`);
+    return { changed: false, telegramAlerts };
+  }
+  const freeByBase = new Map(balances.map(b => [b.asset, b.free]));
+
+  let changed = false;
+  const STRIKE_LIMIT = 2; // require 2 consecutive zero-reads before treating as a real manual sell
+
+  for (const [key, pos] of tracked) {
+    if (QUOTE_ASSETS.has(pos.base)) continue;
+    const free = freeByBase.get(pos.base) || 0;
+    // Real balance still present (even partially) — reset strikes, nothing to do.
+    if (free > 0) {
+      if (pos.liveOrder.zeroBalanceStrikes) pos.liveOrder.zeroBalanceStrikes = 0;
+      continue;
+    }
+
+    pos.liveOrder.zeroBalanceStrikes = (pos.liveOrder.zeroBalanceStrikes || 0) + 1;
+    if (pos.liveOrder.zeroBalanceStrikes < STRIKE_LIMIT) {
+      console.log(`  ⚠️  ${pos.base} — exchange balance reads 0 (strike ${pos.liveOrder.zeroBalanceStrikes}/${STRIKE_LIMIT}), rechecking next cycle`);
+      continue;
+    }
+
+    // Confirmed gone — close it out rather than looping forever.
+    pos.status = 'stopped';
+    pos.liveOrder.closedAt      = Date.now();
+    pos.liveOrder.exitFillPrice = pos.liveOrder.fillPrice; // real exit price unknown — this was NOT a bot-tracked sell
+    recordTradeClose(pos, 'manual_sell_detected_zero_balance', { qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.exitFillPrice });
+    await pushTradeLogToGitHub(loadTradeLog());
+    changed = true;
+    logAudit('position_manual_sell_detected', { sym: key, base: pos.base });
+    telegramAlerts.push(
+      `🔍 *MANUAL SELL DETECTED* — ${pos.base}\n` +
+      `  Exchange balance reads 0 across 2 checks — closing tracking (assumed sold outside the bot).\n` +
+      `  _Real exit price unknown — P&L recorded using last known fill price, not your actual sale price._  ${utc || ''}`
+    );
+  }
+
+  return { changed, telegramAlerts };
+}
 
 // A position too small to even sell (see MIN_SELL_NOTIONAL_USDT above)
 // shouldn't occupy a TRADE_MAX_CONCURRENT_LIVE slot either — otherwise a

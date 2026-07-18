@@ -35,7 +35,7 @@ import {
 import { mexcGetAllBalances } from './mexc-client.js';
 
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
-import { monitorPositions } from './position-monitor.js';
+import { monitorPositions, reconcileTrackedLiveBalances } from './position-monitor.js';
 import { executeTradeCycle, adoptManualHoldings } from './mexc-trader.js';
 import { runAllBuyGuards, isDivergingFromBtc } from './market-guard.js';
 
@@ -285,6 +285,25 @@ async function main() {
     const adopted = await adoptManualHoldings({ positions, market, evaluateSymbol, calcEntryLevels });
     positions = adopted.positions;
     if (adopted.changed) {
+      savePositions(positions);
+      await pushPositionsToGitHub(positions);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // STEP 1.6 — Reconcile tracked live positions against REAL MEXC balance
+  // Runs every live cycle, independent of whether rotation has a new pick
+  // this cycle — otherwise a manually-sold position whose price never
+  // crosses its own stop/target could sit "open" in positions.json
+  // indefinitely, silently blocking that symbol from future alerts.
+  // ══════════════════════════════════════════════════════
+  if (effectiveTradeMode === 'live') {
+    const reconcileUtc = new Date().toUTCString().slice(17, 22) + ' UTC';
+    const reconciled = await reconcileTrackedLiveBalances(positions, effectiveTradeMode, reconcileUtc);
+    if (reconciled.telegramAlerts.length) {
+      for (const m of reconciled.telegramAlerts) await sendTelegram(m);
+    }
+    if (reconciled.changed) {
       savePositions(positions);
       await pushPositionsToGitHub(positions);
     }
