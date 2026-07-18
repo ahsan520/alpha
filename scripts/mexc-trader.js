@@ -67,6 +67,12 @@ function meetsGradeGate(grade) {
 // power, not a trade.
 const QUOTE_ASSETS = new Set(['USDT', 'USDC', 'BUSD', 'TUSD', 'DAI', 'FDUSD']);
 
+// Same threshold + env var as position-monitor.js's closeLiveOrder dust
+// guard — a balance worth less than this can't be sold on MEXC at all, so
+// skip attempting it here too rather than retrying (and re-alerting) a
+// doomed order every rotation cycle.
+const MIN_SELL_NOTIONAL_USDT = parseFloat(process.env.MEXC_MIN_SELL_NOTIONAL_USDT || '1');
+
 
 // ── Rotation — sell anything held that's not in THIS cycle's buy alert ──
 // Fires on ANY cycle where a star-pick/topN buy alert actually fires. Rule
@@ -223,6 +229,19 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
           rotationSells.push({ base, skipped: true, reason: 'zero_balance' });
           continue;
         }
+        // Dust guard — same threshold as closeLiveOrder (position-monitor.js):
+        // a balance worth less than MEXC's minimum sellable notional can't be
+        // sold at all, so leave it on the exchange instead of retrying (and
+        // re-alerting) the same failed order every rotation cycle.
+        const estNotional = sellQty * marketPrice;
+        if (marketPrice > 0 && estNotional > 0 && estNotional < MIN_SELL_NOTIONAL_USDT) {
+          logAudit('mexc_sell_skipped_dust', { sym, reason: 'rotation_untracked', sellQty, estNotional });
+          await sendTelegram(
+            `🧹 *DUST IGNORED (untracked)* — ${sellQty} ${base} (~$${estNotional.toFixed(4)}) is below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell — leaving it on the exchange.`
+          );
+          rotationSells.push({ base, skipped: true, reason: 'dust_ignored' });
+          continue;
+        }
         const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, sym, sellQty);
         logAudit('mexc_sell_untracked', { sym, qty: sellQty, fillPrice: sell.fillPrice, orderId: sell.orderId });
         await sendTelegram(
@@ -232,6 +251,14 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
         rotationSells.push({ base, untracked: true });
         changed = true;
       } catch (e) {
+        // Fallback: MEXC itself rejected it as under-minimum even though our
+        // pre-check (stale/zero marketPrice) didn't catch it — treat the same.
+        if (/minimum transaction volume/i.test(e.message || '')) {
+          logAudit('mexc_sell_skipped_dust', { sym, reason: 'rotation_untracked', error: e.message });
+          await sendTelegram(`🧹 *DUST IGNORED (untracked)* — ${base}: MEXC rejected the sell as below its minimum notional — leaving it on the exchange.`);
+          rotationSells.push({ base, skipped: true, reason: 'dust_ignored' });
+          continue;
+        }
         logAudit('mexc_sell_untracked_failed', { sym, error: e.message });
         await sendTelegram(`🚨 *LIVE SELL FAILED (untracked)* — ${base}: ${e.message} — CLOSE MANUALLY on MEXC.`);
         rotationSells.push({ base, skipped: true, reason: 'error' });
@@ -239,14 +266,19 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
     }
   }
 
+  const reasonLabel = (r) => {
+    if (r.reason === 'zero_balance')  return '0 balance';
+    if (r.reason === 'dust_ignored')  return 'dust, below min sell';
+    return r.reason;
+  };
   const sellSummary = rotationSells
     .map(r => r.skipped
-      ? `${r.base} SKIPPED (${r.reason === 'zero_balance' ? '0 balance' : r.reason})`
+      ? `${r.base} SKIPPED (${reasonLabel(r)})`
       : r.untracked
         ? `${r.base} sold (untracked)`
         : `${r.base} ${r.pnlPct >= 0 ? '+' : ''}${r.pnlPct}%${r.wasHoldingT1 ? ' (T1 hold, lost A/A+)' : ''}`)
     .join(', ');
-  const anySkipped = rotationSells.some(r => r.skipped);
+  const anySkipped = rotationSells.some(r => r.skipped && r.reason !== 'dust_ignored');
   await sendTelegram(
     `🔄 *ROTATION* — ${utc}\n` +
     `  ${sellSummary}\n` +

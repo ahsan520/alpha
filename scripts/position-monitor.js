@@ -28,6 +28,13 @@ const LB_HOLD_LOCK       = parseInt(process.env.LB_HOLD_LOCK       || '20');
 const LB_EXIT_CVD_CYCLES = parseInt(process.env.LB_EXIT_CVD_CYCLES || '3');
 const LB_EXIT_SCORE_MIN  = parseInt(process.env.LB_EXIT_SCORE_MIN  || '3');
 
+// Positions worth less than this on the exchange can't be sold at all —
+// MEXC rejects orders under ~$1 USDT notional. Below this, closeLiveOrder
+// skips the sell attempt entirely and closes the position out of tracking
+// as dust instead of retrying (and re-alerting) the same failed order every
+// cycle forever. Set via repo Variable MEXC_MIN_SELL_NOTIONAL_USDT.
+const MIN_SELL_NOTIONAL_USDT = parseFloat(process.env.MEXC_MIN_SELL_NOTIONAL_USDT || '1');
+
 export function countLiveOpenPositions(positions) {
   return Object.values(positions).filter(
     p => p.liveOrder?.mode === 'live' && !p.liveOrder?.closedAt && !['stopped', 'tp1_hit', 'tp2_hit'].includes(p.status)
@@ -134,6 +141,31 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
       logAudit('mexc_sell_skipped', { sym: symbol, reason, free, locked });
       return { closed: false, reason: 'zero_balance' };
     }
+
+    // ── Dust guard — below MEXC's minimum sellable notional ──
+    // MEXC rejects orders under ~$1 USDT notional ("minimum transaction
+    // volume cannot be less than: 1USDT"). A leftover sliver like this can't
+    // be sold at all, so attempting it every cycle just repeats the same
+    // failed order + alert forever. Estimate notional from the price the
+    // caller already computed (pos.exitPrice, set right before calling this)
+    // falling back to entryPrice, and if it's under the minimum, skip the
+    // exchange call entirely and close out of tracking as dust instead.
+    const refPrice    = parseFloat(pos.exitPrice || pos.entryPrice || 0);
+    const estNotional = sellQty * refPrice;
+    if (refPrice > 0 && estNotional > 0 && estNotional < MIN_SELL_NOTIONAL_USDT) {
+      pos.liveOrder.closedAt      = Date.now();
+      pos.liveOrder.exitFillPrice = refPrice;
+      pos.liveOrder.dustIgnored   = true;
+      telegramAlerts.push(
+        `🧹 *DUST IGNORED* — ${pos.base} ${reason} but ${sellQty} ${pos.base} (~$${estNotional.toFixed(4)}) is below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell — ` +
+        `leaving it on the exchange, closing out of tracking (not worth selling).`
+      );
+      logAudit('mexc_sell_skipped_dust', { sym: symbol, reason, sellQty, estNotional, free });
+      recordTradeClose(pos, `${reason} (dust — below $${MIN_SELL_NOTIONAL_USDT} min, not sold)`, { qty: sellQty, fillPrice: refPrice });
+      await pushTradeLogToGitHub(loadTradeLog());
+      return { closed: true, reason: 'dust_ignored' };
+    }
+
     const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, symbol, sellQty);
     pos.liveOrder.sellOrderId   = sell.orderId;
     pos.liveOrder.exitFillPrice = sell.fillPrice;
@@ -144,6 +176,20 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
     await pushTradeLogToGitHub(loadTradeLog());
     return { closed: true, reason: 'sold' };
   } catch (e) {
+    // Fallback safety net: if our pre-check above missed it (stale/missing
+    // price so estNotional couldn't be computed) and MEXC itself rejects the
+    // order as under its minimum, treat it the same way — close out as dust
+    // instead of leaving it to fail loudly on every future cycle too.
+    if (/minimum transaction volume/i.test(e.message || '')) {
+      pos.liveOrder.closedAt      = Date.now();
+      pos.liveOrder.exitFillPrice = parseFloat(pos.exitPrice || pos.entryPrice || 0);
+      pos.liveOrder.dustIgnored   = true;
+      telegramAlerts.push(`🧹 *DUST IGNORED* — ${pos.base} ${reason}: MEXC rejected the sell as below its minimum notional — leaving it on the exchange, closing out of tracking.`);
+      logAudit('mexc_sell_skipped_dust', { sym: symbol, reason, error: e.message });
+      recordTradeClose(pos, `${reason} (dust — MEXC min-notional rejected, not sold)`, { qty: pos.liveOrder.qty, fillPrice: pos.liveOrder.exitFillPrice });
+      await pushTradeLogToGitHub(loadTradeLog());
+      return { closed: true, reason: 'dust_ignored' };
+    }
     telegramAlerts.push(`🚨 *LIVE SELL FAILED* — ${pos.base} ${reason} but MEXC order errored: ${e.message} — CLOSE MANUALLY on the exchange. Position kept open in tracking, will retry next cycle.`);
     logAudit('mexc_sell_failed', { sym: symbol, reason, error: e.message });
     return { closed: false, reason: 'error', error: e.message };
