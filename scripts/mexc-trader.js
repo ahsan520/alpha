@@ -21,6 +21,7 @@
 
 import { mexcMarketBuy, mexcMarketSell, mexcFreeBalance, mexcGetAllBalances, getBaseSizePrecision, floorToStep } from './mexc-client.js';
 import { closeLiveOrder, countLiveOpenPositions } from './position-monitor.js';
+import { buildSymKey } from './exchange-registry.js';
 import { sendTelegram } from './telegram-commands.js';
 import {
   logAudit, MEXC_API_KEY, MEXC_API_SECRET,
@@ -330,7 +331,14 @@ export async function adoptManualHoldings({ positions, market, evaluateSymbol, c
     const base = bal.asset;
     if (QUOTE_ASSETS.has(base) || isNoTradeSymbol(base + 'USDT')) continue;
     if (bal.free <= 0) continue; // nothing sellable — fully locked elsewhere, skip
-    const sym = base + 'USDT';
+    const bareSym = base + 'USDT';
+    const sym = buildSymKey(bareSym); // normalized key (e.g. 'BINANCE:LINKUSDT') —
+    // matches the format used by the buy-scan/leaderboard pipeline, so a
+    // manually-adopted holding and a later signal for the same symbol land
+    // under the SAME positions[] key instead of creating a duplicate
+    // tracked entry. market.symbols itself is keyed by the BARE pair
+    // (confirmed against market-data.json), so that lookup below
+    // deliberately still uses bareSym, not sym.
 
     const alreadyTracked = Object.values(positions).some(p =>
       p.base === base && p.assetType === 'crypto' && !p.liveOrder?.closedAt
@@ -339,7 +347,7 @@ export async function adoptManualHoldings({ positions, market, evaluateSymbol, c
     );
     if (alreadyTracked) continue; // bot-bought or already adopted — leave it
 
-    const entry = (market.symbols || {})[sym];
+    const entry = (market.symbols || {})[bareSym];
     if (!entry || entry.assetType !== 'crypto') {
       console.log(`  ⚠️  ${base} held on MEXC but not in market-data.json — can't compute stop/T1/T2, skipping adoption this cycle`);
       continue;

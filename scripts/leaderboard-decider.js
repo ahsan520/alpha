@@ -490,8 +490,22 @@ async function main() {
     }
 
     // Open position gate — block on active states only
+    // Matches by BASE ASSET across ALL tracked keys, not just an exact
+    // sym-key match. adoptManualHoldings tracks manually-bought coins under
+    // a bare key (e.g. 'LINKUSDT'), while this buy-scan builds its own key
+    // via buildSymKey (e.g. 'BINANCE:LINKUSDT') — an exact-key lookup here
+    // would miss an existing bare-keyed entry entirely and create a SECOND,
+    // duplicate tracked position for the same real asset. A duplicate like
+    // that silently occupies an extra TRADE_MAX_CONCURRENT_LIVE slot even
+    // after the "real" copy gets sold, since only one of the two keys
+    // actually gets closed by a sell.
     const sym = buildSymKey(pair);
-    const existingPos = positions[sym];
+    const base = pair.replace('USDT', '').replace(/\.\w+$/, '');
+    const existingKey = Object.keys(positions).find(k => {
+      const p = positions[k];
+      return p.base === base && p.assetType === entry.assetType;
+    });
+    const existingPos = existingKey ? positions[existingKey] : undefined;
     if (existingPos) {
       // tp1_hit has two sub-states (see position-monitor.js): still holding
       // to T2 (no exitPrice — a real position, do NOT touch it) vs actually
@@ -513,9 +527,10 @@ async function main() {
         console.log(`  ⏭  ${pair} — terminal (${existingPos.status}), waiting for eviction`);
         continue;
       }
-      // Past eviction window — clear it now
+      // Past eviction window — clear it now (using whichever key it was
+      // ACTUALLY tracked under, which may differ from buildSymKey(pair))
       console.log(`  ♻️  ${pair} — clearing terminal (${existingPos.status}), slot available`);
-      delete positions[sym];
+      delete positions[existingKey];
     }
 
     candidates.push({ pair, sym, entry, evald, cdKey, isCapBuy });
