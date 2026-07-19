@@ -87,6 +87,29 @@ export async function reconcileTrackedLiveBalances(positions, effectiveTradeMode
   for (const [key, pos] of tracked) {
     if (QUOTE_ASSETS.has(pos.base)) continue;
     const free = freeByBase.get(pos.base) || 0;
+
+    // Real balance significantly EXCEEDS tracked qty — the opposite problem
+    // from a manual sell. Most likely cause: a manual re-buy landed on a
+    // symbol that already had a tracked (possibly near-zero/dust) entry, so
+    // adoptManualHoldings never touched it (it only adopts symbols with NO
+    // existing entry at all). Left uncorrected, sell sizing elsewhere
+    // (closeLiveOrder) and dust checks (countLiveOpenPositions) keep working
+    // from the stale, understated tracked qty/usdSize indefinitely — this
+    // self-heals those fields to match the real exchange balance.
+    const trackedQty = pos.liveOrder.qty || 0;
+    if (free > trackedQty * 1.5 && free - trackedQty > 0.000001) {
+      const refPrice = pos.entryPrice || pos.liveOrder.fillPrice || 0;
+      const oldQty = trackedQty;
+      pos.liveOrder.qty     = free;
+      pos.liveOrder.usdSize = refPrice > 0 ? parseFloat((free * refPrice).toFixed(2)) : pos.liveOrder.usdSize;
+      changed = true;
+      logAudit('position_qty_reconciled_up', { sym: key, base: pos.base, oldQty, newQty: free });
+      telegramAlerts.push(
+        `🔧 *TRACKING CORRECTED* — ${pos.base}\n` +
+        `  Tracked qty was ${oldQty}, real MEXC balance is ${free} — updated to match. This position was undersized in tracking, likely from an earlier manual buy the bot didn't fully reconcile.`
+      );
+    }
+
     // Real balance still present (even partially) — reset strikes, nothing to do.
     if (free > 0) {
       if (pos.liveOrder.zeroBalanceStrikes) pos.liveOrder.zeroBalanceStrikes = 0;
@@ -229,7 +252,46 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
     ]);
     const free = typeof bal === 'object' ? bal.free : bal;
     const locked = typeof bal === 'object' ? bal.locked : 0;
-    const sellQty = floorToStep(Math.min(pos.liveOrder.qty || 0, free), step);
+    // Sell the REAL free balance, not Math.min(tracked qty, free) — closing
+    // a position means "get rid of everything you hold of this symbol,"
+    // consistent with adoptManualHoldings' own philosophy that the bot
+    // manages the whole spot balance of any symbol it tracks, not a partial
+    // slice. Capping at the tracked qty backfires badly whenever the real
+    // balance has grown BEYOND what's tracked (e.g. a manual re-buy that
+    // landed on an already-existing tracked entry, which adoptManualHoldings
+    // has no path to catch since it only adopts symbols with NO existing
+    // entry at all) — the old Math.min() would floor to a stale, tiny
+    // tracked amount and report "zero_balance" forever while a real,
+    // substantial balance sat untouched on the exchange.
+    const sellQty = floorToStep(free, step);
+
+    // ── Dust guard — checked BEFORE the zero-balance branch below ──
+    // Evaluated against the REAL free balance, not sellQty. A tiny leftover
+    // (e.g. 0.0057 XRP after a lot-size-step rounding remainder from an
+    // earlier real sell) can floor to 0 SELLABLE units while free is still
+    // technically > 0 — previously that hit the zero_balance branch first
+    // and looped "kept open, retry next cycle" forever, since sellQty*price
+    // is always 0 once sellQty itself is 0. Checking free*price here instead
+    // catches this case and closes it out as dust, same as the existing
+    // post-sell dust guard already does for a nonzero sellQty that's still
+    // too small to meet MEXC's minimum notional.
+    const refPrice        = parseFloat(pos.exitPrice || pos.entryPrice || 0);
+    const freeEstNotional = free * refPrice;
+    const DUST_EPSILON     = 1e-8; // truly-zero vs "some dust exists" cutoff
+    if (free > DUST_EPSILON && refPrice > 0 && freeEstNotional < MIN_SELL_NOTIONAL_USDT) {
+      pos.liveOrder.closedAt      = Date.now();
+      pos.liveOrder.exitFillPrice = refPrice;
+      pos.liveOrder.dustIgnored   = true;
+      telegramAlerts.push(
+        `🧹 *DUST IGNORED* — ${pos.base} ${reason}: ${free} ${pos.base} (~$${freeEstNotional.toFixed(4)}) remains — below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell (or its lot-size step) — ` +
+        `leaving it on the exchange, closing out of tracking (not worth selling).`
+      );
+      logAudit('mexc_sell_skipped_dust', { sym: symbol, reason, free, sellQty, freeEstNotional });
+      recordTradeClose(pos, `${reason} (dust — below $${MIN_SELL_NOTIONAL_USDT} min or lot step, not sold)`, { qty: free, fillPrice: refPrice });
+      await pushTradeLogToGitHub(loadTradeLog());
+      return { closed: true, reason: 'dust_ignored' };
+    }
+
     if (sellQty <= 0) {
       // Give the actual locked amount too — a 0 *free* balance while coins
       // are sitting *locked* (e.g. tied up in another open order) is a very
@@ -239,30 +301,6 @@ export async function closeLiveOrder(pos, reason, telegramAlerts) {
       telegramAlerts.push(`🚨 *LIVE SELL SKIPPED* — ${pos.base} ${reason} but exchange free balance reads 0${lockedNote} — check MEXC manually. Position kept open in tracking, will retry next cycle.`);
       logAudit('mexc_sell_skipped', { sym: symbol, reason, free, locked });
       return { closed: false, reason: 'zero_balance' };
-    }
-
-    // ── Dust guard — below MEXC's minimum sellable notional ──
-    // MEXC rejects orders under ~$1 USDT notional ("minimum transaction
-    // volume cannot be less than: 1USDT"). A leftover sliver like this can't
-    // be sold at all, so attempting it every cycle just repeats the same
-    // failed order + alert forever. Estimate notional from the price the
-    // caller already computed (pos.exitPrice, set right before calling this)
-    // falling back to entryPrice, and if it's under the minimum, skip the
-    // exchange call entirely and close out of tracking as dust instead.
-    const refPrice    = parseFloat(pos.exitPrice || pos.entryPrice || 0);
-    const estNotional = sellQty * refPrice;
-    if (refPrice > 0 && estNotional > 0 && estNotional < MIN_SELL_NOTIONAL_USDT) {
-      pos.liveOrder.closedAt      = Date.now();
-      pos.liveOrder.exitFillPrice = refPrice;
-      pos.liveOrder.dustIgnored   = true;
-      telegramAlerts.push(
-        `🧹 *DUST IGNORED* — ${pos.base} ${reason} but ${sellQty} ${pos.base} (~$${estNotional.toFixed(4)}) is below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell — ` +
-        `leaving it on the exchange, closing out of tracking (not worth selling).`
-      );
-      logAudit('mexc_sell_skipped_dust', { sym: symbol, reason, sellQty, estNotional, free });
-      recordTradeClose(pos, `${reason} (dust — below $${MIN_SELL_NOTIONAL_USDT} min, not sold)`, { qty: sellQty, fillPrice: refPrice });
-      await pushTradeLogToGitHub(loadTradeLog());
-      return { closed: true, reason: 'dust_ignored' };
     }
 
     const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, symbol, sellQty);

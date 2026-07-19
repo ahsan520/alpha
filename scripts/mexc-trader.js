@@ -225,21 +225,24 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
       try {
         const step    = await getBaseSizePrecision(sym);
         const sellQty = floorToStep(target.freeQty, step);
-        if (sellQty <= 0) {
-          rotationSells.push({ base, skipped: true, reason: 'zero_balance' });
-          continue;
-        }
-        // Dust guard — same threshold as closeLiveOrder (position-monitor.js):
-        // a balance worth less than MEXC's minimum sellable notional can't be
-        // sold at all, so leave it on the exchange instead of retrying (and
-        // re-alerting) the same failed order every rotation cycle.
-        const estNotional = sellQty * marketPrice;
-        if (marketPrice > 0 && estNotional > 0 && estNotional < MIN_SELL_NOTIONAL_USDT) {
-          logAudit('mexc_sell_skipped_dust', { sym, reason: 'rotation_untracked', sellQty, estNotional });
+
+        // ── Dust guard — checked BEFORE the zero-balance branch below ──
+        // Evaluated against the REAL freeQty, not sellQty — a tiny leftover
+        // that floors to 0 sellable units still needs to be recognized as
+        // dust (not "zero balance, retry forever"). Same fix as
+        // closeLiveOrder in position-monitor.js.
+        const estNotional = target.freeQty * marketPrice;
+        if (marketPrice > 0 && target.freeQty > 0 && estNotional < MIN_SELL_NOTIONAL_USDT) {
+          logAudit('mexc_sell_skipped_dust', { sym, reason: 'rotation_untracked', freeQty: target.freeQty, estNotional });
           await sendTelegram(
-            `🧹 *DUST IGNORED (untracked)* — ${sellQty} ${base} (~$${estNotional.toFixed(4)}) is below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell — leaving it on the exchange.`
+            `🧹 *DUST IGNORED (untracked)* — ${target.freeQty} ${base} (~$${estNotional.toFixed(4)}) is below MEXC's $${MIN_SELL_NOTIONAL_USDT} minimum sell (or its lot-size step) — leaving it on the exchange.`
           );
           rotationSells.push({ base, skipped: true, reason: 'dust_ignored' });
+          continue;
+        }
+
+        if (sellQty <= 0) {
+          rotationSells.push({ base, skipped: true, reason: 'zero_balance' });
           continue;
         }
         const sell = await mexcMarketSell(MEXC_API_KEY, MEXC_API_SECRET, sym, sellQty);

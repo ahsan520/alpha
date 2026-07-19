@@ -31,6 +31,7 @@ import {
   loadTradeState, saveTradeState,
   saveTradeLog, pushTradeLogToGitHub,
   loadAuditLog, pushAuditLogToGitHub, pushLiveBalancesToGitHub,
+  checkHeartbeatStale, pushHeartbeatToGitHub,
 } from './job-state.js';
 import { mexcGetAllBalances } from './mexc-client.js';
 
@@ -150,6 +151,24 @@ async function main() {
     ghRepo: process.env.GH_REPO || '✗ missing',
     tgEnabled: TG_ENABLED, dryRun: DRY_RUN,
   });
+
+  // ── Heartbeat staleness check ──
+  // The schedule expects this job every ~17 min (alerts.yml: minutes
+  // 2,19,36,53). GitHub Actions can silently delay or skip scheduled runs
+  // with no notification — this is how the bot notices a gap itself rather
+  // than someone finding out retroactively. Threshold is 2.5x the expected
+  // interval so normal jitter (a run taking a bit longer, GitHub's usual
+  // few-minutes cron slop) doesn't false-alarm.
+  const heartbeat = checkHeartbeatStale(17, 2.5);
+  if (heartbeat.stale) {
+    console.log(`  ⚠️  STALE RUN — last successful run was ${heartbeat.gapMinutes} min ago (expected ~17min)`);
+    logAudit('heartbeat_stale', { gapMinutes: heartbeat.gapMinutes, lastRunAt: heartbeat.lastRunAt });
+    await sendTelegram(
+      `⚠️ *STALE RUN DETECTED*\n` +
+      `  Last successful run was ${heartbeat.gapMinutes.toFixed(0)} minutes ago (expected ~every 17 min).\n` +
+      `  _Check GitHub Actions run history for failed/skipped scheduled runs — positions.json and reconciliation may be out of date until this resolves._`
+    );
+  }
 
   const market  = loadMarketData();
   const entries = Object.entries(market.symbols || {});
@@ -329,6 +348,7 @@ async function main() {
     logAudit('no_candidates', { bestConv });
     saveMarketData(resetPeaks(market));
     logAudit('job_complete');
+    await pushHeartbeatToGitHub(Date.now());
     console.log('\n✅  Job B complete.\n');
     return;
   }
@@ -485,6 +505,7 @@ async function main() {
     saveAlertState(alertState);
     logAudit('buy_cycle_complete', { signalsFound: 0 });
     logAudit('job_complete');
+    await pushHeartbeatToGitHub(Date.now());
     console.log('\n✅  Job B complete.\n');
     return;
   }
@@ -675,6 +696,7 @@ async function main() {
   }
 
   logAudit('job_complete');
+  await pushHeartbeatToGitHub(Date.now());
   await pushAuditLogToGitHub(loadAuditLog());
   console.log('\n✅  Job B complete.\n');
 }

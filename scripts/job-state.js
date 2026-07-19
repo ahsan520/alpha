@@ -26,6 +26,7 @@ const TRADE_STATE_PATH    = path.join(process.cwd(), 'trade-state.json');
 const TRADE_LOG_PATH      = path.join(process.cwd(), 'trade-log.json');
 const PAPER_BALANCE_PATH  = path.join(process.cwd(), 'paper-balance.json');
 const LIVE_BALANCES_PATH  = path.join(process.cwd(), 'mexc-live-balances.json');
+const HEARTBEAT_PATH      = path.join(process.cwd(), 'heartbeat.json');
 
 // ── Shared env constants ──
 export const DRY_RUN    = process.argv.includes('--dry-run');
@@ -377,3 +378,76 @@ export async function pushPositionsToGitHub(positions) {
     logAudit('positions_push_failed', { error: e.message });
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// heartbeat.json — records the timestamp of the last successful job completion.
+// Committed to the repo (same round-trip pattern as positions.json) so it
+// persists across GitHub Actions runs, which otherwise have no memory of
+// their own between invocations.
+//
+// Purpose: the schedule expects this job to run roughly every ~17 minutes
+// (see alerts.yml). GitHub Actions scheduled (cron) workflows can silently
+// get delayed or skipped during high load, or if the workflow is paused —
+// there's no notification for that on GitHub's side. Checking "how long
+// since the last successful run" at the START of every run is how the bot
+// notices a gap itself, rather than someone discovering it retroactively by
+// noticing stale prices or a position that should've rotated but didn't.
+// ══════════════════════════════════════════════════════════════════════════════
+export const loadHeartbeat = () => loadJSON(HEARTBEAT_PATH, { lastRunAt: 0 });
+
+export async function pushHeartbeatToGitHub(lastRunAt) {
+  const token  = process.env.GITHUB_TOKEN;
+  const repo   = process.env.GH_REPO;
+  const branch = process.env.GH_BRANCH        || 'main';
+  const fpath  = process.env.GH_HEARTBEAT_PATH || 'scripts/heartbeat.json';
+
+  if (!token || !repo) {
+    console.log('[heartbeat-push] Skipping — GITHUB_TOKEN or GH_REPO not set');
+    return;
+  }
+
+  const apiUrl  = `https://api.github.com/repos/${repo}/contents/${fpath}`;
+  const headers = {
+    Authorization:          `Bearer ${token}`,
+    Accept:                 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type':         'application/json',
+  };
+
+  try {
+    let sha = null;
+    const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) sha = (await getRes.json()).sha || null;
+    else if (getRes.status !== 404) throw new Error(`GET ${getRes.status}`);
+
+    const body = {
+      message: `chore: heartbeat ${new Date(lastRunAt).toISOString()} [skip ci]`,
+      content: Buffer.from(JSON.stringify({ lastRunAt }, null, 2)).toString('base64'),
+      branch,
+    };
+    if (sha) body.sha = sha;
+
+    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
+    }
+    console.log(`[heartbeat-push] ✓ recorded ${new Date(lastRunAt).toISOString()}`);
+  } catch (e) {
+    console.warn(`[heartbeat-push] ⚠ ${e.message}`);
+    logAudit('heartbeat_push_failed', { error: e.message });
+  }
+}
+
+// Returns { stale, gapMinutes, lastRunAt } — checked at job start, BEFORE
+// this run's own heartbeat gets written, so it reflects the gap since the
+// PREVIOUS successful completion. lastRunAt === 0 (first run ever, or file
+// missing) is never reported as stale — nothing to compare against yet.
+export function checkHeartbeatStale(expectedIntervalMin = 17, thresholdMultiplier = 2.5) {
+  const { lastRunAt } = loadHeartbeat();
+  if (!lastRunAt) return { stale: false, gapMinutes: 0, lastRunAt: 0 };
+  const gapMinutes = (Date.now() - lastRunAt) / 60000;
+  const stale = gapMinutes > expectedIntervalMin * thresholdMultiplier;
+  return { stale, gapMinutes: parseFloat(gapMinutes.toFixed(1)), lastRunAt };
+}
+
