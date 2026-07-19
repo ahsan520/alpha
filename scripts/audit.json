@@ -115,5 +115,127 @@
     "action": "positions_check",
     "total": 10,
     "monitored": 10
+  },
+  {
+    "timestamp": "2026-07-19T09:19:43.273Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-19T09:19:44.332Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-19T09:19:44.677Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "DOGEUSDT",
+    "reason": "rotation",
+    "free": 0.17,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-19T09:19:45.253Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped",
+    "sym": "XRPUSDT",
+    "reason": "rotation",
+    "free": 2218.065717,
+    "locked": 0
+  },
+  {
+    "timestamp": "2026-07-19T09:19:45.960Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "zero_balance"
+      },
+      {
+        "base": "XLM",
+        "pnlPct": -0.27,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "SUIUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-19T09:19:46.120Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (live)"
+    ]
+  },
+  {
+    "timestamp": "2026-07-19T09:19:46.120Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 29,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-19T09:19:47.000Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-07-19T09:19:47.259Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SUI"
+    ],
+    "caution": [
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-07-19T09:19:48.276Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-07-19T09:19:48.276Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-19T09:19:49.562Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 10
   }
 ]
