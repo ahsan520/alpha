@@ -180,8 +180,16 @@ async function main() {
   }
 
   const ageMin = (Date.now() - (market.fetchedAt || 0)) / 60000;
-  if (ageMin > (market.staleAfterMinutes || 30)) {
-    console.log(`[leaderboard-decider] ⚠ market-data.json is ${ageMin.toFixed(1)} min old`);
+  const STALE_THRESHOLD_MIN = market.staleAfterMinutes || 30;
+  const dataIsStale = ageMin > STALE_THRESHOLD_MIN;
+  if (dataIsStale) {
+    console.log(`[leaderboard-decider] ⚠ market-data.json is ${ageMin.toFixed(1)} min old — blocking new buys this cycle`);
+    logAudit('market_data_stale', { ageMin: parseFloat(ageMin.toFixed(1)), thresholdMin: STALE_THRESHOLD_MIN });
+    await sendTelegram(
+      `🚨 *STALE MARKET DATA* — ${ageMin.toFixed(0)} min old (threshold ${STALE_THRESHOLD_MIN} min)\n` +
+      `  New buy signals are BLOCKED this cycle — won't open a position off outdated prices.\n` +
+      `  _Open positions are still monitored for stop/target using this same data — verify current prices manually on MEXC if you're relying on exit timing right now._`
+    );
   }
 
   const cryptoCount = entries.filter(([, e]) => e.assetType === 'crypto').length;
@@ -330,7 +338,22 @@ async function main() {
 
   // ══════════════════════════════════════════════════════
   // STEP 2 — Scan for new BUY signals
+  // Skipped entirely if market data is stale (see gate above) — no new
+  // position should open off outdated prices. Monitoring/exits in STEP 1
+  // already ran regardless, since leaving open positions unwatched during
+  // a stale-data window is worse than evaluating exits with a flagged
+  // caveat.
   // ══════════════════════════════════════════════════════
+  if (dataIsStale) {
+    console.log(`\n⏭  Buy scan skipped this cycle — market data too stale.`);
+    logAudit('buy_scan_skipped_stale_data', { ageMin: parseFloat(ageMin.toFixed(1)) });
+    logAudit('job_complete');
+    await pushHeartbeatToGitHub(Date.now());
+    await pushAuditLogToGitHub(loadAuditLog());
+    console.log('\n✅  Job B complete (buy scan skipped — stale data).\n');
+    return;
+  }
+
   console.log(`\n🔍  Scanning for buy signals...`);
 
   // Pre-screen — bail early if nothing clears min score
