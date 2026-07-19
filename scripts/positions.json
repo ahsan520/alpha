@@ -98,14 +98,17 @@
     "spikeScore": 5.640698354708594,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
     "rankScore": 0.34,
     "histWinRate": 0,
     "histSample": 13,
-    "caution": true
+    "caution": true,
+    "exitPrice": 0.75,
+    "statusChangedAt": 1784493150359,
+    "rotatedOut": true
   },
   "LINKUSDT": {
     "sym": "LINKUSDT",
@@ -125,7 +128,7 @@
     "spikeScore": 0.16330185840194436,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -136,8 +139,14 @@
       "qty": 287.76,
       "fillPrice": 8.318,
       "buyOrderId": "MANUAL_ADOPTED_1784485940222",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__707624864608915456036",
+      "exitFillPrice": 8.350841638865722,
+      "closedAt": 1784493151208
+    },
+    "exitPrice": 8.350841638865722,
+    "statusChangedAt": 1784493152312,
+    "rotatedOut": true
   },
   "BINANCE:LINKUSDT": {
     "sym": "BINANCE:LINKUSDT",
@@ -193,7 +202,7 @@
     "spikeScore": 0.5518463740647193,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -204,8 +213,14 @@
       "qty": 0.17,
       "fillPrice": 0.07236,
       "buyOrderId": "MANUAL_ADOPTED_1784493143554",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784493152766,
+      "exitFillPrice": 0.07236,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.07236,
+    "statusChangedAt": 1784493153909,
+    "rotatedOut": true
   },
   "XRPUSDT": {
     "sym": "XRPUSDT",
@@ -269,6 +284,69 @@
       "fillPrice": 0.1914,
       "buyOrderId": "MANUAL_ADOPTED_1784493146354",
       "adopted": true
+    }
+  },
+  "BINANCE:XRPUSDT": {
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1784493150231,
+    "holdLockUntil": 1784494350231,
+    "entryPrice": 1.1021,
+    "stop": 1.073,
+    "t1": 1.1306,
+    "t2": 1.1636,
+    "score": 6,
+    "spikeScore": 1.5827086842999927,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.27,
+    "histWinRate": 0,
+    "histSample": 8,
+    "caution": true
+  },
+  "BINANCE:XLMUSDT": {
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1784493150232,
+    "holdLockUntil": 1784494350232,
+    "entryPrice": 0.1922,
+    "stop": 0.1817,
+    "t1": 0.2043,
+    "t2": 0.2172,
+    "score": 10,
+    "spikeScore": 4.48825410415996,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.552,
+    "histWinRate": 0,
+    "histSample": 7,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1784493155648,
+      "usdSize": 1200.29,
+      "qty": 6267.83,
+      "fillPrice": 0.19149999999999998,
+      "buyOrderId": "C02__707624883231612930036",
+      "qtyEstimated": false
     }
   }
 }
