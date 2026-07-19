@@ -44,14 +44,17 @@
     "spikeScore": 0.12496541583168079,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
     "rankScore": 0.35,
     "histWinRate": 0,
     "histSample": 4,
-    "caution": true
+    "caution": true,
+    "exitPrice": 1.0984,
+    "statusChangedAt": 1784475279882,
+    "rotatedOut": true
   },
   "BINANCE:ZECUSDT": {
     "sym": "BINANCE:ZECUSDT",
@@ -152,14 +155,17 @@
     "spikeScore": 0.9713552735298004,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
     "rankScore": 0.385,
     "histWinRate": 0,
     "histSample": 3,
-    "caution": true
+    "caution": true,
+    "exitPrice": 0.1912,
+    "statusChangedAt": 1784475279882,
+    "rotatedOut": true
   },
   "BINANCE:RENDERUSDT": {
     "sym": "BINANCE:RENDERUSDT",
@@ -179,7 +185,7 @@
     "spikeScore": 0.3835898739654437,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -194,8 +200,14 @@
       "qty": 1621.89,
       "fillPrice": 1.4849999999999999,
       "buyOrderId": "C02__707494890728034304036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "sellOrderId": "C02__707549896231567360036",
+      "exitFillPrice": 1.4789999999999999,
+      "closedAt": 1784475277409
+    },
+    "exitPrice": 1.4789999999999999,
+    "statusChangedAt": 1784475278260,
+    "rotatedOut": true
   },
   "SUIUSDT": {
     "sym": "SUIUSDT",
@@ -215,7 +227,7 @@
     "spikeScore": 0.7799950912679335,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "peak",
     "recommended": false,
@@ -226,8 +238,14 @@
       "qty": 0.01,
       "fillPrice": 0.751,
       "buyOrderId": "MANUAL_ADOPTED_1784466807163",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784475275327,
+      "exitFillPrice": 0.7519,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.7519,
+    "statusChangedAt": 1784475276177,
+    "rotatedOut": true
   },
   "DOGEUSDT": {
     "sym": "DOGEUSDT",
@@ -247,7 +265,7 @@
     "spikeScore": 1.9402080903081962,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -258,8 +276,14 @@
       "qty": 0.17,
       "fillPrice": 0.07248,
       "buyOrderId": "MANUAL_ADOPTED_1784466808312",
-      "adopted": true
-    }
+      "adopted": true,
+      "closedAt": 1784475278714,
+      "exitFillPrice": 0.07263,
+      "dustIgnored": true
+    },
+    "exitPrice": 0.07263,
+    "statusChangedAt": 1784475279607,
+    "rotatedOut": true
   },
   "BINANCE:SUIUSDT": {
     "sym": "BINANCE:SUIUSDT",
@@ -287,5 +311,41 @@
     "histWinRate": 0,
     "histSample": 11,
     "caution": true
+  },
+  "BINANCE:LINKUSDT": {
+    "sym": "BINANCE:LINKUSDT",
+    "base": "LINK",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1784475274942,
+    "holdLockUntil": 1784476474942,
+    "entryPrice": 8.4065,
+    "stop": 8.1846,
+    "t1": 8.6242,
+    "t2": 8.8754,
+    "score": 7,
+    "spikeScore": 0.8826492320035197,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.31,
+    "histWinRate": 0,
+    "histSample": 2,
+    "caution": false,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1784475281289,
+      "usdSize": 2396.65,
+      "qty": 286.96,
+      "fillPrice": 8.351643748257597,
+      "buyOrderId": "C02__707549912459345920036",
+      "qtyEstimated": false
+    }
   }
 }
