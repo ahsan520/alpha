@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-07-21T14:14:38.204Z",
+    "timestamp": "2026-07-21T16:08:34.238Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -12,7 +12,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -26,56 +26,56 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -89,14 +89,14 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -110,7 +110,14 @@
     ]
   },
   {
-    "timestamp": "2026-07-21T14:15:15.590Z",
+    "timestamp": "2026-07-21T16:41:58.235Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 10
+  },
+  {
+    "timestamp": "2026-07-21T16:42:21.957Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -126,146 +133,27 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-07-21T14:15:15.590Z",
+    "timestamp": "2026-07-21T16:42:21.958Z",
     "job": "leaderboard-decider",
     "action": "heartbeat_stale",
-    "gapMinutes": 77.5,
-    "lastRunAt": 1784638665304
+    "gapMinutes": 99,
+    "lastRunAt": 1784646202847
   },
   {
-    "timestamp": "2026-07-21T14:15:16.492Z",
+    "timestamp": "2026-07-21T16:42:22.677Z",
     "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:BTCUSDT",
-    "status": "tp1_hit"
+    "action": "market_data_stale",
+    "ageMin": 33.8,
+    "thresholdMin": 30
   },
   {
-    "timestamp": "2026-07-21T14:15:16.883Z",
+    "timestamp": "2026-07-21T16:42:24.118Z",
     "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "XRPUSDT",
-    "reason": "T1 hit (signal faded)",
-    "free": 0.005717,
-    "sellQty": 0,
-    "freeEstNotional": 0.0065585424
+    "action": "buy_scan_skipped_stale_data",
+    "ageMin": 33.8
   },
   {
-    "timestamp": "2026-07-21T14:15:18.219Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 86
-  },
-  {
-    "timestamp": "2026-07-21T14:15:18.219Z",
-    "job": "leaderboard-decider",
-    "action": "tp1_hit_sell",
-    "sym": "BINANCE:XRPUSDT",
-    "price": 1.1472,
-    "t1": 1.1447,
-    "liveConv": 6,
-    "liveBullConf": 0,
-    "pnlPct": "2.81",
-    "closeReason": "dust_ignored"
-  },
-  {
-    "timestamp": "2026-07-21T14:15:19.534Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-07-21T14:15:19.574Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 87
-  },
-  {
-    "timestamp": "2026-07-21T14:15:20.078Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 11,
-    "openAfter": 10,
-    "alerts": 2
-  },
-  {
-    "timestamp": "2026-07-21T14:15:20.349Z",
-    "job": "leaderboard-decider",
-    "action": "manual_position_adopted",
-    "sym": "BINANCE:XRPUSDT",
-    "base": "XRP",
-    "qty": 0.005717,
-    "entryPrice": 1.1472,
-    "stop": "1.1214"
-  },
-  {
-    "timestamp": "2026-07-21T14:15:21.481Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 87
-  },
-  {
-    "timestamp": "2026-07-21T14:15:22.788Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-07-21T14:15:22.959Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "BTCUSDT",
-    "sym": "BINANCE:BTCUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-07-21T14:15:22.960Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "RENDERUSDT",
-    "sym": "BINANCE:RENDERUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-07-21T14:15:22.961Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "grade below EXEC_MIN_GRADE (A)"
-    ],
-    "symbols": [
-      "RENDERUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-07-21T14:15:24.410Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 12
-  },
-  {
-    "timestamp": "2026-07-21T14:15:24.681Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [
-      "BTC",
-      "RENDER"
-    ],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-07-21T14:15:26.153Z",
-    "job": "leaderboard-decider",
-    "action": "live_balances_pushed",
-    "count": 7
-  },
-  {
-    "timestamp": "2026-07-21T14:15:26.153Z",
+    "timestamp": "2026-07-21T16:42:24.119Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   }
