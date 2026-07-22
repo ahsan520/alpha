@@ -8,11 +8,16 @@ on:
     # itself on its own 15-min cycle.
     - cron: '*/5 * * * *'        # every 5 minutes
 
-    # Job B — leaderboard buy decision (reads market-data.json, opens
-    # positions on qualifying setups) + position tracker sell-side check
-    # (stop/T1/T2 on open positions). Offset from Job A by 2+ minutes so
-    # market-data.json is always fresh when Job B reads it.
-    - cron: '2,19,36,53 * * * *'       # every 15 minutes
+    # Job B — leaderboard buy decision + position tracker sell-side check
+    # (stop/T1/T2 on open positions). Runs on GitHub's own schedule as the
+    # primary path. A Cloudflare Worker safety net (see DEPLOY.md) polls
+    # heartbeat.json every ~17 min (:04,:21,:38,:55) and fires
+    # workflow_dispatch mode=decide if THIS schedule failed to land
+    # recently — a safety net, not a replacement, so this stays as the
+    # normal path most of the time. The same Worker tick ALSO
+    # unconditionally fires mode=fetch every time (see concurrency group
+    # below for why that no longer starves a queued decide run).
+    - cron: '2,19,36,53 * * * *'       # every ~17 minutes
 
     # Full scan — watchlist signal/overnight rules. Hourly matches the
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
@@ -39,7 +44,22 @@ on:
           - decide
 
 concurrency:
-  group: alert-runner
+  # Keyed by mode/schedule rather than one shared "alert-runner" group.
+  #
+  # Why this matters: with a single shared group, GitHub Actions cancels
+  # older *queued* (not yet started) runs whenever a newer run queues
+  # behind the same group — cancel-in-progress:false only protects a run
+  # that's already EXECUTING, not ones waiting in line. Since the
+  # Cloudflare Worker safety net (see DEPLOY.md) unconditionally fires
+  # mode=fetch every ~17 min AND conditionally fires mode=decide on the
+  # same tick, a queued decide run could get superseded by the next
+  # fetch dispatch before it ever ran — decide silently never executes,
+  # no error, market-data.json just keeps aging past the point decide
+  # needed it. (Observed: fetch data >30min stale, decide hadn't run.)
+  #
+  # Splitting the group by mode means a queued decide can only ever be
+  # superseded by another decide, never bumped by an unrelated fetch.
+  group: alert-runner-${{ github.event.schedule || inputs.mode || 'manual' }}
   cancel-in-progress: false
 
 permissions:
@@ -226,6 +246,13 @@ jobs:
               node general-news-fetcher.js
               ;;
             decide)
+              # Fetch fresh market data FIRST, immediately before deciding —
+              # this run no longer depends on the separate */5 schedule
+              # having landed recently. Combined with the staleness gate in
+              # leaderboard-decider.js, this addresses staleness at the
+              # root (fresh data every time) rather than only detecting it
+              # after the fact.
+              node market-fetcher.js
               node leaderboard-decider.js $DRY_FLAG
               node alert-runner.js $DRY_FLAG --mode=positions
               ;;
