@@ -1,108 +1,5 @@
 [
   {
-    "timestamp": "2026-07-23T22:21:47.936Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-07-23T22:21:48.314Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "SUIUSDT",
-    "reason": "rotation",
-    "free": 0.01,
-    "sellQty": 0.01,
-    "freeEstNotional": 0.007463999999999999
-  },
-  {
-    "timestamp": "2026-07-23T22:21:49.335Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 139
-  },
-  {
-    "timestamp": "2026-07-23T22:21:49.937Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "SOLUSDT",
-    "reason": "rotation",
-    "free": 0.005,
-    "sellQty": 0,
-    "freeEstNotional": 0.3803
-  },
-  {
-    "timestamp": "2026-07-23T22:21:50.834Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 139
-  },
-  {
-    "timestamp": "2026-07-23T22:21:52.101Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell",
-    "sym": "XRPUSDT",
-    "reason": "rotation",
-    "qty": 2184.2,
-    "fillPrice": 1.1103,
-    "orderId": "C02__709101934157389825036"
-  },
-  {
-    "timestamp": "2026-07-23T22:21:52.929Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 139
-  },
-  {
-    "timestamp": "2026-07-23T22:21:53.500Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "XLMUSDT",
-    "reason": "rotation",
-    "free": 0.08,
-    "sellQty": 0,
-    "freeEstNotional": 0.0146
-  },
-  {
-    "timestamp": "2026-07-23T22:21:54.320Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 139
-  },
-  {
-    "timestamp": "2026-07-23T22:21:55.040Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "SUI",
-        "pnlPct": -0.32,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "SOL",
-        "pnlPct": -0.39,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "XRP",
-        "pnlPct": -0.23,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "XLM",
-        "pnlPct": -0.38,
-        "wasHoldingT1": false
-      }
-    ],
-    "into": [
-      "APTUSDT"
-    ]
-  },
-  {
     "timestamp": "2026-07-23T22:21:55.985Z",
     "job": "leaderboard-decider",
     "action": "mexc_live_buy",
@@ -903,7 +800,7 @@
     ]
   },
   {
-    "timestamp": "2026-07-23T23:21:47.936Z",
+    "timestamp": "2026-07-23T23:21:53.135Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1011,5 +908,75 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-23T23:21:53.189Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.010Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SUIUSDT",
+    "base": "SUI",
+    "free": 0.01,
+    "estNotional": 0.007483
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.011Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SOLUSDT",
+    "base": "SOL",
+    "free": 0.005,
+    "estNotional": 0.38125000000000003
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.012Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.025717,
+    "estNotional": 0.0285767304
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.012Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.08,
+    "estNotional": 0.014624
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.179Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-23T23:21:54.179Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-23T23:21:55.620Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 3
   }
 ]
