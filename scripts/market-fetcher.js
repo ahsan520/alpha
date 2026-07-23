@@ -179,7 +179,7 @@ async function main() {
 
   // ── Fetch in parallel — symbols + global guard data ──
   const [cryptoResults, stockResults, btcShort, fgVal] = await Promise.all([
-    Promise.all(cryptoPairs.map(scoreSymbol)),
+    Promise.all(cryptoPairs.map(pair => scoreSymbol(pair, existing.symbols?.[pair]?.d?.fr ?? null))),
     Promise.all(stocksToScore.map(({ sym }) => scoreStock(sym))),
     fetchBtcShortTermChange(),
     fetchFearGreed(),

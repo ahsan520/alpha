@@ -12,6 +12,24 @@ const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const DRY_RUN    = process.argv.includes('--dry-run');
 const STATE_FILE = path.join(__dirname, '.alert-state.json');
 const AUDIT_PATH = path.join(__dirname, 'audit.json');
+const MARKET_DATA_PATH = path.join(__dirname, 'market-data.json');
+
+// Cache of market-data.json's per-symbol fr, loaded once per run. Avoids
+// re-fetching funding rate a third time (market-fetcher.js/leaderboard-scanner.js
+// already fetch + carry-forward it every cycle) — reuse what's already
+// committed rather than hitting a confirmed-geo-blocked endpoint again.
+let _marketDataCache = null;
+function loadMarketDataFr(bare) {
+  if (_marketDataCache === null) {
+    try {
+      _marketDataCache = JSON.parse(fs.readFileSync(MARKET_DATA_PATH, 'utf8'));
+    } catch {
+      _marketDataCache = { symbols: {} };
+    }
+  }
+  const entry = _marketDataCache.symbols?.[bare];
+  return (entry && typeof entry.d?.fr === 'number') ? entry.d.fr : null;
+}
 
 // ── Audit logging — rolling 1-hour window (shared with market-fetcher + leaderboard-decider) ──
 function logAudit(action, details = {}) {
@@ -785,6 +803,13 @@ async function fetchCvdTrending(sym) {
 async function fetchFundingRate(sym) {
   const bare = stripExchangePrefix(sym);
   if (!isCrypto(bare)) return 0;
+
+  // Prefer what market-fetcher.js already computed this cycle (or carried
+  // forward from last cycle) — avoids a third redundant call to funding-rate
+  // endpoints that are confirmed geo-blocked on GitHub runners anyway.
+  const cached = loadMarketDataFr(bare);
+  if (cached !== null) return cached;
+
   try {
     // Primary: Bybit — not geo-blocked on GitHub runners (unlike Binance
     // futures, confirmed 451). Same bare symbol format as Binance.
@@ -1413,7 +1438,10 @@ async function scoreCryptoSymbol(pair) {
     const r4h      = calcRSI(k4c);
     const cvd      = calcCvdTrend(k15);
     const obi      = calcOBI(dep);
-    const fr       = bybit ? bybit.fundingRate * 100 : 0; // Bybit returns decimal (e.g. 0.0001 = 0.01%), convert to %
+    const cachedFr = loadMarketDataFr(pair);
+    const fr = bybit
+      ? bybit.fundingRate * 100 // Bybit returns decimal (e.g. 0.0001 = 0.01%), convert to %
+      : (cachedFr !== null ? cachedFr : 0);
     const bias4h   = calc4hBias(k4);
     const biasDay  = calcDayBias(kD);
     const ema20    = calcEMA(k4c, Math.min(20, k4c.length));

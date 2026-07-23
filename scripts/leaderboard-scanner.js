@@ -428,7 +428,7 @@ export function calcBullConf(d, whaleScore) {
 // ════════════════════════════════════════════════════════
 // CRYPTO SCORER  (Binance)
 // ════════════════════════════════════════════════════════
-export async function scoreSymbol(pair) {
+export async function scoreSymbol(pair, prevFr = null) {
   try {
     const [ticker, k15m, k1h, k4h, kDay, depth, prem] = await Promise.allSettled([
       fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`),
@@ -468,7 +468,22 @@ export async function scoreSymbol(pair) {
     const biasDay  = calcDailyBias(kD);
     const cvdTrend = calcCVD(k15);
     const obi      = calcOBI(dep);
-    const fr       = pData ? parseFloat(pData.lastFundingRate) * 100 : 0;
+    // fapi.binance.com is confirmed geo-blocked (451) on GitHub runners
+    // as of 2026-07-23 — this fetch fails every cycle right now. Rather
+    // than silently reporting fr=0 (which reads as "neutral funding" and
+    // corrupts oiDiv/DIP-BUY/CONFIRM classification below), carry forward
+    // the last known-good fr for this symbol if we have one. Still stale,
+    // but stale-and-labeled beats a false "0.000% neutral" every time.
+    let fr;
+    if (pData) {
+      fr = parseFloat(pData.lastFundingRate) * 100;
+    } else if (prevFr !== null && prevFr !== undefined) {
+      fr = prevFr;
+      console.log(`  ⚠  ${pair} — funding-rate fetch failed, carrying forward last known fr: ${fr.toFixed(3)}%`);
+    } else {
+      fr = 0;
+      console.log(`  ⚠  ${pair} — funding-rate fetch failed, no prior value to carry forward, defaulting to 0`);
+    }
 
     let oiDiv = 'NEUTRAL';
     if (fr <= -0.01 && chg > 0)    oiDiv = 'DIP BUY';
