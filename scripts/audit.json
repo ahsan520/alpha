@@ -548,7 +548,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-07-23T03:38:48.032Z",
+    "timestamp": "2026-07-23T03:38:47.615Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -567,7 +567,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -656,5 +656,45 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-23T03:38:47.670Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-23T03:38:48.685Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-23T03:38:48.685Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-23T03:38:49.799Z",
+    "job": "leaderboard-decider",
+    "action": "heartbeat_push_failed",
+    "error": "PUT 409 is at bca9b92aa8e8918cccdb37a8c952a9a4a82ba8dd but expected 55882036c336e5d84cbb37c5cfca53967eadbd54"
+  },
+  {
+    "timestamp": "2026-07-23T03:38:50.301Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
