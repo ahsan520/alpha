@@ -414,6 +414,21 @@ export async function adoptManualHoldings({ positions, market, evaluateSymbol, c
       continue;
     }
 
+    // Dust guard — checked BEFORE adoption, not after. Without this, a
+    // balance too small to ever sell (e.g. a leftover fraction from a
+    // previous partial sell) gets adopted and alerted about, then
+    // immediately closed out as dust by the sell-side guard on its very
+    // next monitoring pass, then re-adopted again next cycle since
+    // adoption has no memory of having already dismissed it — an endless
+    // loop of "MANUAL POSITION ADOPTED" noise for a balance that will
+    // never be worth anything. Same threshold used by every other dust
+    // check in this codebase (MEXC_MIN_SELL_NOTIONAL_USDT, default $1).
+    const estNotionalPreAdopt = bal.free * (entry.price || 0);
+    if (entry.price > 0 && estNotionalPreAdopt < MIN_SELL_NOTIONAL_USDT) {
+      logAudit('adoption_skipped_dust', { sym, base, free: bal.free, estNotional: estNotionalPreAdopt });
+      continue; // silent, no Telegram alert — this is expected/routine, not worth a message every cycle
+    }
+
     const evald  = evaluateSymbol(entry);
     const levels = calcEntryLevels(entry.price, evald.shock);
 
