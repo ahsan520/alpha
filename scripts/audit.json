@@ -549,7 +549,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-07-23T12:38:57.040Z",
+    "timestamp": "2026-07-23T12:38:56.832Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -657,5 +657,45 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-23T12:38:56.890Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-23T12:38:58.170Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-23T12:38:58.170Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-23T12:38:59.080Z",
+    "job": "leaderboard-decider",
+    "action": "heartbeat_push_failed",
+    "error": "PUT 409 is at 3737a23ecf87c1c0d7f6ba09768cef9d38b5de1f but expected 8c1602f8dc3ce557da7b88b3d0a00606c007a179"
+  },
+  {
+    "timestamp": "2026-07-23T12:38:59.516Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
