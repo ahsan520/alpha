@@ -334,12 +334,24 @@ async function fetchJSON(url, headers = {}, timeoutMs = 9000) {
 // equivalent, so it only gets steps 2+3.
 const BINANCE_MIRROR = 'https://data-api.binance.vision';
 const BINANCE_DIRECT = 'https://api.binance.com';
+// fapi.binance.com is a SEPARATE host (futures API) from api.binance.com
+// (spot API) — /fapi/* paths do not exist under api.binance.com, so they
+// must be routed to this host instead, or every futures call (funding
+// rate, open interest) fails at the edge before geo-blocking is even a
+// factor.
+const FAPI_DIRECT     = 'https://fapi.binance.com';
 const PROXY_PREFIX   = 'https://corsproxy.io/?url=';
 
 async function fetchBinance(urlPath, { useMirror = true } = {}) {
+  const isFutures = urlPath.startsWith('/fapi/');
+  const directHost = isFutures ? FAPI_DIRECT : BINANCE_DIRECT;
+
   const candidates = [];
-  if (useMirror) candidates.push(`${BINANCE_MIRROR}${urlPath}`);
-  candidates.push(`${BINANCE_DIRECT}${urlPath}`);
+  // The public spot mirror (data-api.binance.vision) only serves spot
+  // endpoints — never applicable for /fapi/* futures paths regardless of
+  // the useMirror flag.
+  if (useMirror && !isFutures) candidates.push(`${BINANCE_MIRROR}${urlPath}`);
+  candidates.push(`${directHost}${urlPath}`);
 
   let lastErr = null;
   for (const url of candidates) {
@@ -351,7 +363,7 @@ async function fetchBinance(urlPath, { useMirror = true } = {}) {
   }
   // Last resort — public CORS proxy around the direct URL.
   try {
-    return await fetchJSON(`${PROXY_PREFIX}${encodeURIComponent(`${BINANCE_DIRECT}${urlPath}`)}`);
+    return await fetchJSON(`${PROXY_PREFIX}${encodeURIComponent(`${directHost}${urlPath}`)}`);
   } catch (e) {
     lastErr = e;
   }
