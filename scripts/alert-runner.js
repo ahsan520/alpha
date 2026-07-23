@@ -330,17 +330,34 @@ async function fetchJSON(url, headers = {}, timeoutMs = 9000) {
 //      down/blocked instead.
 //   3. Public CORS proxy (corsproxy.io) — last resort, free but not
 //      uptime-guaranteed, mirrors the browser's own proxy fallback.
-// NOTE: fapi.binance.com (futures — funding rate) has no public mirror
-// equivalent, so it only gets steps 2+3.
+// NOTE: fapi.binance.com (futures — funding rate, open interest) is
+// CONFIRMED geo-blocked (HTTP 451) from GitHub-hosted runner IPs, same
+// restriction as spot, and — unlike spot — has no public mirror
+// equivalent (data-api.binance.vision only serves spot). Futures data is
+// therefore sourced from Bybit instead (see fetchBybitTicker below),
+// which is not subject to this same block.
 const BINANCE_MIRROR = 'https://data-api.binance.vision';
 const BINANCE_DIRECT = 'https://api.binance.com';
-// fapi.binance.com is a SEPARATE host (futures API) from api.binance.com
-// (spot API) — /fapi/* paths do not exist under api.binance.com, so they
-// must be routed to this host instead, or every futures call (funding
-// rate, open interest) fails at the edge before geo-blocking is even a
-// factor.
-const FAPI_DIRECT     = 'https://fapi.binance.com';
+const FAPI_DIRECT     = 'https://fapi.binance.com'; // kept only as a last-resort fallback attempt
 const PROXY_PREFIX   = 'https://corsproxy.io/?url=';
+
+// ── Bybit fallback for futures data (funding rate + open interest) ───────
+// fapi.binance.com is geo-blocked (451) on GitHub runners with no public
+// mirror, unlike spot. Bybit's v5 public tickers endpoint returns both
+// funding rate AND open interest in a single call, no auth required, same
+// bare symbol format Binance uses (BTCUSDT) — no symbol-mapping needed.
+const BYBIT_DIRECT = 'https://api.bybit.com';
+
+async function fetchBybitTicker(bare) {
+  const url = `${BYBIT_DIRECT}/v5/market/tickers?category=linear&symbol=${bare}`;
+  const d = await fetchJSON(url);
+  const row = d?.result?.list?.[0];
+  if (!row) throw new Error('Bybit: no ticker row returned');
+  return {
+    fundingRate: parseFloat(row.fundingRate || 0),      // decimal, e.g. 0.0001 = 0.01%
+    openInterest: parseFloat(row.openInterest || 0),    // in base asset units, comparable to Binance's openInterest field
+  };
+}
 
 async function fetchBinance(urlPath, { useMirror = true } = {}) {
   const isFutures = urlPath.startsWith('/fapi/');
@@ -769,11 +786,21 @@ async function fetchFundingRate(sym) {
   const bare = stripExchangePrefix(sym);
   if (!isCrypto(bare)) return 0;
   try {
-    // fapi.binance.com (futures) has no public-mirror equivalent — direct + proxy only.
-    const d = await fetchBinance(`/fapi/v1/premiumIndex?symbol=${bare}`, { useMirror: false });
-    return parseFloat(d.lastFundingRate || 0) * 100; // convert to % like GUI
+    // Primary: Bybit — not geo-blocked on GitHub runners (unlike Binance
+    // futures, confirmed 451). Same bare symbol format as Binance.
+    const { fundingRate } = await fetchBybitTicker(bare);
+    return fundingRate * 100; // convert to % like GUI
   } catch (e) {
-    console.log(`  ⚠  fetchFundingRate failed for ${bare}: ${e.message}`);
+    console.log(`  ⚠  fetchFundingRate (Bybit) failed for ${bare}: ${e.message} — trying Binance fapi fallback`);
+  }
+  try {
+    // Fallback: Binance futures directly — confirmed 451 on GitHub
+    // runners as of 2026-07-23, kept only in case that ever changes or
+    // this runs from a non-restricted IP (e.g. local testing).
+    const d = await fetchBinance(`/fapi/v1/premiumIndex?symbol=${bare}`, { useMirror: false });
+    return parseFloat(d.lastFundingRate || 0) * 100;
+  } catch (e) {
+    console.log(`  ⚠  fetchFundingRate (Binance fapi fallback) also failed for ${bare}: ${e.message}`);
     return 0;
   }
 }
@@ -1339,15 +1366,18 @@ function markLbCooldown(state, sym) { state[lbBuyCooldownKey(sym)] = Date.now();
 
 async function scoreCryptoSymbol(pair) {
   try {
-    const [ticker, k15r, k4r, kDr, depr, premr, oiCurr, oiPrevr] = await Promise.allSettled([
+    // NOTE: funding rate now sourced from Bybit (fetchBybitTicker), not
+    // Binance fapi — fapi.binance.com is confirmed geo-blocked (451) on
+    // GitHub runners as of 2026-07-23. The two openInterest fapi calls
+    // that used to be here were dead code anyway: oiDiv below is derived
+    // purely from fr + chg (see below), never actually read those values.
+    const [ticker, k15r, k4r, kDr, depr, bybitr] = await Promise.allSettled([
       fetchBinance(`/api/v3/ticker/24hr?symbol=${pair}`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=15m&limit=60`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=4h&limit=60`),
       fetchBinance(`/api/v3/klines?symbol=${pair}&interval=1d&limit=14`),
       fetchBinance(`/api/v3/depth?symbol=${pair}&limit=20`),
-      fetchBinance(`/fapi/v1/premiumIndex?symbol=${pair}`, { useMirror: false }),
-      fetchBinance(`/fapi/v1/openInterest?symbol=${pair}`, { useMirror: false }),
-      fetchBinance(`/fapi/v1/openInterest?symbol=${pair}`, { useMirror: false }), // placeholder for prev OI
+      fetchBybitTicker(pair),
     ]);
 
     const v = r => r.status === 'fulfilled' ? r.value : null;
@@ -1362,8 +1392,10 @@ async function scoreCryptoSymbol(pair) {
     const k4   = v(k4r)  || [];
     const kD   = v(kDr)  || [];
     const dep  = v(depr);
-    const prem = v(premr);
-    const oiNow = v(oiCurr);
+    const bybit = v(bybitr);
+    if (bybitr.status === 'rejected') {
+      console.log(`  ⚠  scoreCryptoSymbol: Bybit funding-rate fetch failed for ${pair}: ${bybitr.reason?.message}`);
+    }
 
     const price = parseFloat(t.lastPrice);
     const chg   = parseFloat(t.priceChangePercent);
@@ -1381,7 +1413,7 @@ async function scoreCryptoSymbol(pair) {
     const r4h      = calcRSI(k4c);
     const cvd      = calcCvdTrend(k15);
     const obi      = calcOBI(dep);
-    const fr       = prem ? parseFloat(prem.lastFundingRate) * 100 : 0;
+    const fr       = bybit ? bybit.fundingRate * 100 : 0; // Bybit returns decimal (e.g. 0.0001 = 0.01%), convert to %
     const bias4h   = calc4hBias(k4);
     const biasDay  = calcDayBias(kD);
     const ema20    = calcEMA(k4c, Math.min(20, k4c.length));
