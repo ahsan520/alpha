@@ -112,16 +112,77 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
 
   if (!shouldRotate) return { changed, rotationCandidates: [] };
 
-  // Bases that qualify as this cycle's top A/A+ picks — anything currently
-  // held that's already one of these is left alone; everything else gets
-  // sold to fund the new picks. Protection is strict: a held symbol must be
-  // one of THIS cycle's actual buy-alert candidates to survive. A symbol
-  // that merely still reads A/A+ grade on its own (but isn't in today's
-  // alert) is NOT protected — it gets sold like anything else, including a
-  // position that's already hit T1. This applies uniformly whether the
-  // held position was ever tracked by the bot or bought manually.
+  // Bases that qualify as this cycle's top A/A+ picks — the STRICT rule:
+  // anything currently held that's already one of these is always left
+  // alone, at any hold time.
   const topBases = new Set(rotationCandidates.map(c => c.pair.replace(/[^A-Z]/g, '').replace(/USDT$/, '')));
   const gradeStillTop = (base) => topBases.has(base);
+
+  // ── Guard 1: minimum hold time ──
+  // Stage 1 (< ROTATION_MIN_HOLD_MIN since buy): UNCONDITIONALLY protected
+  // — a fresh buy is never rotated out purely because a different symbol
+  // outranks it one cycle later. Stage 2 (past the window): this
+  // protection expires; only gradeStillTop (above) and Guard 2 (below) can
+  // still protect it.
+  const ROTATION_MIN_HOLD_MIN = parseFloat(process.env.ROTATION_MIN_HOLD_MIN || '30');
+  const withinMinHold = (pos) => {
+    if (!pos?.liveOrder?.buyAt || ROTATION_MIN_HOLD_MIN <= 0) return false;
+    return (Date.now() - pos.liveOrder.buyAt) / 60000 < ROTATION_MIN_HOLD_MIN;
+  };
+
+  // ── Guard 2: never rotate out a position currently sitting at a loss ──
+  // Rotation may only sell a held position to fund a new A/A+ pick if that
+  // position's CURRENT price is at or above its own buy price. A position
+  // currently below its buy price is left alone regardless of rank/grade —
+  // it can only be closed by its own stop, T1, or T2 (evaluated separately,
+  // upstream, in monitorPositions/STEP 1 — never by rotation). This trades
+  // "may hold a stale/mediocre position longer, occupying a live slot" for
+  // "never lock in a rotation-driven loss on a position that hasn't hit
+  // its own stop" — a deliberate choice given the trade-log review showing
+  // rotation churn (not stop hits) as the more frequent source of small
+  // losses. Requires a current price from market.symbols to evaluate; if
+  // unavailable, this guard has no opinion (falls through to the other
+  // guards) rather than blocking or allowing by default.
+  const currentlyAtOrAboveBuy = (base, pos) => {
+    const buyPrice = pos?.liveOrder?.fillPrice;
+    if (!buyPrice) return null; // no opinion — no buy price on record to compare against
+    const cur = (market.symbols || {})[base + 'USDT']?.price;
+    if (cur === undefined || cur === null) return null; // no opinion — no current price available
+    return parseFloat(cur) >= parseFloat(buyPrice);
+  };
+
+  // ── Guard 3: holding for T2, and still shows up as A/A+ today ──
+  // A position that already hit T1 and is being held for T2 (status
+  // 'tp1_hit' with NO exitPrice — see position-monitor.js's dual-state
+  // handling; a tp1_hit WITH exitPrice is already closed and not a live
+  // position at all) is protected from rotation if it appears ANYWHERE on
+  // today's A/A+ starred list — NOT just the capacity-limited top-N slice
+  // (topBases/gradeStillTop, above). This is the meaningful difference
+  // from gradeStillTop: a T1-holding position that still reads A/A+ but
+  // ranked #3 when only the top 2 get bought (EXEC_TOP_N_COUNT) would
+  // otherwise lose protection purely due to a slot-count limit, not
+  // because today's signal actually stopped liking it. A T1-holding
+  // position that's dropped OUT of the A/A+ starred list entirely still
+  // falls through to Guard 2 (protected if at/above buy price — which,
+  // having passed T1, it almost certainly still is) or its own stop/T2
+  // exit upstream.
+  const allStarredBases = new Set(allStarred.map(r => r.a.pair.replace(/[^A-Z]/g, '').replace(/USDT$/, '')));
+  const isHoldingT1AndStillStarred = (base, pos) =>
+    pos?.status === 'tp1_hit' && !pos?.exitPrice && allStarredBases.has(base);
+
+  // Combined: protected if it's today's actual top pick, OR still within
+  // the hold window, OR currently below its own buy price (Guard 2 returns
+  // null = "no opinion" when it can't evaluate, which correctly does NOT
+  // protect — falls through to selling, same as previous behavior when
+  // price/buyPrice data is simply unavailable).
+  const isProtected = (base, pos) => {
+    if (gradeStillTop(base)) return true;
+    if (withinMinHold(pos)) return true;
+    if (isHoldingT1AndStillStarred(base, pos)) return true;
+    const atOrAboveBuy = currentlyAtOrAboveBuy(base, pos);
+    if (atOrAboveBuy === false) return true; // below buy price — protected from rotation, only own stop/T1/T2 can close it
+    return false;
+  };
 
   const sellTargets = []; // [{ base, sym, freeQty?, pos?, key? }]
 
@@ -139,11 +200,11 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
     for (const bal of balances) {
       const base = bal.asset;
       if (QUOTE_ASSETS.has(base) || isNoTradeSymbol(base + 'USDT')) continue;
-      if (gradeStillTop(base)) continue; // protected — still a top pick, leave it
-      seenBases.add(base);
       const trackedEntry = Object.entries(positions).find(
         ([, p]) => p.base === base && p.assetType === 'crypto' && !p.liveOrder?.closedAt
       );
+      if (isProtected(base, trackedEntry?.[1])) continue; // protected — top pick, recent buy, or currently below buy price
+      seenBases.add(base);
       sellTargets.push({ base, sym: base + 'USDT', freeQty: bal.free, pos: trackedEntry?.[1], key: trackedEntry?.[0] });
     }
     // A tracked live position that didn't show up in the balance query at
@@ -154,7 +215,7 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
     for (const [key, p] of Object.entries(positions)) {
       if (p.assetType !== 'crypto' || p.liveOrder?.mode !== 'live' || p.liveOrder?.closedAt) continue;
       if (['stopped', 'tp2_hit'].includes(p.status)) continue;
-      if (seenBases.has(p.base) || gradeStillTop(p.base)) continue;
+      if (seenBases.has(p.base) || isProtected(p.base, p)) continue;
       sellTargets.push({ base: p.base, sym: p.base + 'USDT', freeQty: 0, pos: p, key });
     }
   } else {
@@ -163,7 +224,7 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
     for (const [key, p] of Object.entries(positions)) {
       if (p.assetType !== 'crypto' || p.liveOrder?.mode !== 'paper' || p.liveOrder?.closedAt) continue;
       if (['stopped', 'tp2_hit'].includes(p.status)) continue;
-      if (gradeStillTop(p.base)) continue;
+      if (isProtected(p.base, p)) continue;
       sellTargets.push({ base: p.base, sym: p.base + 'USDT', pos: p, key });
     }
   }

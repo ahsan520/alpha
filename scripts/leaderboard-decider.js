@@ -83,7 +83,8 @@ function calcEntryLevels(price, shock) {
   const atr   = p * 0.015 * Math.max(1, shock * 0.5);
   const dp    = p < 10 ? 4 : 2;
   const entry = (p * 1.004).toFixed(dp);
-  const stop  = (p - atr * 1.5).toFixed(dp);
+  const ATR_STOP_MULT = parseFloat(process.env.ATR_STOP_MULT || '0.5'); // was 1.5 — tightened per review of trade-log showing rotation churn, not stop distance, as the main loss driver
+  const stop  = (p - atr * ATR_STOP_MULT).toFixed(dp);
   const t1    = (p + atr * 2).toFixed(dp);
   const t2    = (p + atr * 4).toFixed(dp);
   const rr    = (parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop));
