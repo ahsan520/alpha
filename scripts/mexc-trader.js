@@ -594,7 +594,25 @@ async function executeAutoBuys({
         );
       } catch (e) {
         logAudit('mexc_live_buy_failed', { sym: symbol, error: e.message });
-        await sendTelegram(`🚨 *LIVE BUY FAILED* — ${symbol}\n  Error: ${e.message}\n  _No position opened on MEXC. Check API key and USDT balance._`);
+
+        // The leaderboard-decider step earlier this cycle already created
+        // a `positions[pick.sym]` tracking entry (status: 'watching',
+        // entryPrice/stop/t1/t2 set) BEFORE this buy attempt ran — that's
+        // how the buy-alert Telegram message and rank/caution tags get
+        // written. If the real MEXC order then fails, that entry must not
+        // be left behind: exit-monitoring doesn't distinguish "actually
+        // holding this" from "was tracked, buy failed" — it would go on to
+        // watch price against that phantom entryPrice/stop and eventually
+        // fire a real stop-loss or T1 alert for a coin that was never
+        // actually bought. Safe to delete unconditionally here: a symbol
+        // only reaches this point if it was a brand-new signal this cycle
+        // (any pre-existing open position for it would have been skipped
+        // earlier in leaderboard-decider.js, never reaching buy execution
+        // at all) — so this is always the just-created watching entry,
+        // never a real prior holding.
+        delete positions[pick.sym];
+
+        await sendTelegram(`🚨 *LIVE BUY FAILED* — ${symbol}\n  Error: ${e.message}\n  _No position opened on MEXC — tracking entry removed, no phantom stop/T1 alerts will follow. Check API key and USDT balance._`);
       }
     }
   }
