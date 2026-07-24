@@ -650,7 +650,7 @@
     ]
   },
   {
-    "timestamp": "2026-07-24T03:21:46.001Z",
+    "timestamp": "2026-07-24T03:21:48.492Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -662,7 +662,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -697,7 +697,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -758,5 +758,75 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-24T03:21:48.547Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.145Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SUIUSDT",
+    "base": "SUI",
+    "free": 0.01,
+    "estNotional": 0.007462
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.145Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SOLUSDT",
+    "base": "SOL",
+    "free": 0.005,
+    "estNotional": 0.37935
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.146Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.025717,
+    "estNotional": 0.0285690153
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.146Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.08,
+    "estNotional": 0.014632000000000001
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.350Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-07-24T03:21:49.351Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-24T03:21:50.650Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 3
   }
 ]
