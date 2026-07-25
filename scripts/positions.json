@@ -28,7 +28,8 @@
       "qty": 327.23,
       "fillPrice": 0.06916,
       "buyOrderId": "MANUAL_ADOPTED_1784919349233",
-      "adopted": true
+      "adopted": true,
+      "zeroBalanceStrikes": 1
     }
   },
   "BINANCE:APTUSDT": {
@@ -60,7 +61,8 @@
       "qty": 3888.78,
       "fillPrice": 0.6,
       "buyOrderId": "MANUAL_ADOPTED_1784937887727",
-      "adopted": true
+      "adopted": true,
+      "zeroBalanceStrikes": 1
     }
   },
   "BINANCE:XRPUSDT": {
@@ -81,7 +83,7 @@
     "spikeScore": 0.18282872200737338,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -92,7 +94,40 @@
       "qty": 2144.445717,
       "fillPrice": 1.0938,
       "buyOrderId": "MANUAL_ADOPTED_1784949708952",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__709721629919174656036",
+      "exitFillPrice": 1.0960009699682893,
+      "closedAt": 1784993059009
+    },
+    "exitPrice": 1.0960009699682893,
+    "statusChangedAt": 1784993060487,
+    "rotatedOut": true
+  },
+  "BINANCE:IMXUSDT": {
+    "sym": "BINANCE:IMXUSDT",
+    "base": "IMX",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1784993056485,
+    "holdLockUntil": 1784994256485,
+    "entryPrice": 0.1275,
+    "stop": 0.0923,
+    "t1": 0.2657,
+    "t2": 0.4045,
+    "score": 10,
+    "spikeScore": 72.83380771471981,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.49,
+    "histWinRate": 0,
+    "histSample": 2,
+    "caution": false
   }
 }
