@@ -78,13 +78,36 @@ const LB_CVD_CYCLES   = parseInt(process.env.LB_CVD_CYCLES   || '3');   // CVD d
 
 // Watchlist — reads from watchlist.json at repo root (single source of truth).
 // Override via WATCHLIST env var as a JSON array string (useful for testing).
+// watchlist.json can be EITHER the legacy flat array (["BINANCE:BTCUSDT", ...])
+// or the GUI's newer named-lists object ({ "Crypto": [...], "Stocks": [...] }) —
+// the backend doesn't need to know about "named lists" as a concept, it just
+// scans every symbol across all of them, tagged correctly by assetType as
+// always (isCrypto() classification is unaffected either way).
+function _flattenWatchlistShape(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (raw && typeof raw === 'object') {
+    const seen = new Set();
+    const out = [];
+    for (const list of Object.values(raw)) {
+      if (!Array.isArray(list)) continue;
+      for (const sym of list) {
+        if (!seen.has(sym)) { seen.add(sym); out.push(sym); }
+      }
+    }
+    return out;
+  }
+  return [];
+}
+
 const WATCHLIST_JSON_PATH = path.join(__dirname, '..', 'watchlist.json');
 const WATCHLIST = process.env.WATCHLIST
-  ? JSON.parse(process.env.WATCHLIST)
+  ? _flattenWatchlistShape(JSON.parse(process.env.WATCHLIST))
   : (() => {
       try {
-        const list = JSON.parse(fs.readFileSync(WATCHLIST_JSON_PATH, 'utf8'));
-        console.log(`📋  Loaded ${list.length} tickers from watchlist.json`);
+        const raw = JSON.parse(fs.readFileSync(WATCHLIST_JSON_PATH, 'utf8'));
+        const list = _flattenWatchlistShape(raw);
+        const shapeNote = Array.isArray(raw) ? '' : ` across ${Object.keys(raw).length} named list(s)`;
+        console.log(`📋  Loaded ${list.length} tickers from watchlist.json${shapeNote}`);
         return list;
       } catch (e) {
         console.warn('⚠  watchlist.json not found — using built-in fallback list');
