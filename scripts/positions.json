@@ -125,7 +125,7 @@
     "spikeScore": 0.34183751195241724,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -136,8 +136,14 @@
       "qty": 1567.53,
       "fillPrice": 1.483,
       "buyOrderId": "MANUAL_ADOPTED_1785059958644",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__710013283712528384036",
+      "exitFillPrice": 1.488,
+      "closedAt": 1785062594698
+    },
+    "exitPrice": 1.488,
+    "statusChangedAt": 1785062595921,
+    "rotatedOut": true
   },
   "BINANCE:GALAUSDT": {
     "sym": "BINANCE:GALAUSDT",
@@ -172,6 +178,42 @@
       "qty": 1036402.73,
       "fillPrice": 0.002004992771149879,
       "buyOrderId": "C02__710008500251422720036",
+      "qtyEstimated": false
+    }
+  },
+  "BINANCE:DOGEUSDT": {
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785062593671,
+    "holdLockUntil": 1785063793671,
+    "entryPrice": 0.0737,
+    "stop": 0.0728,
+    "t1": 0.0756,
+    "t2": 0.0778,
+    "score": 6,
+    "spikeScore": 0.667292734113827,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.21,
+    "histWinRate": 0,
+    "histSample": 28,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785062599400,
+      "usdSize": 227.24,
+      "qty": 3097.6,
+      "fillPrice": 0.07336000000000001,
+      "buyOrderId": "C02__710013303350345728036",
       "qtyEstimated": false
     }
   }
