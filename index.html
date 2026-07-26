@@ -45,6 +45,11 @@
       </div>
       <div class="wl-body hide" id="wl-body">
       <div class="wl-ctrl">
+        <div class="wl-row" style="margin-bottom:6px;">
+          <select class="wl-sel" id="wlSwitcher" onchange="switchWatchlist(this.value)" style="flex:1;"></select>
+          <button class="btn-add" onclick="createWatchlist()" title="Create a new named watchlist">+ NEW</button>
+          <button class="btn-add" onclick="deleteWatchlist(STATE.activeWatchlistName)" title="Delete the current watchlist" style="color:var(--bear);">✕</button>
+        </div>
         <div class="wl-row">
           <input type="text" id="newT" placeholder="BTC, ETH, XEG.TO…">
           <button class="btn-add" onclick="addTicker()">+ ADD</button>
