@@ -400,10 +400,12 @@ canvas.sp{display:block;}
   padding:8px 12px;flex-shrink:0;
   border-bottom:1px solid var(--border);
   background:var(--bg2);
+  flex-wrap:wrap; /* mobile: let title/stats/refresh wrap onto their own lines instead of squeezing or overflowing */
 }
 .api-trades-title{
   font-family:var(--mono);font-size:9px;font-weight:700;
   color:var(--text-bright);letter-spacing:2px;flex:1;
+  min-width:120px; /* keeps the title from collapsing to near-zero width when stats/button wrap alongside it */
 }
 .api-trades-mode{
   font-size:8px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;
@@ -417,10 +419,25 @@ canvas.sp{display:block;}
 }
 .api-trades-stats{
   font-family:var(--mono);font-size:9px;color:var(--text-dim);
-  display:flex;gap:16px;
+  display:flex;gap:16px;flex-wrap:wrap;
 }
 .api-trades-stats span{color:var(--text-bright);}
-.api-tbl-wrap{overflow-y:auto;flex:1;}
+/* Wide tables (API Trades has 12 columns incl. order IDs; API Audit's
+   DETAILS column can be long JSON) don't fit a phone-width viewport at
+   readable font sizes. Without overflow-x, the browser's only option is
+   to render the table at its natural wide content size and let the WHOLE
+   PAGE pan/zoom horizontally — which is exactly "shows desktop browser
+   only" on mobile. Scoping overflow-x to just this wrapper instead means
+   only the table scrolls sideways, the rest of the page (header, tabs,
+   nav) stays put and reflows normally. -webkit-overflow-scrolling gives
+   iOS Safari/mobile Chrome momentum/inertia scrolling instead of a stiff
+   scrollbar drag. */
+.api-tbl-wrap{
+  overflow-y:auto;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  flex:1;
+}
 .api-tbl .pnl-pos{color:var(--bull);}
 .api-tbl .pnl-neg{color:var(--bear);}
 .api-tbl .status-open{color:#4da6ff;}
@@ -443,6 +460,20 @@ canvas.sp{display:block;}
 .delbtn{background:none;border:none;color:var(--bear);cursor:pointer;font-size:12px;opacity:.35;font-family:var(--mono);}
 .delbtn:hover{opacity:1;}
 .pos-calc{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:11px;margin-top:4px;}
+
+/* ── API Trades / API Audit — mobile tightening ──
+   The tables themselves already scroll horizontally within
+   .api-tbl-wrap above; these rules shrink padding/font-size on narrow
+   viewports so more columns are visible before a user needs to scroll
+   at all, and prevent the header row's title/stats/refresh button from
+   competing for space against the tab bar above it. */
+@media(max-width:600px){
+  .api-trades-title{font-size:8px;letter-spacing:1px;}
+  .api-trades-stats{font-size:8px;gap:10px;}
+  .jtbl th{padding:5px 6px;font-size:7px;white-space:nowrap;}
+  .jtbl td{padding:6px 6px;font-size:9px;}
+  .api-tbl .ord-id{max-width:60px;}
+}
 .pc-title{font-family:var(--mono);font-size:8px;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px;}
 .pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
 .pc-val{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-family:var(--mono);font-size:10px;text-align:center;}
