@@ -44,7 +44,7 @@
     "spikeScore": 1.7136060186469058,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -59,8 +59,14 @@
       "qty": 870.04,
       "fillPrice": 1.474996574870121,
       "buyOrderId": "C02__709872663891156993036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "sellOrderId": "C02__709892547668746240036",
+      "exitFillPrice": 1.476,
+      "closedAt": 1785033809044
+    },
+    "exitPrice": 1.476,
+    "statusChangedAt": 1785033809925,
+    "rotatedOut": true
   },
   "BINANCE:DOGEUSDT": {
     "sym": "BINANCE:DOGEUSDT",
@@ -80,7 +86,7 @@
     "spikeScore": 0.44701470368415175,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -91,7 +97,49 @@
       "qty": 14403.29,
       "fillPrice": 0.07167,
       "buyOrderId": "MANUAL_ADOPTED_1785030192798",
-      "adopted": true
+      "adopted": true,
+      "sellOrderId": "C02__709892561757519872036",
+      "exitFillPrice": 0.07248,
+      "closedAt": 1785033812409
+    },
+    "exitPrice": 0.07248,
+    "statusChangedAt": 1785033813254,
+    "rotatedOut": true
+  },
+  "BINANCE:APTUSDT": {
+    "sym": "BINANCE:APTUSDT",
+    "base": "APT",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785033807905,
+    "holdLockUntil": 1785035007905,
+    "entryPrice": 0.6124,
+    "stop": 0.6054,
+    "t1": 0.6283,
+    "t2": 0.6466,
+    "score": 7,
+    "spikeScore": 1.0024387430124757,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.31,
+    "histWinRate": 0,
+    "histSample": 8,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785033819099,
+      "usdSize": 2315.89,
+      "qty": 3792.3,
+      "fillPrice": 0.6106816565145162,
+      "buyOrderId": "C02__709892588642881536036",
+      "qtyEstimated": false
     }
   }
 }
