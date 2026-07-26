@@ -7,6 +7,15 @@ const APP_VERSION = 'v13.0';
 // ── SHARED STATE ──
 window.STATE = {
   watchlist: [],
+  // Named watchlists — { "Crypto": ["BINANCE:BTCUSDT", ...], "Stocks": [...] }.
+  // localStorage is the fast local cache (survives reloads on THIS device/
+  // browser only); syncWatchlistsToGitHub() in github-sync.js is what makes
+  // this durable across devices / a cache clear, by pushing this same
+  // structure to watchlist.json in the repo. Falls back to a single
+  // "Default" list wrapping whatever's already in watchlist.json, so
+  // existing single-list setups aren't broken by this change.
+  namedWatchlists: JSON.parse(localStorage.getItem('a49_named_wl') || 'null'),
+  activeWatchlistName: localStorage.getItem('a49_active_wl') || 'Default',
   // DS and PH are intentionally left empty here.
   // They are populated in init() after the watchlist is resolved,
   // filtered to only symbols in this tab's watchlist.json — this prevents

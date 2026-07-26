@@ -75,6 +75,20 @@ function render() { renderWL(); renderTable(); scheduleLeaderboard(); }
 // Skeleton built once on init / structure change. Live updates = textContent only.
 function renderWL() {
   const { watchlist, DS, currentS } = STATE;
+
+  // Keep the watchlist-switcher dropdown in sync with STATE.namedWatchlists.
+  const switcher = document.getElementById('wlSwitcher');
+  if (switcher && STATE.namedWatchlists) {
+    const names = Object.keys(STATE.namedWatchlists);
+    const optKey = names.join(',') + '|' + STATE.activeWatchlistName;
+    if (switcher.dataset.optKey !== optKey) {
+      switcher.innerHTML = names.map(n =>
+        `<option value="${n}"${n === STATE.activeWatchlistName ? ' selected' : ''}>${n} (${(STATE.namedWatchlists[n] || []).length})</option>`
+      ).join('');
+      switcher.dataset.optKey = optKey;
+    }
+  }
+
   const cont = document.getElementById('wl-cont');
   if (!cont) return;
 

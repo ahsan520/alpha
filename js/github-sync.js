@@ -165,6 +165,25 @@ function scheduleGithubSync(delayMs = 4000) {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// WATCHLIST SYNC — separate debounce/in-flight state from positions
+// sync above, so editing named watchlists and position changes don't
+// block or cancel each other's pending pushes.
+// ══════════════════════════════════════════════════════════════════
+let _ghWatchlistSyncTimer   = null;
+let _ghWatchlistSyncInFlight = false;
+let _ghWatchlistSyncQueued   = false;
+
+function scheduleWatchlistSync(delayMs = 4000) {
+  const cfg = loadGhSyncCfg();
+  if (!cfg.enabled) return;
+  if (_ghWatchlistSyncTimer) clearTimeout(_ghWatchlistSyncTimer);
+  _ghWatchlistSyncTimer = setTimeout(() => {
+    _ghWatchlistSyncTimer = null;
+    syncWatchlistsToGitHub();
+  }, delayMs);
+}
+
+// ══════════════════════════════════════════════════════════════════
 // CORE SYNC — GET sha (if file exists) → PUT updated content.
 // manual=true bypasses the "enabled" gate so the Sync Now button
 // always works even mid-setup, and surfaces config errors in the log.
@@ -286,6 +305,128 @@ async function syncPositionsToGitHub(manual = false) {
     _ghSyncInFlight = false;
     window._ghSyncState.syncing = false;
     if (_ghSyncQueued) { _ghSyncQueued = false; scheduleGithubSync(2000); }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// WATCHLIST SYNC — pushes STATE.namedWatchlists (the { name: [symbols] }
+// structure managed by the watchlist manager UI) to watchlist.json in
+// the repo. Mirrors syncPositionsToGitHub()'s exact mechanics (same
+// token resolution, same GET-sha/PUT/409-retry pattern) so it behaves
+// identically and reuses the same GitHub Sync config (Option A PAT /
+// Option B secrets) already set up for positions — no separate
+// credentials needed.
+//
+// File shape written: { "Crypto": ["BINANCE:BTCUSDT", ...], "Stocks":
+// ["AAPL.US", ...] }. The backend (alert-runner.js's WATCHLIST loader)
+// flattens this into one combined list across all named sets — the
+// backend doesn't need to know about "named lists" as a concept, it
+// just scans every symbol, tagged correctly by assetType as always.
+// ══════════════════════════════════════════════════════════════════
+async function syncWatchlistsToGitHub(manual = false) {
+  const cfg = loadGhSyncCfg();
+
+  if (!cfg.enabled && !manual) return { ok: false, reason: 'disabled' };
+
+  const resolvedToken = cfg.token || window.__GH_PAT || '';
+  const resolvedRepo  = cfg.repo  || window.__GH_REPO || '';
+
+  if (!resolvedToken || !resolvedRepo) {
+    if (manual) logAlertItem('info', '⚠ GitHub Sync — no token found. Set GH_PAT secret (Option B) or enter a PAT (Option A).');
+    return { ok: false, reason: 'not configured' };
+  }
+
+  if (_ghWatchlistSyncInFlight) { _ghWatchlistSyncQueued = true; return { ok: false, reason: 'in-flight' }; }
+  _ghWatchlistSyncInFlight = true;
+
+  try {
+    const namedLists = (typeof STATE !== 'undefined' && STATE.namedWatchlists) ? STATE.namedWatchlists : {};
+    const json = JSON.stringify(namedLists, null, 2);
+
+    if (!manual && json === window._ghWatchlistSyncState?.lastPushedJSON) {
+      return { ok: true, reason: 'unchanged' };
+    }
+    window._ghWatchlistSyncState = window._ghWatchlistSyncState || {};
+
+    const branch  = cfg.branch || 'main';
+    // Separate repo-variable-style path, defaulting to the same
+    // watchlist.json the backend already reads — distinct from cfg.path
+    // (which is positions.json) so the two syncs never target the same
+    // file by mistake.
+    const wlPath  = cfg.watchlistPath || 'watchlist.json';
+    const apiBase = `https://api.github.com/repos/${resolvedRepo}/contents/${wlPath}`;
+    const headers = {
+      'Authorization':        `Bearer ${resolvedToken}`,
+      'Accept':               'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+
+    let sha = null;
+    const getRes = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.ok) {
+      const j = await getRes.json();
+      sha = j.sha || null;
+    } else if (getRes.status !== 404) {
+      throw new Error(`GET ${getRes.status} — check token scope / repo name`);
+    }
+
+    const content = btoa(unescape(encodeURIComponent(json)));
+    const totalSymbols = Object.values(namedLists).reduce((n, arr) => n + (arr?.length || 0), 0);
+    const listNames = Object.keys(namedLists).join(', ') || 'none';
+
+    const putBody = {
+      message: `chore: sync watchlists (${listNames}) [skip ci]`,
+      content,
+      branch,
+    };
+    if (sha) putBody.sha = sha;
+
+    let putRes = await fetch(apiBase, { method: 'PUT', headers, body: JSON.stringify(putBody) });
+
+    if (!putRes.ok && putRes.status === 409) {
+      const getRes2 = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+      if (getRes2.ok) {
+        const j2 = await getRes2.json();
+        putBody.sha = j2.sha || undefined;
+        putRes = await fetch(apiBase, { method: 'PUT', headers, body: JSON.stringify(putBody) });
+      }
+    }
+
+    if (!putRes.ok) {
+      const errJson = await putRes.json().catch(() => ({}));
+      throw new Error(`PUT ${putRes.status} ${errJson.message || ''}`.trim());
+    }
+
+    window._ghWatchlistSyncState.lastSyncAt     = Date.now();
+    window._ghWatchlistSyncState.lastError      = null;
+    window._ghWatchlistSyncState.lastPushedJSON = json;
+
+    logAlertItem('info', `☁ Watchlist sync OK — ${listNames} (${totalSymbols} symbol${totalSymbols === 1 ? '' : 's'}) → ${resolvedRepo}`);
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_watchlist_sync_ok', { lists: listNames, count: totalSymbols, repo: resolvedRepo });
+    }
+
+    _refreshGhSyncStatusDOM();
+    return { ok: true };
+
+  } catch (e) {
+    window._ghWatchlistSyncState = window._ghWatchlistSyncState || {};
+    window._ghWatchlistSyncState.lastError = e.message;
+    let hint = '';
+    if (e.message.includes('401')) hint = ' — PAT invalid or expired';
+    else if (e.message.includes('403')) hint = ' — PAT lacks Contents:Write permission';
+    else if (e.message.includes('404')) hint = ' — repo not found, check owner/repo field';
+    else if (e.message.includes('not configured')) hint = ' — enter owner/repo and PAT then Save';
+    logAlertItem('info', `☁ Watchlist sync FAILED — ${e.message}${hint}`);
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_watchlist_sync_failed', { error: e.message + hint, repo: resolvedRepo || '?' });
+    }
+    _refreshGhSyncStatusDOM();
+    return { ok: false, reason: e.message };
+
+  } finally {
+    _ghWatchlistSyncInFlight = false;
+    if (_ghWatchlistSyncQueued) { _ghWatchlistSyncQueued = false; scheduleWatchlistSync(2000); }
   }
 }
 

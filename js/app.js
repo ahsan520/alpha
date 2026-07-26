@@ -74,7 +74,29 @@ async function init() {
   STATE.sentimentOpen = true;
 
   let base = DEFAULT_WATCHLIST;
-  try { const r = await fetch('watchlist.json'); if (r.ok) base = await r.json(); } catch {}
+  let fetchedRaw = null;
+  try { const r = await fetch('watchlist.json'); if (r.ok) fetchedRaw = await r.json(); } catch {}
+
+  // watchlist.json can be EITHER the legacy flat array (["BINANCE:BTCUSDT", ...])
+  // or the newer named-lists object ({ "Crypto": [...], "Stocks": [...] }).
+  // Normalize to namedWatchlists either way, so the rest of the app only
+  // ever deals with one shape. Legacy flat arrays become a single
+  // "Default" list — nothing breaks for existing single-list setups.
+  if (Array.isArray(fetchedRaw)) {
+    base = fetchedRaw;
+    if (!STATE.namedWatchlists) STATE.namedWatchlists = { Default: fetchedRaw };
+  } else if (fetchedRaw && typeof fetchedRaw === 'object') {
+    STATE.namedWatchlists = fetchedRaw;
+    const firstName = STATE.activeWatchlistName in fetchedRaw
+      ? STATE.activeWatchlistName
+      : Object.keys(fetchedRaw)[0];
+    STATE.activeWatchlistName = firstName;
+    base = fetchedRaw[firstName] || [];
+  } else if (!STATE.namedWatchlists) {
+    STATE.namedWatchlists = { Default: base };
+  }
+  localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
+  localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
 
   if (!STATE._sessionAdded) STATE._sessionAdded = [];
   STATE.watchlist = [...base, ...STATE._sessionAdded.filter(s => !base.includes(s))];
@@ -688,6 +710,61 @@ function _renderComparePane() {
 }
 
 // ── WATCHLIST MANAGEMENT ──
+
+// Persists STATE.namedWatchlists to localStorage immediately (fast local
+// cache) AND schedules a debounced push to GitHub via watchlist.json
+// (github-sync.js) so the change survives a cache clear / different
+// device, not just this browser. Call after ANY mutation to
+// namedWatchlists (create, delete, add symbol, remove symbol).
+function _persistNamedWatchlists() {
+  localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
+  localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
+  if (typeof scheduleWatchlistSync === 'function') scheduleWatchlistSync();
+}
+
+function createWatchlist() {
+  const name = prompt('New watchlist name (e.g. "Crypto", "Stocks"):');
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  if (!STATE.namedWatchlists) STATE.namedWatchlists = {};
+  if (STATE.namedWatchlists[trimmed]) { alert(`A watchlist named "${trimmed}" already exists.`); return; }
+  STATE.namedWatchlists[trimmed] = [];
+  STATE.activeWatchlistName = trimmed;
+  STATE.watchlist = [];
+  STATE._sessionAdded = [];
+  _persistNamedWatchlists();
+  logAlertItem('info', `Created watchlist: ${trimmed}`);
+  render();
+}
+
+function switchWatchlist(name) {
+  if (!STATE.namedWatchlists || !(name in STATE.namedWatchlists)) return;
+  STATE.activeWatchlistName = name;
+  STATE.watchlist = [...STATE.namedWatchlists[name]];
+  STATE._sessionAdded = [];
+  STATE.currentS = null;
+  localStorage.setItem('a49_active_wl', name);
+  renderWL();
+  renderTable();
+  _renderChartPlaceholder();
+  logAlertItem('info', `Switched to watchlist: ${name}`);
+}
+
+function deleteWatchlist(name) {
+  if (!STATE.namedWatchlists || !(name in STATE.namedWatchlists)) return;
+  const names = Object.keys(STATE.namedWatchlists);
+  if (names.length <= 1) { alert('Cannot delete the last remaining watchlist.'); return; }
+  if (!confirm(`Delete watchlist "${name}" and its symbols? This cannot be undone.`)) return;
+  delete STATE.namedWatchlists[name];
+  if (STATE.activeWatchlistName === name) {
+    switchWatchlist(Object.keys(STATE.namedWatchlists)[0]);
+  }
+  _persistNamedWatchlists();
+  logAlertItem('info', `Deleted watchlist: ${name}`);
+  render();
+}
+
 function addTicker() {
   let v = document.getElementById('newT').value.trim().toUpperCase();
   const t = document.getElementById('assetType').value;
@@ -707,6 +784,15 @@ function addTicker() {
     STATE.watchlist.push(e);
     if (!STATE._sessionAdded) STATE._sessionAdded = [];
     if (!STATE._sessionAdded.includes(e)) STATE._sessionAdded.push(e);
+
+    // Also add to the active NAMED list (this is what actually persists —
+    // _sessionAdded above is legacy/session-only bookkeeping used elsewhere).
+    if (!STATE.namedWatchlists) STATE.namedWatchlists = { [STATE.activeWatchlistName]: [] };
+    const active = STATE.activeWatchlistName;
+    if (!STATE.namedWatchlists[active]) STATE.namedWatchlists[active] = [];
+    if (!STATE.namedWatchlists[active].includes(e)) STATE.namedWatchlists[active].push(e);
+    _persistNamedWatchlists();
+
     logAlertItem('info', 'Added: ' + e);
     sync();
     if (STATE._newsFetched) fetchNews();
@@ -717,6 +803,11 @@ function addTicker() {
 function delT(s) {
   STATE.watchlist       = STATE.watchlist.filter(x => x !== s);
   if (STATE._sessionAdded) STATE._sessionAdded = STATE._sessionAdded.filter(x => x !== s);
+  if (STATE.namedWatchlists && STATE.namedWatchlists[STATE.activeWatchlistName]) {
+    STATE.namedWatchlists[STATE.activeWatchlistName] =
+      STATE.namedWatchlists[STATE.activeWatchlistName].filter(x => x !== s);
+    _persistNamedWatchlists();
+  }
   delete STATE.DS[s];
   delete STATE.PH[s];
   delete _lastSyncTime[s];
@@ -725,8 +816,44 @@ function delT(s) {
 }
 
 function wipeData()  { if (confirm('Clear all cached data and reload?')) { localStorage.clear(); location.reload(); } }
-function exportWL()  { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(STATE.watchlist, null, 2)], { type: 'text/plain' })); a.download = 'watchlist.json'; a.click(); }
-function importWL(inp) { const r = new FileReader(); r.onload = () => { try { STATE.watchlist = JSON.parse(r.result); sync(); } catch { alert('Invalid file.'); } }; r.readAsText(inp.files[0]); }
+
+// Exports the FULL named-lists structure (all watchlists, not just the
+// active one) — this is what round-trips cleanly with importWL() and
+// with what syncWatchlistsToGitHub() pushes, so manual export/import and
+// auto-sync always agree on the same file shape.
+function exportWL() {
+  const data = STATE.namedWatchlists || { [STATE.activeWatchlistName]: STATE.watchlist };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'text/plain' }));
+  a.download = 'watchlist.json';
+  a.click();
+}
+
+function importWL(inp) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const parsed = JSON.parse(r.result);
+      if (Array.isArray(parsed)) {
+        // Legacy flat-array import — replace the currently active list only.
+        if (!STATE.namedWatchlists) STATE.namedWatchlists = {};
+        STATE.namedWatchlists[STATE.activeWatchlistName] = parsed;
+        STATE.watchlist = [...parsed];
+      } else if (parsed && typeof parsed === 'object') {
+        // Named-lists import — replaces ALL watchlists.
+        STATE.namedWatchlists = parsed;
+        const firstName = Object.keys(parsed)[0];
+        STATE.activeWatchlistName = firstName;
+        STATE.watchlist = [...(parsed[firstName] || [])];
+      } else {
+        throw new Error('unrecognized shape');
+      }
+      _persistNamedWatchlists();
+      sync();
+    } catch { alert('Invalid file.'); }
+  };
+  r.readAsText(inp.files[0]);
+}
 
 // ── NEWS ──
 function toggleNews() {
