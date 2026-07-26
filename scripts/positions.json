@@ -161,7 +161,7 @@
     "spikeScore": 0.32174604476031626,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -176,8 +176,14 @@
       "qty": 1385.74,
       "fillPrice": 1.477,
       "buyOrderId": "C02__710077730753773568036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "sellOrderId": "C02__710086348542713856036",
+      "exitFillPrice": 1.4776068815217862,
+      "closedAt": 1785080014733
+    },
+    "exitPrice": 1.4776068815217862,
+    "statusChangedAt": 1785080016140,
+    "rotatedOut": true
   },
   "BINANCE:SOLUSDT": {
     "sym": "BINANCE:SOLUSDT",
@@ -197,13 +203,52 @@
     "spikeScore": 1.7362520016262264,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
     "rankScore": 0.21,
     "histWinRate": 0,
     "histSample": 12,
-    "caution": true
+    "caution": true,
+    "exitPrice": 75.22,
+    "statusChangedAt": 1785080016482,
+    "rotatedOut": true
+  },
+  "BINANCE:IMXUSDT": {
+    "sym": "BINANCE:IMXUSDT",
+    "base": "IMX",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785080013574,
+    "holdLockUntil": 1785081213574,
+    "entryPrice": 0.1277,
+    "stop": 0.1262,
+    "t1": 0.131,
+    "t2": 0.1348,
+    "score": 7,
+    "spikeScore": 0.9277764026844577,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.31,
+    "histWinRate": 0,
+    "histSample": 2,
+    "caution": false,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785080019179,
+      "usdSize": 2045.54,
+      "qty": 16046.31,
+      "fillPrice": 0.12747723676035175,
+      "buyOrderId": "C02__710086367068950528036",
+      "qtyEstimated": false
+    }
   }
 }
