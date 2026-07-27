@@ -482,11 +482,18 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
         outcome: 'stopped', score: pos.score, spikeScore: pos.spikeScore,
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
+      // Wording is gated on isLiveCrypto (an actual MEXC order existed),
+      // not just isCrypto — a crypto symbol can be tracked/watchlist-only
+      // (stocks/ETFs/crypto all share this tracker, and the bot doesn't
+      // auto-trade every crypto symbol it watches). Without this, a
+      // watchlist-only crypto hitting its tracked stop said "SOLD" /
+      // "Position removed" exactly like a real live-order close, even
+      // though nothing was ever bought or sold on the exchange.
       telegramAlerts.push(
-        `🔴 *STOP HIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `🔴 *STOP HIT${isLiveCrypto ? ' — SOLD' : isCrypto ? ' — SIGNAL CLOSED (watchlist only)' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  Entry $${entry}  Stop $${stop}  Current $${price}\n` +
         `  P&L ${pnlPct}%  Setup: ${pos.setup}\n` +
-        (isCrypto ? `  _Position removed in 5 min_` : `  _Close your position manually on the exchange_`)
+        (isLiveCrypto ? `  _Position removed in 5 min_` : isCrypto ? `  _Tracked signal only — no live position was held_` : `  _Close your position manually on the exchange_`)
       );
       continue;
     }
@@ -511,10 +518,10 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
         pnlPct: parseFloat(pnlPct) || 0, closedAt: now,
       });
       telegramAlerts.push(
-        `🏆 *T2 HIT${isCrypto ? ' — SOLD' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
+        `🏆 *T2 HIT${isLiveCrypto ? ' — SOLD' : isCrypto ? ' — SIGNAL CLOSED (watchlist only)' : ' — CLOSE MANUALLY'}* — ${pos.base} — ${utc}\n` +
         `  T2 $${t2}  Current $${price}  Entry $${entry}\n` +
         `  P&L +${pnlPct}%  Full target reached\n` +
-        (isCrypto ? `  _Position removed in 8 min_` : `  _Close your position manually on the exchange_`)
+        (isLiveCrypto ? `  _Position removed in 8 min_` : isCrypto ? `  _Tracked signal only — no live position was held_` : `  _Close your position manually on the exchange_`)
       );
       continue;
     }
