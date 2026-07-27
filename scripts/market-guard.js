@@ -25,6 +25,16 @@
 //     (e.g. US market open 13:30-14:30 UTC on high-volatility days)
 //     Defaults to no blackout — opt-in only
 //
+//   Layer 6 — BTC 4H market-regime buy gate (Phase 1)
+//     BTC's own 4H bias is BEAR/LEAN BEAR → skip new buys entirely
+//     (~95-99% of altcoins tend to follow BTC in sustained downtrends).
+//     NEW-BUY GATE ONLY — never touches existing positions' exits.
+//     STOP_LOSS_PCT always closes a hit stop unconditionally regardless
+//     of this gate. See checkBtcRegimeGate() below. On by default
+//     (GUARD_BTC_BUY_GATE=true); a future-reserved stop-override flag
+//     (GUARD_BTC_STOP_OVERRIDE) exists in config but is NOT wired into
+//     any exit logic yet — disabled by default, Phase 2+ work.
+//
 // Returns are always structured so callers can log exactly WHY a gate fired.
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -47,6 +57,53 @@ const FEAR_EXTREME_MULT     = parseFloat(process.env.GUARD_FEAR_EXTREME_MULT    
 const BTC_FULL_PCT          = parseFloat(process.env.GUARD_BTC_FULL_PCT          || '-0.5'); // BTC 15m chg ≥ this → no BTC-based cut
 const BTC_FLOOR_PCT         = parseFloat(process.env.GUARD_BTC_FLOOR_PCT         || '-3');   // BTC 15m chg ≤ this → BTC layer at its floor (matches close threshold)
 const BTC_FLOOR_MULT        = parseFloat(process.env.GUARD_BTC_FLOOR_MULT        || '0.2');  // BTC layer's own floor
+
+// ── Layer 6 — BTC 4H market-regime buy gate (Phase 1 of the BTC Market
+// Regime Filter proposal) ──
+// Distinct from Layer 1 (BTC_CLOSE_PCT etc.) above: that layer reacts to
+// FAST, short-term BTC moves (15m % change) as a panic/volatility signal.
+// This layer reacts to BTC's own SLOWER 4H trend bias (bias4h field,
+// already computed for every symbol including BTC — see
+// market-fetcher.js's global.btcBias4h) as a market-regime filter: when
+// the broader market (proxied by BTC) is in a sustained 4H downtrend,
+// skip new buys entirely, since ~95-99% of altcoins tend to follow BTC
+// during sustained bearish trends.
+//
+// This is a NEW BUY gate only — it does not touch existing open
+// positions' exits (see GUARD_BTC_STOP_OVERRIDE below, disabled by
+// default, reserved for a future phase). STOP_LOSS_PCT continues to
+// close positions unconditionally, exactly as before — this gate never
+// overrides or delays a stop-loss.
+const BTC_BUY_GATE          = (process.env.GUARD_BTC_BUY_GATE || 'true') !== 'false';
+const BTC_BEAR_VALUES       = (process.env.GUARD_BTC_BEAR_VALUES || 'BEAR 4H,LEAN BEAR')
+  .split(',').map(s => s.trim()).filter(Boolean);
+
+// ── BTC Stop Override — DISABLED BY DEFAULT, reserved for a future phase ──
+// When (eventually) enabled, this would let a hit stop-loss continue
+// holding rather than close immediately, UNLESS BTC itself is bearish —
+// see STOP_OVERRIDE_MAX_LOSS_PCT below for the hard ceiling that would
+// always apply regardless. NOT wired into any exit logic yet in this
+// phase — present here only so the config surface exists ahead of time.
+// STOP_LOSS_PCT (leaderboard-decider.js etc.) is UNAFFECTED by this flag
+// and always closes a position the moment its stop is hit, full stop.
+const BTC_STOP_OVERRIDE           = (process.env.GUARD_BTC_STOP_OVERRIDE || 'false') === 'true';
+const STOP_OVERRIDE_MAX_LOSS_PCT  = parseFloat(process.env.GUARD_STOP_OVERRIDE_MAX_LOSS_PCT || '1.5');
+
+// Returns { blocked, reason } — used by the buy-scan gate, NOT by rotation
+// or exits. BTC's own bias fields come from market.global (written once
+// per fetch cycle by market-fetcher.js), so this is a cheap in-memory
+// check, no extra API calls.
+export function checkBtcRegimeGate(global = {}) {
+  if (!BTC_BUY_GATE) return { blocked: false, reason: null };
+  const bias4h = global.btcBias4h;
+  if (!bias4h) return { blocked: false, reason: null }; // no data yet — don't block on missing data
+  const isBear = BTC_BEAR_VALUES.some(v => bias4h.includes(v));
+  if (!isBear) return { blocked: false, reason: null };
+  return {
+    blocked: true,
+    reason: `BTC 4H bias is ${bias4h} — new buys paused (market-regime gate)`,
+  };
+}
 
 const VOL_FULL_PCT          = parseFloat(process.env.GUARD_VOL_FULL_PCT          || '2');   // BTC candle range ≤ this → no vol-based cut
 const VOL_FLOOR_PCT         = parseFloat(process.env.GUARD_VOL_FLOOR_PCT         || '8');   // BTC candle range ≥ this → vol layer at its floor
@@ -234,11 +291,13 @@ export function checkTimeBlackout() {
 // runAllBuyGuards — convenience wrapper used by leaderboard-decider.js
 // Returns { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons[] }
 //
-// canBuy:     false → skip all buys this cycle (circuit breaker / blackout)
+// canBuy:     false → skip all buys this cycle (circuit breaker / blackout / BTC regime)
 // closeAll:   true  → close all live MEXC positions before doing anything else
 // sizeMult:   0-1   → multiply effective USD size by this (1 = full size)
 // fearRegime: true  → F&G ≤ FEAR_BLOCK_THRESHOLD — caller must check per-symbol divergence
 // btcChg:     BTC 15m change % (for divergence check in caller)
+// btcRegimeBlocked: true → specifically Layer 6 (BTC 4H bias) caused the block,
+//             so callers can distinguish this from other canBuy=false reasons if needed
 // reasons:    list of strings explaining every gate that fired
 //
 // SIZING COMBINATION: sizeMult layers now COMPOUND multiplicatively
@@ -291,6 +350,18 @@ export function runAllBuyGuards(market, positions) {
     reasons.push(time.reason);
   }
 
+  // Layer 6 — BTC 4H market-regime buy gate (Phase 1). NEW-BUY GATE ONLY —
+  // deliberately does not set closeAll and never touches existing
+  // positions; STOP_LOSS_PCT elsewhere continues to close a hit stop
+  // unconditionally regardless of this gate's state.
+  const btcRegime = checkBtcRegimeGate(global);
+  let btcRegimeBlocked = false;
+  if (btcRegime.blocked) {
+    canBuy = false;
+    btcRegimeBlocked = true;
+    reasons.push(btcRegime.reason);
+  }
+
   // ── Combine sizing layers multiplicatively, then apply the global floor ──
   const rawSizeMult = btc.sizeMult * fg.sizeMult * vol.sizeMult;
   const sizeMult     = Math.max(GLOBAL_FLOOR_MULT, rawSizeMult);
@@ -299,5 +370,5 @@ export function runAllBuyGuards(market, positions) {
     reasons.push(`Combined size ${(rawSizeMult * 100).toFixed(1)}% floored to global minimum ${(GLOBAL_FLOOR_MULT * 100).toFixed(0)}%`);
   }
 
-  return { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons };
+  return { canBuy, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, reasons };
 }

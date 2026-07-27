@@ -234,10 +234,21 @@ async function main() {
   }
 
   // ── Global market guard data ──
+  // BTC's own bias4h/emaTrend/etc. are already fully computed above (as
+  // part of symbols['BTCUSDT'], via buildEntry -> evaluateSymbol) — no
+  // new fetch needed, just surfaced here for cheap access by every other
+  // symbol's buy decision (market-guard.js's BTC regime gate).
+  const btcEntry = symbols['BTCUSDT'] || {};
+  const btcD     = btcEntry.d || {};
   const global = {
     btcChg15m:    btcShort?.btcChg15m    ?? null,
     btcVolatility:btcShort?.btcVolatility ?? null,
     fearGreed:    fgVal,
+    btcBias4h:    btcD.bias4h   || null,
+    btcBiasDay:   btcD.biasDay  || null,
+    btcEmaTrend:  btcD.emaTrend || null,
+    btcOiDiv:     btcD.oiDiv    ?? null,
+    btcCvdTrend:  btcD.cvdTrend || null,
     updatedAt:    now,
   };
 
