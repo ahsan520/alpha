@@ -1,73 +1,5 @@
 [
   {
-    "timestamp": "2026-07-27T00:43:11.388Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-07-27T00:43:11.389Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 7,
-    "openAfter": 6,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.048Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:SOLUSDT",
-    "base": "SOL",
-    "free": 0.005,
-    "estNotional": 0.3821
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.049Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:DOGEUSDT",
-    "base": "DOGE",
-    "free": 0.47,
-    "estNotional": 0.0343382
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.049Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:XRPUSDT",
-    "base": "XRP",
-    "free": 0.095717,
-    "estNotional": 0.1061405813
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.050Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:ZECUSDT",
-    "base": "ZEC",
-    "free": 0.000565,
-    "estNotional": 0.2866358
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.326Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-07-27T00:43:12.326Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-27T00:43:13.439Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-07-27T00:59:14.007Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -966,7 +898,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-07-27T01:43:10.950Z",
+    "timestamp": "2026-07-27T01:43:13.268Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -978,7 +910,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -992,7 +924,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1013,7 +945,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1041,7 +973,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1069,10 +1001,178 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-27T01:43:13.328Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-27T01:43:13.658Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:IMXUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:14.765Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell",
+    "sym": "XLMUSDT",
+    "reason": "stop hit",
+    "qty": 6221,
+    "fillPrice": 0.1812,
+    "orderId": "C02__710239776052989952036"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:15.717Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 181
+  },
+  {
+    "timestamp": "2026-07-27T01:43:15.717Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.1812,
+    "stop": 0.1812,
+    "entry": 0.1833,
+    "pnlPct": "-1.15",
+    "closeReason": "sold"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:16.689Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell",
+    "sym": "ZECUSDT",
+    "reason": "stop hit",
+    "qty": 1.134,
+    "fillPrice": 501.7000000000001,
+    "orderId": "C02__710239784215126016036"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:17.562Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 181
+  },
+  {
+    "timestamp": "2026-07-27T01:43:17.565Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 502.05,
+    "stop": 502.76,
+    "entry": 508.59,
+    "pnlPct": "-1.29",
+    "closeReason": "sold"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:17.577Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:18.404Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-07-27T01:43:18.411Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 193
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.080Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 8,
+    "alerts": 4
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.251Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SOLUSDT",
+    "base": "SOL",
+    "free": 0.005,
+    "estNotional": 0.38130000000000003
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.252Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.47,
+    "estNotional": 0.0341878
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.252Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.095717,
+    "estNotional": 0.10581514349999999
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.252Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.03,
+    "estNotional": 0.005436
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.253Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000394,
+    "estNotional": 0.1978077
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.523Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-27T01:43:20.523Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-27T01:43:21.594Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 6
   }
 ]
