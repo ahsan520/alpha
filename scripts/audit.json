@@ -1014,7 +1014,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-07-27T12:42:33.752Z",
+    "timestamp": "2026-07-27T12:42:36.283Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1082,7 +1082,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1110,17 +1110,134 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 11,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.340Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 7,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.682Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:RENDERUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.683Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.683Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XLMUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.684Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.685Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:36.685Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:LINKUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.577Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 2
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.578Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 2,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.833Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.32,
+    "estNotional": 0.023270400000000004
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.834Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.065717,
+    "estNotional": 0.07249899439999999
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.834Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000774,
+    "estNotional": 0.38821518
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.838Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-27T12:42:37.839Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-27T12:42:38.963Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
