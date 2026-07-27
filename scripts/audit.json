@@ -753,7 +753,7 @@
     "monitored": 0
   },
   {
-    "timestamp": "2026-07-27T18:58:40.237Z",
+    "timestamp": "2026-07-27T18:58:37.984Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -779,7 +779,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -800,7 +800,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -821,7 +821,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -842,7 +842,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -861,5 +861,112 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.047Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 7,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.961Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SOLUSDT",
+    "base": "SOL",
+    "free": 0.001,
+    "estNotional": 0.07557
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.961Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.22,
+    "estNotional": 0.015796
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.962Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.025717,
+    "estNotional": 0.028018671499999998
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.962Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.09,
+    "estNotional": 0.015885
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.963Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000774,
+    "estNotional": 0.37518875999999995
+  },
+  {
+    "timestamp": "2026-07-27T18:58:38.965Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-27T18:58:40.352Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 1
+  },
+  {
+    "timestamp": "2026-07-27T18:58:40.964Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETH"
+    ],
+    "caution": [
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-07-27T18:58:42.040Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_push_failed",
+    "error": "PUT 409 is at 6009ad7132da567c3165db894f0a23a77d89cc60 but expected f47c2243b415e3650e26b56301dd5bcd08f41540"
+  },
+  {
+    "timestamp": "2026-07-27T18:58:42.041Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-27T18:58:44.999Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
