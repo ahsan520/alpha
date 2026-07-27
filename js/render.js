@@ -103,6 +103,7 @@ function renderWL() {
         <span class="wl-name">${name}${mktB}</span>
         <canvas id="${spId}" width="46" height="16" class="sp" style="flex-shrink:0;"></canvas>
         <span class="wl-chg">—</span>
+        <button class="wl-del" onclick="event.stopPropagation();delT('${s}')" title="Remove ${name} from this watchlist">✕</button>
       </div>`;
     }).join('');
     _rendered.wl = wlKey;
