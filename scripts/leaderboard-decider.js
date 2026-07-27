@@ -83,8 +83,16 @@ function calcEntryLevels(price, shock) {
   const atr   = p * 0.015 * Math.max(1, shock * 0.5);
   const dp    = p < 10 ? 4 : 2;
   const entry = (p * 1.004).toFixed(dp);
-  const ATR_STOP_MULT = parseFloat(process.env.ATR_STOP_MULT || '0.5'); // was 1.5 — tightened per review of trade-log showing rotation churn, not stop distance, as the main loss driver
-  const stop  = (p - atr * ATR_STOP_MULT).toFixed(dp);
+  // Fixed-percentage stop — deliberately NOT volatility-scaled.
+  // Previously (ATR_STOP_MULT) the stop widened automatically on
+  // high-shock days, which defeats the purpose of setting a small,
+  // predictable max-loss-per-trade: since crypto is close to always
+  // volatile, the "floor" behavior rarely applied in practice, and
+  // several trades realized 1-2%+ losses despite ATR_STOP_MULT being
+  // set to a value implying ~0.1-0.15%. STOP_LOSS_PCT is now a hard,
+  // fixed % of entry price, every time, regardless of shock/volatility.
+  const STOP_LOSS_PCT = parseFloat(process.env.STOP_LOSS_PCT || '0.1');
+  const stop  = (p * (1 - STOP_LOSS_PCT / 100)).toFixed(dp);
   const t1    = (p + atr * 2).toFixed(dp);
   const t2    = (p + atr * 4).toFixed(dp);
   const rr    = (parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop));

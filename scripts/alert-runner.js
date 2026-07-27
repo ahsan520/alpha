@@ -78,36 +78,13 @@ const LB_CVD_CYCLES   = parseInt(process.env.LB_CVD_CYCLES   || '3');   // CVD d
 
 // Watchlist — reads from watchlist.json at repo root (single source of truth).
 // Override via WATCHLIST env var as a JSON array string (useful for testing).
-// watchlist.json can be EITHER the legacy flat array (["BINANCE:BTCUSDT", ...])
-// or the GUI's newer named-lists object ({ "Crypto": [...], "Stocks": [...] }) —
-// the backend doesn't need to know about "named lists" as a concept, it just
-// scans every symbol across all of them, tagged correctly by assetType as
-// always (isCrypto() classification is unaffected either way).
-function _flattenWatchlistShape(raw) {
-  if (Array.isArray(raw)) return raw;
-  if (raw && typeof raw === 'object') {
-    const seen = new Set();
-    const out = [];
-    for (const list of Object.values(raw)) {
-      if (!Array.isArray(list)) continue;
-      for (const sym of list) {
-        if (!seen.has(sym)) { seen.add(sym); out.push(sym); }
-      }
-    }
-    return out;
-  }
-  return [];
-}
-
 const WATCHLIST_JSON_PATH = path.join(__dirname, '..', 'watchlist.json');
 const WATCHLIST = process.env.WATCHLIST
-  ? _flattenWatchlistShape(JSON.parse(process.env.WATCHLIST))
+  ? JSON.parse(process.env.WATCHLIST)
   : (() => {
       try {
-        const raw = JSON.parse(fs.readFileSync(WATCHLIST_JSON_PATH, 'utf8'));
-        const list = _flattenWatchlistShape(raw);
-        const shapeNote = Array.isArray(raw) ? '' : ` across ${Object.keys(raw).length} named list(s)`;
-        console.log(`📋  Loaded ${list.length} tickers from watchlist.json${shapeNote}`);
+        const list = JSON.parse(fs.readFileSync(WATCHLIST_JSON_PATH, 'utf8'));
+        console.log(`📋  Loaded ${list.length} tickers from watchlist.json`);
         return list;
       } catch (e) {
         console.warn('⚠  watchlist.json not found — using built-in fallback list');
@@ -1399,8 +1376,8 @@ function calcEntryLevels(price, shock) {
   const atr = p * 0.015 * Math.max(1, shock * 0.5);
   const dp  = p < 0.01 ? 6 : p < 1 ? 4 : p < 100 ? 3 : 2;
   const entry = (p * 1.004).toFixed(dp);
-  const ATR_STOP_MULT = parseFloat(process.env.ATR_STOP_MULT || '0.5'); // was 1.5 — kept in sync with leaderboard-decider.js
-  const stop  = (p - atr * ATR_STOP_MULT).toFixed(dp);
+  const STOP_LOSS_PCT = parseFloat(process.env.STOP_LOSS_PCT || '0.1'); // fixed %, not volatility-scaled — kept in sync with leaderboard-decider.js
+  const stop  = (p * (1 - STOP_LOSS_PCT / 100)).toFixed(dp);
   const t1    = (p + atr * 2).toFixed(dp);
   const t2    = (p + atr * 4).toFixed(dp);
   const rr    = (parseFloat(t1) - parseFloat(entry)) / (parseFloat(entry) - parseFloat(stop));

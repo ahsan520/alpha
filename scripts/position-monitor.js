@@ -413,12 +413,48 @@ export async function monitorPositions(positions, marketSymbols, cfg = {}) {
     if (!price) { console.log(`  ⚠  ${pos.base} — price is 0, skipping`); continue; }
 
     const entry  = parseFloat(pos.entryPrice || 0);
-    const stop   = parseFloat(pos.stop  || 0);
     const t1     = parseFloat(pos.t1    || 0);
     const t2     = parseFloat(pos.t2    || 0);
     const isBull = pos.dir !== 'bear';
     const pnlPct = entry > 0 ? ((price - entry) / entry * 100).toFixed(2) : '—';
 
+    // ── Live stop recalculation ──
+    // Previously, pos.stop was a fixed value computed ONCE at buy time and
+    // never touched again — changing STOP_LOSS_PCT on GitHub only affected
+    // NEW buys, never anything already open. Now recalculated every cycle
+    // using the CURRENT env value, so a repo-variable change takes effect
+    // on already-open positions on the very next monitoring cycle, not
+    // just future buys. Also serves as a live sanity check: if a stop
+    // isn't moving the way you expect after changing STOP_LOSS_PCT,
+    // that's a strong signal the variable isn't actually being read as
+    // you think (not set, or a typo in the repo variable name) — the
+    // recalculated value here reveals it directly instead of needing to
+    // reverse-engineer it from a trade outcome after the fact.
+    //
+    // Fixed percentage of entry price — deliberately NOT volatility/ATR-
+    // scaled (see calcEntryLevels() in leaderboard-decider.js for why).
+    // Only tightens/loosens for a BULL position (stop below entry). A
+    // bear/short position's stop sits ABOVE entry, using the same
+    // percentage in the other direction — recalculated symmetrically.
+    // Never recalculated past the point of no return: if the position
+    // has already moved to tp1_hit (holding for T2), its stop should have
+    // already been adjusted by that logic elsewhere and this recalculation
+    // is skipped so it doesn't fight with that.
+    const STOP_LOSS_PCT = parseFloat(process.env.STOP_LOSS_PCT || '0.1');
+    let stop = parseFloat(pos.stop || 0);
+    if (entry > 0 && pos.status !== 'tp1_hit') {
+      const recalculated = isBull
+        ? entry * (1 - STOP_LOSS_PCT / 100)
+        : entry * (1 + STOP_LOSS_PCT / 100);
+      const dp = entry < 1 ? 6 : entry < 10 ? 4 : 2;
+      const recalcRounded = parseFloat(recalculated.toFixed(dp));
+      if (recalcRounded !== stop) {
+        console.log(`  🔧  ${pos.base} stop recalculated: ${stop} → ${recalcRounded} (STOP_LOSS_PCT=${STOP_LOSS_PCT}%)`);
+        pos.stop = recalcRounded;
+        stop = recalcRounded;
+        changed = true;
+      }
+    }
     const isCrypto = pos.assetType === 'crypto';
 
     // ── 4. Price-based exits (immediate, no hold lock, no score needed) ──
