@@ -1,69 +1,5 @@
 [
   {
-    "timestamp": "2026-07-28T19:42:43.061Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 2,
-    "openAfter": 2,
-    "alerts": 2
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.235Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:SOLUSDT",
-    "base": "SOL",
-    "free": 0.008,
-    "estNotional": 0.59392
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.236Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:DOGEUSDT",
-    "base": "DOGE",
-    "free": 0.22,
-    "estNotional": 0.015551800000000001
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.236Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:XRPUSDT",
-    "base": "XRP",
-    "free": 0.025717,
-    "estNotional": 0.0272831653
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.236Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:XLMUSDT",
-    "base": "XLM",
-    "free": 0.09,
-    "estNotional": 0.015534
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.237Z",
-    "job": "leaderboard-decider",
-    "action": "adoption_skipped_dust",
-    "sym": "BINANCE:ZECUSDT",
-    "base": "ZEC",
-    "free": 0.000774,
-    "estNotional": 0.36497196
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.443Z",
-    "job": "leaderboard-decider",
-    "action": "no_candidates",
-    "bestConv": 3
-  },
-  {
-    "timestamp": "2026-07-28T19:42:43.444Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-07-28T19:42:44.587Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -818,7 +754,7 @@
     ]
   },
   {
-    "timestamp": "2026-07-28T20:42:42.533Z",
+    "timestamp": "2026-07-28T20:42:40.695Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -926,5 +862,95 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-28T20:42:40.755Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.645Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:SOLUSDT",
+    "base": "SOL",
+    "free": 0.008,
+    "estNotional": 0.59264
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.646Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.22,
+    "estNotional": 0.015551800000000001
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.647Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.025717,
+    "estNotional": 0.027311454000000002
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.648Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.09,
+    "estNotional": 0.015560999999999998
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.648Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000774,
+    "estNotional": 0.36290538
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.830Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.832Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-07-28T20:42:41.832Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-28T20:42:43.471Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
