@@ -38,7 +38,7 @@ import { mexcGetAllBalances } from './mexc-client.js';
 import { sendTelegram, pollTelegramCommands } from './telegram-commands.js';
 import { monitorPositions, reconcileTrackedLiveBalances } from './position-monitor.js';
 import { executeTradeCycle, adoptManualHoldings } from './mexc-trader.js';
-import { runAllBuyGuards, isDivergingFromBtc } from './market-guard.js';
+import { runAllBuyGuards, isDivergingFromBtc, checkAlphaException } from './market-guard.js';
 
 const LB_MIN_SCORE       = parseInt(process.env.LB_MIN_SCORE       || '9');
 const LB_BULL_CONF_MIN   = parseInt(process.env.LB_BULL_CONF_MIN   || '5');
@@ -444,9 +444,15 @@ async function main() {
     }
   }
 
-  // If any hard block gate fired, skip all new buys this cycle
-  if (!guard.canBuy) {
-    console.log('  🛡  Buy gates blocked — no new positions opened this cycle.');
+  // If a hard block gate fired (panic-close / circuit breaker / blackout),
+  // skip all new buys this cycle — unconditional, no exception possible.
+  // A btcRegimeBlocked-only cycle (Phase 1's BTC 4h gate, with no other
+  // hard block active) deliberately does NOT stop here — it falls through
+  // into the per-candidate loop below, where Phase 2's Alpha Exception
+  // (checkAlphaException) gets a chance to let an exceptional candidate
+  // through despite the bearish BTC regime. See market-guard.js.
+  if (guard.hardBlocked) {
+    console.log('  🛡  Hard buy gate blocked — no new positions opened this cycle.');
     saveMarketData(resetPeaks(market));
     saveCooldowns(loadCooldowns());
     saveAlertState(pruneAlertState(loadAlertState()));
@@ -482,6 +488,23 @@ async function main() {
         continue;
       }
       console.log(`  ✅  ${pair} — Extreme Fear but diverging +${symChg}% vs BTC ${guard.btcChg}% — allowing at ${guard.sizeMult * 100}% size`);
+    }
+
+    // BTC 4h market-regime gate (Phase 1) + Alpha Exception (Phase 2).
+    // guard.btcRegimeBlocked means BTC's OWN 4h bias is bearish — per
+    // Layer 6, new buys are paused market-wide. Rather than a blanket
+    // skip, each crypto candidate gets one more chance here: if it clears
+    // ALL of checkAlphaException's strict, independently-toggleable bars
+    // (confidence, whale score, volume shock, OI, CVD, EMA, 4h/daily bias,
+    // relative strength vs BTC), it's allowed through anyway. Anything
+    // that doesn't clear every bar is skipped, same as Phase 1 alone.
+    if (guard.btcRegimeBlocked && entry.assetType === 'crypto') {
+      const alpha = checkAlphaException(entry, market.global);
+      if (!alpha.pass) {
+        console.log(`  🛡  ${pair} — BTC 4h bias bearish, no Alpha Exception (failed: ${(alpha.failed || []).join(', ') || 'n/a'}) — skipped`);
+        continue;
+      }
+      console.log(`  ✅  ${pair} — ${alpha.reason}`);
     }
 
     // CAP BUY bypasses bull confirmation gate

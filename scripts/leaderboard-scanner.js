@@ -383,9 +383,21 @@ export function calcFlow(d, whaleScore) {
   return 'Mixed Flow';
 }
 
-export function calcGrade(bullConf, whaleScore) {
+export function calcGrade(bullConf, whaleScore, btcMult = 1) {
   const stabilityProxy = Math.round(bullConf * 9 + 10);
-  const gradeScore = bullConf * 10 + (whaleScore - 50) * 0.3 + (stabilityProxy - 50) * 0.2;
+  let gradeScore = bullConf * 10 + (whaleScore - 50) * 0.3 + (stabilityProxy - 50) * 0.2;
+  // ── Market-wide BTC gate ──────────────────────────────────────────────
+  // Reuses the same continuous curve already tuned for position sizing
+  // (market-guard.js checkBtcGuard / GUARD_BTC_FULL_PCT-FLOOR_PCT-FLOOR_MULT)
+  // instead of a separate threshold. A falling BTC drags every crypto
+  // symbol's grade/win% down proportionally, not just position size — a
+  // technically-strong altcoin signal has repeatedly gotten dragged down
+  // anyway once BTC itself started sliding. btcMult stays 1 (no change)
+  // when BTC is flat/up, or when the caller (market-fetcher.js) has
+  // determined the symbol shows genuine 4h+ structural divergence from
+  // BTC rather than short-term (15-30m) noise that typically converges
+  // back to BTC's direction anyway.
+  gradeScore *= btcMult;
   let grade;
   if      (gradeScore >= 85) grade = 'A+';
   else if (gradeScore >= 70) grade = 'A';
@@ -393,7 +405,7 @@ export function calcGrade(bullConf, whaleScore) {
   else if (gradeScore >= 30) grade = 'C';
   else                       grade = 'D';
   const successProb = Math.max(20, Math.min(92, Math.round(
-    bullConf * 6 + (whaleScore - 50) * 0.25 + (stabilityProxy - 50) * 0.1 + 30
+    (bullConf * 6 + (whaleScore - 50) * 0.25 + (stabilityProxy - 50) * 0.1 + 30) * btcMult
   )));
   return { grade, successProb, stabilityProxy };
 }
@@ -465,6 +477,15 @@ export async function scoreSymbol(pair, prevFr = null) {
     const ema20    = calcEMA(k4closes, 20);
     const emaTrend = ema20 ? (price > ema20 ? 'ABOVE' : 'BELOW') : '—';
 
+    // 4h return — the most recent 4h candle's own open→close % change (NOT
+    // r4h, which is a 4h-timeframe RSI reading, not a return). Needed for
+    // Relative Strength vs BTC (Phase 2, BTC Market Regime Filter): comparing
+    // a symbol's own 4h momentum against BTC's over the same window. No new
+    // fetch — k4closes is already pulled above for the EMA20/bias4h calc.
+    const chg4h = k4closes.length >= 2
+      ? parseFloat((((k4closes[k4closes.length - 1] - k4closes[k4closes.length - 2]) / k4closes[k4closes.length - 2]) * 100).toFixed(3))
+      : null;
+
     const bias4h   = calc4hBias(k4);
     const biasDay  = calcDailyBias(kD);
     const cvdTrend = calcCVD(k15);
@@ -491,7 +512,7 @@ export async function scoreSymbol(pair, prevFr = null) {
     else if (fr <= 0 && chg > 0.5)  oiDiv = 'CONFIRM';
     else if (fr > 0.05 && chg < 0)  oiDiv = 'OI DROP';
 
-    const d = { p: price, chg, shock, r15, r1h, r4h, emaTrend, bias4h, biasDay, cvdTrend, obi, fr, oiDiv };
+    const d = { p: price, chg, chg4h, shock, r15, r1h, r4h, emaTrend, bias4h, biasDay, cvdTrend, obi, fr, oiDiv };
     d.conv = calcConviction(d);
 
     const setup     = getSetupMode(d);

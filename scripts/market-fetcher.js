@@ -249,6 +249,7 @@ async function main() {
     btcEmaTrend:  btcD.emaTrend || null,
     btcOiDiv:     btcD.oiDiv    ?? null,
     btcCvdTrend:  btcD.cvdTrend || null,
+    btcChg4h:     btcD.chg4h    ?? null,
     updatedAt:    now,
   };
 
