@@ -69,6 +69,20 @@ function logAudit(action, details = {}) {
 function buildEntry(r, prev, now, session) {
   const shock = r.d.shock || 1;
   const obi   = r.d.obi   || 0;
+
+  // ── Persistent bull4hCount ──
+  // Counts CONSECUTIVE fetch cycles (this job runs every 5 min) where
+  // bias4h has read exactly "BULL 4H" — used downstream by
+  // leaderboard-decider.js to require the bull trend to have persisted
+  // for a minimum number of cycles before buying, rather than acting on
+  // a single-cycle flip that may reverse next cycle. Reset to 0 the
+  // moment bias4h is anything other than "BULL 4H" (including LEAN BULL —
+  // deliberately strict per spec: only the full "BULL 4H" reading counts
+  // toward persistence, a lean reading doesn't accumulate or preserve
+  // the count).
+  const isBull4h     = r.d.bias4h === 'BULL 4H';
+  const bull4hCount   = isBull4h ? (prev?.bull4hCount || 0) + 1 : 0;
+
   return {
     pair:           r.pair,
     price:          r.price,
@@ -91,6 +105,7 @@ function buildEntry(r, prev, now, session) {
     peakShock:      Math.max(shock, prev?.peakShock ?? shock),
     peakObi:        Math.abs(obi) > Math.abs(prev?.peakObi ?? 0) ? obi : (prev?.peakObi ?? obi),
     peakSince:      prev?.peakSince ?? now,
+    bull4hCount,
     updatedAt:      now,
   };
 }
@@ -249,7 +264,12 @@ async function main() {
     btcEmaTrend:  btcD.emaTrend || null,
     btcOiDiv:     btcD.oiDiv    ?? null,
     btcCvdTrend:  btcD.cvdTrend || null,
-    btcChg4h:     btcD.chg4h    ?? null,
+    // 24h % change, same field/timeframe every other symbol's entry.chg
+    // uses (Binance's priceChangePercent) — needed for a fair
+    // apples-to-apples comparison in calcRelativeStrength() rather than
+    // mixing timeframes (see market-guard.js for why this matters).
+    btcChg24h:    btcEntry.chg ?? btcD.chg ?? null,
+    btcBull4hCount: btcEntry.bull4hCount ?? 0,
     updatedAt:    now,
   };
 

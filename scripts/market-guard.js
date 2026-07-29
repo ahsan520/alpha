@@ -35,17 +35,6 @@
 //     (GUARD_BTC_STOP_OVERRIDE) exists in config but is NOT wired into
 //     any exit logic yet — disabled by default, Phase 2+ work.
 //
-//   Phase 2 — Smart BTC Gate (Alpha Exception) + Relative Strength vs BTC
-//     A candidate blocked ONLY by Layer 6 (btcRegimeBlocked, not any other
-//     hard-blocking layer) can still buy if it clears a strict bar of
-//     independent strength — see checkAlphaException() below. This is a
-//     per-CANDIDATE check, so it must run in the caller's per-candidate
-//     loop (leaderboard-decider.js), not inside runAllBuyGuards, which
-//     only ever sees the aggregate market state, not any one symbol.
-//     calcRelativeStrength() (coin's own 4h return minus BTC's 4h return)
-//     is one of the exception's required checks when BTC_RS_ENABLED=true,
-//     and is also exported standalone for logging/display.
-//
 // Returns are always structured so callers can log exactly WHY a gate fired.
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -116,87 +105,115 @@ export function checkBtcRegimeGate(global = {}) {
   };
 }
 
-// ── Phase 2 — Relative Strength vs BTC ──────────────────────────────────
-// Coin's own 4h return (d.chg4h — the most recent 4h candle's open→close
-// %, computed in leaderboard-scanner.js; NOT r4h, which is an RSI value)
-// minus BTC's 4h return (global.btcChg4h, surfaced by market-fetcher.js
-// from BTC's own scored entry — no extra fetch). BTC_RS_LOOKBACK is
-// documented as '4H' because chg4h is currently the only per-symbol return
-// field available; a different lookback would need its own field added
-// to leaderboard-scanner.js first.
-const BTC_RS_ENABLED = (process.env.BTC_RS_ENABLED || 'true') !== 'false';
-const BTC_RS_MIN     = parseFloat(process.env.BTC_RS_MIN || '2.0'); // percentage points of outperformance required
+// ── Phase 2 — Alpha Exception ──
+// When Layer 6 above blocks new buys for BTC-bearish reasons, a candidate
+// can still be allowed through if it independently clears ALL of these
+// conditions simultaneously — real relative strength strong enough to be
+// worth a bet even against the broader market regime, not just noise.
+// Each REQUIRE_* flag can be individually turned off (e.g. if the
+// candidate's own bias4h shouldn't matter, only whale/volume/CVD) —
+// default is all required, matching the design proposal's "all
+// conditions satisfied" wording.
+const ALPHA_EXCEPTION_ENABLED   = (process.env.GUARD_BTC_ALLOW_ALPHA_EXCEPTION || 'true') !== 'false';
+const ALPHA_SCORE_MIN           = parseFloat(process.env.GUARD_BTC_ALPHA_SCORE_MIN        || '8');
+const ALPHA_MIN_WHALE           = parseFloat(process.env.GUARD_BTC_ALPHA_MIN_WHALE        || '70');
+const ALPHA_MIN_VOLUME          = parseFloat(process.env.GUARD_BTC_ALPHA_MIN_VOLUME       || '1.8');
+const ALPHA_REQUIRE_OI_CONFIRM  = (process.env.GUARD_BTC_ALPHA_REQUIRE_OI_CONFIRM  || 'true') !== 'false';
+const ALPHA_REQUIRE_POSITIVE_CVD= (process.env.GUARD_BTC_ALPHA_REQUIRE_POSITIVE_CVD|| 'true') !== 'false';
+const ALPHA_REQUIRE_EMA_ABOVE   = (process.env.GUARD_BTC_ALPHA_REQUIRE_EMA_ABOVE   || 'true') !== 'false';
+const ALPHA_REQUIRE_4H_BULL     = (process.env.GUARD_BTC_ALPHA_REQUIRE_4H_BULL     || 'true') !== 'false';
+const ALPHA_REQUIRE_DAILY_BULL  = (process.env.GUARD_BTC_ALPHA_REQUIRE_DAILY_BULL  || 'false') === 'true';
+
+// ── 4H trend persistence (reduces false signals from short-lived flips) ──
+// bull4hCount is maintained by market-fetcher.js (see buildEntry) — this
+// file only CONSUMES it, never recalculates or increments it, per spec:
+// the scanner/fetcher is the single source of truth for the count itself.
+//
+// Two independent thresholds: a looser one for regular buys, a stricter
+// one for the Alpha Exception (since bypassing a BTC-bearish regime
+// warrants a higher bar of confirmed persistence, not just the same
+// bar as a normal buy).
+const BUY_REQUIRE_BULL4H_COUNT      = (process.env.BUY_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
+const BUY_BULL4H_COUNT_MIN          = parseInt(process.env.BUY_BULL4H_COUNT_MIN || '2', 10);
+const BTC_ALPHA_REQUIRE_BULL4H_COUNT= (process.env.BTC_ALPHA_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
+const BTC_ALPHA_BULL4H_COUNT_MIN    = parseInt(process.env.BTC_ALPHA_BULL4H_COUNT_MIN || '3', 10);
+
+// Regular-buy persistence check — independent of the BTC regime gate
+// entirely. Called for EVERY candidate on EVERY buy attempt (not just
+// when BTC is bearish), to filter out a bias4h reading that only just
+// flipped to "BULL 4H" this cycle and may reverse next cycle. Returns
+// {allowed, count} rather than throwing/blocking directly, so the caller
+// decides how to log/skip.
+export function checkBull4hPersistence(entry) {
+  if (!BUY_REQUIRE_BULL4H_COUNT) return { allowed: true, count: entry?.bull4hCount ?? 0 };
+  const count = entry?.bull4hCount ?? 0;
+  return { allowed: count >= BUY_BULL4H_COUNT_MIN, count };
+}
+
+
+// Returns { allowed, failedChecks[], passedChecks[] } — call ONLY when
+// checkBtcRegimeGate() has already blocked (no reason to run this
+// otherwise). `entry` is the same per-symbol evaluated object
+// leaderboard-decider.js already has in its candidate loop (entry.d,
+// entry.whale, entry.bullConf, entry.conv — all fields already computed
+// by leaderboard-scanner.js, nothing new needed here).
+export function checkBtcAlphaException(entry) {
+  if (!ALPHA_EXCEPTION_ENABLED) return { allowed: false, failedChecks: ['alpha exception disabled'], passedChecks: [] };
+
+  const d          = entry.d || {};
+  const whaleScore = entry.whale?.score ?? 0;
+  const bullConf   = entry.bullConf ?? 0;
+  const conv       = entry.conv ?? 0;
+  const shock      = d.shock ?? 0;
+  const bull4hCount = entry.bull4hCount ?? 0;
+
+  const checks = [
+    { name: '4H bull bias',      required: ALPHA_REQUIRE_4H_BULL,      pass: (d.bias4h || '').includes('BULL') },
+    { name: 'Daily bull bias',   required: ALPHA_REQUIRE_DAILY_BULL,   pass: (d.biasDay || '').includes('BULL') },
+    { name: 'EMA above',         required: ALPHA_REQUIRE_EMA_ABOVE,    pass: d.emaTrend === 'ABOVE' },
+    { name: 'OI confirm',        required: ALPHA_REQUIRE_OI_CONFIRM,   pass: d.oiDiv === 'CONFIRM' || d.oiDiv === 'DIP BUY' },
+    { name: 'Positive CVD',      required: ALPHA_REQUIRE_POSITIVE_CVD, pass: d.cvdTrend === 'up' },
+    { name: `Volume shock ≥${ALPHA_MIN_VOLUME}x`, required: true,      pass: shock >= ALPHA_MIN_VOLUME },
+    { name: `Whale ≥${ALPHA_MIN_WHALE}`,          required: true,      pass: whaleScore >= ALPHA_MIN_WHALE },
+    { name: `Score ≥${ALPHA_SCORE_MIN}`,          required: true,      pass: conv >= ALPHA_SCORE_MIN },
+    { name: `BullConf ≥7`,                        required: true,      pass: bullConf >= 7 },
+    { name: `4H persistence ≥${BTC_ALPHA_BULL4H_COUNT_MIN} cycles`, required: BTC_ALPHA_REQUIRE_BULL4H_COUNT, pass: bull4hCount >= BTC_ALPHA_BULL4H_COUNT_MIN },
+  ];
+
+  const applicable   = checks.filter(c => c.required);
+  const failedChecks = applicable.filter(c => !c.pass).map(c => c.name);
+  const passedChecks = applicable.filter(c => c.pass).map(c => c.name);
+
+  return { allowed: failedChecks.length === 0, failedChecks, passedChecks };
+}
+
+// ── Phase 2 — Relative Strength vs BTC ──
+// coinReturn - btcReturn over the configured lookback. Positive RS above
+// GUARD_BTC_RS_MIN means the coin is genuinely outperforming BTC, not
+// just moving with (or less than) the broader market. Informational by
+// default — NOT wired into the Alpha Exception's required checks above,
+// since the proposal lists it as a separate signal, not one of the
+// "all conditions satisfied" gate items. Exposed here so
+// leaderboard-decider.js can log/display it and optionally use it later.
+const RS_ENABLED   = (process.env.GUARD_BTC_RS_ENABLED || 'true') !== 'false';
+const RS_MIN        = parseFloat(process.env.GUARD_BTC_RS_MIN || '2.0');
 
 export function calcRelativeStrength(entry, global = {}) {
-  const symChg4h = entry?.d?.chg4h;
-  const btcChg4h = global?.btcChg4h;
-  if (symChg4h === null || symChg4h === undefined || btcChg4h === null || btcChg4h === undefined) {
-    return { rs: null, outperforming: false };
-  }
-  const rs = parseFloat((symChg4h - btcChg4h).toFixed(3));
-  return { rs, outperforming: rs >= BTC_RS_MIN };
+  if (!RS_ENABLED) return { rs: null, strong: false };
+  // Both sides use the SAME timeframe (24h % change) for a fair
+  // comparison — entry.chg/entry.d.chg comes from Binance's 24h ticker
+  // (priceChangePercent), and global.btcChg24h is the same field read
+  // from BTC's own entry (see market-fetcher.js). Deliberately NOT mixing
+  // r4h (which is 4H RSI, not a % change) or btcChg15m (a much shorter
+  // window) — either would compare different things and produce a
+  // meaningless number.
+  const coinChg = parseFloat(entry.d?.chg ?? entry.chg ?? NaN);
+  const btcChg  = parseFloat(global.btcChg24h ?? NaN);
+  if (isNaN(coinChg) || isNaN(btcChg)) return { rs: null, strong: false };
+  const rs = coinChg - btcChg;
+  return { rs: parseFloat(rs.toFixed(2)), strong: rs >= RS_MIN };
 }
 
-// ── Phase 2 — Smart BTC Gate (Alpha Exception) ──────────────────────────
-// Lets a single exceptional candidate buy through an otherwise-active
-// Layer 6 BTC regime block (BTC's own 4h bias is bearish), provided it
-// clears ALL enabled checks below — deliberately strict, since this is
-// bypassing the primary market-regime filter, not just a soft-size cut.
-// Each requirement is independently toggleable so any one of them can be
-// relaxed/tightened without a code change. This does NOT touch Layer 1
-// (BTC panic closeAll), the circuit breaker, or time blackout — those
-// remain hard, unconditional blocks (see hardBlocked in runAllBuyGuards).
-// Set BTC_ALLOW_ALPHA_EXCEPTION=false to disable Phase 2 entirely and
-// fall back to Phase 1's flat block whenever BTC's 4h bias is bearish.
-const BTC_ALLOW_ALPHA_EXCEPTION      = (process.env.BTC_ALLOW_ALPHA_EXCEPTION      || 'true')  !== 'false';
-const BTC_ALPHA_SCORE_MIN            = parseFloat(process.env.BTC_ALPHA_SCORE_MIN            || '8');   // bullConf (confidence), 0-10
-const BTC_ALPHA_MIN_WHALE            = parseFloat(process.env.BTC_ALPHA_MIN_WHALE            || '70');  // whale.score, 0-100
-const BTC_ALPHA_MIN_VOLUME           = parseFloat(process.env.BTC_ALPHA_MIN_VOLUME           || '1.8'); // d.shock, ×avg volume
-const BTC_ALPHA_REQUIRE_OI_CONFIRM   = (process.env.BTC_ALPHA_REQUIRE_OI_CONFIRM   || 'true')  !== 'false';
-const BTC_ALPHA_REQUIRE_POSITIVE_CVD = (process.env.BTC_ALPHA_REQUIRE_POSITIVE_CVD || 'true')  !== 'false';
-const BTC_ALPHA_REQUIRE_EMA_ABOVE    = (process.env.BTC_ALPHA_REQUIRE_EMA_ABOVE    || 'true')  !== 'false';
-const BTC_ALPHA_REQUIRE_4H_BULL      = (process.env.BTC_ALPHA_REQUIRE_4H_BULL      || 'true')  !== 'false';
-const BTC_ALPHA_REQUIRE_DAILY_BULL   = (process.env.BTC_ALPHA_REQUIRE_DAILY_BULL   || 'false') === 'true';
-
-// Returns { pass, reason, failed } — `failed` lists which named check(s)
-// blocked it, for logging; `reason` is a ready-to-send explanation when
-// pass is true. Missing/unknown data on any REQUIRED check fails closed
-// (does not pass) — unlike most other guards in this file, which treat
-// missing data as "don't block". This one is inverted deliberately: it's
-// bypassing a block, so silence/missing data must not accidentally grant
-// the exception.
-export function checkAlphaException(entry, global = {}) {
-  if (!BTC_ALLOW_ALPHA_EXCEPTION) return { pass: false, reason: null, failed: ['disabled'] };
-  if (!entry || entry.assetType !== 'crypto') return { pass: false, reason: null, failed: ['not_crypto'] };
-
-  const d = entry.d || {};
-  const rs = calcRelativeStrength(entry, global);
-
-  const checks = {
-    confidence: (entry.bullConf ?? -1)      >= BTC_ALPHA_SCORE_MIN,
-    whale:      (entry.whale?.score ?? -1)  >= BTC_ALPHA_MIN_WHALE,
-    volume:     (d.shock ?? 0)              >= BTC_ALPHA_MIN_VOLUME,
-    oiConfirm:  !BTC_ALPHA_REQUIRE_OI_CONFIRM   || d.oiDiv === 'CONFIRM' || d.oiDiv === 'DIP BUY',
-    positiveCvd:!BTC_ALPHA_REQUIRE_POSITIVE_CVD || d.cvdTrend === 'up',
-    emaAbove:   !BTC_ALPHA_REQUIRE_EMA_ABOVE    || d.emaTrend === 'ABOVE',
-    bull4h:     !BTC_ALPHA_REQUIRE_4H_BULL      || d.bias4h === 'BULL 4H',
-    bullDaily:  !BTC_ALPHA_REQUIRE_DAILY_BULL   || (d.biasDay || '').includes('BULL'),
-    relStrength:!BTC_RS_ENABLED                 || rs.outperforming,
-  };
-
-  const failed = Object.entries(checks).filter(([, ok]) => !ok).map(([k]) => k);
-  if (failed.length) return { pass: false, reason: null, failed, rs: rs.rs };
-
-  return {
-    pass: true,
-    failed: [],
-    rs: rs.rs,
-    reason: `Alpha Exception — qualifies despite BTC 4h bearish regime `
-      + `(confidence ${entry.bullConf}/10, whale ${entry.whale?.score}/100, `
-      + `vol ${d.shock}x, OI:${d.oiDiv}, CVD:${d.cvdTrend}, EMA:${d.emaTrend}, `
-      + `4H:${d.bias4h}${BTC_RS_ENABLED ? `, RS vs BTC:+${rs.rs}%` : ''})`,
-  };
-}
 
 const VOL_FULL_PCT          = parseFloat(process.env.GUARD_VOL_FULL_PCT          || '2');   // BTC candle range ≤ this → no vol-based cut
 const VOL_FLOOR_PCT         = parseFloat(process.env.GUARD_VOL_FLOOR_PCT         || '8');   // BTC candle range ≥ this → vol layer at its floor
@@ -382,21 +399,15 @@ export function checkTimeBlackout() {
 
 // ══════════════════════════════════════════════════════════════════════════════
 // runAllBuyGuards — convenience wrapper used by leaderboard-decider.js
-// Returns { canBuy, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, hardBlocked, reasons[] }
+// Returns { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons[] }
 //
 // canBuy:     false → skip all buys this cycle (circuit breaker / blackout / BTC regime)
 // closeAll:   true  → close all live MEXC positions before doing anything else
 // sizeMult:   0-1   → multiply effective USD size by this (1 = full size)
 // fearRegime: true  → F&G ≤ FEAR_BLOCK_THRESHOLD — caller must check per-symbol divergence
 // btcChg:     BTC 15m change % (for divergence check in caller)
-// btcRegimeBlocked: true → specifically Layer 6 (BTC 4H bias) caused the block. Unlike the
-//             other canBuy=false reasons, THIS one is exception-eligible — see Phase 2's
-//             checkAlphaException() above, which the caller should check per-candidate
-//             when btcRegimeBlocked is true and hardBlocked is false.
-// hardBlocked: true → Layer 1 panic-close, Layer 2 circuit breaker, or Layer 5 blackout
-//             fired. Unconditional — never bypassable, not even by the Alpha Exception.
-//             If hardBlocked is true, the caller should stop entirely regardless of
-//             btcRegimeBlocked or any per-candidate exception check.
+// btcRegimeBlocked: true → specifically Layer 6 (BTC 4H bias) caused the block,
+//             so callers can distinguish this from other canBuy=false reasons if needed
 // reasons:    list of strings explaining every gate that fired
 //
 // SIZING COMBINATION: sizeMult layers now COMPOUND multiplicatively
@@ -407,21 +418,19 @@ export function checkTimeBlackout() {
 // compounding all the way to a near-zero/locked-up size.
 // ══════════════════════════════════════════════════════════════════════════════
 export function runAllBuyGuards(market, positions) {
-  const global      = market.global || {};
-  const reasons     = [];
-  let   canBuy      = true;
-  let   closeAll    = false;
-  let   fearRegime  = false;
-  let   hardBlocked = false; // Layer 1 panic-close / Layer 2 circuit breaker / Layer 5 blackout — NEVER
-                              // bypassable by the Phase 2 Alpha Exception, unlike btcRegimeBlocked below
-  const btcChg      = global.btcChg15m ?? null;
+  const global     = market.global || {};
+  const reasons    = [];
+  let   canBuy     = true;
+  let   closeAll   = false;
+  let   fearRegime = false;
+  const btcChg     = global.btcChg15m ?? null;
 
   // Layer 1 — BTC (hard closeAll gate unchanged; sizing now continuous)
   const btc = checkBtcGuard(global);
   if (!btc.pass) {
     canBuy = false;
     reasons.push(btc.reason);
-    if (btc.closeAll) { closeAll = true; hardBlocked = true; }
+    if (btc.closeAll) closeAll = true;
   } else if (btc.reason) {
     reasons.push(btc.reason);
   }
@@ -429,9 +438,8 @@ export function runAllBuyGuards(market, positions) {
   // Layer 2 — Circuit breaker
   const cb = checkCircuitBreaker(positions);
   if (!cb.pass) {
-    closeAll    = true;
-    canBuy      = false;
-    hardBlocked = true;
+    closeAll = true;
+    canBuy   = false;
     reasons.push(cb.reason);
   }
 
@@ -448,18 +456,14 @@ export function runAllBuyGuards(market, positions) {
   // Layer 5 — Time blackout
   const time = checkTimeBlackout();
   if (!time.pass) {
-    canBuy      = false;
-    hardBlocked = true;
+    canBuy = false;
     reasons.push(time.reason);
   }
 
   // Layer 6 — BTC 4H market-regime buy gate (Phase 1). NEW-BUY GATE ONLY —
   // deliberately does not set closeAll and never touches existing
   // positions; STOP_LOSS_PCT elsewhere continues to close a hit stop
-  // unconditionally regardless of this gate's state. Unlike the layers
-  // above, this one is NOT added to hardBlocked — it's the one gate the
-  // Phase 2 Alpha Exception (checkAlphaException, checked per-candidate
-  // by the caller) is allowed to bypass for an exceptional symbol.
+  // unconditionally regardless of this gate's state.
   const btcRegime = checkBtcRegimeGate(global);
   let btcRegimeBlocked = false;
   if (btcRegime.blocked) {
@@ -476,5 +480,5 @@ export function runAllBuyGuards(market, positions) {
     reasons.push(`Combined size ${(rawSizeMult * 100).toFixed(1)}% floored to global minimum ${(GLOBAL_FLOOR_MULT * 100).toFixed(0)}%`);
   }
 
-  return { canBuy, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, hardBlocked, reasons };
+  return { canBuy, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, reasons };
 }
