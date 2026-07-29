@@ -124,6 +124,18 @@ const ALPHA_REQUIRE_EMA_ABOVE   = (process.env.GUARD_BTC_ALPHA_REQUIRE_EMA_ABOVE
 const ALPHA_REQUIRE_4H_BULL     = (process.env.GUARD_BTC_ALPHA_REQUIRE_4H_BULL     || 'true') !== 'false';
 const ALPHA_REQUIRE_DAILY_BULL  = (process.env.GUARD_BTC_ALPHA_REQUIRE_DAILY_BULL  || 'false') === 'true';
 
+// How many of the FLEXIBLE checks (4H bull bias, daily bull bias, EMA
+// above, OI confirm, positive CVD) must pass, out of however many of
+// them are individually enabled via the REQUIRE_* flags above. Demanding
+// all 5 simultaneously (the original design) proved too strict in
+// practice — a genuinely strong setup rarely clears every one of these
+// 5 secondary trend/confirmation signals at once, even when the core
+// strength signals (whale, volume, score, bullConf) are clearly there.
+// whale/volume/score/bullConf/persistence remain UNCONDITIONALLY
+// required regardless of this setting — only the 5 checks in the
+// "flexible" group below are affected.
+const ALPHA_FLEXIBLE_MIN_PASS   = parseInt(process.env.GUARD_BTC_ALPHA_FLEXIBLE_MIN_PASS || '3', 10);
+
 // ── 4H trend persistence (reduces false signals from short-lived flips) ──
 // bull4hCount is maintained by market-fetcher.js (see buildEntry) — this
 // file only CONSUMES it, never recalculates or increments it, per spec:
@@ -136,7 +148,7 @@ const ALPHA_REQUIRE_DAILY_BULL  = (process.env.GUARD_BTC_ALPHA_REQUIRE_DAILY_BUL
 const BUY_REQUIRE_BULL4H_COUNT      = (process.env.BUY_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
 const BUY_BULL4H_COUNT_MIN          = parseInt(process.env.BUY_BULL4H_COUNT_MIN || '2', 10);
 const BTC_ALPHA_REQUIRE_BULL4H_COUNT= (process.env.BTC_ALPHA_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
-const BTC_ALPHA_BULL4H_COUNT_MIN    = parseInt(process.env.BTC_ALPHA_BULL4H_COUNT_MIN || '2', 10);
+const BTC_ALPHA_BULL4H_COUNT_MIN    = parseInt(process.env.BTC_ALPHA_BULL4H_COUNT_MIN || '3', 10);
 
 // Regular-buy persistence check — independent of the BTC regime gate
 // entirely. Called for EVERY candidate on EVERY buy attempt (not just
@@ -167,24 +179,50 @@ export function checkBtcAlphaException(entry) {
   const shock      = d.shock ?? 0;
   const bull4hCount = entry.bull4hCount ?? 0;
 
-  const checks = [
-    { name: '4H bull bias',      required: ALPHA_REQUIRE_4H_BULL,      pass: (d.bias4h || '').includes('BULL') },
-    { name: 'Daily bull bias',   required: ALPHA_REQUIRE_DAILY_BULL,   pass: (d.biasDay || '').includes('BULL') },
-    { name: 'EMA above',         required: ALPHA_REQUIRE_EMA_ABOVE,    pass: d.emaTrend === 'ABOVE' },
-    { name: 'OI confirm',        required: ALPHA_REQUIRE_OI_CONFIRM,   pass: d.oiDiv === 'CONFIRM' || d.oiDiv === 'DIP BUY' },
-    { name: 'Positive CVD',      required: ALPHA_REQUIRE_POSITIVE_CVD, pass: d.cvdTrend === 'up' },
-    { name: `Volume shock ≥${ALPHA_MIN_VOLUME}x`, required: true,      pass: shock >= ALPHA_MIN_VOLUME },
-    { name: `Whale ≥${ALPHA_MIN_WHALE}`,          required: true,      pass: whaleScore >= ALPHA_MIN_WHALE },
-    { name: `Score ≥${ALPHA_SCORE_MIN}`,          required: true,      pass: conv >= ALPHA_SCORE_MIN },
-    { name: `BullConf ≥7`,                        required: true,      pass: bullConf >= 7 },
-    { name: `4H persistence ≥${BTC_ALPHA_BULL4H_COUNT_MIN} cycles`, required: BTC_ALPHA_REQUIRE_BULL4H_COUNT, pass: bull4hCount >= BTC_ALPHA_BULL4H_COUNT_MIN },
+  // ── Core checks — UNCONDITIONALLY required, no N-of-M leniency here.
+  // These are the strongest, most predictive signals; loosening these
+  // specifically would undermine the whole point of the exception.
+  const coreChecks = [
+    { name: `Volume shock ≥${ALPHA_MIN_VOLUME}x`, pass: shock >= ALPHA_MIN_VOLUME },
+    { name: `Whale ≥${ALPHA_MIN_WHALE}`,          pass: whaleScore >= ALPHA_MIN_WHALE },
+    { name: `Score ≥${ALPHA_SCORE_MIN}`,          pass: conv >= ALPHA_SCORE_MIN },
+    { name: `BullConf ≥7`,                        pass: bullConf >= 7 },
+    ...(BTC_ALPHA_REQUIRE_BULL4H_COUNT
+      ? [{ name: `4H persistence ≥${BTC_ALPHA_BULL4H_COUNT_MIN} cycles`, pass: bull4hCount >= BTC_ALPHA_BULL4H_COUNT_MIN }]
+      : []),
   ];
 
-  const applicable   = checks.filter(c => c.required);
-  const failedChecks = applicable.filter(c => !c.pass).map(c => c.name);
-  const passedChecks = applicable.filter(c => c.pass).map(c => c.name);
+  // ── Flexible checks — only ALPHA_FLEXIBLE_MIN_PASS of whichever of
+  // these are individually enabled (via their own REQUIRE_* flag) need
+  // to actually pass. A REQUIRE_*=false flag removes that check from
+  // the pool entirely (same as before) rather than counting it as an
+  // automatic pass or fail.
+  const flexibleChecks = [
+    ALPHA_REQUIRE_4H_BULL      ? { name: '4H bull bias',    pass: (d.bias4h  || '').includes('BULL') } : null,
+    ALPHA_REQUIRE_DAILY_BULL   ? { name: 'Daily bull bias', pass: (d.biasDay || '').includes('BULL') } : null,
+    ALPHA_REQUIRE_EMA_ABOVE    ? { name: 'EMA above',       pass: d.emaTrend === 'ABOVE' } : null,
+    ALPHA_REQUIRE_OI_CONFIRM   ? { name: 'OI confirm',      pass: d.oiDiv === 'CONFIRM' || d.oiDiv === 'DIP BUY' } : null,
+    ALPHA_REQUIRE_POSITIVE_CVD ? { name: 'Positive CVD',    pass: d.cvdTrend === 'up' } : null,
+  ].filter(Boolean);
 
-  return { allowed: failedChecks.length === 0, failedChecks, passedChecks };
+  const failedCore = coreChecks.filter(c => !c.pass).map(c => c.name);
+  const passedCore = coreChecks.filter(c => c.pass).map(c => c.name);
+
+  const passedFlexible = flexibleChecks.filter(c => c.pass);
+  const failedFlexible = flexibleChecks.filter(c => !c.pass);
+  // Effective threshold can't exceed how many flexible checks are even
+  // enabled — e.g. asking for 3-of-5 when only 2 are enabled would make
+  // this unpassable; cap it at the pool size instead.
+  const effectiveMinPass = Math.min(ALPHA_FLEXIBLE_MIN_PASS, flexibleChecks.length);
+  const flexiblePassed   = passedFlexible.length >= effectiveMinPass;
+
+  const failedChecks = [
+    ...failedCore,
+    ...(flexiblePassed ? [] : [`flexible checks: only ${passedFlexible.length}/${flexibleChecks.length} passed (need ${effectiveMinPass}) — failed: ${failedFlexible.map(c => c.name).join(', ')}`]),
+  ];
+  const passedChecks = [...passedCore, ...passedFlexible.map(c => c.name)];
+
+  return { allowed: failedCore.length === 0 && flexiblePassed, failedChecks, passedChecks };
 }
 
 // ── Phase 2 — Relative Strength vs BTC ──
