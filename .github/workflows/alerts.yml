@@ -23,7 +23,7 @@ on:
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
     # scanner inside alert-runner.js is disabled by default here (see
     # LB_LEGACY_SCAN) since Job B now owns the buy side on a faster cycle.
-    - cron: '32 * * * *'         # :13 past every hour
+    - cron: '31 * * * *'         # :13 past every hour
 
   workflow_dispatch:
     inputs:
