@@ -243,16 +243,77 @@ function calcOBI(depth) {
   return total > 0 ? ((bidVol - askVol) / total * 100) : 0;
 }
 
+// Full EMA series (not just the final value) — needed to derive MACD,
+// which requires an EMA-of-an-EMA-derived-series, not a single number.
+function emaSeries(values, period) {
+  if (!values || values.length < period) return [];
+  const k = 2 / (period + 1);
+  const out = [];
+  let ema = values.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  out[period - 1] = ema;
+  for (let i = period; i < values.length; i++) {
+    ema = values[i] * k + ema * (1 - k);
+    out[i] = ema;
+  }
+  return out;
+}
+
+// MACD(12,26,9) histogram — last value only. Returns null if there isn't
+// enough history for a stable signal line (needs ~35+ bars); callers must
+// treat null as "unknown", not as bearish/bullish.
+function calcMACDHistogram(closes) {
+  if (!closes || closes.length < 35) return null;
+  const ema12 = emaSeries(closes, 12);
+  const ema26 = emaSeries(closes, 26);
+  const macdLine = [];
+  for (let i = 25; i < closes.length; i++) macdLine.push(ema12[i] - ema26[i]);
+  if (macdLine.length < 9) return null;
+  const signal = emaSeries(macdLine, 9);
+  const lastSignal = signal[signal.length - 1];
+  if (lastSignal === undefined) return null;
+  return macdLine[macdLine.length - 1] - lastSignal;
+}
+
+// ── 4h bias — weighted score, not a rigid 2-factor AND-gate ────────────
+// The old version (price>EMA20 && RSI4h>50 → BULL, else piecewise) could
+// stay pinned to BEAR/LEAN BEAR for hours during a fast V-shaped recovery,
+// because EMA20 (a lagging average) hadn't caught up to price yet even
+// once RSI, MACD, and the EMA's own slope had already turned bullish.
+//
+// price vs EMA20 stays the one SYMMETRIC (bidirectional ±2) factor — it's
+// the primary structural trend read this gate is built to trust. Every
+// other factor is BONUS-ONLY (adds when true, never subtracts when
+// false) — deliberately, so a recovery with strong confirming momentum
+// (RSI>55 and rising, MACD flipped positive, EMA20 itself turning up)
+// can out-vote a not-yet-reclaimed EMA20 and reach NEUTRAL 4H (which does
+// NOT block buys) instead of staying floored at LEAN BEAR/BEAR 4H.
+// Score range: -2 (nothing bullish at all) .. +7 (everything aligned).
 function calc4hBias(k4h) {
-  if (!k4h || k4h.length < 10) return '—';
+  if (!k4h || k4h.length < 20) return '—';
   const closes = k4h.map(c => parseFloat(c[4]));
-  const ema20  = calcEMA(closes, 20);
   const price  = closes[closes.length - 1];
-  const r4h    = calcRSI(closes);
+
+  const ema20     = calcEMA(closes, 20);
+  const ema20Prev = calcEMA(closes.slice(0, -1), 20);
+  const ema50     = closes.length >= 50 ? calcEMA(closes, 50) : null;
+  const r4h       = calcRSI(closes);
+  const r4hPrev   = calcRSI(closes.slice(0, -1));
+  const macdHist  = calcMACDHistogram(closes);
+
   if (!ema20) return '—';
-  if (price > ema20 && r4h > 50) return 'BULL 4H';
-  if (price < ema20 && r4h < 50) return 'BEAR 4H';
-  return price > ema20 ? 'LEAN BULL' : 'LEAN BEAR';
+
+  let score = price > ema20 ? 2 : -2;                          // symmetric anchor
+  if (ema20Prev !== null && ema20 > ema20Prev) score += 1;      // EMA20 rising (bonus only)
+  if (r4h > 55)                                score += 1;      // bonus only
+  if (r4hPrev !== null && r4h > r4hPrev)       score += 1;      // RSI rising (bonus only)
+  if (macdHist !== null && macdHist > 0)       score += 1;      // bonus only
+  if (ema50 !== null && price > ema50)         score += 1;      // bonus only — never penalizes a not-yet-reclaimed EMA50
+
+  if (score >= 6)  return 'BULL 4H';
+  if (score >= 4)  return 'LEAN BULL';
+  if (score >= 1)  return 'NEUTRAL 4H';
+  if (score >= -1) return 'LEAN BEAR';
+  return 'BEAR 4H';
 }
 
 function calcDailyBias(kDay) {
