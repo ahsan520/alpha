@@ -136,7 +136,7 @@ const ALPHA_REQUIRE_DAILY_BULL  = (process.env.GUARD_BTC_ALPHA_REQUIRE_DAILY_BUL
 const BUY_REQUIRE_BULL4H_COUNT      = (process.env.BUY_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
 const BUY_BULL4H_COUNT_MIN          = parseInt(process.env.BUY_BULL4H_COUNT_MIN || '2', 10);
 const BTC_ALPHA_REQUIRE_BULL4H_COUNT= (process.env.BTC_ALPHA_REQUIRE_BULL4H_COUNT || 'true') !== 'false';
-const BTC_ALPHA_BULL4H_COUNT_MIN    = parseInt(process.env.BTC_ALPHA_BULL4H_COUNT_MIN || '3', 10);
+const BTC_ALPHA_BULL4H_COUNT_MIN    = parseInt(process.env.BTC_ALPHA_BULL4H_COUNT_MIN || '2', 10);
 
 // Regular-buy persistence check — independent of the BTC regime gate
 // entirely. Called for EVERY candidate on EVERY buy attempt (not just
