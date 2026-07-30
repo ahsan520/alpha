@@ -71,7 +71,7 @@
     "spikeScore": 0.07190436918624321,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -86,8 +86,14 @@
       "qty": 28.488,
       "fillPrice": 74.09,
       "buyOrderId": "C02__711448542987653120036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "closedAt": 1785412937306,
+      "exitFillPrice": 74.25,
+      "dustIgnored": true
+    },
+    "exitPrice": 74.25,
+    "statusChangedAt": 1785412938369,
+    "rotatedOut": true
   },
   "BINANCE:LINKUSDT": {
     "sym": "BINANCE:LINKUSDT",
@@ -115,5 +121,41 @@
     "histWinRate": 0,
     "histSample": 27,
     "caution": true
+  },
+  "BINANCE:ZECUSDT": {
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785412936826,
+    "holdLockUntil": 1785414136826,
+    "entryPrice": 479.61,
+    "stop": 472.92,
+    "t1": 492.03,
+    "t2": 506.36,
+    "score": 6,
+    "spikeScore": 1.6633065707294132,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.21,
+    "histWinRate": 0,
+    "histSample": 18,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785412941350,
+      "usdSize": 2106.98,
+      "qty": 4.410953,
+      "fillPrice": 477.66999999999996,
+      "buyOrderId": "C02__711482743673806848036",
+      "qtyEstimated": false
+    }
   }
 }
