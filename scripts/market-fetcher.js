@@ -72,16 +72,30 @@ function buildEntry(r, prev, now, session) {
 
   // ── Persistent bull4hCount ──
   // Counts CONSECUTIVE fetch cycles (this job runs every 5 min) where
-  // bias4h has read exactly "BULL 4H" — used downstream by
-  // leaderboard-decider.js to require the bull trend to have persisted
-  // for a minimum number of cycles before buying, rather than acting on
-  // a single-cycle flip that may reverse next cycle. Reset to 0 the
-  // moment bias4h is anything other than "BULL 4H" (including LEAN BULL —
-  // deliberately strict per spec: only the full "BULL 4H" reading counts
-  // toward persistence, a lean reading doesn't accumulate or preserve
-  // the count).
-  const isBull4h     = r.d.bias4h === 'BULL 4H';
-  const bull4hCount   = isBull4h ? (prev?.bull4hCount || 0) + 1 : 0;
+  // bias4h has NOT read as bearish — used downstream by
+  // leaderboard-decider.js to require the (non-bearish) trend to have
+  // persisted for a minimum number of cycles before buying, rather than
+  // acting on a single-cycle flip that may reverse next cycle.
+  //
+  // Increments on BULL 4H, LEAN BULL, or NEUTRAL — reset to 0 only on an
+  // actual bear reading (LEAN BEAR or BEAR 4H). This is intentionally
+  // broader than "only full BULL 4H counts" (the original design) —
+  // during a genuine recovery, price often transitions bear -> neutral
+  // -> lean bull -> bull gradually, and the earlier design meant the
+  // neutral/lean-bull phase contributed nothing toward persistence,
+  // delaying entries until the LATER, more-confirmed part of the move.
+  // Broadening the count lets persistence start building as soon as the
+  // bearish pressure itself has actually let up, not only once a full
+  // bull reading has already been confirmed.
+  // Configurable via BULL4H_COUNT_BEAR_VALUES (comma-separated), so which
+  // bias4h readings reset the count can be changed later without a code
+  // edit — e.g. add "NEUTRAL" here if you decide neutral should also
+  // reset it instead of counting toward persistence. Same
+  // comma-separated pattern as GUARD_BTC_BEAR_VALUES in market-guard.js.
+  const BEAR_VALUES = (process.env.BULL4H_COUNT_BEAR_VALUES || 'LEAN BEAR,BEAR 4H')
+    .split(',').map(s => s.trim()).filter(Boolean);
+  const isBearish4h = BEAR_VALUES.includes(r.d.bias4h);
+  const bull4hCount  = isBearish4h ? 0 : (prev?.bull4hCount || 0) + 1;
 
   return {
     pair:           r.pair,
