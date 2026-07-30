@@ -215,8 +215,49 @@ jobs:
           STOP_LOSS_PCT:      ${{ vars.STOP_LOSS_PCT || '0.1' }}
           GUARD_BTC_BUY_GATE: ${{ vars.GUARD_BTC_BUY_GATE || 'true' }}
           BUY_BULL4H_COUNT_MIN: ${{ vars.BUY_BULL4H_COUNT_MIN || '2' }}
+          BUY_REQUIRE_BULL4H_COUNT: ${{ vars.BUY_REQUIRE_BULL4H_COUNT || 'true' }}
           BTC_ALPHA_BULL4H_COUNT_MIN: ${{ vars.BTC_ALPHA_BULL4H_COUNT_MIN || '2' }}
+          BTC_ALPHA_REQUIRE_BULL4H_COUNT: ${{ vars.BTC_ALPHA_REQUIRE_BULL4H_COUNT || 'true' }}
           BULL4H_COUNT_BEAR_VALUES: ${{ vars.BULL4H_COUNT_BEAR_VALUES || 'LEAN BEAR,BEAR 4H' }}
+          # ── Market guard (market-guard.js) — Layer 1: BTC hard gate ──
+          GUARD_BTC_CLOSE_PCT: ${{ vars.GUARD_BTC_CLOSE_PCT || '-3' }}
+          GUARD_BTC_FULL_PCT:  ${{ vars.GUARD_BTC_FULL_PCT || '-0.5' }}
+          GUARD_BTC_FLOOR_PCT: ${{ vars.GUARD_BTC_FLOOR_PCT || '-3' }}
+          GUARD_BTC_FLOOR_MULT: ${{ vars.GUARD_BTC_FLOOR_MULT || '0.2' }}
+          # ── Layer 2: circuit breaker ──
+          GUARD_CIRCUIT_BREAKER_PCT: ${{ vars.GUARD_CIRCUIT_BREAKER_PCT || '-5' }}
+          # ── Layer 3: Fear & Greed ──
+          GUARD_FEAR_BLOCK:       ${{ vars.GUARD_FEAR_BLOCK || '20' }}
+          GUARD_FEAR_FULL_FG:     ${{ vars.GUARD_FEAR_FULL_FG || '25' }}
+          GUARD_FEAR_REDUCED_MULT: ${{ vars.GUARD_FEAR_REDUCED_MULT || '0.5' }}
+          GUARD_FEAR_EXTREME_MULT: ${{ vars.GUARD_FEAR_EXTREME_MULT || '0.25' }}
+          # ── Layer 4: volatility ──
+          GUARD_VOL_FULL_PCT:  ${{ vars.GUARD_VOL_FULL_PCT || '2' }}
+          GUARD_VOL_FLOOR_PCT: ${{ vars.GUARD_VOL_FLOOR_PCT || '8' }}
+          GUARD_VOL_FLOOR_MULT: ${{ vars.GUARD_VOL_FLOOR_MULT || '0.2' }}
+          # ── Layer 5: time blackout ──
+          GUARD_BLACKOUT_WINDOWS: ${{ vars.GUARD_BLACKOUT_WINDOWS || '' }}
+          # ── Layer 6: BTC 4H market-regime buy gate ──
+          GUARD_BTC_BEAR_VALUES: ${{ vars.GUARD_BTC_BEAR_VALUES || 'BEAR 4H,LEAN BEAR' }}
+          # ── Global sizing floor (applies after all layers combine) ──
+          GUARD_GLOBAL_FLOOR_MULT: ${{ vars.GUARD_GLOBAL_FLOOR_MULT || '0.15' }}
+          # ── Stop-loss BTC override + hard backstop ──
+          GUARD_BTC_STOP_OVERRIDE: ${{ vars.GUARD_BTC_STOP_OVERRIDE || 'false' }}
+          GUARD_STOP_OVERRIDE_MAX_LOSS_PCT: ${{ vars.GUARD_STOP_OVERRIDE_MAX_LOSS_PCT || '1.5' }}
+          # ── Phase 2: Smart BTC Gate (Alpha Exception) ──
+          GUARD_BTC_ALLOW_ALPHA_EXCEPTION: ${{ vars.GUARD_BTC_ALLOW_ALPHA_EXCEPTION || 'true' }}
+          GUARD_BTC_ALPHA_SCORE_MIN: ${{ vars.GUARD_BTC_ALPHA_SCORE_MIN || '8' }}
+          GUARD_BTC_ALPHA_MIN_WHALE: ${{ vars.GUARD_BTC_ALPHA_MIN_WHALE || '70' }}
+          GUARD_BTC_ALPHA_MIN_VOLUME: ${{ vars.GUARD_BTC_ALPHA_MIN_VOLUME || '1.8' }}
+          GUARD_BTC_ALPHA_REQUIRE_OI_CONFIRM: ${{ vars.GUARD_BTC_ALPHA_REQUIRE_OI_CONFIRM || 'true' }}
+          GUARD_BTC_ALPHA_REQUIRE_POSITIVE_CVD: ${{ vars.GUARD_BTC_ALPHA_REQUIRE_POSITIVE_CVD || 'true' }}
+          GUARD_BTC_ALPHA_REQUIRE_EMA_ABOVE: ${{ vars.GUARD_BTC_ALPHA_REQUIRE_EMA_ABOVE || 'true' }}
+          GUARD_BTC_ALPHA_REQUIRE_4H_BULL: ${{ vars.GUARD_BTC_ALPHA_REQUIRE_4H_BULL || 'true' }}
+          GUARD_BTC_ALPHA_REQUIRE_DAILY_BULL: ${{ vars.GUARD_BTC_ALPHA_REQUIRE_DAILY_BULL || 'false' }}
+          GUARD_BTC_ALPHA_FLEXIBLE_MIN_PASS: ${{ vars.GUARD_BTC_ALPHA_FLEXIBLE_MIN_PASS || '3' }}
+          # ── Relative Strength vs BTC ──
+          GUARD_BTC_RS_ENABLED: ${{ vars.GUARD_BTC_RS_ENABLED || 'true' }}
+          GUARD_BTC_RS_MIN: ${{ vars.GUARD_BTC_RS_MIN || '2.0' }}
           MEXC_NO_TRADE_SYMBOLS: ${{ vars.MEXC_NO_TRADE_SYMBOLS || '' }}
           TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
           TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
