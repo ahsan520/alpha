@@ -213,6 +213,10 @@ jobs:
           EXEC_MIN_GRADE:     ${{ vars.EXEC_MIN_GRADE || 'A' }}
           ROTATION_MIN_HOLD_MIN: ${{ vars.ROTATION_MIN_HOLD_MIN || '30' }}
           STOP_LOSS_PCT:      ${{ vars.STOP_LOSS_PCT || '0.1' }}
+          GUARD_BTC_BUY_GATE: ${{ vars.GUARD_BTC_BUY_GATE || 'true' }}
+          BUY_BULL4H_COUNT_MIN: ${{ vars.BUY_BULL4H_COUNT_MIN || '2' }}
+          BTC_ALPHA_BULL4H_COUNT_MIN: ${{ vars.BTC_ALPHA_BULL4H_COUNT_MIN || '2' }}
+          BULL4H_COUNT_BEAR_VALUES: ${{ vars.BULL4H_COUNT_BEAR_VALUES || 'LEAN BEAR,BEAR 4H' }}
           MEXC_NO_TRADE_SYMBOLS: ${{ vars.MEXC_NO_TRADE_SYMBOLS || '' }}
           TRADE_MODE:         ${{ vars.TRADE_MODE || 'paper' }}
           TRADE_USD_SIZE:     ${{ vars.TRADE_USD_SIZE || '25' }}
