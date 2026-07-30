@@ -130,25 +130,37 @@ async function executeRotation({ ranked, showRecoTags, effectiveExecStrategy, ef
     return (Date.now() - pos.liveOrder.buyAt) / 60000 < ROTATION_MIN_HOLD_MIN;
   };
 
-  // ── Guard 2: never rotate out a position currently sitting at a loss ──
+  // ── Guard 2: never rotate out a position that isn't MEANINGFULLY profitable ──
   // Rotation may only sell a held position to fund a new A/A+ pick if that
-  // position's CURRENT price is at or above its own buy price. A position
-  // currently below its buy price is left alone regardless of rank/grade —
-  // it can only be closed by its own stop, T1, or T2 (evaluated separately,
-  // upstream, in monitorPositions/STEP 1 — never by rotation). This trades
-  // "may hold a stale/mediocre position longer, occupying a live slot" for
-  // "never lock in a rotation-driven loss on a position that hasn't hit
-  // its own stop" — a deliberate choice given the trade-log review showing
-  // rotation churn (not stop hits) as the more frequent source of small
-  // losses. Requires a current price from market.symbols to evaluate; if
+  // position's CURRENT price clears its own buy price by at least
+  // ROTATION_MIN_PROFIT_PCT. A position at/below that margin is left alone
+  // regardless of rank/grade — it can only be closed by its own stop, T1,
+  // or T2 (evaluated separately, upstream, in monitorPositions/STEP 1 —
+  // never by rotation). This trades "may hold a stale/mediocre position
+  // longer, occupying a live slot" for "never lock in a rotation-driven
+  // loss on a position that hasn't hit its own stop" — a deliberate choice
+  // given the trade-log review showing rotation churn (not stop hits) as
+  // the more frequent source of small losses.
+  //
+  // The margin matters, not just the sign: a rotation sell is a real market
+  // order paying real fees on both legs (the original buy + this sell),
+  // plus slippage. A position that's only fractionally above its fill price
+  // (the old ">= buyPrice" check) reads as "profitable" on paper but nets a
+  // realized LOSS the instant fees are applied — exactly the outcome this
+  // guard exists to prevent. ROTATION_MIN_PROFIT_PCT sets the buffer above
+  // fill price required before rotation is allowed to touch it; tune it to
+  // comfortably clear your actual MEXC round-trip fee + expected slippage.
+  //
+  // Requires a current price from market.symbols to evaluate; if
   // unavailable, this guard has no opinion (falls through to the other
   // guards) rather than blocking or allowing by default.
+  const ROTATION_MIN_PROFIT_PCT = parseFloat(process.env.ROTATION_MIN_PROFIT_PCT || '0.5');
   const currentlyAtOrAboveBuy = (base, pos) => {
     const buyPrice = pos?.liveOrder?.fillPrice;
     if (!buyPrice) return null; // no opinion — no buy price on record to compare against
     const cur = (market.symbols || {})[base + 'USDT']?.price;
     if (cur === undefined || cur === null) return null; // no opinion — no current price available
-    return parseFloat(cur) >= parseFloat(buyPrice);
+    return parseFloat(cur) >= parseFloat(buyPrice) * (1 + ROTATION_MIN_PROFIT_PCT / 100);
   };
 
   // ── Guard 3: holding for T2, and still shows up as A/A+ today ──
