@@ -1,127 +1,5 @@
 [
   {
-    "timestamp": "2026-07-30T14:31:17.309Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 241
-  },
-  {
-    "timestamp": "2026-07-30T14:31:17.739Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "XLMUSDT",
-    "reason": "rotation_untracked",
-    "freeQty": 0.01,
-    "estNotional": 0.001729
-  },
-  {
-    "timestamp": "2026-07-30T14:31:18.175Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_sell_skipped_dust",
-    "sym": "ZECUSDT",
-    "reason": "rotation_untracked",
-    "freeQty": 0.000148,
-    "estNotional": 0.07039176
-  },
-  {
-    "timestamp": "2026-07-30T14:31:18.845Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "DOGE",
-        "skipped": true,
-        "reason": "dust_ignored"
-      },
-      {
-        "base": "XRP",
-        "pnlPct": -0.11,
-        "wasHoldingT1": false
-      },
-      {
-        "base": "XLM",
-        "skipped": true,
-        "reason": "dust_ignored"
-      },
-      {
-        "base": "ZEC",
-        "skipped": true,
-        "reason": "dust_ignored"
-      }
-    ],
-    "into": [
-      "SUIUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-07-30T14:31:19.793Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_live_buy",
-    "sym": "SUIUSDT",
-    "usdSize": 29.57,
-    "qty": 42.45,
-    "fillPrice": 0.6964999999999999,
-    "orderId": "C02__711520234275561472036",
-    "estimated": false
-  },
-  {
-    "timestamp": "2026-07-30T14:31:20.799Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_push_failed",
-    "error": "PUT 409 is at 0ae5aab09de63d07bbdce22206b410e2b564ff84 but expected 50375430d24f8da75f67c678f3909017076f771d"
-  },
-  {
-    "timestamp": "2026-07-30T14:31:21.785Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 242
-  },
-  {
-    "timestamp": "2026-07-30T14:31:22.049Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 284,
-    "source": "rotation"
-  },
-  {
-    "timestamp": "2026-07-30T14:31:22.923Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 7
-  },
-  {
-    "timestamp": "2026-07-30T14:31:23.259Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "SUI"
-    ],
-    "caution": [
-      "SUI"
-    ]
-  },
-  {
-    "timestamp": "2026-07-30T14:31:24.363Z",
-    "job": "leaderboard-decider",
-    "action": "live_balances_pushed",
-    "count": 8
-  },
-  {
-    "timestamp": "2026-07-30T14:31:24.364Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-07-30T14:31:26.521Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 7,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-07-30T14:46:19.857Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -1534,7 +1412,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-07-30T15:31:16.866Z",
+    "timestamp": "2026-07-30T15:31:12.466Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1560,7 +1438,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1581,7 +1459,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1602,7 +1480,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1630,17 +1508,231 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-30T15:31:12.523Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-30T15:31:12.998Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.121Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.121Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.786Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.22,
+    "estNotional": 0.015481400000000001
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.787Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.005717,
+    "estNotional": 0.0062412488999999995
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.787Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.01,
+    "estNotional": 0.0017230000000000001
+  },
+  {
+    "timestamp": "2026-07-30T15:31:14.970Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-07-30T15:31:16.292Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell",
+    "sym": "RENDERUSDT",
+    "reason": "rotation",
+    "qty": 489.73,
+    "fillPrice": 1.4220076164417128,
+    "orderId": "C02__711535318708211713036"
+  },
+  {
+    "timestamp": "2026-07-30T15:31:17.659Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 246
+  },
+  {
+    "timestamp": "2026-07-30T15:31:18.434Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped_dust",
+    "sym": "DOGEUSDT",
+    "reason": "rotation_untracked",
+    "freeQty": 0.22,
+    "estNotional": 0.015481400000000001
+  },
+  {
+    "timestamp": "2026-07-30T15:31:18.948Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped_dust",
+    "sym": "XRPUSDT",
+    "reason": "rotation_untracked",
+    "freeQty": 0.005717,
+    "estNotional": 0.0062412488999999995
+  },
+  {
+    "timestamp": "2026-07-30T15:31:19.434Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_sell_skipped_dust",
+    "sym": "XLMUSDT",
+    "reason": "rotation_untracked",
+    "freeQty": 0.01,
+    "estNotional": 0.0017230000000000001
+  },
+  {
+    "timestamp": "2026-07-30T15:31:20.423Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "RENDER",
+        "pnlPct": -0.33,
+        "wasHoldingT1": false
+      },
+      {
+        "base": "DOGE",
+        "skipped": true,
+        "reason": "dust_ignored"
+      },
+      {
+        "base": "XRP",
+        "skipped": true,
+        "reason": "dust_ignored"
+      },
+      {
+        "base": "XLM",
+        "skipped": true,
+        "reason": "dust_ignored"
+      }
+    ],
+    "into": [
+      "SUIUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-07-30T15:31:21.251Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_live_buy",
+    "sym": "SUIUSDT",
+    "usdSize": 709.02,
+    "qty": 1016.95,
+    "fillPrice": 0.6972,
+    "orderId": "C02__711535340279525376036",
+    "estimated": false
+  },
+  {
+    "timestamp": "2026-07-30T15:31:22.621Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 247
+  },
+  {
+    "timestamp": "2026-07-30T15:31:24.007Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 247
+  },
+  {
+    "timestamp": "2026-07-30T15:31:24.596Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 289,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-07-30T15:31:26.082Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-30T15:31:26.395Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SUI"
+    ],
+    "caution": [
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-07-30T15:31:27.771Z",
+    "job": "leaderboard-decider",
+    "action": "live_balances_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-07-30T15:31:27.772Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-07-30T15:31:30.393Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 6
   }
 ]
