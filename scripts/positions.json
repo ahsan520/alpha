@@ -134,7 +134,7 @@
     "spikeScore": 0.12021328382273293,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -149,8 +149,14 @@
       "qty": 9.319,
       "fillPrice": 74.67999999999999,
       "buyOrderId": "C02__711531585186250753036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "sellOrderId": "C02__711686299370602496036",
+      "exitFillPrice": 74.97120386266094,
+      "closedAt": 1785461472722
+    },
+    "exitPrice": 74.97120386266094,
+    "statusChangedAt": 1785461474328,
+    "rotatedOut": true
   },
   "BINANCE:XRPUSDT": {
     "sym": "BINANCE:XRPUSDT",
@@ -233,13 +239,52 @@
     "spikeScore": 0.029051667691510245,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
     "rankScore": 0.21,
     "histWinRate": 0,
     "histSample": 38,
-    "caution": true
+    "caution": true,
+    "exitPrice": 0.07079,
+    "statusChangedAt": 1785461474653,
+    "rotatedOut": true
+  },
+  "BINANCE:SUIUSDT": {
+    "sym": "BINANCE:SUIUSDT",
+    "base": "SUI",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785461471613,
+    "holdLockUntil": 1785462671613,
+    "entryPrice": 0.6979,
+    "stop": 0.6829,
+    "t1": 0.716,
+    "t2": 0.7368,
+    "score": 6,
+    "spikeScore": 0.21239709567729462,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.21,
+    "histWinRate": 0,
+    "histSample": 32,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785461476817,
+      "usdSize": 698.53,
+      "qty": 1004.78,
+      "fillPrice": 0.6952,
+      "buyOrderId": "C02__711686316630163456036",
+      "qtyEstimated": false
+    }
   }
 }
