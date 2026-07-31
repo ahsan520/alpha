@@ -427,7 +427,20 @@ export async function pushHeartbeatToGitHub(lastRunAt) {
     };
     if (sha) body.sha = sha;
 
-    const putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    let putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+
+    // Lost a race with another concurrent run (e.g. a scheduled decide run
+    // and a Cloudflare Worker-dispatched decide run landing at the same
+    // time — see alerts.yml concurrency group notes) — refetch sha, retry once.
+    if (!putRes.ok && putRes.status === 409) {
+      const getRes2 = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+      if (getRes2.ok) {
+        const j2 = await getRes2.json();
+        body.sha = j2.sha || undefined;
+        putRes = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+      }
+    }
+
     if (!putRes.ok) {
       const e = await putRes.json().catch(() => ({}));
       throw new Error(`PUT ${putRes.status} ${e.message || ''}`);
