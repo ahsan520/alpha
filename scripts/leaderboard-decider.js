@@ -451,6 +451,7 @@ async function main() {
     saveCooldowns(loadCooldowns());
     saveAlertState(pruneAlertState(loadAlertState()));
     logAudit('buy_blocked_by_guard', { reasons: guard.reasons });
+    await pushHeartbeatToGitHub(Date.now());
     console.log('\n✅  Job B complete (guard active).\n');
     return;
   }
