@@ -59,7 +59,7 @@ concurrency:
   #
   # Splitting the group by mode means a queued decide can only ever be
   # superseded by another decide, never bumped by an unrelated fetch.
-  group: alert-runner-${{ github.event.schedule || inputs.mode || 'manual' }}
+  group: alert-runner-${{ github.event.schedule == '13,28,43,58 * * * *' && 'decide' || (github.event.schedule == '*/5 * * * *' && 'fetch' || (github.event.schedule == '31 * * * *' && 'full' || (inputs.mode || 'manual'))) }}
   cancel-in-progress: false
 
 permissions:
@@ -101,9 +101,9 @@ jobs:
           SCHEDULE="${{ github.event.schedule }}"
           if [ "$SCHEDULE" = "*/5 * * * *" ]; then
             VALUE="fetch"
-          elif [ "$SCHEDULE" = "2,19,36,53 * * * *" ]; then
+          elif [ "$SCHEDULE" = "13,28,43,58 * * * *" ]; then
             VALUE="decide"
-          elif [ "$SCHEDULE" = "13 * * * *" ]; then
+          elif [ "$SCHEDULE" = "31 * * * *" ]; then
             VALUE="full"
           elif [ -n "${{ inputs.mode }}" ]; then
             VALUE="${{ inputs.mode }}"
