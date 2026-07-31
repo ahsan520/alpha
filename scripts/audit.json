@@ -1284,7 +1284,7 @@
     ]
   },
   {
-    "timestamp": "2026-07-31T18:46:13.839Z",
+    "timestamp": "2026-07-31T18:46:15.810Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1296,7 +1296,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1310,7 +1310,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1331,7 +1331,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1392,5 +1392,90 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-07-31T18:46:15.871Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-07-31T18:46:15.872Z",
+    "job": "leaderboard-decider",
+    "action": "heartbeat_stale",
+    "gapMinutes": 103.9,
+    "lastRunAt": 1785517340893
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.399Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "free": 0.22,
+    "estNotional": 0.015422
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.400Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.015717,
+    "estNotional": 0.016735461599999998
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.401Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.01,
+    "estNotional": 0.001714
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.401Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000782,
+    "estNotional": 0.35850008
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.540Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-07-31T18:46:17.543Z",
+    "job": "leaderboard-decider",
+    "action": "buy_blocked_by_guard",
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-07-31T18:46:18.559Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
