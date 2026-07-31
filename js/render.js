@@ -287,6 +287,12 @@ function patchSymbolRow(s) {
   if (!tbody) return;
   const d = STATE.DS[s];
   if (!d) return;
+  // Background-scanned symbol from a non-active watchlist — it has no row
+  // in the currently displayed matrix by design (only the active list is
+  // rendered here). Alerts already fired off this data in processAI; skip
+  // the DOM patch/rebuild entirely rather than forcing a spurious
+  // renderTable() for a symbol that will never appear in this table.
+  if (!(STATE.watchlist || []).includes(s)) return;
 
   const tr = tbody.querySelector(`tr[data-sym="${CSS.escape(s)}"]`);
   if (!tr) { renderTable(); return; } // new symbol — rebuild structure once

@@ -166,6 +166,22 @@ const SENTIMENT_DATA_POLL_MS = 300_000; // 5 min — matches Job A's cadence
 let _syncRunning  = false;
 let _lastSyncTime = {};
 
+// ── Union of every symbol across ALL saved watchlists ──
+// Used for background sync/alert scanning so alerts keep firing for
+// non-active lists too, not just whichever one is currently selected in
+// the dropdown. STATE.watchlist itself (the active list) stays untouched
+// and still drives what's rendered in the Signal Matrix / leaderboard —
+// this only widens what gets FETCHED and ALERT-CHECKED in the background.
+function allWatchlistSymbols() {
+  const lists = STATE.namedWatchlists || { [STATE.activeWatchlistName]: STATE.watchlist };
+  const set = new Set();
+  Object.values(lists).forEach(arr => (arr || []).forEach(s => set.add(s)));
+  // Include any session-added/local-only symbols on the active list too,
+  // in case they haven't been saved into namedWatchlists yet.
+  (STATE.watchlist || []).forEach(s => set.add(s));
+  return [...set];
+}
+
 function _startAdaptiveSyncLoop() {
   setInterval(_adaptiveTick, 15_000);
 }
@@ -175,7 +191,7 @@ async function _adaptiveTick() {
   _syncRunning = true;
 
   const now    = Date.now();
-  const toSync = STATE.watchlist.filter(s => {
+  const toSync = allWatchlistSymbols().filter(s => {
     const interval = syncIntervalFor(s);
     return (now - (_lastSyncTime[s] || 0)) >= interval;
   });
@@ -287,7 +303,7 @@ async function sync() {
   document.getElementById('sdot').style.background = 'var(--gold)';
 
   let ok = 0, fail = 0;
-  for (const s of STATE.watchlist) {
+  for (const s of allWatchlistSymbols()) {
     const success = await syncOne(s);
     _lastSyncTime[s] = Date.now();
     if (success) ok++; else fail++;
