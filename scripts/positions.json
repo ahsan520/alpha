@@ -28,7 +28,8 @@
       "qty": 172.18,
       "fillPrice": 8.106,
       "buyOrderId": "MANUAL_ADOPTED_1785511889356",
-      "adopted": true
+      "adopted": true,
+      "zeroBalanceStrikes": 1
     }
   },
   "BINANCE:SUIUSDT": {
@@ -49,7 +50,7 @@
     "spikeScore": 0.0071939587086662085,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -60,8 +61,14 @@
       "qty": 2057.61,
       "fillPrice": 0.6818,
       "buyOrderId": "MANUAL_ADOPTED_1785532568706",
-      "adopted": true
-    }
+      "adopted": true,
+      "sellOrderId": "C02__712251049884151809036",
+      "exitFillPrice": 0.6848,
+      "closedAt": 1785596119726
+    },
+    "exitPrice": 0.6848,
+    "statusChangedAt": 1785596121271,
+    "rotatedOut": true
   },
   "BINANCE:DOGEUSDT": {
     "sym": "BINANCE:DOGEUSDT",
@@ -81,7 +88,7 @@
     "spikeScore": 0.025146837674321538,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "manual_adopted",
     "scoreSource": "latest",
     "recommended": false,
@@ -92,7 +99,49 @@
       "qty": 9608.51,
       "fillPrice": 0.06971,
       "buyOrderId": "MANUAL_ADOPTED_1785532570653",
-      "adopted": true
+      "adopted": true,
+      "sellOrderId": "C02__712251063045885953036",
+      "exitFillPrice": 0.07008,
+      "closedAt": 1785596122868
+    },
+    "exitPrice": 0.07008,
+    "statusChangedAt": 1785596124169,
+    "rotatedOut": true
+  },
+  "BINANCE:ZECUSDT": {
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1785596118510,
+    "holdLockUntil": 1785597318510,
+    "entryPrice": 472.47,
+    "stop": 462.35,
+    "t1": 497.98,
+    "t2": 525.36,
+    "score": 10,
+    "spikeScore": 3.8795421054113084,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.49,
+    "histWinRate": 0,
+    "histSample": 19,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785596130298,
+      "usdSize": 2057.25,
+      "qty": 4.371127,
+      "fillPrice": 470.6451824346444,
+      "buyOrderId": "C02__712251094238916608036",
+      "qtyEstimated": false
     }
   }
 }
