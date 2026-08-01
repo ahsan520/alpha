@@ -1462,7 +1462,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-01T12:46:09.769Z",
+    "timestamp": "2026-08-01T12:46:10.261Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1551,7 +1551,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1570,5 +1570,66 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-01T12:46:10.321Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-01T12:46:11.003Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.015717,
+    "estNotional": 0.016718172899999998
+  },
+  {
+    "timestamp": "2026-08-01T12:46:11.003Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.01,
+    "estNotional": 0.001716
+  },
+  {
+    "timestamp": "2026-08-01T12:46:11.004Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000782,
+    "estNotional": 0.36391934000000004
+  },
+  {
+    "timestamp": "2026-08-01T12:46:11.238Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-08-01T12:46:11.239Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-01T12:46:12.406Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
