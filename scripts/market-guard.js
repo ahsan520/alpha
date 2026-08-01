@@ -439,7 +439,15 @@ export function checkTimeBlackout() {
 // runAllBuyGuards — convenience wrapper used by leaderboard-decider.js
 // Returns { canBuy, closeAll, sizeMult, fearRegime, btcChg, reasons[] }
 //
-// canBuy:     false → skip all buys this cycle (circuit breaker / blackout / BTC regime)
+// canBuy:     false → at least one gate is blocking buys this cycle (circuit
+//             breaker / blackout / BTC panic / BTC regime — see hardBlocked
+//             below for which kind)
+// hardBlocked:false → canBuy is false ONLY because of the BTC 4H regime gate
+//             (Layer 6) — caller should still let individual symbols attempt
+//             the Alpha Exception rather than returning immediately.
+//             true  → a genuine hard stop fired (BTC panic closeAll, circuit
+//             breaker, or time blackout) — caller should return immediately,
+//             no per-symbol exception applies.
 // closeAll:   true  → close all live MEXC positions before doing anything else
 // sizeMult:   0-1   → multiply effective USD size by this (1 = full size)
 // fearRegime: true  → F&G ≤ FEAR_BLOCK_THRESHOLD — caller must check per-symbol divergence
@@ -459,6 +467,10 @@ export function runAllBuyGuards(market, positions) {
   const global     = market.global || {};
   const reasons    = [];
   let   canBuy     = true;
+  let   hardBlocked= false; // true only for genuine hard stops (Layers 1/2/5) —
+                             // NOT for a pure BTC 4H regime block (Layer 6), which
+                             // the caller should still let individual symbols
+                             // bypass via the per-candidate Alpha Exception.
   let   closeAll   = false;
   let   fearRegime = false;
   const btcChg     = global.btcChg15m ?? null;
@@ -467,6 +479,7 @@ export function runAllBuyGuards(market, positions) {
   const btc = checkBtcGuard(global);
   if (!btc.pass) {
     canBuy = false;
+    hardBlocked = true;
     reasons.push(btc.reason);
     if (btc.closeAll) closeAll = true;
   } else if (btc.reason) {
@@ -478,6 +491,7 @@ export function runAllBuyGuards(market, positions) {
   if (!cb.pass) {
     closeAll = true;
     canBuy   = false;
+    hardBlocked = true;
     reasons.push(cb.reason);
   }
 
@@ -495,6 +509,7 @@ export function runAllBuyGuards(market, positions) {
   const time = checkTimeBlackout();
   if (!time.pass) {
     canBuy = false;
+    hardBlocked = true;
     reasons.push(time.reason);
   }
 
@@ -518,5 +533,5 @@ export function runAllBuyGuards(market, positions) {
     reasons.push(`Combined size ${(rawSizeMult * 100).toFixed(1)}% floored to global minimum ${(GLOBAL_FLOOR_MULT * 100).toFixed(0)}%`);
   }
 
-  return { canBuy, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, reasons };
+  return { canBuy, hardBlocked, closeAll, sizeMult, fearRegime, btcChg, btcRegimeBlocked, reasons };
 }

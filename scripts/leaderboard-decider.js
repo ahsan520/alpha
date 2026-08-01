@@ -444,8 +444,12 @@ async function main() {
     }
   }
 
-  // If any hard block gate fired, skip all new buys this cycle
-  if (!guard.canBuy) {
+  // If a genuine hard-stop gate fired (BTC panic closeAll, circuit breaker,
+  // time blackout), skip all new buys this cycle — no per-symbol exception
+  // applies to these. A pure BTC 4H regime block (guard.canBuy=false but
+  // guard.hardBlocked=false) falls through instead, so individual symbols
+  // still get evaluated against the Alpha Exception below.
+  if (guard.hardBlocked) {
     console.log('  🛡  Buy gates blocked — no new positions opened this cycle.');
     saveMarketData(resetPeaks(market));
     saveCooldowns(loadCooldowns());
@@ -454,6 +458,9 @@ async function main() {
     await pushHeartbeatToGitHub(Date.now());
     console.log('\n✅  Job B complete (guard active).\n');
     return;
+  }
+  if (!guard.canBuy && guard.btcRegimeBlocked) {
+    console.log('  🛡  BTC 4H regime block active — only symbols passing the Alpha Exception can buy this cycle.');
   }
 
   const cooldowns  = loadCooldowns();
