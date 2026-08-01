@@ -1417,7 +1417,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-01T05:46:12.076Z",
+    "timestamp": "2026-08-01T05:46:09.941Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1429,7 +1429,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1464,7 +1464,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1506,7 +1506,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1525,5 +1525,74 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-01T05:46:09.998Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-01T05:46:11.261Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.015717,
+    "estNotional": 0.016711886099999997
+  },
+  {
+    "timestamp": "2026-08-01T05:46:11.262Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.01,
+    "estNotional": 0.001714
+  },
+  {
+    "timestamp": "2026-08-01T05:46:11.262Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000782,
+    "estNotional": 0.36207382
+  },
+  {
+    "timestamp": "2026-08-01T05:46:11.415Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-01T05:46:11.417Z",
+    "job": "leaderboard-decider",
+    "action": "buy_blocked_by_guard",
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-01T05:46:13.026Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
