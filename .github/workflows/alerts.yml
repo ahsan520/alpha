@@ -214,6 +214,8 @@ jobs:
           ROTATION_MIN_HOLD_MIN: ${{ vars.ROTATION_MIN_HOLD_MIN || '30' }}
           ROTATION_MIN_PROFIT_PCT: ${{ vars.ROTATION_MIN_PROFIT_PCT || '0.5' }}
           STOP_LOSS_PCT:      ${{ vars.STOP_LOSS_PCT || '0.1' }}
+          T1_ATR_MULT:        ${{ vars.T1_ATR_MULT || '2' }}
+          T2_ATR_MULT:        ${{ vars.T2_ATR_MULT || '4' }}
           GUARD_BTC_BUY_GATE: ${{ vars.GUARD_BTC_BUY_GATE || 'true' }}
           BUY_BULL4H_COUNT_MIN: ${{ vars.BUY_BULL4H_COUNT_MIN || '2' }}
           BUY_REQUIRE_BULL4H_COUNT: ${{ vars.BUY_REQUIRE_BULL4H_COUNT || 'true' }}
