@@ -1197,7 +1197,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-01T03:31:10.612Z",
+    "timestamp": "2026-08-01T03:31:08.115Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1305,5 +1305,74 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-01T03:31:08.173Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-01T03:31:08.863Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "free": 0.015717,
+    "estNotional": 0.016738604999999997
+  },
+  {
+    "timestamp": "2026-08-01T03:31:08.864Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:XLMUSDT",
+    "base": "XLM",
+    "free": 0.01,
+    "estNotional": 0.001725
+  },
+  {
+    "timestamp": "2026-08-01T03:31:08.864Z",
+    "job": "leaderboard-decider",
+    "action": "adoption_skipped_dust",
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "free": 0.000782,
+    "estNotional": 0.36031432
+  },
+  {
+    "timestamp": "2026-08-01T03:31:09.149Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-01T03:31:09.151Z",
+    "job": "leaderboard-decider",
+    "action": "buy_blocked_by_guard",
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-01T03:31:10.378Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
