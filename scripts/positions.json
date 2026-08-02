@@ -44,7 +44,7 @@
     "spikeScore": 0.14026948794387958,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -59,8 +59,14 @@
       "qty": 1832.95,
       "fillPrice": 1.0834510903188848,
       "buyOrderId": "C02__712471494839443456036",
-      "qtyEstimated": false
-    }
+      "qtyEstimated": false,
+      "closedAt": 1785707989605,
+      "exitFillPrice": 1.0868,
+      "dustIgnored": true
+    },
+    "exitPrice": 1.0868,
+    "statusChangedAt": 1785707990517,
+    "rotatedOut": true
   },
   "BINANCE:SUIUSDT": {
     "sym": "BINANCE:SUIUSDT",
@@ -174,7 +180,8 @@
       "qty": 1491.46,
       "fillPrice": 1.375,
       "buyOrderId": "MANUAL_ADOPTED_1785697187566",
-      "adopted": true
+      "adopted": true,
+      "zeroBalanceStrikes": 1
     }
   },
   "BINANCE:BTCUSDT": {
@@ -289,5 +296,59 @@
       "buyOrderId": "MANUAL_ADOPTED_1785706785316",
       "adopted": true
     }
+  },
+  "BINANCE:GALAUSDT": {
+    "sym": "BINANCE:GALAUSDT",
+    "base": "GALA",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785707989242,
+    "holdLockUntil": 1785709189242,
+    "entryPrice": 0.0018,
+    "stop": 0.0018,
+    "t1": 0.0019,
+    "t2": 0.0019,
+    "score": 10,
+    "spikeScore": 1.7248422821527558,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.46,
+    "histWinRate": 0,
+    "histSample": 10,
+    "caution": true
+  },
+  "BINANCE:APTUSDT": {
+    "sym": "BINANCE:APTUSDT",
+    "base": "APT",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785707989243,
+    "holdLockUntil": 1785709189243,
+    "entryPrice": 0.5683,
+    "stop": 0.5603,
+    "t1": 0.583,
+    "t2": 0.6,
+    "score": 9,
+    "spikeScore": 0.6445942208312104,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.45,
+    "histWinRate": 0,
+    "histSample": 22,
+    "caution": true
   }
 }
