@@ -59,7 +59,8 @@
       "qty": 4.220423,
       "fillPrice": 473.95248042909435,
       "buyOrderId": "C02__712449079392501760036",
-      "qtyEstimated": false
+      "qtyEstimated": false,
+      "zeroBalanceStrikes": 1
     }
   },
   "BINANCE:IMXUSDT": {
@@ -247,13 +248,52 @@
     "spikeScore": 1.8256168331064997,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
     "rankScore": 0.32,
     "histWinRate": 0,
     "histSample": 38,
-    "caution": true
+    "caution": true,
+    "exitPrice": 73.56,
+    "statusChangedAt": 1785648676083,
+    "rotatedOut": true
+  },
+  "BINANCE:XRPUSDT": {
+    "sym": "BINANCE:XRPUSDT",
+    "base": "XRP",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785648675902,
+    "holdLockUntil": 1785649875902,
+    "entryPrice": 1.0877,
+    "stop": 1.0726,
+    "t1": 1.1159,
+    "t2": 1.1484,
+    "score": 10,
+    "spikeScore": 0.14026948794387958,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.49,
+    "histWinRate": 0,
+    "histSample": 44,
+    "caution": true,
+    "liveOrder": {
+      "mode": "live",
+      "buyAt": 1785648678014,
+      "usdSize": 1985.92,
+      "qty": 1832.95,
+      "fillPrice": 1.0834510903188848,
+      "buyOrderId": "C02__712471494839443456036",
+      "qtyEstimated": false
+    }
   }
 }
