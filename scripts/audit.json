@@ -1542,7 +1542,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-03T15:39:46.121Z",
+    "timestamp": "2026-08-03T15:39:49.320Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1554,7 +1554,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1568,7 +1568,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1589,7 +1589,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1610,7 +1610,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1631,14 +1631,14 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1650,5 +1650,130 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-03T15:39:49.451Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-03T15:39:50.212Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-03T15:39:51.744Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 284
+  },
+  {
+    "timestamp": "2026-08-03T15:39:52.186Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "XRP",
+        "pnlPct": 0.5,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "GALAUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-03T15:39:52.187Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_paper_buy",
+    "sym": "GALAUSDT",
+    "usdSize": 336.84,
+    "fillPrice": 0.0018
+  },
+  {
+    "timestamp": "2026-08-03T15:39:53.721Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 285
+  },
+  {
+    "timestamp": "2026-08-03T15:39:53.878Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 333,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-08-03T15:39:54.896Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-08-03T15:39:55.208Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": [
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-08-03T15:39:55.209Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-03T15:39:58.280Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 10
+  },
+  {
+    "timestamp": "2026-08-03T15:40:01.555Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "pair": "GALA",
+    "price": 0.001798,
+    "entry": 0.0018,
+    "stop": 0.0018,
+    "pnlPct": "-0.11"
+  },
+  {
+    "timestamp": "2026-08-03T15:40:02.192Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 11
+  },
+  {
+    "timestamp": "2026-08-03T15:40:03.252Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 11,
+    "statusChanged": true
   }
 ]
