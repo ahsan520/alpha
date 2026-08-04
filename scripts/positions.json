@@ -52,7 +52,7 @@
     "spikeScore": 1.9117733065623888,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -66,8 +66,13 @@
       "usdSize": 0.03,
       "qty": 0.043358866888278655,
       "fillPrice": 0.6919,
-      "buyOrderId": "PAPER_1785805189765"
-    }
+      "buyOrderId": "PAPER_1785805189765",
+      "closedAt": 1785864191653,
+      "exitFillPrice": 0.6945
+    },
+    "exitPrice": 0.6945,
+    "statusChangedAt": 1785864193168,
+    "rotatedOut": true
   },
   "BINANCE:XRPUSDT": {
     "sym": "BINANCE:XRPUSDT",
@@ -141,7 +146,7 @@
     "spikeScore": 1.6180356893058787,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -155,8 +160,13 @@
       "usdSize": 331.73,
       "qty": 4.490119112073633,
       "fillPrice": 73.88,
-      "buyOrderId": "PAPER_1785852197787"
-    }
+      "buyOrderId": "PAPER_1785852197787",
+      "closedAt": 1785864193168,
+      "exitFillPrice": 74.05
+    },
+    "exitPrice": 74.05,
+    "statusChangedAt": 1785864194207,
+    "rotatedOut": true
   },
   "BINANCE:BTCUSDT": {
     "sym": "BINANCE:BTCUSDT",
@@ -218,6 +228,76 @@
       "qty": 47.30113636363636,
       "fillPrice": 0.0704,
       "buyOrderId": "PAPER_1785858197521"
+    }
+  },
+  "BINANCE:GALAUSDT": {
+    "sym": "BINANCE:GALAUSDT",
+    "base": "GALA",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785864191650,
+    "holdLockUntil": 1785865391650,
+    "entryPrice": 0.0018,
+    "stop": 0.0018,
+    "t1": 0.0018,
+    "t2": 0.0019,
+    "score": 7,
+    "spikeScore": 1.6982162024380039,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.28,
+    "histWinRate": 0,
+    "histSample": 12,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785864195720,
+      "usdSize": 164.61,
+      "qty": 91450.00000000001,
+      "fillPrice": 0.0018,
+      "buyOrderId": "PAPER_1785864195720"
+    }
+  },
+  "BINANCE:ZECUSDT": {
+    "sym": "BINANCE:ZECUSDT",
+    "base": "ZEC",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1785864191651,
+    "holdLockUntil": 1785865391651,
+    "entryPrice": 504.03,
+    "stop": 497,
+    "t1": 526.23,
+    "t2": 550.44,
+    "score": 10,
+    "spikeScore": 3.2152574634007998,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.52,
+    "histWinRate": 0,
+    "histSample": 27,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785864194600,
+      "usdSize": 164.61,
+      "qty": 0.32658770311290997,
+      "fillPrice": 504.03,
+      "buyOrderId": "PAPER_1785864194600"
     }
   }
 }
