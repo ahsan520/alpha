@@ -1423,7 +1423,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-04T18:43:14.068Z",
+    "timestamp": "2026-08-04T18:43:07.581Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 14,
@@ -1512,7 +1512,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1531,5 +1531,125 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-04T18:43:07.624Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-04T18:43:08.234Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-04T18:43:09.357Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-08-04T18:43:09.367Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 9,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-04T18:43:09.369Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "APTUSDT",
+    "sym": "BINANCE:APTUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-08-04T18:43:10.685Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 301
+  },
+  {
+    "timestamp": "2026-08-04T18:43:11.036Z",
+    "job": "leaderboard-decider",
+    "action": "rotation_sell",
+    "sold": [
+      {
+        "base": "ZEC",
+        "pnlPct": 0.33,
+        "wasHoldingT1": false
+      }
+    ],
+    "into": [
+      "APTUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-04T18:43:11.037Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_paper_buy",
+    "sym": "APTUSDT",
+    "usdSize": 163.54,
+    "fillPrice": 0.5803
+  },
+  {
+    "timestamp": "2026-08-04T18:43:12.211Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 302
+  },
+  {
+    "timestamp": "2026-08-04T18:43:12.328Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 347,
+    "source": "rotation"
+  },
+  {
+    "timestamp": "2026-08-04T18:43:13.196Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-08-04T18:43:13.483Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "APT"
+    ],
+    "caution": [
+      "APT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-04T18:43:13.483Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-04T18:43:15.784Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
