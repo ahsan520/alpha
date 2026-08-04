@@ -133,7 +133,7 @@
     "spikeScore": 3.2152574634007998,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -147,8 +147,13 @@
       "usdSize": 164.61,
       "qty": 0.32658770311290997,
       "fillPrice": 504.03,
-      "buyOrderId": "PAPER_1785864194600"
-    }
+      "buyOrderId": "PAPER_1785864194600",
+      "closedAt": 1785868989480,
+      "exitFillPrice": 505.68
+    },
+    "exitPrice": 505.68,
+    "statusChangedAt": 1785868990753,
+    "rotatedOut": true
   },
   "BINANCE:SUIUSDT": {
     "sym": "BINANCE:SUIUSDT",
@@ -288,6 +293,41 @@
       "qty": 0.13902321083172145,
       "fillPrice": 8.272,
       "buyOrderId": "PAPER_1785867795540"
+    }
+  },
+  "BINANCE:APTUSDT": {
+    "sym": "BINANCE:APTUSDT",
+    "base": "APT",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1785868989369,
+    "holdLockUntil": 1785870189369,
+    "entryPrice": 0.5803,
+    "stop": 0.5722,
+    "t1": 0.5984,
+    "t2": 0.6188,
+    "score": 9,
+    "spikeScore": 2.354488734260216,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.45,
+    "histWinRate": 0,
+    "histSample": 25,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785868991037,
+      "usdSize": 163.54,
+      "qty": 281.81974840599685,
+      "fillPrice": 0.5803,
+      "buyOrderId": "PAPER_1785868991037"
     }
   }
 }
