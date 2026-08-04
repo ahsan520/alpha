@@ -17,7 +17,7 @@ on:
     # normal path most of the time. The same Worker tick ALSO
     # unconditionally fires mode=fetch every time (see concurrency group
     # below for why that no longer starves a queued decide run).
-    - cron: '4,14,24,34,44,54 * * * *'       # every ~17 minutes
+    - cron: '0,10,20,30,40,50 * * * *'       # every ~10 minutes
 
     # Full scan — watchlist signal/overnight rules. Hourly matches the
     # 4h/daily timeframes that logic operates on. The OLD leaderboard buy
