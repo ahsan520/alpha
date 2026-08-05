@@ -44,7 +44,7 @@
     "spikeScore": 1.1446633901141465,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -58,8 +58,13 @@
       "usdSize": 85.4,
       "qty": 769.3693693693695,
       "fillPrice": 0.111,
-      "buyOrderId": "PAPER_1785934986409"
-    }
+      "buyOrderId": "PAPER_1785934986409",
+      "closedAt": 1785955396160,
+      "exitFillPrice": 0.1113
+    },
+    "exitPrice": 0.1113,
+    "statusChangedAt": 1785955397935,
+    "rotatedOut": true
   },
   "BINANCE:BTCUSDT": {
     "sym": "BINANCE:BTCUSDT",
@@ -246,5 +251,40 @@
     "histWinRate": 0,
     "histSample": 30,
     "caution": true
+  },
+  "BINANCE:DOGEUSDT": {
+    "sym": "BINANCE:DOGEUSDT",
+    "base": "DOGE",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785955396157,
+    "holdLockUntil": 1785956596157,
+    "entryPrice": 0.0707,
+    "stop": 0.0697,
+    "t1": 0.0725,
+    "t2": 0.0746,
+    "score": 6,
+    "spikeScore": 0.3541541927752961,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.21,
+    "histWinRate": 0,
+    "histSample": 40,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785955398346,
+      "usdSize": 84.77,
+      "qty": 1199.009900990099,
+      "fillPrice": 0.0707,
+      "buyOrderId": "PAPER_1785955398346"
+    }
   }
 }
