@@ -71,7 +71,7 @@
     "spikeScore": 1.142201080854986,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -85,8 +85,12 @@
       "usdSize": 3.55,
       "qty": 0.00679477854764001,
       "fillPrice": 522.46,
-      "buyOrderId": "PAPER_1785946993494"
-    }
+      "buyOrderId": "PAPER_1785946993494",
+      "closedAt": 1785960188476,
+      "exitFillPrice": 517.01
+    },
+    "exitPrice": 517.01,
+    "statusChangedAt": 1785960188474
   },
   "BINANCE:APTUSDT": {
     "sym": "BINANCE:APTUSDT",
@@ -203,14 +207,16 @@
     "spikeScore": 1.8122207219286235,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
     "rankScore": 0.35,
     "histWinRate": 0,
     "histSample": 30,
-    "caution": true
+    "caution": true,
+    "exitPrice": 8.186,
+    "statusChangedAt": 1785960188474
   },
   "BINANCE:DOGEUSDT": {
     "sym": "BINANCE:DOGEUSDT",
@@ -274,42 +280,6 @@
     "histSample": 14,
     "caution": true
   },
-  "BINANCE:GALAUSDT": {
-    "sym": "BINANCE:GALAUSDT",
-    "base": "GALA",
-    "assetType": "crypto",
-    "exchangePrefix": "BINANCE",
-    "session": "24/7",
-    "setup": "BREAKOUT",
-    "dir": "bull",
-    "alertedAt": 1785958997747,
-    "holdLockUntil": 1785960197747,
-    "entryPrice": 0.0018,
-    "stop": 0.0018,
-    "t1": 0.0018,
-    "t2": 0.0019,
-    "score": 6,
-    "spikeScore": 2.124842669858346,
-    "exitAlertedAt": null,
-    "tier1AlertedAt": null,
-    "status": "stopped",
-    "source": "headless_v11.0",
-    "scoreSource": "peak",
-    "recommended": true,
-    "rankScore": 0.21,
-    "histWinRate": 0,
-    "histSample": 13,
-    "caution": true,
-    "liveOrder": {
-      "mode": "paper",
-      "buyAt": 1785958997750,
-      "usdSize": 0.42,
-      "qty": 233.33333333333334,
-      "fillPrice": 0.0018,
-      "buyOrderId": "PAPER_1785958997750"
-    },
-    "statusChangedAt": 1785959007623
-  },
   "BINANCE:UNIUSDT": {
     "sym": "BINANCE:UNIUSDT",
     "base": "UNI",
@@ -321,7 +291,7 @@
     "alertedAt": 1785958997748,
     "holdLockUntil": 1785960197748,
     "entryPrice": 4.1385,
-    "stop": 4.0808,
+    "stop": 4.0971,
     "t1": 4.2457,
     "t2": 4.3693,
     "score": 6,
