@@ -1685,7 +1685,7 @@
     "statusChanged": false
   },
   {
-    "timestamp": "2026-08-05T18:03:06.592Z",
+    "timestamp": "2026-08-05T18:03:02.336Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 15,
@@ -1718,7 +1718,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1760,7 +1760,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1788,7 +1788,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1801,5 +1801,84 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-05T18:03:02.396Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-05T18:03:03.795Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-08-05T18:03:03.796Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 7,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-05T18:03:03.813Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "LINKUSDT",
+    "sym": "BINANCE:LINKUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-05T18:03:03.815Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-05T18:03:04.769Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-08-05T18:03:05.029Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "LINK"
+    ],
+    "caution": [
+      "LINK"
+    ]
+  },
+  {
+    "timestamp": "2026-08-05T18:03:05.030Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-05T18:03:07.420Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
   }
 ]
