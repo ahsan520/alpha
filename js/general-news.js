@@ -25,7 +25,10 @@ const GNEWS_INTERVAL_MS = 1_800_000; // 30 min
 // scripts/general-news-data.json. The browser never sees the key — it just
 // reads that committed JSON via raw.githubusercontent.com (bypassing GitHub
 // Pages' CDN cache).
-const GNEWS_DATA_REPO   = () => (window.__GH_REPO || 'ahsan520/alpha');
+// Same repo-detection fix as market-intelligence.js — see comment there.
+// Was hardcoded to 'ahsan520/alpha', which pointed every other Alpha
+// Terminal instance's News panel at the wrong repo's data file.
+const GNEWS_DATA_REPO   = () => (typeof _deriveRepo === 'function' ? _deriveRepo() : (window.__GH_REPO || ''));
 const GNEWS_DATA_BRANCH = 'main';
 const GNEWS_DATA_PATH   = 'scripts/general-news-data.json';
 

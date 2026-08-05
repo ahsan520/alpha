@@ -100,13 +100,31 @@ function processAI(s, p, chg, ex) {
   const liq = isCrypto ? liqEstimate(p, fr, lp) : null;
 
   // ── EMA TREND ──
-  const ph = PH[s] || [];
+  // Was computed from PH[] — a client-side buffer of live-poll ticks since
+  // page load (elsewhere in this file, near sparkBars below, there's
+  // already a comment noting PH[] "only has 15-second ticks since page
+  // load (minutes of data)"). Worse, its period wasn't even fixed: it used
+  // Math.min(200, ph.length), so the effective EMA length silently grew
+  // the longer a tab stayed open — never a consistent indicator, and never
+  // remotely comparable to what the server actually trades on.
+  //
+  // The server's real trading decision (scripts/leaderboard-scanner.js):
+  //   - crypto  (scoreSymbol):  EMA-20 on 4H candle closes
+  //   - stock   (scoreStock):   EMA-20 on DAILY candle closes
+  // ex.k4h._bars4h (crypto, added in api.js's _compute4hBias) and
+  // ex._barsDay/extractBars(ex) (stocks/fallback) now carry the same real
+  // bar data used for sparkBars/support-resistance below — reusing it here
+  // for the primary trend badge instead of PH[] makes the dashboard agree
+  // with what the headless bot is actually gating on.
+  const emaCloses = (isCrypto && ex.k4h?._bars4h?.length >= 5)
+    ? ex.k4h._bars4h.map(b => b.c)
+    : extractBars(ex).map(b => b.c);
   let emaTrend = '—', emaVal = null;
-  if (ph.length >= 10) {
-    const period = Math.min(200, ph.length);
+  if (emaCloses.length >= 20) {
+    const period = Math.min(20, emaCloses.length);
     const k = 2 / (period + 1);
-    let ema = ph[ph.length - period];
-    for (let i = ph.length - period + 1; i < ph.length; i++) ema = ph[i] * k + ema * (1 - k);
+    let ema = emaCloses.slice(0, period).reduce((a, b) => a + b, 0) / period;
+    for (let i = period; i < emaCloses.length; i++) ema = emaCloses[i] * k + ema * (1 - k);
     emaVal = ema;
     emaTrend = p > ema ? 'ABOVE' : 'BELOW';
   }
@@ -303,7 +321,8 @@ function processAI(s, p, chg, ex) {
   // PDF FEATURE 3: SIGNAL STABILITY (uses score history in PH)
   // Tracks score variance over recent cycles — lower variance = more stable
   // ══════════════════════════════════════════════════════════════
-  // ph already declared above (line ~103) — reuse in scope
+  // ph — a live-tick buffer — is no longer used for indicators (see EMA
+  // TREND above); still fine as a lightweight per-cycle counter here.
   if (!STATE.scoreHistory) STATE.scoreHistory = {};
   if (!STATE.scoreHistory[s]) STATE.scoreHistory[s] = [];
   STATE.scoreHistory[s].push({ t: Date.now(), score });

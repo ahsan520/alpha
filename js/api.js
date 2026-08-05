@@ -348,7 +348,13 @@ function _compute4hBias(klines4h) {
   for (let i = 1; i < n; i++) ema8 = closes[i] * k2 + ema8 * (1 - k2);
   let cvd4h = 0;
   for (let i = n - 4; i < n; i++) { const o = parseFloat(klines4h[i][1]); cvd4h += closes[i] > o ? 1 : -1; }
-  return { rsi4h, recentUp, volUp, aboveEma8: closes[n-1] > ema8, cvd4h, lastClose: closes[n-1], prevClose: closes[n-4] };
+  // _bars4h — raw 4h candle closes, exposed so signals.js can compute the
+  // SAME EMA-20-on-4h-candles the server actually trades on (see
+  // scripts/leaderboard-scanner.js scoreSymbol()'s ema20/emaTrend), instead
+  // of the old tick-buffer EMA that never matched it. Mirrors the
+  // _barsDay pattern in _computeDailyBias() below.
+  const bars4h = klines4h.map(c => ({ h: parseFloat(c[2]), l: parseFloat(c[3]), c: parseFloat(c[4]) }));
+  return { rsi4h, recentUp, volUp, aboveEma8: closes[n-1] > ema8, cvd4h, lastClose: closes[n-1], prevClose: closes[n-4], _bars4h: bars4h };
 }
 
 function _computeDailyBias(klinesDay) {
@@ -397,7 +403,7 @@ async function fetchCryptoExtra(pair) {
   const [depth, k15m, k4h, kDay] = await Promise.allSettled([
     _fetchOneRaw(`${BASE}/depth?symbol=${pair}&limit=20`),
     _fetchOneRaw(`${BASE}/klines?symbol=${pair}&interval=15m&limit=60`),
-    _fetchCached(pair, 'k4h',  `${BASE}/klines?symbol=${pair}&interval=4h&limit=20`),
+    _fetchCached(pair, 'k4h',  `${BASE}/klines?symbol=${pair}&interval=4h&limit=50`),
     _fetchCached(pair, 'kDay', `${BASE}/klines?symbol=${pair}&interval=1d&limit=14`),
   ]);
   const val = r => r.status === 'fulfilled' ? r.value : null;

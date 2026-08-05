@@ -46,6 +46,14 @@ const DEFAULT_GH_SYNC_CFG = {
   branch:       'main',
   path:         'scripts/positions.json',
   intervalMins: 3,         // periodic safety-net push interval (Option A only)
+  workerUrl:    '',        // Option B ONLY, watchlists only — alpha-fetch-checker Worker URL
+                            // (e.g. https://alpha-fetch-checker.<subdomain>.workers.dev).
+                            // Option B has no working browser PAT (window.__GH_PAT is always
+                            // blank — see syncWatchlistsToGitHub() below), so watchlist pushes
+                            // go through this Worker's own persistent PAT instead. Positions
+                            // sync is unaffected — Option B pulls positions.json, it never
+                            // pushes it, so it never needed a PAT in the first place.
+  workerToken:  '',        // matches the Worker's SYNC_TOKEN secret, sent as Bearer auth
 };
 
 function loadGhSyncCfg() {
@@ -65,6 +73,8 @@ function loadGhSyncCfg() {
         branch:       raw.branch       || 'main',
         path:         raw.path         || 'scripts/positions.json',
         intervalMins: raw.intervalMins || 3,
+        workerUrl:    raw.workerUrl    || '',
+        workerToken:  raw.workerToken  || '',
       };
       localStorage.setItem(GH_SYNC_KEY, JSON.stringify(migrated));
       return migrated;
@@ -182,6 +192,43 @@ function scheduleWatchlistSync(delayMs = 4000) {
     syncWatchlistsToGitHub();
   }, delayMs);
 }
+
+// ══════════════════════════════════════════════════════════════════
+// FLUSH-ON-EXIT — a pending scheduleWatchlistSync() timer is a plain
+// in-memory setTimeout. If the tab is closed, reloaded, or navigated
+// away from before that timer fires, the edit sitting in
+// STATE.namedWatchlists (already in localStorage) never actually
+// reaches the Worker/GitHub — it just gets silently overwritten by
+// the next init() re-fetch of the (stale) repo copy on reload. This
+// fires the pending sync immediately, best-effort, the moment the tab
+// starts going away, instead of waiting out the rest of the debounce.
+// keepalive:true lets the fetch survive the page unload in most
+// browsers (same mechanism sendBeacon relies on).
+// ══════════════════════════════════════════════════════════════════
+function _flushPendingWatchlistSync() {
+  if (!_ghWatchlistSyncTimer) return; // nothing pending — normal case, no-op
+  clearTimeout(_ghWatchlistSyncTimer);
+  _ghWatchlistSyncTimer = null;
+
+  const cfg = loadGhSyncCfg();
+  if (!cfg.enabled || cfg.mode !== 'secrets' || !cfg.workerUrl) return;
+
+  const namedLists = (typeof STATE !== 'undefined' && STATE.namedWatchlists) ? STATE.namedWatchlists : {};
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (cfg.workerToken) headers['Authorization'] = `Bearer ${cfg.workerToken}`;
+    fetch(cfg.workerUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ namedWatchlists: namedLists }),
+      keepalive: true, // survives page unload — best-effort, no response is read
+    });
+  } catch { /* best-effort only — nothing more we can do during unload */ }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') _flushPendingWatchlistSync();
+});
+window.addEventListener('pagehide', _flushPendingWatchlistSync);
 
 // ══════════════════════════════════════════════════════════════════
 // CORE SYNC — GET sha (if file exists) → PUT updated content.
@@ -309,32 +356,28 @@ async function syncPositionsToGitHub(manual = false) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// WATCHLIST SYNC — pushes STATE.namedWatchlists (the { name: [symbols] }
-// structure managed by the watchlist manager UI) to watchlist.json in
-// the repo. Mirrors syncPositionsToGitHub()'s exact mechanics (same
-// token resolution, same GET-sha/PUT/409-retry pattern) so it behaves
-// identically and reuses the same GitHub Sync config (Option A PAT /
-// Option B secrets) already set up for positions — no separate
-// credentials needed.
+// WATCHLIST SYNC — pushes STATE.namedWatchlists (the { listName:
+// { SYMBOL: tgOnBoolean } } structure managed by the watchlist manager UI)
+// to watchlist-source.json in the repo. Mirrors syncPositionsToGitHub()'s
+// exact mechanics (same token resolution, same GET-sha/PUT/409-retry
+// pattern) so it behaves identically and reuses the same GitHub Sync
+// config (Option A PAT / Option B secrets) already set up for positions —
+// no separate credentials needed.
 //
-// File shape written: { "Crypto": ["BINANCE:BTCUSDT", ...], "Stocks":
-// ["AAPL.US", ...] }. The backend (alert-runner.js's WATCHLIST loader)
-// flattens this into one combined list across all named sets — the
-// backend doesn't need to know about "named lists" as a concept, it
-// just scans every symbol, tagged correctly by assetType as always.
+// File shape written: { "Crypto": {"BINANCE:BTCUSDT": true}, "Stocks":
+// {"AAPL.US": false} } — every named list, every symbol, with its
+// per-symbol Telegram on/off state. This is deliberately NOT the flat
+// array the backend reads: watchlist-source.json is the browser's own
+// read/write source of truth (full lists + TG state); the separate
+// alpha-watchlist-sync Cloudflare Worker computes the flattened, TG-on-
+// only watchlist.json from this on its own schedule — the backend
+// (market-fetcher/leaderboard-decider/alert-runner) still only ever
+// reads that flat watchlist.json, unchanged.
 // ══════════════════════════════════════════════════════════════════
 async function syncWatchlistsToGitHub(manual = false) {
   const cfg = loadGhSyncCfg();
 
   if (!cfg.enabled && !manual) return { ok: false, reason: 'disabled' };
-
-  const resolvedToken = cfg.token || window.__GH_PAT || '';
-  const resolvedRepo  = cfg.repo  || window.__GH_REPO || '';
-
-  if (!resolvedToken || !resolvedRepo) {
-    if (manual) logAlertItem('info', '⚠ GitHub Sync — no token found. Set GH_PAT secret (Option B) or enter a PAT (Option A).');
-    return { ok: false, reason: 'not configured' };
-  }
 
   if (_ghWatchlistSyncInFlight) { _ghWatchlistSyncQueued = true; return { ok: false, reason: 'in-flight' }; }
   _ghWatchlistSyncInFlight = true;
@@ -348,12 +391,41 @@ async function syncWatchlistsToGitHub(manual = false) {
     }
     window._ghWatchlistSyncState = window._ghWatchlistSyncState || {};
 
+    // Option B (mode='secrets') has no working browser PAT — window.__GH_PAT
+    // is always blank by the time GitHub Pages serves env.js (alerts.yml
+    // wipes it to blanks before every commit; see the DEPLOY.md /
+    // worker.js note on this). So Option B routes through the
+    // alpha-fetch-checker Worker instead, which holds its own persistent
+    // PAT via `wrangler secret` and writes both watchlist-source.json AND
+    // watchlist.json on our behalf. Option A (a user-entered PAT) still
+    // writes directly to GitHub, unchanged.
+    return cfg.mode === 'pat'
+      ? await _syncWatchlistsViaPat(cfg, namedLists, json)
+      : await _syncWatchlistsViaWorker(cfg, namedLists, json);
+
+  } finally {
+    _ghWatchlistSyncInFlight = false;
+    if (_ghWatchlistSyncQueued) { _ghWatchlistSyncQueued = false; scheduleWatchlistSync(2000); }
+  }
+}
+
+// ── Option A — direct GitHub Contents API PUT, using the browser-held PAT ──
+async function _syncWatchlistsViaPat(cfg, namedLists, json) {
+  const resolvedToken = cfg.token || window.__GH_PAT || '';
+  const resolvedRepo  = cfg.repo  || window.__GH_REPO || '';
+
+  if (!resolvedToken || !resolvedRepo) {
+    logAlertItem('info', '⚠ GitHub Sync — no token found. Enter a PAT under Option A, or switch to Option B.');
+    return { ok: false, reason: 'not configured' };
+  }
+
+  try {
     const branch  = cfg.branch || 'main';
-    // Separate repo-variable-style path, defaulting to the same
-    // watchlist.json the backend already reads — distinct from cfg.path
-    // (which is positions.json) so the two syncs never target the same
-    // file by mistake.
-    const wlPath  = cfg.watchlistPath || 'watchlist.json';
+    // Separate repo-variable-style path from cfg.path (which is
+    // positions.json) — watchlist-source.json is the browser's own
+    // read/write file, distinct from the computed watchlist.json the
+    // backend reads, so the two syncs never target the same file.
+    const wlPath  = cfg.watchlistSourcePath || 'watchlist-source.json';
     const apiBase = `https://api.github.com/repos/${resolvedRepo}/contents/${wlPath}`;
     const headers = {
       'Authorization':        `Bearer ${resolvedToken}`,
@@ -371,7 +443,7 @@ async function syncWatchlistsToGitHub(manual = false) {
     }
 
     const content = btoa(unescape(encodeURIComponent(json)));
-    const totalSymbols = Object.values(namedLists).reduce((n, arr) => n + (arr?.length || 0), 0);
+    const totalSymbols = Object.values(namedLists).reduce((n, obj) => n + Object.keys(obj || {}).length, 0);
     const listNames = Object.keys(namedLists).join(', ') || 'none';
 
     const putBody = {
@@ -410,23 +482,72 @@ async function syncWatchlistsToGitHub(manual = false) {
     return { ok: true };
 
   } catch (e) {
-    window._ghWatchlistSyncState = window._ghWatchlistSyncState || {};
     window._ghWatchlistSyncState.lastError = e.message;
     let hint = '';
     if (e.message.includes('401')) hint = ' — PAT invalid or expired';
     else if (e.message.includes('403')) hint = ' — PAT lacks Contents:Write permission';
     else if (e.message.includes('404')) hint = ' — repo not found, check owner/repo field';
-    else if (e.message.includes('not configured')) hint = ' — enter owner/repo and PAT then Save';
     logAlertItem('info', `☁ Watchlist sync FAILED — ${e.message}${hint}`);
     if (typeof logBrowserAudit === 'function') {
       logBrowserAudit('browser_watchlist_sync_failed', { error: e.message + hint, repo: resolvedRepo || '?' });
     }
     _refreshGhSyncStatusDOM();
     return { ok: false, reason: e.message };
+  }
+}
 
-  } finally {
-    _ghWatchlistSyncInFlight = false;
-    if (_ghWatchlistSyncQueued) { _ghWatchlistSyncQueued = false; scheduleWatchlistSync(2000); }
+// ── Option B — POST to the alpha-fetch-checker Worker, which holds its
+// own persistent GH_PAT and writes watchlist-source.json + watchlist.json
+// on our behalf. See the comment above syncWatchlistsToGitHub() for why
+// Option B can't PUT to GitHub directly the way Option A does. ──
+async function _syncWatchlistsViaWorker(cfg, namedLists, json) {
+  const workerUrl = (cfg.workerUrl || '').trim();
+
+  if (!workerUrl) {
+    logAlertItem('info', '⚠ GitHub Sync (Option B) — no Worker URL set. Enter the alpha-fetch-checker Worker URL under GitHub Sync settings.');
+    return { ok: false, reason: 'not configured' };
+  }
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (cfg.workerToken) headers['Authorization'] = `Bearer ${cfg.workerToken}`;
+
+    const res = await fetch(workerUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ namedWatchlists: namedLists }),
+    });
+
+    const text = await res.text().catch(() => '');
+    if (!res.ok) throw new Error(`Worker HTTP ${res.status} — ${text || 'no detail'}`);
+
+    const totalSymbols = Object.values(namedLists).reduce((n, obj) => n + Object.keys(obj || {}).length, 0);
+    const listNames = Object.keys(namedLists).join(', ') || 'none';
+
+    window._ghWatchlistSyncState.lastSyncAt     = Date.now();
+    window._ghWatchlistSyncState.lastError      = null;
+    window._ghWatchlistSyncState.lastPushedJSON = json;
+
+    logAlertItem('info', `☁ Watchlist sync OK (via Worker) — ${listNames} (${totalSymbols} symbol${totalSymbols === 1 ? '' : 's'})`);
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_watchlist_sync_ok', { lists: listNames, count: totalSymbols, via: 'worker' });
+    }
+
+    _refreshGhSyncStatusDOM();
+    return { ok: true };
+
+  } catch (e) {
+    window._ghWatchlistSyncState.lastError = e.message;
+    let hint = '';
+    if (e.message.includes('401')) hint = ' — Worker SYNC_TOKEN mismatch, check workerToken matches the Worker secret';
+    else if (e.message.includes('500')) hint = ' — Worker missing GH_PAT/GH_REPO secret';
+    else if (e.message.includes('Failed to fetch')) hint = ' — check the Worker URL is correct and deployed';
+    logAlertItem('info', `☁ Watchlist sync FAILED — ${e.message}${hint}`);
+    if (typeof logBrowserAudit === 'function') {
+      logBrowserAudit('browser_watchlist_sync_failed', { error: e.message + hint, via: 'worker' });
+    }
+    _refreshGhSyncStatusDOM();
+    return { ok: false, reason: e.message };
   }
 }
 
@@ -643,11 +764,36 @@ function renderGithubSyncCard() {
              border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;margin-bottom:10px;">
       🔄 PULL POSITIONS NOW
     </button>
-    <div style="font-family:var(--mono);font-size:7.5px;color:var(--text-dim);line-height:1.7;padding:8px;background:rgba(137,87,229,.06);border-radius:4px;">
+    <div style="font-family:var(--mono);font-size:7.5px;color:var(--text-dim);line-height:1.7;padding:8px;background:rgba(137,87,229,.06);border-radius:4px;margin-bottom:14px;">
       ✓ Leaderboard buy alerts → GitHub Actions → <code>positions.json</code><br>
       ✓ Stop/T1/T2/exit alerts → GitHub Actions every 15 min<br>
       ✓ Browser pulls positions on load — close tab anytime
-    </div>`;
+    </div>
+    <div style="font-family:var(--mono);font-size:8px;color:var(--text-dim);margin-bottom:10px;line-height:1.9;border-top:1px solid var(--border);padding-top:12px;">
+      <b style="color:var(--text);">Watchlist edits — pushed via Worker, not this PAT-less mode.</b>
+      Editing a watchlist in the WATCHLIST tab has no server-side writer under
+      Option B, so it's pushed through the <code style="color:var(--accent);">alpha-fetch-checker</code>
+      Cloudflare Worker instead, which holds its own persistent PAT (set via
+      <code style="color:var(--accent);">wrangler secret put GH_PAT</code> — never wiped, unlike
+      env.js). Paste the Worker's URL below.
+    </div>
+    <div style="margin-bottom:8px;">
+      <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">WORKER URL (watchlist sync)</label>
+      <input type="text" id="gh-sync-worker-url" value="${cfg.workerUrl}" placeholder="https://alpha-fetch-checker.<subdomain>.workers.dev"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+               padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="font-family:var(--mono);font-size:7px;color:var(--text-dim);display:block;margin-bottom:3px;">WORKER SYNC TOKEN (optional, recommended)</label>
+      <input type="password" id="gh-sync-worker-token" value="${cfg.workerToken}" placeholder="matches Worker's SYNC_TOKEN secret"
+        style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-bright);
+               padding:7px 10px;border-radius:4px;font-size:9px;font-family:var(--mono);outline:none;box-sizing:border-box;">
+    </div>
+    <button onclick="syncWatchlistsToGitHub(true)"
+      style="width:100%;background:none;border:1px solid #8957e5;color:#8957e5;padding:8px;
+             border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:9px;">
+      🔄 SYNC WATCHLISTS NOW
+    </button>`;
 
   return `
   <div style="background:var(--card);border:1px solid var(--border);border-top:2px solid #8957e5;
@@ -717,10 +863,14 @@ function saveGithubSyncCfgFromUI() {
     cfg.path         = document.getElementById('gh-sync-path')?.value.trim()     || 'scripts/positions.json';
     cfg.intervalMins = parseInt(document.getElementById('gh-sync-interval')?.value) || 3;
   }
-  // Option B: save repo/branch so pullPositionsFromGitHub knows where to fetch from
+  // Option B: save repo/branch so pullPositionsFromGitHub knows where to fetch from,
+  // plus the Worker URL/token watchlist sync routes through (Option B has no
+  // working browser PAT — see syncWatchlistsToGitHub()'s comment in github-sync.js).
   if (mode === 'secrets') {
-    cfg.repo   = document.getElementById('gh-sync-repo')?.value.trim()   || cfg.repo   || '';
-    cfg.branch = document.getElementById('gh-sync-branch')?.value.trim() || cfg.branch || 'main';
+    cfg.repo        = document.getElementById('gh-sync-repo')?.value.trim()        || cfg.repo   || '';
+    cfg.branch      = document.getElementById('gh-sync-branch')?.value.trim()      || cfg.branch || 'main';
+    cfg.workerUrl   = document.getElementById('gh-sync-worker-url')?.value.trim()   || '';
+    cfg.workerToken = document.getElementById('gh-sync-worker-token')?.value.trim() || '';
   }
   cfg._version = GH_SYNC_CFG_VERSION;
   saveGhSyncCfg(cfg);

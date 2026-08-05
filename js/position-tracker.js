@@ -969,6 +969,32 @@ async function renderPositionTracker() {
                       padding:1px 5px;border-radius:3px;">⚠ CAUTION</span>`
       : '';
 
+    // v15 Position Intelligence — written every cycle by position-monitor.js
+    // (position-intelligence.js's evaluatePosition) onto pos.lastPI. Absent
+    // on positions opened before this feature, or before the first Job B
+    // cycle after opening (min position age gate) — guard accordingly.
+    const pi = pos.lastPI;
+    const piActionColor = pi && (pi.action === 'EMERGENCY_EXIT' ? 'var(--bear)'
+                        : pi.action === 'EXIT'      ? 'var(--bear)'
+                        : pi.action === 'REDUCE_50' ? '#ff8c00'
+                        : pi.action === 'REDUCE_25' ? '#ffa500'
+                        : 'var(--text-dim)');
+    const piBadge = pi && pi.action && pi.action !== 'HOLD'
+      ? `<span title="${(pi.reason || '').replace(/"/g,'&quot;')}"
+               style="color:${piActionColor};font-size:7px;font-weight:700;border:1px solid ${piActionColor};
+                      padding:1px 5px;border-radius:3px;">🧠 ${pi.action.replace('_',' ')}</span>`
+      : '';
+    const piRow = pi
+      ? `<div style="display:flex;gap:10px;align-items:center;margin-top:4px;font-size:7px;color:var(--text-dim);"
+              title="Falling Knife / Thesis Drop / Confidence Decay / Exit Probability — v15 Position Intelligence Engine">
+          <span>Knife: <b style="color:${pi.fallingKnifeScore > 70 ? 'var(--bear)' : 'var(--text-dim)'}">${pi.fallingKnifeScore}</b></span>
+          <span>Thesis Δ: <b>${pi.thesisDrop != null ? pi.thesisDrop.toFixed(0) : '—'}</b></span>
+          <span>Decay: <b>${pi.confidenceDecay}%</b></span>
+          <span>Exit prob: <b style="color:${pi.exitProbability > 70 ? 'var(--bear)' : pi.exitProbability > 50 ? '#ff8c00' : 'var(--text-dim)'}">${pi.exitProbability}</b></span>
+          ${pi.recovery?.recovering ? `<span style="color:var(--bull);">↗ recovering</span>` : ''}
+        </div>`
+      : '';
+
     return `
     <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid ${statusColor(pos.status)};
                 border-radius:6px;padding:10px 12px;margin-bottom:8px;font-family:var(--mono);font-size:9px;">
@@ -978,6 +1004,7 @@ async function renderPositionTracker() {
         <span style="color:${statusColor(pos.status)};font-size:8px;letter-spacing:1px;">${statusLabel(pos.status)}</span>
         ${cautionBadge}
         ${evictCountdown(pos)}
+        ${piBadge}
         <span title="Live spike potential: ${liveSpikeScore}/100 — resistance room + vol + funding + short squeeze fuel"
               style="color:${spikeColor};font-size:7px;font-weight:700;border:1px solid ${spikeColor};
                      padding:1px 5px;border-radius:3px;opacity:.8;">SPIKE ${liveSpikeScore}</span>
@@ -1004,6 +1031,7 @@ async function renderPositionTracker() {
           ? `<span style="color:var(--bear);font-size:8px;">CVD↓ ${window._cvdDeclineCount[pos.sym]}/${cfg.exitCvdCycles}</span>`
           : ''}
       </div>
+      ${piRow}
     </div>`;
   }).join('');
 }

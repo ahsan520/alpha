@@ -83,7 +83,7 @@ function renderWL() {
     const optKey = names.join(',') + '|' + STATE.activeWatchlistName;
     if (switcher.dataset.optKey !== optKey) {
       switcher.innerHTML = names.map(n =>
-        `<option value="${n}"${n === STATE.activeWatchlistName ? ' selected' : ''}>${n} (${(STATE.namedWatchlists[n] || []).length})</option>`
+        `<option value="${n}"${n === STATE.activeWatchlistName ? ' selected' : ''}>${n} (${Object.keys(STATE.namedWatchlists[n] || {}).length})</option>`
       ).join('');
       switcher.dataset.optKey = optKey;
     }

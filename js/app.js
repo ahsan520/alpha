@@ -65,6 +65,128 @@ function toggleNewsPause() {
 function fetchMarketPulseIfActive() { if (!window.MPULSE_PAUSED) fetchMarketPulse(); }
 function fetchNewsIfActive()        { if (!window.NEWS_PAUSED && STATE.newsOpen) fetchNews(); }
 
+// Normalizes any named-lists shape we might encounter (legacy array-of-
+// strings per list, a bare flat array, or the current map-of-booleans
+// form) into { listName: { SYMBOL: tgOnBoolean } }. Called on load and
+// on import so old cached/exported data upgrades transparently instead
+// of breaking once the rest of the app assumes the map form.
+function _normalizeNamedLists(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [name, val] of Object.entries(raw)) {
+    if (Array.isArray(val)) {
+      out[name] = {};
+      val.forEach(s => { out[name][s] = true; }); // legacy list — default TG on
+    } else if (val && typeof val === 'object') {
+      out[name] = { ...val };
+    } else {
+      out[name] = {};
+    }
+  }
+  return out;
+}
+
+// Fetches watchlist-source.json fresh (cache-busted) and normalizes it into
+// STATE.namedWatchlists. watchlist-source.json is the browser's own
+// read/write file — full named-list structure with per-symbol TG ON/OFF,
+// pushed by syncWatchlistsToGitHub() and consumed by the alpha-watchlist-
+// sync Cloudflare Worker, which computes the flattened, TG-on-only
+// watchlist.json that the backend (market-fetcher/leaderboard-decider/
+// alert-runner) actually reads. The browser should never read watchlist.json
+// for its own editing state — that file has already lost the TG-off
+// symbols and the list boundaries by the time it's written. Factored out
+// of init() so the WATCHLIST tab can also re-run this fresh every time
+// it's opened, not just once at page load. Returns the resolved `base`
+// symbol list for the active watchlist.
+async function reloadWatchlistSource() {
+  let fetchedRaw = null;
+  let fetchedFrom = null;
+
+  try {
+    const r = await fetch(`watchlist-source.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (r.ok) { fetchedRaw = await r.json(); fetchedFrom = 'source'; }
+  } catch {}
+
+  // Fallback for a repo that hasn't been migrated yet (watchlist-source.json
+  // doesn't exist): read the legacy watchlist.json instead, one time, so
+  // existing symbols aren't lost on first load after this update ships.
+  if (fetchedRaw === null) {
+    try {
+      const r = await fetch(`watchlist.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (r.ok) { fetchedRaw = await r.json(); fetchedFrom = 'legacy'; }
+    } catch {}
+  }
+
+  let base = DEFAULT_WATCHLIST;
+
+  if (fetchedFrom === 'legacy' && Array.isArray(fetchedRaw)) {
+    // Legacy flat array — becomes a single "Default" list, all TG on.
+    STATE.namedWatchlists = _normalizeNamedLists({ Default: fetchedRaw });
+    base = fetchedRaw;
+  } else if (fetchedRaw && typeof fetchedRaw === 'object') {
+    STATE.namedWatchlists = _normalizeNamedLists(fetchedRaw);
+    const firstName = STATE.activeWatchlistName in STATE.namedWatchlists
+      ? STATE.activeWatchlistName
+      : Object.keys(STATE.namedWatchlists)[0];
+    STATE.activeWatchlistName = firstName;
+    base = Object.keys(STATE.namedWatchlists[firstName] || {});
+  } else if (!STATE.namedWatchlists) {
+    STATE.namedWatchlists = { Default: {} };
+    base.forEach(s => { STATE.namedWatchlists.Default[s] = true; });
+    STATE.activeWatchlistName = 'Default';
+  }
+
+  localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
+  localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
+  return base;
+}
+
+// Scopes browser-side Telegram alerting (alerts.js, position-tracker.js) to
+// whichever watchlist is currently selected — a symbol only alerts if it's
+// (a) a member of the ACTIVE named list and (b) toggled TG-on within that
+// list. alerts.js / position-tracker.js already guard every alert dispatch
+// with `typeof isAlertEnabled === 'function' && isAlertEnabled(sym)` — this
+// is that function.
+function isAlertEnabled(sym) {
+  const active = STATE.namedWatchlists && STATE.namedWatchlists[STATE.activeWatchlistName];
+  return !!(active && active[sym]);
+}
+
+// Toggles TG on/off for one symbol within one named list — called from the
+// WATCHLIST tab's per-row checkbox.
+function toggleSymbolTg(listName, sym) {
+  if (!STATE.namedWatchlists || !STATE.namedWatchlists[listName]) return;
+  STATE.namedWatchlists[listName][sym] = !STATE.namedWatchlists[listName][sym];
+  _persistNamedWatchlists();
+  if (typeof renderWatchlistManager === 'function') renderWatchlistManager();
+}
+
+// Bulk TG on/off across every list, every symbol.
+function setAllTgGlobal(on) {
+  const lists = STATE.namedWatchlists || {};
+  for (const name of Object.keys(lists)) {
+    for (const sym of Object.keys(lists[name])) lists[name][sym] = !!on;
+  }
+  _persistNamedWatchlists();
+  if (typeof renderWatchlistManager === 'function') renderWatchlistManager();
+}
+
+// Computes exactly what the alpha-watchlist-sync Cloudflare Worker would
+// write to watchlist.json (TG-on symbols only, flattened across every
+// named list, deduplicated) and downloads it — manual fallback for
+// hand-committing watchlist.json directly if the Worker is ever down.
+function exportComputedWatchlist() {
+  const lists = STATE.namedWatchlists || {};
+  const seen = new Set();
+  for (const list of Object.values(lists)) {
+    for (const [sym, on] of Object.entries(list || {})) if (on) seen.add(sym);
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify([...seen], null, 2)], { type: 'text/plain' }));
+  a.download = 'watchlist.json';
+  a.click();
+}
+
 async function init() {
   STATE.newsOpen     = false;
   STATE._newsFetched = false;
@@ -73,37 +195,11 @@ async function init() {
   STATE.collapsedCols = {};
   STATE.sentimentOpen = true;
 
-  let base = DEFAULT_WATCHLIST;
-  let fetchedRaw = null;
-  try { const r = await fetch('watchlist.json'); if (r.ok) fetchedRaw = await r.json(); } catch {}
-
-  // watchlist.json can be EITHER the legacy flat array (["BINANCE:BTCUSDT", ...])
-  // or the newer named-lists object ({ "Crypto": [...], "Stocks": [...] }).
-  // Normalize to namedWatchlists either way, so the rest of the app only
-  // ever deals with one shape. Legacy flat arrays become a single
-  // "Default" list — nothing breaks for existing single-list setups.
-  if (Array.isArray(fetchedRaw)) {
-    base = fetchedRaw;
-    if (!STATE.namedWatchlists) STATE.namedWatchlists = { Default: fetchedRaw };
-  } else if (fetchedRaw && typeof fetchedRaw === 'object') {
-    STATE.namedWatchlists = fetchedRaw;
-    const firstName = STATE.activeWatchlistName in fetchedRaw
-      ? STATE.activeWatchlistName
-      : Object.keys(fetchedRaw)[0];
-    STATE.activeWatchlistName = firstName;
-    base = fetchedRaw[firstName] || [];
-  } else if (!STATE.namedWatchlists) {
-    STATE.namedWatchlists = { Default: base };
-  }
-  localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
-  localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
+  const base = await reloadWatchlistSource();
 
   if (!STATE._sessionAdded) STATE._sessionAdded = [];
   STATE.watchlist = [...base, ...STATE._sessionAdded.filter(s => !base.includes(s))];
   STATE.currentS  = null;
-
-  initAlertFilterState();
-  STATE._baseWatchlist = [...base];
 
   renderWL();
   renderTable();
@@ -175,7 +271,10 @@ let _lastSyncTime = {};
 function allWatchlistSymbols() {
   const lists = STATE.namedWatchlists || { [STATE.activeWatchlistName]: STATE.watchlist };
   const set = new Set();
-  Object.values(lists).forEach(arr => (arr || []).forEach(s => set.add(s)));
+  Object.values(lists).forEach(listOrArr => {
+    if (Array.isArray(listOrArr)) listOrArr.forEach(s => set.add(s));
+    else Object.keys(listOrArr || {}).forEach(s => set.add(s));
+  });
   // Include any session-added/local-only symbols on the active list too,
   // in case they haven't been saved into namedWatchlists yet.
   (STATE.watchlist || []).forEach(s => set.add(s));
@@ -351,7 +450,18 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('on');
   btn.classList.add('on');
   if (tab === 'alerts')        renderAlertCfgPage();
-  if (tab === 'watchlist-mgr') renderWatchlistManager();
+  if (tab === 'watchlist-mgr') {
+    // Render from the current in-memory STATE, not a fresh network re-fetch.
+    // STATE.namedWatchlists is already the authoritative copy mid-session —
+    // it's what gets PUSHED to watchlist-source.json (via
+    // syncWatchlistsToGitHub), not something that should be pulled back
+    // down and overwritten from the server every time this tab opens.
+    // Re-fetching here used to silently stomp edits made seconds earlier
+    // if GitHub Pages hadn't yet re-served the just-pushed file — see
+    // reloadWatchlistSource()'s docstring. Only init() (true page load)
+    // should ever pull from the server now.
+    renderWatchlistManager();
+  }
   if (tab === 'journal')       renderApiTrades();  // always refresh on open
   if (tab === 'api-audit')     refreshApiAudit();  // always refresh on open
 }
@@ -728,10 +838,10 @@ function _renderComparePane() {
 // ── WATCHLIST MANAGEMENT ──
 
 // Persists STATE.namedWatchlists to localStorage immediately (fast local
-// cache) AND schedules a debounced push to GitHub via watchlist.json
+// cache) AND schedules a debounced push to GitHub via watchlist-source.json
 // (github-sync.js) so the change survives a cache clear / different
 // device, not just this browser. Call after ANY mutation to
-// namedWatchlists (create, delete, add symbol, remove symbol).
+// namedWatchlists (create, delete, add symbol, remove symbol, TG toggle).
 function _persistNamedWatchlists() {
   localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
   localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
@@ -745,19 +855,20 @@ function createWatchlist() {
   if (!trimmed) return;
   if (!STATE.namedWatchlists) STATE.namedWatchlists = {};
   if (STATE.namedWatchlists[trimmed]) { alert(`A watchlist named "${trimmed}" already exists.`); return; }
-  STATE.namedWatchlists[trimmed] = [];
+  STATE.namedWatchlists[trimmed] = {};
   STATE.activeWatchlistName = trimmed;
   STATE.watchlist = [];
   STATE._sessionAdded = [];
   _persistNamedWatchlists();
   logAlertItem('info', `Created watchlist: ${trimmed}`);
   render();
+  if (typeof renderWatchlistManager === 'function') renderWatchlistManager();
 }
 
 function switchWatchlist(name) {
   if (!STATE.namedWatchlists || !(name in STATE.namedWatchlists)) return;
   STATE.activeWatchlistName = name;
-  STATE.watchlist = [...STATE.namedWatchlists[name]];
+  STATE.watchlist = Object.keys(STATE.namedWatchlists[name]);
   STATE._sessionAdded = [];
   STATE.currentS = null;
   localStorage.setItem('a49_active_wl', name);
@@ -779,6 +890,7 @@ function deleteWatchlist(name) {
   _persistNamedWatchlists();
   logAlertItem('info', `Deleted watchlist: ${name}`);
   render();
+  if (typeof renderWatchlistManager === 'function') renderWatchlistManager();
 }
 
 function addTicker() {
@@ -803,10 +915,11 @@ function addTicker() {
 
     // Also add to the active NAMED list (this is what actually persists —
     // _sessionAdded above is legacy/session-only bookkeeping used elsewhere).
-    if (!STATE.namedWatchlists) STATE.namedWatchlists = { [STATE.activeWatchlistName]: [] };
+    // New symbols default to TG on.
+    if (!STATE.namedWatchlists) STATE.namedWatchlists = { [STATE.activeWatchlistName]: {} };
     const active = STATE.activeWatchlistName;
-    if (!STATE.namedWatchlists[active]) STATE.namedWatchlists[active] = [];
-    if (!STATE.namedWatchlists[active].includes(e)) STATE.namedWatchlists[active].push(e);
+    if (!STATE.namedWatchlists[active]) STATE.namedWatchlists[active] = {};
+    if (!(e in STATE.namedWatchlists[active])) STATE.namedWatchlists[active][e] = true;
     _persistNamedWatchlists();
 
     logAlertItem('info', 'Added: ' + e);
@@ -820,8 +933,7 @@ function delT(s) {
   STATE.watchlist       = STATE.watchlist.filter(x => x !== s);
   if (STATE._sessionAdded) STATE._sessionAdded = STATE._sessionAdded.filter(x => x !== s);
   if (STATE.namedWatchlists && STATE.namedWatchlists[STATE.activeWatchlistName]) {
-    STATE.namedWatchlists[STATE.activeWatchlistName] =
-      STATE.namedWatchlists[STATE.activeWatchlistName].filter(x => x !== s);
+    delete STATE.namedWatchlists[STATE.activeWatchlistName][s];
     _persistNamedWatchlists();
   }
   delete STATE.DS[s];
@@ -833,15 +945,15 @@ function delT(s) {
 
 function wipeData()  { if (confirm('Clear all cached data and reload?')) { localStorage.clear(); location.reload(); } }
 
-// Exports the FULL named-lists structure (all watchlists, not just the
-// active one) — this is what round-trips cleanly with importWL() and
-// with what syncWatchlistsToGitHub() pushes, so manual export/import and
-// auto-sync always agree on the same file shape.
+// Exports the FULL named-lists structure (all watchlists, per-symbol TG
+// state included) — round-trips with importWL() and with what
+// syncWatchlistsToGitHub() pushes to watchlist-source.json, so manual
+// export/import and live auto-sync always agree on the same file shape.
 function exportWL() {
-  const data = STATE.namedWatchlists || { [STATE.activeWatchlistName]: STATE.watchlist };
+  const data = STATE.namedWatchlists || { [STATE.activeWatchlistName]: {} };
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'text/plain' }));
-  a.download = 'watchlist.json';
+  a.download = 'watchlist-source.json';
   a.click();
 }
 
@@ -851,16 +963,18 @@ function importWL(inp) {
     try {
       const parsed = JSON.parse(r.result);
       if (Array.isArray(parsed)) {
-        // Legacy flat-array import — replace the currently active list only.
+        // Legacy flat-array import — replaces the currently active list only, all TG on.
         if (!STATE.namedWatchlists) STATE.namedWatchlists = {};
-        STATE.namedWatchlists[STATE.activeWatchlistName] = parsed;
+        STATE.namedWatchlists[STATE.activeWatchlistName] = _normalizeNamedLists({ x: parsed }).x;
         STATE.watchlist = [...parsed];
       } else if (parsed && typeof parsed === 'object') {
-        // Named-lists import — replaces ALL watchlists.
-        STATE.namedWatchlists = parsed;
-        const firstName = Object.keys(parsed)[0];
+        // Named-lists import — replaces ALL watchlists. Accepts legacy
+        // array-per-list, a bare flat array per list, or the current
+        // map-of-booleans form — _normalizeNamedLists upgrades any of them.
+        STATE.namedWatchlists = _normalizeNamedLists(parsed);
+        const firstName = Object.keys(STATE.namedWatchlists)[0];
         STATE.activeWatchlistName = firstName;
-        STATE.watchlist = [...(parsed[firstName] || [])];
+        STATE.watchlist = Object.keys(STATE.namedWatchlists[firstName] || {});
       } else {
         throw new Error('unrecognized shape');
       }

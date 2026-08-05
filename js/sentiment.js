@@ -32,7 +32,10 @@ const AV_MARKET_TOPICS = 'blockchain,financial_markets'; // watchlist-independen
 // process.env) and commits its output to scripts/sentiment-data.json. The
 // browser never sees the key — it just reads that committed JSON file via
 // raw.githubusercontent.com (bypassing GitHub Pages' CDN cache).
-const SENTIMENT_DATA_REPO   = () => (window.__GH_REPO || 'ahsan520/alpha');
+// Same repo-detection fix as market-intelligence.js — see comment there.
+// Was hardcoded to 'ahsan520/alpha', which pointed every other Alpha
+// Terminal instance's Sentiment panel at the wrong repo's data file.
+const SENTIMENT_DATA_REPO   = () => (typeof _deriveRepo === 'function' ? _deriveRepo() : (window.__GH_REPO || ''));
 const SENTIMENT_DATA_BRANCH = 'main';
 const SENTIMENT_DATA_PATH   = 'scripts/sentiment-data.json';
 
