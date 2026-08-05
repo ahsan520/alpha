@@ -582,7 +582,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-05T13:03:03.197Z",
+    "timestamp": "2026-08-05T13:03:11.487Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 15,
@@ -636,7 +636,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -685,7 +685,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -696,141 +696,5 @@
         "assetType": "stock"
       }
     ]
-  },
-  {
-    "timestamp": "2026-08-05T13:03:03.254Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-08-05T13:03:03.568Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ETHUSDT",
-    "sym": "BINANCE:ETHUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-08-05T13:03:03.569Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "IMXUSDT",
-    "sym": "BINANCE:IMXUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-08-05T13:03:03.570Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ZECUSDT",
-    "sym": "BINANCE:ZECUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-08-05T13:03:04.927Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 306
-  },
-  {
-    "timestamp": "2026-08-05T13:03:05.313Z",
-    "job": "leaderboard-decider",
-    "action": "rotation_sell",
-    "sold": [
-      {
-        "base": "APT",
-        "pnlPct": 1.15,
-        "wasHoldingT1": false
-      }
-    ],
-    "into": [
-      "ZECUSDT",
-      "IMXUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-08-05T13:03:05.314Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_paper_buy",
-    "sym": "ZECUSDT",
-    "usdSize": 85.4,
-    "fillPrice": 523.76
-  },
-  {
-    "timestamp": "2026-08-05T13:03:06.315Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 307
-  },
-  {
-    "timestamp": "2026-08-05T13:03:06.409Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_paper_buy",
-    "sym": "IMXUSDT",
-    "usdSize": 85.4,
-    "fillPrice": 0.111
-  },
-  {
-    "timestamp": "2026-08-05T13:03:06.813Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_push_failed",
-    "error": "PUT 409 scripts/trade-log.json does not match 7e906c10e1e7dc48bf71d84103fdba533b198187"
-  },
-  {
-    "timestamp": "2026-08-05T13:03:06.905Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 356,
-    "source": "rotation"
-  },
-  {
-    "timestamp": "2026-08-05T13:03:08.049Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-08-05T13:03:08.311Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 3,
-    "positionsOpened": 3,
-    "recommended": [
-      "ZEC",
-      "IMX",
-      "ETH"
-    ],
-    "caution": [
-      "ZEC",
-      "IMX",
-      "ETH"
-    ]
-  },
-  {
-    "timestamp": "2026-08-05T13:03:08.311Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-05T13:03:10.730Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 4
   }
 ]
