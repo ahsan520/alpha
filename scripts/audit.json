@@ -1880,7 +1880,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-05T20:03:10.310Z",
+    "timestamp": "2026-08-05T20:03:08.080Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -1892,7 +1892,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1906,7 +1906,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1983,7 +1983,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1997,7 +1997,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2018,7 +2018,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2036,5 +2036,95 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-05T20:03:08.136Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-05T20:03:10.257Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 317
+  },
+  {
+    "timestamp": "2026-08-05T20:03:10.258Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 517.01,
+    "stop": 517.24,
+    "entry": 522.46,
+    "pnlPct": "-1.04",
+    "closeReason": "paper"
+  },
+  {
+    "timestamp": "2026-08-05T20:03:10.278Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:LINKUSDT",
+    "price": 8.186,
+    "stop": 8.1893,
+    "entry": 8.272,
+    "pnlPct": "-1.04",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-05T20:03:10.279Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-05T20:03:11.209Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-08-05T20:03:11.211Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 361
+  },
+  {
+    "timestamp": "2026-08-05T20:03:12.067Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 11,
+    "openAfter": 10,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-05T20:03:12.155Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-05T20:03:12.155Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-05T20:03:14.560Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 8
   }
 ]
