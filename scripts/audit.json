@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-08-05T04:23:03.354Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-08-05T04:23:03.355Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 7,
-    "openAfter": 6,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-05T04:23:03.355Z",
-    "job": "leaderboard-decider",
-    "action": "no_candidates",
-    "bestConv": 3
-  },
-  {
-    "timestamp": "2026-08-05T04:23:03.356Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-05T04:23:04.650Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-08-05T04:26:21.199Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -301,7 +269,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-05T05:23:02.563Z",
+    "timestamp": "2026-08-05T05:23:06.189Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 1,
@@ -313,10 +281,44 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-05T05:23:06.225Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-05T05:23:06.780Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-05T05:23:06.780Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-05T05:23:08.503Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
