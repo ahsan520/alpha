@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-05T23:43:07.914Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-08-05T23:51:43.624Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -1934,7 +1927,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-06T00:43:06.904Z",
+    "timestamp": "2026-08-06T00:43:05.128Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -1960,7 +1953,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2090,5 +2083,96 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-06T00:43:05.190Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-06T00:43:08.807Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-06T00:43:09.859Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-08-06T00:43:09.860Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 11,
+    "openAfter": 10,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-06T00:43:09.863Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-06T00:43:09.866Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_paper_buy",
+    "sym": "ZECUSDT",
+    "usdSize": 0.81,
+    "fillPrice": 510.3
+  },
+  {
+    "timestamp": "2026-08-06T00:43:11.468Z",
+    "job": "leaderboard-decider",
+    "action": "trade_log_pushed",
+    "count": 326
+  },
+  {
+    "timestamp": "2026-08-06T00:43:12.699Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-08-06T00:43:13.125Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ZEC"
+    ],
+    "caution": [
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-08-06T00:43:13.125Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-06T00:43:16.028Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
