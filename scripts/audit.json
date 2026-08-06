@@ -1,40 +1,5 @@
 [
   {
-    "timestamp": "2026-08-06T12:03:10.818Z",
-    "job": "leaderboard-decider",
-    "action": "trade_log_pushed",
-    "count": 345
-  },
-  {
-    "timestamp": "2026-08-06T12:03:11.858Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 5
-  },
-  {
-    "timestamp": "2026-08-06T12:03:12.258Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "UNI"
-    ],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-08-06T12:03:12.259Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-06T12:03:14.557Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 5
-  },
-  {
     "timestamp": "2026-08-06T12:11:38.052Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -1827,7 +1792,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-06T13:03:09.602Z",
+    "timestamp": "2026-08-06T13:03:08.671Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -1853,7 +1818,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1916,7 +1881,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1972,10 +1937,94 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-06T13:03:08.732Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-06T13:03:12.192Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-08-06T13:03:12.194Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-06T13:03:13.273Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 3
+  },
+  {
+    "timestamp": "2026-08-06T13:03:13.664Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 3,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-06T13:03:13.667Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-06T13:03:14.638Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 4
+  },
+  {
+    "timestamp": "2026-08-06T13:03:14.888Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETH"
+    ],
+    "caution": [
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-08-06T13:03:14.889Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-06T13:03:17.794Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
