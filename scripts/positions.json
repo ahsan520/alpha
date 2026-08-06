@@ -71,7 +71,7 @@
     "spikeScore": 0.5609632074846667,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "latest",
     "recommended": true,
@@ -85,8 +85,13 @@
       "usdSize": 3.53,
       "qty": 5.928787369835404,
       "fillPrice": 0.5954,
-      "buyOrderId": "PAPER_1785948197999"
-    }
+      "buyOrderId": "PAPER_1785948197999",
+      "closedAt": 1785988994220,
+      "exitFillPrice": 0.599
+    },
+    "exitPrice": 0.599,
+    "statusChangedAt": 1785988995326,
+    "rotatedOut": true
   },
   "TSX:ETHY.TO": {
     "sym": "TSX:ETHY.TO",
@@ -195,7 +200,7 @@
     "spikeScore": 1.8220346298179264,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -209,8 +214,13 @@
       "usdSize": 0.01,
       "qty": 0.0015000150001500015,
       "fillPrice": 6.6666,
-      "buyOrderId": "PAPER_1785985382396"
-    }
+      "buyOrderId": "PAPER_1785985382396",
+      "closedAt": 1785988995326,
+      "exitFillPrice": 6.682
+    },
+    "exitPrice": 6.682,
+    "statusChangedAt": 1785988996265,
+    "rotatedOut": true
   },
   "BINANCE:IMXUSDT": {
     "sym": "BINANCE:IMXUSDT",
@@ -245,6 +255,76 @@
       "qty": 0.09009009009009009,
       "fillPrice": 0.111,
       "buyOrderId": "PAPER_1785985383688"
+    }
+  },
+  "BINANCE:GALAUSDT": {
+    "sym": "BINANCE:GALAUSDT",
+    "base": "GALA",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785988994215,
+    "holdLockUntil": 1785990194215,
+    "entryPrice": 0.0018,
+    "stop": 0.0018,
+    "t1": 0.0018,
+    "t2": 0.0019,
+    "score": 9,
+    "spikeScore": 0.5833786812845687,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.45,
+    "histWinRate": 0,
+    "histSample": 13,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785988996687,
+      "usdSize": 1.76,
+      "qty": 977.7777777777778,
+      "fillPrice": 0.0018,
+      "buyOrderId": "PAPER_1785988996687"
+    }
+  },
+  "BINANCE:NEARUSDT": {
+    "sym": "BINANCE:NEARUSDT",
+    "base": "NEAR",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "SQUEEZE NOW",
+    "dir": "bull",
+    "alertedAt": 1785988994216,
+    "holdLockUntil": 1785990194216,
+    "entryPrice": 1.7259,
+    "stop": 1.7018,
+    "t1": 1.8538,
+    "t2": 1.9887,
+    "score": 7,
+    "spikeScore": 5.229582711862098,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "peak",
+    "recommended": true,
+    "rankScore": 0.31,
+    "histWinRate": 0,
+    "histSample": 1,
+    "caution": false,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785988997776,
+      "usdSize": 1.76,
+      "qty": 1.0197578075207139,
+      "fillPrice": 1.7259,
+      "buyOrderId": "PAPER_1785988997776"
     }
   }
 }
