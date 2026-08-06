@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-08-06T06:23:07.097Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-08-06T06:23:07.098Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 13,
-    "openAfter": 10,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-06T06:23:07.101Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-06T06:23:07.102Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-08-06T06:23:08.668Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -1966,7 +1941,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-06T07:23:06.603Z",
+    "timestamp": "2026-08-06T07:23:05.118Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -2006,14 +1981,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2104,17 +2079,51 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-06T07:23:05.169Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-06T07:23:05.649Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-06T07:23:05.650Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-06T07:23:07.711Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
