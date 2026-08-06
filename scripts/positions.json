@@ -98,7 +98,7 @@
     "spikeScore": 1.413479871681158,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -112,8 +112,12 @@
       "usdSize": 0.1,
       "qty": 55.55555555555556,
       "fillPrice": 0.0018,
-      "buyOrderId": "PAPER_1785993786762"
-    }
+      "buyOrderId": "PAPER_1785993786762",
+      "closedAt": 1786011785513,
+      "exitFillPrice": 0.001777
+    },
+    "exitPrice": 0.001777,
+    "statusChangedAt": 1786011785512
   },
   "BINANCE:APTUSDT": {
     "sym": "BINANCE:APTUSDT",
@@ -149,44 +153,5 @@
       "fillPrice": 0.5964,
       "buyOrderId": "PAPER_1786008200825"
     }
-  },
-  "BINANCE:TAOUSDT": {
-    "sym": "BINANCE:TAOUSDT",
-    "base": "TAO",
-    "assetType": "crypto",
-    "exchangePrefix": "BINANCE",
-    "session": "24/7",
-    "setup": "BREAKOUT",
-    "dir": "bull",
-    "alertedAt": 1786008200822,
-    "holdLockUntil": 1786009400822,
-    "entryPrice": 195.78,
-    "stop": 193.82,
-    "t1": 202.95,
-    "t2": 210.89,
-    "score": 6,
-    "spikeScore": 2.7169010127340787,
-    "exitAlertedAt": null,
-    "tier1AlertedAt": null,
-    "status": "stopped",
-    "source": "headless_v11.0",
-    "scoreSource": "peak",
-    "recommended": true,
-    "rankScore": 0.27,
-    "histWinRate": 0,
-    "histSample": 1,
-    "caution": false,
-    "liveOrder": {
-      "mode": "paper",
-      "buyAt": 1786008202303,
-      "usdSize": 0.06,
-      "qty": 0.00030646644192460924,
-      "fillPrice": 195.78,
-      "buyOrderId": "PAPER_1786008202303",
-      "closedAt": 1786010586794,
-      "exitFillPrice": 193.5
-    },
-    "exitPrice": 193.5,
-    "statusChangedAt": 1786010586790
   }
 }
