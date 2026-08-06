@@ -125,7 +125,7 @@
     "spikeScore": 3.1193970079361146,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -139,8 +139,13 @@
       "usdSize": 0.01,
       "qty": 0.09009009009009009,
       "fillPrice": 0.111,
-      "buyOrderId": "PAPER_1785985383688"
-    }
+      "buyOrderId": "PAPER_1785985383688",
+      "closedAt": 1785992587687,
+      "exitFillPrice": 0.1113
+    },
+    "exitPrice": 0.1113,
+    "statusChangedAt": 1785992588734,
+    "rotatedOut": true
   },
   "BINANCE:NEARUSDT": {
     "sym": "BINANCE:NEARUSDT",
@@ -160,7 +165,7 @@
     "spikeScore": 5.229582711862098,
     "exitAlertedAt": null,
     "tier1AlertedAt": null,
-    "status": "watching",
+    "status": "stopped",
     "source": "headless_v11.0",
     "scoreSource": "peak",
     "recommended": true,
@@ -174,8 +179,13 @@
       "usdSize": 1.76,
       "qty": 1.0197578075207139,
       "fillPrice": 1.7259,
-      "buyOrderId": "PAPER_1785988997776"
-    }
+      "buyOrderId": "PAPER_1785988997776",
+      "closedAt": 1785992588734,
+      "exitFillPrice": 1.73
+    },
+    "exitPrice": 1.73,
+    "statusChangedAt": 1785992589696,
+    "rotatedOut": true
   },
   "BINANCE:APTUSDT": {
     "sym": "BINANCE:APTUSDT",
@@ -342,6 +352,41 @@
       "qty": 0.000038860607002681386,
       "fillPrice": 514.66,
       "buyOrderId": "PAPER_1785991394922"
+    }
+  },
+  "BINANCE:LINKUSDT": {
+    "sym": "BINANCE:LINKUSDT",
+    "base": "LINK",
+    "assetType": "crypto",
+    "exchangePrefix": "BINANCE",
+    "session": "24/7",
+    "setup": "BREAKOUT",
+    "dir": "bull",
+    "alertedAt": 1785992587684,
+    "holdLockUntil": 1785993787684,
+    "entryPrice": 8.2298,
+    "stop": 8.115,
+    "t1": 8.4429,
+    "t2": 8.6888,
+    "score": 7,
+    "spikeScore": 0.43361510860398317,
+    "exitAlertedAt": null,
+    "tier1AlertedAt": null,
+    "status": "watching",
+    "source": "headless_v11.0",
+    "scoreSource": "latest",
+    "recommended": true,
+    "rankScore": 0.31,
+    "histWinRate": 0,
+    "histSample": 31,
+    "caution": true,
+    "liveOrder": {
+      "mode": "paper",
+      "buyAt": 1785992589954,
+      "usdSize": 1.75,
+      "qty": 0.21264186249969624,
+      "fillPrice": 8.2298,
+      "buyOrderId": "PAPER_1785992589954"
     }
   }
 }
