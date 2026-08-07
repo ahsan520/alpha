@@ -4091,7 +4091,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-07T17:02:48.948Z",
+    "timestamp": "2026-08-07T17:02:47.475Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4103,7 +4103,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4187,14 +4187,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4208,7 +4208,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4229,17 +4229,101 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-07T17:02:47.535Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-07T17:02:50.860Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-07T17:02:50.862Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 192.6,
+    "stop": 193.13,
+    "entry": 195.08,
+    "pnlPct": "-1.27",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-07T17:02:50.863Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.585,
+    "stop": 0.585486,
+    "entry": 0.5914,
+    "pnlPct": "-1.08",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-07T17:02:51.871Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-08-07T17:02:51.874Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 405
+  },
+  {
+    "timestamp": "2026-08-07T17:02:52.649Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 7,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-07T17:02:52.652Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-07T17:02:52.652Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-07T17:02:53.824Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 5
   }
 ]
