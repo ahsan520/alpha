@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-08T16:47:33.992Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 16,
-    "monitored": 16
-  },
-  {
     "timestamp": "2026-08-08T16:50:29.146Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3916,7 +3909,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-08T17:47:33.295Z",
+    "timestamp": "2026-08-08T17:47:32.175Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4066,5 +4059,102 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-08T17:47:32.237Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-08T17:47:32.612Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-08-08T17:47:33.691Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-08-08T17:47:34.106Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 15,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-08T17:47:34.109Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-08T17:47:34.111Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-08T17:47:34.114Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-08T17:47:35.032Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 18df5e2aea6c68d37ace75c35ae1203b9b339daa but expected 2407ee975f17307be9d1ce93587104fa3b88cbe7"
+  },
+  {
+    "timestamp": "2026-08-08T17:47:35.308Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "DOGE",
+      "RENDER"
+    ],
+    "caution": [
+      "DOGE",
+      "RENDER"
+    ]
+  },
+  {
+    "timestamp": "2026-08-08T17:47:35.309Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-08T17:47:37.853Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
