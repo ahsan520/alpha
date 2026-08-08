@@ -3721,7 +3721,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-08T09:42:41.006Z",
+    "timestamp": "2026-08-08T09:42:33.610Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3733,7 +3733,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3838,7 +3838,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3866,10 +3866,70 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-08T09:42:33.674Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-08T09:42:37.083Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-08T09:42:37.085Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-08T09:42:38.412Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
+  },
+  {
+    "timestamp": "2026-08-08T09:42:42.763Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "pair": "FET",
+    "price": 0.1377,
+    "entry": 0.1391,
+    "stop": 0.137709,
+    "pnlPct": "-1.01"
+  },
+  {
+    "timestamp": "2026-08-08T09:42:43.342Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 13
+  },
+  {
+    "timestamp": "2026-08-08T09:42:44.218Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 13,
+    "statusChanged": true
   }
 ]
