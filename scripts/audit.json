@@ -3794,7 +3794,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-08T04:32:33.724Z",
+    "timestamp": "2026-08-08T04:32:31.915Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3904,14 +3904,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3939,10 +3939,44 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-08T04:32:31.975Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-08T04:32:32.298Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-08T04:32:32.300Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-08T04:32:33.639Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
