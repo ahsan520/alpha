@@ -4135,7 +4135,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-09T00:12:39.279Z",
+    "timestamp": "2026-08-09T00:12:39.866Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4245,7 +4245,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4285,5 +4285,91 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-09T00:12:39.929Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-09T00:12:40.276Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-08-09T00:12:41.158Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 8084e2a3f249849579e919e34b98b3b5a99a876e but expected 5cbd0df4560af0d5af6e7bf88f98651b4352d274"
+  },
+  {
+    "timestamp": "2026-08-09T00:12:41.159Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 15,
+    "openAfter": 14,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-09T00:12:41.163Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TAOUSDT",
+    "sym": "BINANCE:TAOUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-09T00:12:41.167Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-09T00:12:42.047Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-08-09T00:12:42.457Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "TAO"
+    ],
+    "caution": [
+      "TAO"
+    ]
+  },
+  {
+    "timestamp": "2026-08-09T00:12:42.458Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-09T00:12:44.577Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
