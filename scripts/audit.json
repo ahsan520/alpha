@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-09T07:37:42.004Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 12,
-    "monitored": 12
-  },
-  {
     "timestamp": "2026-08-09T07:40:36.872Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3950,7 +3943,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-09T08:37:41.199Z",
+    "timestamp": "2026-08-09T08:37:45.121Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3990,7 +3983,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4095,10 +4088,44 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-09T08:37:45.180Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-09T08:37:45.676Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-09T08:37:45.678Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-09T08:37:47.065Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
