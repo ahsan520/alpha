@@ -4285,7 +4285,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-09T13:07:40.844Z",
+    "timestamp": "2026-08-09T13:07:44.121Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4360,7 +4360,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4435,5 +4435,70 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-09T13:07:44.181Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-09T13:07:44.517Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "LINKUSDT",
+    "sym": "BINANCE:LINKUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-09T13:07:44.520Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-09T13:07:45.561Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 12
+  },
+  {
+    "timestamp": "2026-08-09T13:07:45.925Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "LINK"
+    ],
+    "caution": [
+      "LINK"
+    ]
+  },
+  {
+    "timestamp": "2026-08-09T13:07:45.926Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-09T13:07:48.034Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
