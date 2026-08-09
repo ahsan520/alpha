@@ -1,36 +1,5 @@
 [
   {
-    "timestamp": "2026-08-09T00:12:42.047Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 15
-  },
-  {
-    "timestamp": "2026-08-09T00:12:42.457Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "TAO"
-    ],
-    "caution": [
-      "TAO"
-    ]
-  },
-  {
-    "timestamp": "2026-08-09T00:12:42.458Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-09T00:12:44.577Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 15,
-    "monitored": 15
-  },
-  {
     "timestamp": "2026-08-09T00:15:33.046Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3844,7 +3813,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-09T01:12:41.850Z",
+    "timestamp": "2026-08-09T01:12:44.845Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3926,7 +3895,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3989,10 +3958,58 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-09T01:12:44.904Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-09T01:12:46.193Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-08-09T01:12:46.194Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 17,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-09T01:12:46.198Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-09T01:12:46.199Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-09T01:12:47.453Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
