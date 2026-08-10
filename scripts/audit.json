@@ -4419,7 +4419,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-10T16:17:41.023Z",
+    "timestamp": "2026-08-10T16:17:41.841Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4529,7 +4529,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4569,5 +4569,71 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-10T16:17:41.898Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-10T16:17:42.323Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:AVAXUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-10T16:17:43.543Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at f0381e3448fbefde6167b770a3d5bcbd39e57046 but expected fd08b79b913b4adc1647cfd978bda333aaf5240e"
+  },
+  {
+    "timestamp": "2026-08-10T16:17:43.545Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 3,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-10T16:17:43.547Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-10T16:17:43.550Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-10T16:17:43.552Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-10T16:17:45.202Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 3
   }
 ]
