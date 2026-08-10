@@ -4212,7 +4212,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-10T02:47:41.555Z",
+    "timestamp": "2026-08-10T02:47:39.340Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4357,10 +4357,44 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-10T02:47:39.401Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-10T02:47:39.738Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-10T02:47:39.739Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-10T02:47:40.983Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
   }
 ]
