@@ -1,31 +1,5 @@
 [
   {
-    "timestamp": "2026-08-09T23:17:42.850Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 11,
-    "openAfter": 11,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-08-09T23:17:42.853Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-09T23:17:42.854Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-09T23:17:43.992Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-08-09T23:20:33.319Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4121,7 +4095,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-10T00:17:42.746Z",
+    "timestamp": "2026-08-10T00:17:41.798Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4147,7 +4121,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4238,7 +4212,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4271,5 +4245,84 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-10T00:17:41.856Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-10T00:17:46.570Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-08-10T00:17:46.571Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-10T00:17:46.573Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TAOUSDT",
+    "sym": "BINANCE:TAOUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-10T00:17:46.576Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-10T00:17:47.691Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-08-10T00:17:48.101Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "TAO"
+    ],
+    "caution": [
+      "TAO"
+    ]
+  },
+  {
+    "timestamp": "2026-08-10T00:17:48.102Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-10T00:17:50.971Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
