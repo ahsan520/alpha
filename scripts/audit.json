@@ -1,27 +1,5 @@
 [
   {
-    "timestamp": "2026-08-12T18:52:45.954Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-12T18:52:45.973Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-12T18:52:45.975Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-08-12T18:52:48.142Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5753,7 +5731,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-12T19:52:45.699Z",
+    "timestamp": "2026-08-12T19:52:44.264Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 31,
@@ -5765,7 +5743,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5793,7 +5771,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5877,7 +5855,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5905,17 +5883,17 @@
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": -6,
+        "conv": -2,
         "session": "open",
-        "setup": "SHORT SETUP",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
@@ -5937,7 +5915,7 @@
       {
         "pair": "GOOG.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -5945,7 +5923,7 @@
       {
         "pair": "GRGD.TO",
         "status": "ok",
-        "conv": 2,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5961,7 +5939,7 @@
       {
         "pair": "MSFT.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": -1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5977,9 +5955,9 @@
       {
         "pair": "TXF.TO",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
@@ -5991,5 +5969,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-12T19:52:44.331Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-12T19:52:45.673Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-08-12T19:52:45.675Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-12T19:52:45.678Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-12T19:52:45.696Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-12T19:52:45.699Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-12T19:52:47.221Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
