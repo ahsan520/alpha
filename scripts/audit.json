@@ -1,29 +1,5 @@
 [
   {
-    "timestamp": "2026-08-12T12:27:38.653Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 13
-  },
-  {
-    "timestamp": "2026-08-12T12:27:38.973Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "ZEC"
-    ],
-    "caution": [
-      "ZEC"
-    ]
-  },
-  {
-    "timestamp": "2026-08-12T12:27:38.975Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-08-12T12:27:42.255Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4119,7 +4095,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-12T13:27:38.587Z",
+    "timestamp": "2026-08-12T13:27:37.490Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4159,7 +4135,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4269,5 +4245,50 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-12T13:27:37.554Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-12T13:27:38.145Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-12T13:27:38.150Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-12T13:27:38.151Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-12T13:27:40.260Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
