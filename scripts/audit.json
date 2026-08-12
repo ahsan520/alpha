@@ -6165,7 +6165,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-12T17:22:43.647Z",
+    "timestamp": "2026-08-12T17:22:43.554Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -6212,7 +6212,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6317,7 +6317,7 @@
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "open",
         "setup": "BREAKOUT",
         "assetType": "stock"
@@ -6325,15 +6325,15 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": -5,
+        "conv": -2,
         "session": "open",
-        "setup": "SHORT SETUP",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
         "pair": "GE.TO",
         "status": "ok",
-        "conv": 0,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6349,7 +6349,7 @@
       {
         "pair": "GOOG.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -6357,7 +6357,7 @@
       {
         "pair": "GRGD.TO",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6373,7 +6373,7 @@
       {
         "pair": "MSFT.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": -1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6381,9 +6381,9 @@
       {
         "pair": "TXF.TO",
         "status": "ok",
-        "conv": 7,
+        "conv": 4,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
@@ -6395,5 +6395,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-12T17:22:43.624Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-12T17:22:43.992Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-12T17:22:44.011Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-12T17:22:44.013Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-12T17:22:45.755Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
