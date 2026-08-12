@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XSIAM Engineer Certification – Practice Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1f2430;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --easy: #22c55e;
+    --medium: #f59e0b;
+    --hard: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG Grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(10,12,16,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-badge {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: #000;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 1px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  .stat-pill span { color: var(--accent); font-weight: 600; }
+
+  /* HERO */
+  .hero {
+    padding: 56px 0 40px;
+    text-align: center;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    border: 1px solid rgba(0,212,255,0.3);
+    background: rgba(0,212,255,0.05);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 54px);
+    font-weight: 800;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 0%, rgba(0,212,255,0.9) 50%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  /* DOMAIN TABS */
+  .tabs-wrap {
+    overflow-x: auto;
+    margin-bottom: 32px;
+    padding-bottom: 4px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    min-width: max-content;
+  }
+
+  .tab {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .tab:hover { border-color: rgba(0,212,255,0.3); color: var(--text); }
+
+  .tab.active {
+    background: rgba(0,212,255,0.08);
+    border-color: rgba(0,212,255,0.4);
+    color: var(--accent);
+  }
+
+  .tab .weight {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    opacity: 0.6;
+    margin-left: 4px;
+  }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Instrument Sans', sans-serif;
+  }
+
+  .filter-btn[data-diff="all"] { color: var(--text); }
+  .filter-btn[data-diff="all"].active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+  .filter-btn[data-diff="easy"] { color: var(--easy); }
+  .filter-btn[data-diff="easy"].active { border-color: var(--easy); background: rgba(34,197,94,0.08); }
+  .filter-btn[data-diff="medium"] { color: var(--yellow); }
+  .filter-btn[data-diff="medium"].active { border-color: var(--yellow); background: rgba(245,158,11,0.08); }
+  .filter-btn[data-diff="hard"] { color: var(--red); }
+  .filter-btn[data-diff="hard"].active { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+  .filter-btn[data-type] { color: var(--muted); }
+  .filter-btn[data-type].active { border-color: var(--accent3); color: var(--accent3); background: rgba(124,58,237,0.08); }
+
+  .sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+
+  /* QUESTIONS */
+  .questions-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-card:hover { border-color: rgba(0,212,255,0.2); }
+
+  .q-header {
+    padding: 18px 20px 14px;
+    cursor: pointer;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  .q-meta {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  .badge-easy { background: rgba(34,197,94,0.12); color: var(--easy); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-medium { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.2); }
+  .badge-hard { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+
+  .badge-mcq { background: rgba(0,212,255,0.08); color: var(--accent); border: 1px solid rgba(0,212,255,0.15); }
+  .badge-scenario { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+  .badge-short { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+
+  .q-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .q-text strong { color: var(--accent); }
+
+  .q-toggle {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .q-card.open .q-toggle {
+    background: rgba(0,212,255,0.1);
+    border-color: rgba(0,212,255,0.3);
+    color: var(--accent);
+    transform: rotate(180deg);
+  }
+
+  /* OPTIONS */
+  .q-options {
+    padding: 0 20px 0 62px;
+    display: none;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 0;
+  }
+
+  .q-card.open .q-options { display: flex; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .option:hover { border-color: rgba(0,212,255,0.25); background: rgba(0,212,255,0.04); }
+  .option.selected { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.07); }
+  .option.correct { border-color: var(--green); background: rgba(34,197,94,0.08); }
+  .option.wrong { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+  .opt-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 600;
+  }
+
+  .option.correct .opt-key { background: rgba(34,197,94,0.2); color: var(--green); }
+  .option.wrong .opt-key { background: rgba(239,68,68,0.2); color: var(--red); }
+  .option.selected .opt-key { background: rgba(0,212,255,0.15); color: var(--accent); }
+
+  /* ANSWER SECTION */
+  .q-answer {
+    margin: 12px 20px 18px 62px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.12);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    display: none;
+  }
+
+  .q-card.open .q-answer { display: block; }
+  .q-card.answered .q-answer { display: block; }
+
+  .answer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .answer-label.short-ans { color: var(--accent2); }
+
+  /* REVEAL BTN */
+  .reveal-btn {
+    margin: 10px 20px 18px 62px;
+    display: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.25);
+    color: var(--accent2);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: fit-content;
+  }
+
+  .reveal-btn:hover { background: rgba(255,107,53,0.15); }
+  .q-card.open .reveal-btn { display: block; }
+  .q-card.revealed .reveal-btn { display: none !important; }
+  .q-card.revealed .q-answer { display: block !important; }
+
+  /* SHORT ANSWER INPUT */
+  .short-input {
+    margin: 10px 20px 0 62px;
+    display: none;
+  }
+
+  .q-card.open .short-input { display: block; }
+
+  .short-input textarea {
+    width: 100%;
+    min-height: 80px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .short-input textarea:focus { border-color: rgba(0,212,255,0.4); }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .progress-stat { text-align: center; }
+  .progress-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .progress-stat .label { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .progress-bar-wrap { flex: 1; min-width: 200px; }
+  .progress-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+  .progress-bar-bg { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 99px; transition: width 0.5s ease; }
+
+  /* DOMAIN COLOR BARS */
+  .domain-bar {
+    height: 3px;
+    border-radius: 99px;
+    margin-bottom: 0;
+  }
+  .d1 { background: linear-gradient(90deg, #00d4ff, #38bdf8); }
+  .d2 { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .d3 { background: linear-gradient(90deg, #ff6b35, #fb923c); }
+  .d4 { background: linear-gradient(90deg, #22c55e, #4ade80); }
+
+  .q-card .domain-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .q-card { position: relative; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); margin-top: 60px; padding: 28px 0; text-align: center; color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+
+  @media (max-width: 640px) {
+    .q-options, .q-answer, .reveal-btn, .short-input { margin-left: 20px; }
+    .progress-wrap { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-badge">XS</div>
+        <div>
+          <div class="logo-text">XSIAM Engineer</div>
+          <div class="logo-sub">// Certification Practice Exam</div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-pill">Questions: <span id="total-count">0</span></div>
+        <div class="stat-pill">Answered: <span id="answered-count">0</span></div>
+        <div class="stat-pill">Score: <span id="score-count">0%</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="hero">
+      <div class="hero-tag">AUGUST 2025 EDITION</div>
+      <h1>Master the<br>XSIAM Engineer Exam</h1>
+      <p>75 practice questions spanning all four domains — from foundational concepts to advanced engineering and troubleshooting scenarios. Aligned with the official blueprint.</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-stat">
+        <div class="num" id="pg-total" style="color:var(--accent)">75</div>
+        <div class="label">Total Qs</div>
+      </div>
+      <div class="progress-stat">
+        <div class="num" id="pg-easy" style="color:var(--easy)">20</div>
+        <div class="label">Easy</div>
+      </div>
+      <div class="progress-stat">
+        <div class="num" id="pg-medium" style="color:var(--yellow)">32</div>
+        <div class="label">Medium</div>
+      </div>
+      <div class="progress-stat">
+        <div class="num" id="pg-hard" style="color:var(--red)">23</div>
+        <div class="label">Hard</div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-label">
+          <span>Progress</span>
+          <span id="pg-pct">0 / 75 answered</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="pg-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-wrap">
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-domain="all">All Domains</div>
+        <div class="tab" data-domain="1">Planning & Installation <span class="weight">22%</span></div>
+        <div class="tab" data-domain="2">Integration & Automation <span class="weight">30%</span></div>
+        <div class="tab" data-domain="3">Content Optimization <span class="weight">24%</span></div>
+        <div class="tab" data-domain="4">Maintenance & Troubleshooting <span class="weight">24%</span></div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <span class="filter-label">Difficulty:</span>
+      <button class="filter-btn active" data-diff="all">All</button>
+      <button class="filter-btn" data-diff="easy">Easy</button>
+      <button class="filter-btn" data-diff="medium">Medium</button>
+      <button class="filter-btn" data-diff="hard">Hard</button>
+      <div class="sep"></div>
+      <span class="filter-label">Type:</span>
+      <button class="filter-btn active" data-type="all">All</button>
+      <button class="filter-btn" data-type="mcq">MCQ</button>
+      <button class="filter-btn" data-type="scenario">Scenario</button>
+      <button class="filter-btn" data-type="short">Short Answer</button>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="questions-list" id="questions-list"></div>
+
+    <div class="empty" id="empty-state" style="display:none">
+      <div class="empty-icon">🔍</div>
+      <div>No questions match the current filters.</div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    Palo Alto Networks XSIAM Engineer Certification — Practice Exam &nbsp;·&nbsp; AUGUST 2025 &nbsp;·&nbsp; For preparation purposes only
+  </div>
+</footer>
+
+<script>
+const questions = [
+  // ===================== DOMAIN 1: Planning & Installation (22%) =====================
+  {
+    id: 1, domain: 1, diff: "easy", type: "mcq",
+    q: "Which component in Cortex XSIAM is responsible for collecting logs from on-premises sources and forwarding them to the cloud?",
+    options: ["A. XSIAM Engine", "B. Broker VM", "C. XDR Agent", "D. Cortex Data Lake"],
+    answer: 1,
+    explanation: "The Broker VM acts as an on-premises proxy/collection point. It receives logs and data from on-prem sources and securely forwards them to the XSIAM cloud platform. It is essential when sources cannot communicate directly with the cloud."
+  },
+  {
+    id: 2, domain: 1, diff: "easy", type: "mcq",
+    q: "What is the primary purpose of configuring user roles and permissions in XSIAM?",
+    options: ["A. To improve data ingestion speed", "B. To enforce least-privilege access and ensure users only access authorized features", "C. To configure network routing for agents", "D. To define playbook execution schedules"],
+    answer: 1,
+    explanation: "Role-based access control (RBAC) ensures that users have access only to what they need (principle of least privilege), reducing the attack surface and meeting compliance requirements."
+  },
+  {
+    id: 3, domain: 1, diff: "easy", type: "mcq",
+    q: "Which of the following is a prerequisite skill for an XSIAM Engineer, according to the official datasheet?",
+    options: ["A. Expertise in hardware manufacturing", "B. Working knowledge of SIEM and security operations technology", "C. Advanced knowledge of machine learning algorithms", "D. Proficiency in mobile application development"],
+    answer: 1,
+    explanation: "The datasheet explicitly lists 'Working knowledge of SIEM and security operations technology' as a required skill for XSIAM engineers."
+  },
+  {
+    id: 4, domain: 1, diff: "medium", type: "mcq",
+    q: "An XSIAM Engineer is planning a deployment for an enterprise with remote branch offices that have strict firewall rules blocking outbound traffic to the internet. What component should be prioritized in the deployment plan?",
+    options: ["A. Additional XDR Agents at HQ", "B. Broker VM at each branch location", "C. A dedicated XSIAM Engine per branch", "D. Manual log export via SFTP"],
+    answer: 1,
+    explanation: "The Broker VM is specifically designed for environments where direct cloud communication is not possible. It acts as a local relay, collecting data and forwarding it through approved channels, making it ideal for branch offices with restrictive firewall rules."
+  },
+  {
+    id: 5, domain: 1, diff: "medium", type: "scenario",
+    q: "During an XSIAM deployment review, you discover that your organization uses a hybrid environment with on-premises servers, cloud workloads, and SaaS applications. What is the most complete approach to defining your data source requirements?",
+    options: [
+      "A. Focus only on on-premises endpoints as they pose the highest risk",
+      "B. Categorize sources as: endpoint, network, cloud, and identity — then map each to appropriate connectors",
+      "C. Deploy Broker VMs only for on-premises and ignore SaaS sources",
+      "D. Collect all data via a single syslog forwarder"
+    ],
+    answer: 1,
+    explanation: "XSIAM's integration architecture categorizes data sources into endpoint, network, cloud, and identity. A comprehensive deployment must address all four categories to achieve full visibility. Ignoring any tier creates blind spots."
+  },
+  {
+    id: 6, domain: 1, diff: "hard", type: "scenario",
+    q: "You are evaluating XSIAM deployment options for a highly regulated financial institution. The security team mandates that no raw log data should traverse the public internet unencrypted, all agents must communicate through approved proxies, and data residency requirements restrict data to a specific geographic region. Which combination of XSIAM components and configurations best addresses these constraints?",
+    options: [
+      "A. Standard cloud agents with VPN tunnel + Cortex Data Lake in any region",
+      "B. XDR Agents configured with proxy settings + Broker VM for on-prem forwarding + region-specific Cortex Data Lake tenant",
+      "C. Syslog-only forwarding without agents + Broker VM + global Cortex Data Lake",
+      "D. No Broker VM — use direct HTTPS from all endpoints to XSIAM cloud"
+    ],
+    answer: 1,
+    explanation: "This scenario requires: (1) XDR Agents configured to communicate through proxy servers for network control, (2) Broker VM to handle on-premises sources without direct internet exposure, and (3) a region-specific Cortex Data Lake tenant to satisfy data residency requirements. This combination addresses encryption, routing, and compliance simultaneously."
+  },
+  {
+    id: 7, domain: 1, diff: "easy", type: "short",
+    q: "What are the four main evaluation areas when assessing deployment requirements for XSIAM, as listed in Domain 1.2 of the exam blueprint?",
+    options: null,
+    answer: null,
+    explanation: "The four evaluation areas are: (1) Hardware — server/compute requirements for components, (2) Software — OS compatibility, agent versions, prerequisites, (3) Data sources — what logs/telemetry will be collected, and (4) Integrations — third-party tools and APIs to be connected."
+  },
+  {
+    id: 8, domain: 1, diff: "medium", type: "mcq",
+    q: "What does the 'XSIAM Engine' primarily handle in the architecture?",
+    options: [
+      "A. Endpoint vulnerability scanning",
+      "B. Advanced analytics, correlation, and AI-driven detection processing",
+      "C. Routing network packets between segments",
+      "D. Managing user authentication via SAML"
+    ],
+    answer: 1,
+    explanation: "The XSIAM Engine is the analytical backbone of the platform. It processes ingested data, runs correlation rules, machine learning models, and detection logic to generate alerts and incidents."
+  },
+  {
+    id: 9, domain: 1, diff: "hard", type: "short",
+    q: "Explain why Zero Trust architecture principles are relevant when planning an XSIAM deployment, and give two concrete examples of how XSIAM components support Zero Trust.",
+    options: null,
+    answer: null,
+    explanation: "Zero Trust assumes no implicit trust — every user and device must be verified. XSIAM supports this by: (1) Continuously monitoring endpoint behavior via XDR Agents, detecting deviations that indicate compromised identities; (2) Ingesting identity data (e.g., from Azure AD/Okta) to correlate authentication anomalies with endpoint/network activity, enabling identity-centric threat detection that enforces Zero Trust validation."
+  },
+  {
+    id: 10, domain: 1, diff: "medium", type: "mcq",
+    q: "Which scripting/query languages are explicitly listed as required working knowledge for the XSIAM Engineer certification?",
+    options: [
+      "A. Java, Ruby, Bash, SQL",
+      "B. Python, PowerShell, SQL, RegEx, XQL",
+      "C. Go, Rust, JavaScript, XQL",
+      "D. Python, C++, YAML, Bash"
+    ],
+    answer: 1,
+    explanation: "The official datasheet lists Python, PowerShell, SQL, RegEx, and XQL (Cortex XDR Query Language) as required. XQL is Palo Alto's proprietary query language used for threat hunting and log analysis within the platform."
+  },
+
+  // ===================== DOMAIN 2: Integration & Automation (30%) =====================
+  {
+    id: 11, domain: 2, diff: "easy", type: "mcq",
+    q: "What is the function of a Marketplace content pack in Cortex XSIAM?",
+    options: [
+      "A. To update the Broker VM firmware",
+      "B. To provide pre-built integrations, playbooks, and detection content for specific technologies",
+      "C. To configure network firewall rules",
+      "D. To back up XSIAM configuration settings"
+    ],
+    answer: 1,
+    explanation: "Marketplace content packs bundle pre-built integrations, playbooks, incident layouts, dashboards, and detection rules for specific vendors/technologies. They accelerate deployment by providing ready-to-use content rather than requiring everything to be built from scratch."
+  },
+  {
+    id: 12, domain: 2, diff: "easy", type: "mcq",
+    q: "Which data source category includes logs from Azure Active Directory, Okta, or CrowdStrike Identity Protect?",
+    options: ["A. Endpoint", "B. Network", "C. Identity", "D. Cloud"],
+    answer: 2,
+    explanation: "Identity data sources include user authentication and authorization systems like Azure AD, Okta, Ping Identity, etc. These provide authentication events, user behavior, and access logs critical for detecting identity-based attacks."
+  },
+  {
+    id: 13, domain: 2, diff: "medium", type: "mcq",
+    q: "In XSIAM playbook design, what is the correct sequence for building an effective automation workflow?",
+    options: [
+      "A. Debug → Customize → Plan → Playbook Tasks",
+      "B. Plan → Playbook Tasks → Customize → Debug",
+      "C. Playbook Tasks → Plan → Debug → Customize",
+      "D. Customize → Plan → Playbook Tasks → Debug"
+    ],
+    answer: 1,
+    explanation: "Per the blueprint (Domain 2.4): Plan first to define objectives and flow, then build Playbook Tasks, Customize them for your environment, and finally Debug to validate. This follows standard software development lifecycle principles applied to SOAR automation."
+  },
+  {
+    id: 14, domain: 2, diff: "medium", type: "scenario",
+    q: "A SOC analyst reports that phishing alerts from an email security gateway are taking 45 minutes to triage manually. You are tasked with reducing this to under 5 minutes. Which XSIAM capability should be your primary solution?",
+    options: [
+      "A. Create a new correlation rule",
+      "B. Build a playbook that automatically extracts IOCs from the email alert, queries threat intelligence, and enriches the incident",
+      "C. Configure a new data source onboarding for the email gateway",
+      "D. Deploy an additional Broker VM"
+    ],
+    answer: 1,
+    explanation: "SOAR playbooks are designed exactly for this use case. A phishing playbook can automatically: extract URLs/attachments/sender from the alert, query threat intel (VirusTotal, WildFire, etc.), check if recipient clicked the link, and suggest containment — reducing analyst triage time from 45 minutes to under 5."
+  },
+  {
+    id: 15, domain: 2, diff: "hard", type: "scenario",
+    q: "Your XSIAM playbook is designed to automatically block an IP using a firewall integration when a critical malware alert fires. During testing, the playbook executes but the firewall block command returns a 401 Unauthorized error. What is the MOST LIKELY cause and the correct troubleshooting approach?",
+    options: [
+      "A. The playbook logic is incorrect — rewrite the entire playbook",
+      "B. The integration's API credentials are incorrect or expired; verify and rotate the authentication token in the integration configuration",
+      "C. The Broker VM is offline; restart it",
+      "D. The XSIAM Engine needs to be updated"
+    ],
+    answer: 1,
+    explanation: "A 401 Unauthorized from an integration indicates an authentication failure — not a logic error. The correct approach is: (1) Navigate to the integration settings, (2) Verify API key/token validity, (3) Re-authenticate or rotate credentials, (4) Test the integration connection, then re-run the playbook. This is a common integration troubleshooting scenario."
+  },
+  {
+    id: 16, domain: 2, diff: "medium", type: "mcq",
+    q: "Which type of integration would you configure to receive real-time threat intelligence feeds (e.g., malicious IPs, domains, hashes) into XSIAM?",
+    options: [
+      "A. Messaging integration (e.g., Slack, PagerDuty)",
+      "B. Authentication integration (e.g., SAML/LDAP)",
+      "C. Threat intelligence feed integration (e.g., MISP, Recorded Future, VirusTotal)",
+      "D. SIEM integration (e.g., Splunk forwarder)"
+    ],
+    answer: 2,
+    explanation: "Threat intelligence feed integrations connect XSIAM to external TI sources. These feeds automatically populate IOC lists that can be used in correlation rules and playbooks to detect known malicious indicators as they are ingested."
+  },
+  {
+    id: 17, domain: 2, diff: "hard", type: "short",
+    q: "Describe the difference between an integration and a playbook in Cortex XSIAM, and explain how they work together during automated incident response.",
+    options: null,
+    answer: null,
+    explanation: "An **integration** is a configured connection to an external system (firewall, EDR, ticketing tool, TI feed) that exposes specific commands/actions via APIs. A **playbook** is the automated workflow that orchestrates these integrations. For example: when a malware alert fires, a playbook may call the VirusTotal integration to check file hash reputation, then call the firewall integration to block the source IP, then call the JIRA integration to create a ticket — all automatically. The integration provides the 'verbs' and the playbook sequences them into a 'story'."
+  },
+  {
+    id: 18, domain: 2, diff: "easy", type: "mcq",
+    q: "What is the purpose of a messaging integration in XSIAM (e.g., Slack or Microsoft Teams)?",
+    options: [
+      "A. To collect endpoint telemetry",
+      "B. To send automated notifications, alerts, or playbook interaction prompts to analysts",
+      "C. To parse raw logs into structured data",
+      "D. To configure RBAC permissions"
+    ],
+    answer: 1,
+    explanation: "Messaging integrations (Slack, Teams, PagerDuty, etc.) allow XSIAM to notify analysts of critical incidents, request manual approval within playbooks, or send enriched alert summaries — keeping the human-in-the-loop for decisions that require judgment."
+  },
+  {
+    id: 19, domain: 2, diff: "medium", type: "mcq",
+    q: "When onboarding a new cloud data source (e.g., AWS CloudTrail), which configuration step is most critical to ensure complete log coverage?",
+    options: [
+      "A. Configuring the XSIAM Engine storage quota",
+      "B. Ensuring the correct IAM permissions and API credentials are set so XSIAM can pull all required log types",
+      "C. Creating a new user role in XSIAM",
+      "D. Deploying a Broker VM in AWS"
+    ],
+    answer: 1,
+    explanation: "For cloud sources like AWS CloudTrail, the integration relies on API access. If IAM permissions are insufficient, certain log types (e.g., S3 access logs, management events) may be silently dropped. Verifying permissions at the start prevents coverage gaps."
+  },
+  {
+    id: 20, domain: 2, diff: "hard", type: "scenario",
+    q: "You are designing a playbook for a ransomware detection scenario. The playbook must: isolate the affected endpoint, extract all process hashes for IOC analysis, notify the CISO via email, and create a P1 incident in ServiceNow — all within 10 minutes of alert trigger. Which playbook design principle is most important to achieve this SLA?",
+    options: [
+      "A. Use sequential tasks only to ensure each step fully completes before the next",
+      "B. Use parallel task execution for independent actions (isolation, IOC extraction, notification, ticketing) to minimize total elapsed time",
+      "C. Manually trigger each integration command one at a time",
+      "D. Create four separate playbooks and link them"
+    ],
+    answer: 1,
+    explanation: "Parallel execution is the key design principle here. Endpoint isolation, IOC extraction, CISO email, and ServiceNow ticket creation are independent actions — they don't depend on each other's output. Running them in parallel vs. sequentially can reduce total time from ~8 minutes to ~2 minutes, easily meeting the 10-minute SLA."
+  },
+
+  // ===================== DOMAIN 3: Content Optimization (24%) =====================
+  {
+    id: 21, domain: 3, diff: "easy", type: "mcq",
+    q: "What is the purpose of a parsing rule in XSIAM?",
+    options: [
+      "A. To block malicious IPs in real-time",
+      "B. To extract and structure fields from raw log data into queryable format",
+      "C. To define which users can view specific dashboards",
+      "D. To configure agent update schedules"
+    ],
+    answer: 1,
+    explanation: "Parsing rules transform raw, unstructured log text into structured fields (e.g., extracting src_ip, dst_port, username from a firewall log line). Without parsing, logs are stored as raw strings and cannot be effectively searched or correlated."
+  },
+  {
+    id: 22, domain: 3, diff: "easy", type: "mcq",
+    q: "What is the difference between a Correlation Rule and an Indicator Rule in XSIAM?",
+    options: [
+      "A. Correlation rules match single events; indicator rules match multiple events over time",
+      "B. Correlation rules detect patterns across multiple events/time windows; indicator rules trigger on a single IOC match",
+      "C. They are identical in function",
+      "D. Correlation rules are only for network data; indicator rules are only for endpoint data"
+    ],
+    answer: 1,
+    explanation: "Correlation rules detect complex patterns — e.g., 'more than 5 failed logins followed by a success from the same IP within 10 minutes.' Indicator rules are simpler — they trigger when a specific IOC (known bad IP, hash, domain) appears in any event, without requiring a pattern."
+  },
+  {
+    id: 23, domain: 3, diff: "medium", type: "mcq",
+    q: "A custom application sends logs in a proprietary key=value format that XSIAM doesn't automatically recognize. Which Domain 3 task addresses this situation?",
+    options: [
+      "A. 3.3 — Manage detection rules",
+      "B. 3.1 — Deploy parsing rules for unique data formats",
+      "C. 3.5 — Create custom dashboards",
+      "D. 3.4 — Manage incident and alert layout"
+    ],
+    answer: 1,
+    explanation: "Domain 3.1 specifically covers deploying parsing rules for unique/custom data formats. You would write a custom parser using regex or XSIAM's parsing framework to extract fields from the proprietary key=value format, making the data usable for detection and analysis."
+  },
+  {
+    id: 24, domain: 3, diff: "medium", type: "scenario",
+    q: "Your SOC is receiving 800 alerts per day but analysts can only review 150. The security team asks you to implement a way to automatically prioritize which alerts require immediate attention. Which XSIAM feature should you configure?",
+    options: [
+      "A. Additional Broker VMs to speed up ingestion",
+      "B. Scoring rules to assign risk scores based on contextual factors like asset criticality and threat intelligence",
+      "C. More correlation rules to generate more alerts",
+      "D. Increase storage quota in Cortex Data Lake"
+    ],
+    answer: 1,
+    explanation: "Scoring rules allow XSIAM to calculate a dynamic risk score for each alert/incident based on factors like: asset criticality (is this a domain controller?), threat intel context (is the IOC on a TI feed?), user risk score, and historical patterns. High-score alerts float to the top of the analyst queue, addressing alert fatigue."
+  },
+  {
+    id: 25, domain: 3, diff: "medium", type: "mcq",
+    q: "What is the purpose of data modeling rules (Domain 3.2) in XSIAM?",
+    options: [
+      "A. To apply ML models for anomaly detection",
+      "B. To normalize data from different sources into a common schema (XDM) for unified querying and correlation",
+      "C. To model 3D network topology",
+      "D. To create visual data flow diagrams"
+    ],
+    answer: 1,
+    explanation: "Data modeling rules map vendor-specific field names to the Cortex XDM (Extended Data Model) common schema. For example, a Cisco firewall may call the source IP 'SrcAddr' while a Palo Alto firewall calls it 'src'. Modeling rules normalize both to 'src_ip' — enabling unified correlation across different vendors."
+  },
+  {
+    id: 26, domain: 3, diff: "hard", type: "scenario",
+    q: "You are asked to write a correlation rule to detect a credential stuffing attack. The rule should trigger when a single source IP generates more than 100 failed authentication events across more than 3 different user accounts within a 5-minute window. Which elements are essential in the rule definition?",
+    options: [
+      "A. Source IP grouping, count threshold (>100 events), distinct user count (>3), time window (5 min), event type filter (failed auth)",
+      "B. Only source IP and event count threshold",
+      "C. User account list and destination port",
+      "D. Asset criticality score and geographic location only"
+    ],
+    answer: 0,
+    explanation: "A credential stuffing correlation rule requires all five elements: (1) Group by source IP — to track per-attacker behavior, (2) Count >100 events — threshold for attack velocity, (3) Distinct users >3 — distinguishes stuffing from a single account lockout, (4) 5-minute time window — defines the lookback period, (5) Failed authentication filter — ensures only relevant events are counted. Missing any element creates false positives or false negatives."
+  },
+  {
+    id: 27, domain: 3, diff: "hard", type: "short",
+    q: "Explain the difference between IOCs and BIOCs in XSIAM, and provide a real-world detection example for each.",
+    options: null,
+    answer: null,
+    explanation: "**IOCs (Indicators of Compromise)** are static, known-bad artifacts: specific IP addresses, file hashes, domains, or URLs from threat intelligence. Example: A rule triggers when a process communicates with a known C2 IP from a TI feed. **BIOCs (Behavioral Indicators of Compromise)** detect patterns of suspicious behavior, not specific known-bad values. Example: A BIOC triggers when any process spawns cmd.exe immediately after receiving a network connection — a behavior pattern suggesting a web shell, regardless of the specific IP or hash involved. BIOCs are more resilient against attacker evasion (changing IPs/hashes) but require more careful tuning to avoid false positives."
+  },
+  {
+    id: 28, domain: 3, diff: "easy", type: "mcq",
+    q: "What is the purpose of Attack Surface Management (ASM) rules in XSIAM?",
+    options: [
+      "A. To manage physical access to the data center",
+      "B. To identify, monitor, and alert on exposed assets and vulnerabilities that expand the organization's attack surface",
+      "C. To configure network segmentation rules on the firewall",
+      "D. To define playbook branching logic"
+    ],
+    answer: 1,
+    explanation: "ASM rules continuously monitor the external attack surface — identifying internet-exposed services, unpatched systems, misconfigured cloud resources, and new assets that create exploitable vulnerabilities. They generate alerts when the attack surface changes in risky ways."
+  },
+  {
+    id: 29, domain: 3, diff: "medium", type: "mcq",
+    q: "Which MITRE ATT&CK tactic would a BIOC detecting 'living off the land' binary (LOLBin) abuse most likely map to?",
+    options: [
+      "A. Initial Access (TA0001)",
+      "B. Execution (TA0002) or Defense Evasion (TA0005)",
+      "C. Exfiltration (TA0010)",
+      "D. Reconnaissance (TA0043)"
+    ],
+    answer: 1,
+    explanation: "LOLBin abuse — using legitimate system tools (certutil, mshta, wscript, regsvr32) for malicious purposes — typically maps to Execution (using the tool to run code) and Defense Evasion (using signed, trusted tools to bypass security controls). Understanding MITRE ATT&CK mapping is essential for building detections and communicating threat context."
+  },
+  {
+    id: 30, domain: 3, diff: "hard", type: "scenario",
+    q: "A new APT group is documented in a threat report. Their TTPs include: (1) using Scheduled Tasks for persistence, (2) encrypting C2 communications over port 443 using a custom certificate, and (3) exfiltrating data via DNS tunneling. You need to create detections for all three TTPs. Which combination of detection rule types is most appropriate?",
+    options: [
+      "A. Three separate IOC rules using the APT's known IP addresses",
+      "B. Three BIOCs: scheduled task creation by unusual parent process, large certificate data to unknown IP, high-frequency DNS queries with long subdomains",
+      "C. A single correlation rule covering all three behaviors",
+      "D. A scoring rule that reduces alert priority for this APT"
+    ],
+    answer: 1,
+    explanation: "Since IOC-based detection would fail if the APT changes IPs/hashes (which APTs do frequently), behavior-based BIOCs are more effective: (1) BIOC for Scheduled Task creation from unusual parent processes (persistence), (2) BIOC for TLS connections to newly-seen IPs on port 443 with unusual certificate patterns (C2), (3) BIOC for high-frequency DNS queries with very long subdomain strings (DNS tunneling). These detect the behavior regardless of the specific infrastructure used."
+  },
+
+  // ===================== DOMAIN 4: Maintenance & Troubleshooting (24%) =====================
+  {
+    id: 31, domain: 4, diff: "easy", type: "mcq",
+    q: "What is an exclusion configuration in XSIAM used for?",
+    options: [
+      "A. To permanently delete log data",
+      "B. To suppress alerts for known-good, expected behavior to reduce false positives",
+      "C. To block users from accessing certain dashboards",
+      "D. To exclude data sources from Cortex Data Lake billing"
+    ],
+    answer: 1,
+    explanation: "Exclusions tell XSIAM to ignore specific events that generate false positives — for example, a vulnerability scanner that legitimately probes internal systems should be excluded from network attack detection rules. Without exclusions, known-good activities generate noise that fatigues analysts."
+  },
+  {
+    id: 32, domain: 4, diff: "easy", type: "mcq",
+    q: "Which XSIAM component update is most likely to introduce new detection capabilities such as new ML models and threat signatures?",
+    options: [
+      "A. XDR Collector update",
+      "B. Broker VM firmware update",
+      "C. Content update (e.g., WildFire, XDR content pack)",
+      "D. Cortex Data Lake storage expansion"
+    ],
+    answer: 2,
+    explanation: "Content updates (distributed by Palo Alto Networks) include updated malware signatures, ML model improvements, new detection rules, and threat intelligence. These are separate from agent/collector software updates and are critical to maintaining detection efficacy against evolving threats."
+  },
+  {
+    id: 33, domain: 4, diff: "medium", type: "mcq",
+    q: "An XSIAM engineer notices that logs from a Windows server stopped appearing in XSIAM 2 hours ago. The server appears online and the XDR Agent shows as 'Connected'. What should be checked FIRST?",
+    options: [
+      "A. Check if the Cortex Data Lake storage is full",
+      "B. Verify the agent's policy profile — a recent policy change may have disabled log collection for that log type",
+      "C. Reinstall the XDR Agent immediately",
+      "D. Check if the user's XSIAM account was deactivated"
+    ],
+    answer: 1,
+    explanation: "When an agent shows connected but logs stop flowing, the most common cause is a policy profile change that disabled the specific log collection (e.g., Windows Event Forwarding). Always check the policy before taking disruptive actions like reinstalling the agent."
+  },
+  {
+    id: 34, domain: 4, diff: "medium", type: "scenario",
+    q: "After a Broker VM update, data from 12 on-premises log sources stops flowing into XSIAM. The Broker VM shows as 'Online' in the management console. What is the most systematic troubleshooting approach?",
+    options: [
+      "A. Immediately roll back the Broker VM to the previous version",
+      "B. Check Broker VM logs for errors → verify network connectivity from sources to Broker VM → confirm port/protocol configuration → review Broker VM configuration for any changes introduced by the update",
+      "C. Delete and re-create all 12 log source configurations",
+      "D. Open a support ticket without further investigation"
+    ],
+    answer: 1,
+    explanation: "A systematic approach: (1) Check Broker VM application logs for specific errors, (2) Verify network path from sources to Broker VM is intact, (3) Confirm the update didn't change listening port/protocol settings, (4) Review if any configuration was reset during the update. A structured approach is more efficient than destructive options like deleting/re-creating sources."
+  },
+  {
+    id: 35, domain: 4, diff: "hard", type: "scenario",
+    q: "Your XSIAM environment is seeing data normalization failures for 15% of events from a newly onboarded Cisco ASA firewall. The parsing rule appears correct but the XDM mapping is generating null values for 'src_ip' field in some events. What are the two most likely root causes?",
+    options: [
+      "A. The Broker VM is offline; the XDR Agent is outdated",
+      "B. Some Cisco ASA log formats vary by firmware version (causing regex mismatches) AND some log subtypes may not include source IP (e.g., config change events don't have network context)",
+      "C. The Cortex Data Lake quota is exceeded",
+      "D. The XSIAM Engine needs a content update"
+    ],
+    answer: 1,
+    explanation: "Two common causes for partial normalization failures: (1) **Firmware version variance** — Cisco ASA log formats subtly differ across firmware versions (ASA 9.x vs 8.x), causing regex patterns to fail on some variants. Solution: add multiple regex patterns or use conditional parsing. (2) **Log subtype differences** — Config change events (ASA-5-111010) don't contain src_ip like traffic events (ASA-6-302013) do. Solution: add log-type conditional mapping to only require src_ip for relevant subtypes."
+  },
+  {
+    id: 36, domain: 4, diff: "medium", type: "mcq",
+    q: "An organization wants to manage exceptions for a specific endpoint that runs a security testing tool, to prevent constant false-positive alerts. What is the best XSIAM approach?",
+    options: [
+      "A. Delete the detection rule entirely",
+      "B. Create a scoped exception for that specific endpoint or process hash, linked to the relevant detection rule",
+      "C. Disable all endpoint detection rules",
+      "D. Move the endpoint to a different network segment"
+    ],
+    answer: 1,
+    explanation: "Scoped exceptions allow you to suppress alerts for specific conditions (asset ID, process hash, user) without disabling the detection rule globally. This maintains detection coverage for all other endpoints while eliminating noise from the known-good testing activity."
+  },
+  {
+    id: 37, domain: 4, diff: "easy", type: "mcq",
+    q: "What is the recommended way to ensure XDR Agents on endpoints are running the latest version with security patches?",
+    options: [
+      "A. Manually download and install agents on each endpoint",
+      "B. Use XSIAM's agent update policies to schedule and automate rolling updates across endpoint groups",
+      "C. Only update agents after a security breach",
+      "D. Rely on the endpoint OS auto-update to handle agent updates"
+    ],
+    answer: 1,
+    explanation: "XSIAM provides centralized agent lifecycle management with update policies. You can define update groups (e.g., pilot group first, then production), schedule update windows, and monitor deployment progress — ensuring consistent agent versions without manual intervention."
+  },
+  {
+    id: 38, domain: 4, diff: "hard", type: "short",
+    q: "A playbook that was working correctly for 3 months suddenly fails at the 'Enrich IP Reputation' task with a timeout error. The integration test passes successfully. Describe your troubleshooting methodology and possible resolutions.",
+    options: null,
+    answer: null,
+    explanation: "Methodology: (1) **Check playbook execution logs** — review the specific error message and which API call timed out. (2) **Test with a sample IP** — manually trigger the integration command to see if it completes. (3) **Check external service status** — the TI provider (e.g., VirusTotal) may have increased response times or rate-limited your API key. (4) **Review rate limits** — playbook volume may have increased, exhausting API quota. (5) **Check network path** — firewall rules may have changed, blocking outbound to the TI service. Resolutions: increase task timeout setting in the playbook, implement caching for recently-checked IPs, add retry logic, or switch to an alternative TI integration."
+  },
+  {
+    id: 39, domain: 4, diff: "medium", type: "mcq",
+    q: "During a data ingestion troubleshooting session, you discover that logs are arriving at the Broker VM but not appearing in XSIAM queries. The Broker VM shows no errors. What should you investigate next?",
+    options: [
+      "A. Check if the endpoint XDR Agent is installed",
+      "B. Investigate the parsing rule — if the parser fails to match the log format, events may be dropped or stored as unparsed",
+      "C. Increase the Broker VM's RAM",
+      "D. Restart the XSIAM Engine"
+    ],
+    answer: 1,
+    explanation: "When data reaches the Broker VM but doesn't appear in XSIAM queries, the pipeline issue is likely post-ingestion. A failing parsing rule will cause events to be dropped or stored in a raw/unparsed state that doesn't appear in standard queries. Check the Parsing Rule engine logs and 'unparsed events' view in XSIAM."
+  },
+  {
+    id: 40, domain: 4, diff: "hard", type: "scenario",
+    q: "An audit reveals that your XSIAM deployment has 47 active exceptions configured over the past 18 months, but no review process exists. Security leadership is concerned some exceptions may be covering real attacks. What is the best practice approach to managing this situation?",
+    options: [
+      "A. Delete all 47 exceptions immediately and monitor for alerts",
+      "B. Implement an exception lifecycle management process: review each exception for validity, assign expiration dates, document business justification, and schedule quarterly reviews",
+      "C. Disable the detection rules that generated the most exceptions",
+      "D. Accept the risk and continue without changes"
+    ],
+    answer: 1,
+    explanation: "Exception lifecycle management is a security best practice. The correct approach: (1) Audit each exception — is the original reason still valid? (2) Assign expiration dates to force periodic review, (3) Require documented business justification for each exception, (4) Schedule quarterly reviews to expire outdated exceptions, (5) Alert on any exceptions covering assets that have shown suspicious activity. This balances operational noise reduction with security coverage."
+  },
+
+  // ===================== MIXED / CROSS-DOMAIN (Advanced) =====================
+  {
+    id: 41, domain: 2, diff: "hard", type: "scenario",
+    q: "You need to onboard 50 different SaaS applications as data sources in XSIAM. What common data formats should you expect to work with, and what challenge does this variety present?",
+    options: [
+      "A. All SaaS apps use the same JSON format — no challenge",
+      "B. SaaS apps may use JSON, XML, CEF, or custom formats; the challenge is that each requires its own parsing and data modeling rules to normalize into XDM",
+      "C. SaaS apps can only use Syslog",
+      "D. XSIAM automatically handles all SaaS formats natively without configuration"
+    ],
+    answer: 1,
+    explanation: "The datasheet explicitly lists JSON, XML, and CEF as common formats engineers must handle. With 50 SaaS apps, you'll encounter a mix. The challenge is: (1) each format requires a parsing rule, (2) field names differ per vendor, requiring data modeling rules to normalize to XDM, and (3) API changes by vendors can break existing parsers. Using Marketplace content packs where available can accelerate this process."
+  },
+  {
+    id: 42, domain: 3, diff: "medium", type: "mcq",
+    q: "You need to create a dashboard for the CISO that shows the top 10 attacked endpoints, alert trends over 30 days, and detection coverage by MITRE ATT&CK tactic. Which XSIAM capability enables this?",
+    options: [
+      "A. Playbook automation",
+      "B. Custom dashboards and reporting templates (Domain 3.5)",
+      "C. Scoring rules",
+      "D. Integration marketplace"
+    ],
+    answer: 1,
+    explanation: "Domain 3.5 covers creating custom dashboards and reporting templates. XSIAM allows you to build dashboards using XQL queries, pre-built widgets, and MITRE ATT&CK heatmaps. These can be scheduled as reports for executive audiences."
+  },
+  {
+    id: 43, domain: 1, diff: "hard", type: "short",
+    q: "Your organization is adopting a SaaS-first strategy. How does this affect your XSIAM deployment plan, and what specific integrations and data sources become most important?",
+    options: null,
+    answer: null,
+    explanation: "A SaaS-first strategy shifts risk to: (1) **Identity** — SaaS apps rely heavily on SSO/IdP; integrate Okta, Azure AD, or Ping Identity as priority identity data sources to detect account compromise, (2) **Cloud activity** — integrate SaaS audit logs (Microsoft 365, Google Workspace, Salesforce, Workday) as cloud data sources, (3) **API security** — monitor API gateway logs for abuse, (4) **Reduced on-prem scope** — fewer traditional network sources, but Broker VM may still be needed for legacy systems. The deployment plan should deprioritize on-prem log collection infrastructure and prioritize cloud/API integrations and identity sources."
+  },
+  {
+    id: 44, domain: 2, diff: "medium", type: "mcq",
+    q: "What does 'playbook debugging' involve in Cortex XSIAM?",
+    options: [
+      "A. Analyzing firewall packets for malware",
+      "B. Stepping through playbook execution, inspecting task inputs/outputs, and identifying where failures occur",
+      "C. Updating content packs",
+      "D. Configuring integration API endpoints"
+    ],
+    answer: 1,
+    explanation: "Playbook debugging in XSIAM involves using the built-in debugger to run a playbook against a test incident, pause execution at each task, inspect the data passed between tasks (context), and identify which task fails and why. This is essential for validating automation before production deployment."
+  },
+  {
+    id: 45, domain: 3, diff: "medium", type: "mcq",
+    q: "A security analyst reports that an important alert layout is missing key contextual fields that would help with triage. Which domain and task addresses this?",
+    options: [
+      "A. Domain 2.1 — Onboard data sources",
+      "B. Domain 3.4 — Manage incident and alert layout",
+      "C. Domain 4.1 — Manage exception configurations",
+      "D. Domain 1.5 — Configure user roles"
+    ],
+    answer: 1,
+    explanation: "Domain 3.4 covers customizing how incidents and alerts are displayed to analysts, including which fields are shown, their order, grouping, and the addition of custom context fields. Optimizing alert layouts directly reduces Mean Time to Respond (MTTR) by surfacing the most relevant data first."
+  },
+  {
+    id: 46, domain: 4, diff: "easy", type: "mcq",
+    q: "What does it mean to 'troubleshoot data normalization issues' in XSIAM (Domain 4.3)?",
+    options: [
+      "A. Fixing broken network connections between agents",
+      "B. Identifying and correcting cases where raw log fields are not correctly mapped to XDM schema fields",
+      "C. Updating the XSIAM user interface",
+      "D. Configuring firewall rules for data ingestion"
+    ],
+    answer: 1,
+    explanation: "Data normalization troubleshooting involves finding cases where the data modeling rules fail to correctly map raw fields to XDM. Symptoms include null values in expected fields, incorrect data types, or fields appearing under wrong names — all of which break correlation rules and detections that rely on normalized data."
+  },
+  {
+    id: 47, domain: 2, diff: "hard", type: "scenario",
+    q: "Your organization's XSIAM playbook for user account compromise response requires approval from the user's manager before disabling the account. How would you implement this human-in-the-loop requirement technically?",
+    options: [
+      "A. The playbook cannot support approvals — the account must be disabled automatically",
+      "B. Use a playbook task that sends a message via the messaging integration (Slack/Teams/Email) to the manager with approve/deny buttons, and configure the playbook to pause and wait for the response before proceeding",
+      "C. Create a separate manual playbook for all user account actions",
+      "D. Have the analyst manually disable the account outside XSIAM"
+    ],
+    answer: 1,
+    explanation: "XSIAM SOAR supports human-in-the-loop workflows through 'Ask' tasks that: (1) Send an actionable notification to the approver (via messaging integration), (2) Present approve/deny options, (3) Pause playbook execution waiting for response (with configurable timeout), (4) Branch the playbook based on the approval decision. This enables automation with governance controls — combining speed with accountability."
+  },
+  {
+    id: 48, domain: 3, diff: "hard", type: "mcq",
+    q: "A threat intelligence analyst wants to detect when an IOC from a TI feed is observed in ANY log source (endpoint, network, cloud, identity) in near real-time. Which rule type combination is most effective?",
+    options: [
+      "A. Correlation rule with 1-hour aggregation window",
+      "B. Indicator rules that automatically match incoming events against the TI feed IOC list in real-time",
+      "C. A BIOC based on behavior patterns",
+      "D. A scoring rule that raises the risk score when TI IOCs are seen"
+    ],
+    answer: 1,
+    explanation: "Indicator rules are designed for exactly this use case — they continuously check incoming normalized events against a maintained IOC list (IPs, hashes, domains, URLs). When a match is found, an alert is generated immediately. This works across all data sources that normalize to XDM, providing coverage regardless of whether the IOC appears on an endpoint, in network traffic, or in a cloud log."
+  },
+  {
+    id: 49, domain: 1, diff: "medium", type: "mcq",
+    q: "What is the significance of the MITRE ATT&CK framework for an XSIAM Engineer beyond just detection?",
+    options: [
+      "A. It only matters for red team exercises",
+      "B. It provides a common language to map detections, measure coverage gaps, prioritize rule development, and communicate threats to stakeholders",
+      "C. It is required only for compliance certifications",
+      "D. It is used exclusively for network forensics"
+    ],
+    answer: 1,
+    explanation: "MITRE ATT&CK serves multiple purposes for XSIAM engineers: (1) Map each detection rule to specific tactics/techniques to visualize coverage, (2) Identify gaps where no detection exists, (3) Prioritize new detection development based on prevalent threat actor TTPs, (4) Generate executive-ready reports showing detection coverage by tactic, (5) Enable purple team exercises to validate detection effectiveness."
+  },
+  {
+    id: 50, domain: 4, diff: "hard", type: "scenario",
+    q: "Three days after onboarding a new threat intelligence feed, you notice the XSIAM platform's query performance has significantly degraded. XSIAM queries that took 2 seconds now take 45 seconds. What is the most likely cause related to the TI feed, and what should you do?",
+    options: [
+      "A. The Broker VM needs more RAM",
+      "B. The TI feed introduced a very large number of IOCs (potentially millions of entries), significantly increasing the size of indicator lookup tables and impacting query performance; optimize by filtering to relevant IOC types/confidence scores before ingestion",
+      "C. The XDR Agents on endpoints are causing the slowdown",
+      "D. The XSIAM Engine version is incompatible with the TI feed"
+    ],
+    answer: 1,
+    explanation: "Large TI feeds with millions of low-quality IOCs can severely impact platform performance by bloating indicator lookup tables that are checked against every incoming event. Best practices: (1) Filter the feed to only import IOCs with a minimum confidence score (e.g., >70%), (2) Limit to relevant types for your environment (e.g., exclude IOCs that don't apply to your technology stack), (3) Set expiration on IOC entries, (4) Consider using the feed for retrospective hunting rather than real-time matching if volume is very high."
+  },
+  {
+    id: 51, domain: 2, diff: "easy", type: "mcq",
+    q: "XQL (Cortex XDR Query Language) is used for which primary purpose in XSIAM?",
+    options: [
+      "A. To configure integration API credentials",
+      "B. To write queries for threat hunting, custom detection rules, and dashboards against ingested data",
+      "C. To deploy agent policy profiles",
+      "D. To manage Marketplace content pack installations"
+    ],
+    answer: 1,
+    explanation: "XQL is XSIAM's proprietary query language used to query the Cortex Data Lake. Engineers use it for: threat hunting across all data sources, building custom correlation rule logic, creating dashboard widgets, and ad-hoc investigation queries. It's SQL-like but optimized for security telemetry."
+  },
+  {
+    id: 52, domain: 3, diff: "easy", type: "mcq",
+    q: "What common data format uses a structured key-value pair format with predefined fields and is commonly used by SIEM/security vendors?",
+    options: [
+      "A. JSON (JavaScript Object Notation)",
+      "B. CEF (Common Event Format)",
+      "C. XML (Extensible Markup Language)",
+      "D. CSV (Comma-Separated Values)"
+    ],
+    answer: 1,
+    explanation: "CEF (Common Event Format) is a standardized, ArcSight-developed log format used by many security vendors. It uses a header with predefined fields (timestamp, vendor, product, severity) followed by key=value extension pairs. XSIAM can natively parse CEF logs from supported sources."
+  },
+  {
+    id: 53, domain: 4, diff: "medium", type: "scenario",
+    q: "An XSIAM playbook task that calls a third-party SOAR integration is failing intermittently — it works about 70% of the time and fails 30% of the time with 'connection timeout.' The failures seem random. What is the most probable cause?",
+    options: [
+      "A. The playbook logic has a syntax error",
+      "B. Network reliability or rate limiting issue — the external service may be experiencing load spikes or your API key is being throttled during peak usage",
+      "C. The XDR Agent on the affected endpoint is offline",
+      "D. The XSIAM user account running the playbook lacks permissions"
+    ],
+    answer: 1,
+    explanation: "Intermittent failures (70% success, 30% timeout) that appear random suggest a transient issue, most likely: (1) **Rate limiting** — API rate limits may be hit during high-alert-volume periods, causing some calls to be rejected, or (2) **Network instability** — occasional packet loss or latency spikes to the external service. Solutions: implement retry logic with exponential backoff, check API rate limit headers in responses, consider caching, and monitor during peak alert periods."
+  },
+  {
+    id: 54, domain: 1, diff: "easy", type: "mcq",
+    q: "Which security model assumes that threats exist both inside and outside traditional network perimeters, and requires verification for every access request?",
+    options: [
+      "A. Defense-in-Depth",
+      "B. Zero Trust",
+      "C. Perimeter Security",
+      "D. Air Gap Security"
+    ],
+    answer: 1,
+    explanation: "Zero Trust ('never trust, always verify') eliminates the concept of a trusted internal network. Every user, device, and workload must authenticate and be authorized for every resource access, regardless of network location. XSIAM supports Zero Trust by providing continuous monitoring and behavioral analysis to validate trust continuously."
+  },
+  {
+    id: 55, domain: 3, diff: "hard", type: "short",
+    q: "Describe a scenario where creating a custom reporting template in XSIAM would add significant business value, and explain what data points the report should include.",
+    options: null,
+    answer: null,
+    explanation: "Scenario: Monthly Board-Level Security Report. Business Value: Demonstrates security ROI, informs executive decision-making, and satisfies governance requirements without requiring executives to access the XSIAM platform. The report should include: (1) Total alerts and incidents by severity, (2) MTTD (Mean Time to Detect) and MTTR (Mean Time to Respond) trends vs. previous period, (3) Top 5 attacked assets and users, (4) MITRE ATT&CK coverage heatmap showing detection coverage, (5) Threats blocked by category (malware, phishing, lateral movement), (6) Compliance status indicators (e.g., logging coverage for PCI/SOC2 required sources), (7) Open critical incidents and their remediation status. Scheduled automated delivery eliminates manual report creation effort."
+  },
+  {
+    id: 56, domain: 2, diff: "medium", type: "mcq",
+    q: "What is the key benefit of using pre-built Marketplace content packs over building integrations from scratch in XSIAM?",
+    options: [
+      "A. Marketplace packs provide guaranteed 100% accuracy with no configuration needed",
+      "B. They significantly reduce deployment time by providing tested, vendor-validated integrations, playbooks, and detection content",
+      "C. They eliminate the need for any parsing rules",
+      "D. They replace the need for XDR Agents on endpoints"
+    ],
+    answer: 1,
+    explanation: "Marketplace content packs accelerate deployment by providing: pre-tested integration code, vendor-specific playbooks, normalized parsing rules, and dashboards. Rather than building a firewall integration from scratch (days of work), a content pack provides it in minutes. Engineers still need to configure credentials and customize for their environment, but the foundational work is done."
+  },
+  {
+    id: 57, domain: 4, diff: "medium", type: "short",
+    q: "What are the key differences between troubleshooting a 'data ingestion issue' versus a 'data normalization issue' in XSIAM, and what tools would you use for each?",
+    options: null,
+    answer: null,
+    explanation: "**Data Ingestion Issue**: Data is NOT arriving at XSIAM at all. Troubleshooting tools: Broker VM logs (checking if data is received), network connectivity tests (ping, port checks), source system log collector status, firewall rule verification. Symptoms: missing data in raw event views. **Data Normalization Issue**: Data IS arriving but fields are incorrect/null in structured queries. Troubleshooting tools: Parsing rule tester (test raw log against parser), XDM field mapping review, 'unparsed events' view in XSIAM, XQL query on raw dataset vs. XDM dataset. Symptoms: events appear in raw view but queries on normalized fields return no results or nulls."
+  },
+  {
+    id: 58, domain: 3, diff: "medium", type: "scenario",
+    q: "Your XSIAM environment detects a high volume of alerts from a legitimate vulnerability scanning tool (Qualys) running weekly scheduled scans. How do you handle this without compromising detection capabilities?",
+    options: [
+      "A. Disable all network detection rules",
+      "B. Create scoped exclusions for the Qualys scanner's IP range, active only during the scheduled scan window, for the specific rules that false-positive",
+      "C. Block Qualys from scanning any XSIAM-monitored systems",
+      "D. Reduce the severity of all network alerts globally"
+    ],
+    answer: 1,
+    explanation: "Scoped, time-limited exclusions are the best practice: (1) Identify which rules are generating false positives (e.g., port scan detection, brute force rules), (2) Create exclusions targeting the Qualys scanner IP range only, (3) Optionally scope to the scan time window if Qualys has fixed schedules, (4) Link to the specific rules — don't create blanket exclusions. This eliminates noise without degrading detection for actual attacks from other sources."
+  },
+  {
+    id: 59, domain: 1, diff: "hard", type: "scenario",
+    q: "You are onboarding a new XSIAM instance for a company that has never used a SIEM before. Their IT team is unfamiliar with log normalization, XQL, or SOAR concepts. How do you structure the first 90 days of the deployment to maximize adoption and security value?",
+    options: [
+      "A. Deploy all 50 integrations on Day 1, configure all detection rules, and train the team in Week 12",
+      "B. Phase the deployment: Days 1-30 focus on foundational data sources and basic alert triage; Days 31-60 add automation playbooks and tuning; Days 61-90 implement advanced detection engineering and reporting",
+      "C. Deploy only endpoint agents and skip all other integrations",
+      "D. Hand over full admin access to the IT team immediately and provide no guidance"
+    ],
+    answer: 1,
+    explanation: "A phased approach is critical for new XSIAM deployments: **Phase 1 (Days 1-30)**: Deploy high-value, low-complexity sources (endpoint agents, identity), establish baseline dashboards, begin analyst training on basic triage and XQL fundamentals. **Phase 2 (Days 31-60)**: Onboard network and cloud sources, build first playbooks for high-frequency alerts (phishing, malware), tune exclusions based on Phase 1 false positives, intermediate XQL and correlation training. **Phase 3 (Days 61-90)**: Advanced detection engineering (custom BIOCs, correlation rules), full playbook automation, executive reporting, MITRE ATT&CK coverage assessment. This prevents overwhelm and builds team confidence progressively."
+  },
+  {
+    id: 60, domain: 4, diff: "hard", type: "scenario",
+    q: "Six months after deployment, a major incident review reveals that XSIAM failed to detect a lateral movement attack that occurred over 3 days. Post-incident analysis shows the attacker used only Windows built-in tools (wmic, net use, PsExec). All required data sources were ingested. What detection engineering improvements should you make to prevent future misses?",
+    options: [
+      "A. Add more data sources and increase storage quota",
+      "B. Create BIOCs for LOLBin-based lateral movement patterns (wmic/PsExec connecting to multiple hosts, net use to admin shares, sequential remote logons), add correlation rules for multi-host progression over time windows, and review MITRE ATT&CK Lateral Movement coverage gaps",
+      "C. Disable all existing correlation rules and start from scratch",
+      "D. Purchase a separate intrusion detection system"
+    ],
+    answer: 1,
+    explanation: "This is a classic detection gap for LOLBin/living-off-the-land attacks. Improvements: (1) **BIOCs**: Detect wmic remote execution, PsExec use, net use to C$ admin shares from non-admin workstations, (2) **Correlation rules**: Detect sequential successful authentication to 3+ unique hosts within 1 hour from the same source (lateral movement pattern), (3) **MITRE ATT&CK gap analysis**: Review coverage for TA0008 (Lateral Movement) techniques T1021, T1047, T1570 — create detections for any without coverage, (4) **Baseline deviation**: If behavior analytics is available, detect workstations accessing an abnormal number of unique hosts vs. their 30-day baseline."
+  },
+
+  {
+    id: 61, domain: 1, diff: "medium", type: "scenario",
+    q: "Before designing an XSIAM deployment for an organization that already has a SIEM, EDR platform, cloud logging, and several network collectors, what should the engineer do FIRST?",
+    options: [
+      "A. Replace every existing security tool immediately",
+      "B. Evaluate the existing IT infrastructure and security posture, identify current data sources and security gaps, and use the findings to define the XSIAM deployment scope",
+      "C. Deploy the XSIAM Engine before reviewing the current architecture",
+      "D. Enable every available XSIAM integration regardless of business requirements"
+    ],
+    answer: 1,
+    explanation: "Domain 1.1 focuses on evaluating the existing IT infrastructure and security posture. The assessment should establish the current architecture, security controls, data sources, operational gaps, and requirements before the deployment design is finalized."
+  },
+  {
+    id: 62, domain: 1, diff: "hard", type: "scenario",
+    q: "A company wants to migrate from an existing SIEM to XSIAM. The current environment has duplicate log collection paths, several legacy collectors, cloud workloads, and identity systems. Which planning approach best supports the migration?",
+    options: [
+      "A. Treat every existing collector as a required XSIAM component",
+      "B. Inventory the existing architecture and data flows, identify required security visibility, remove unnecessary duplication, and map each required source to an appropriate XSIAM collection/integration method",
+      "C. Migrate only the highest-volume source first and ignore the rest",
+      "D. Disable the existing SIEM before determining the XSIAM data-source requirements"
+    ],
+    answer: 1,
+    explanation: "A migration assessment should establish what exists, what security visibility is required, where duplicate collection exists, and how each required source will be connected to XSIAM. This directly supports Domain 1.1 and the Domain 1.2 planning activities."
+  },
+  {
+    id: 63, domain: 1, diff: "medium", type: "mcq",
+    q: "During an infrastructure assessment, which finding would most directly affect the design of the XSIAM deployment?",
+    options: [
+      "A. The SOC has a preferred dashboard color",
+      "B. A branch office cannot communicate directly with the cloud and has local log sources that require collection",
+      "C. Analysts prefer a different browser",
+      "D. The organization has an internal naming convention for reports"
+    ],
+    answer: 1,
+    explanation: "Existing infrastructure constraints affect component placement and data-collection design. A branch with restricted cloud connectivity and local sources is an architectural requirement that must be considered during deployment planning."
+  },
+  {
+    id: 64, domain: 1, diff: "hard", type: "scenario",
+    q: "During the pre-deployment assessment, security leadership says the primary goal is to improve visibility into identity compromise, cloud activity, and endpoint behavior. The existing environment already collects extensive low-value application logs. What should the engineer do?",
+    options: [
+      "A. Collect every available application log before defining priorities",
+      "B. Map the stated security objectives to the existing data sources, identify visibility gaps, and prioritize the sources that provide the telemetry required to meet those objectives",
+      "C. Ignore the objectives and reproduce the existing SIEM architecture exactly",
+      "D. Prioritize sources solely by daily event volume"
+    ],
+    answer: 1,
+    explanation: "Deployment planning should be driven by security objectives and requirements. The engineer should evaluate the current posture and determine which data sources are necessary to provide the required endpoint, cloud, and identity visibility."
+  },
+  {
+    id: 65, domain: 1, diff: "medium", type: "mcq",
+    q: "Which activity is the clearest example of evaluating an organization's existing security posture before an XSIAM deployment?",
+    options: [
+      "A. Reviewing current security controls, monitored assets, data sources, and known visibility gaps",
+      "B. Choosing a dashboard font",
+      "C. Writing a playbook before identifying the response requirements",
+      "D. Creating exclusions before any detections are tested"
+    ],
+    answer: 0,
+    explanation: "An existing security-posture assessment examines the current controls, monitored assets, telemetry, operational capabilities, and gaps. These findings inform the XSIAM deployment plan."
+  },
+  {
+    id: 66, domain: 2, diff: "medium", type: "scenario",
+    q: "A newly onboarded SaaS application sends JSON audit events, but several important fields are missing from normalized XSIAM searches. The raw events are present. What should the engineer investigate first?",
+    options: [
+      "A. The parsing and data-modeling path for the SaaS event format",
+      "B. Endpoint agent update policy",
+      "C. User dashboard permissions only",
+      "D. The physical location of the SOC"
+    ],
+    answer: 0,
+    explanation: "When raw events are present but expected structured fields are missing, the integration's parsing and normalization/data-modeling path should be reviewed. This is consistent with the onboarding and content-optimization workflow."
+  },
+  {
+    id: 67, domain: 2, diff: "hard", type: "scenario",
+    q: "A playbook must isolate an endpoint only after a malware verdict is confirmed by an external threat-intelligence service. How should the workflow be structured?",
+    options: [
+      "A. Isolate the endpoint immediately and perform the verdict check afterward",
+      "B. Plan the workflow so the alert context is passed to the TI integration, evaluate the result, and branch to the containment action only when the required condition is met",
+      "C. Remove the TI integration because playbooks should never use external services",
+      "D. Create an unrelated manual workflow outside XSIAM"
+    ],
+    answer: 1,
+    explanation: "The playbook should be planned around the required decision point: obtain the TI result, evaluate the condition, and execute containment only when the condition is satisfied. This tests workflow planning, task sequencing, customization, and branching."
+  },
+  {
+    id: 68, domain: 2, diff: "hard", type: "scenario",
+    q: "A Marketplace content pack provides an integration and playbook for a technology used by your organization. Before putting the content into production, what is the most appropriate engineering approach?",
+    options: [
+      "A. Assume the content requires no validation because it came from the Marketplace",
+      "B. Review the provided content, configure the required credentials and environment-specific settings, test the workflow, and customize it where the organization's requirements differ",
+      "C. Rewrite every component from scratch",
+      "D. Disable all existing detections before installing the pack"
+    ],
+    answer: 1,
+    explanation: "Pre-built content accelerates deployment, but production use still requires configuration, validation, testing, and environment-specific customization."
+  },
+  {
+    id: 69, domain: 3, diff: "hard", type: "scenario",
+    q: "A detection rule is producing too many alerts because a legitimate administrative process matches the same behavior. The behavior remains suspicious when performed by other users and systems. What is the best optimization approach?",
+    options: [
+      "A. Disable the detection rule globally",
+      "B. Tune the rule with narrowly scoped conditions or exceptions for the known legitimate activity while preserving the broader detection logic",
+      "C. Delete the underlying data source",
+      "D. Increase the alert volume threshold until all alerts stop"
+    ],
+    answer: 1,
+    explanation: "Content optimization should reduce false positives without creating a broad blind spot. Narrowly scoped conditions or exceptions preserve the detection for other users, systems, and contexts."
+  },
+  {
+    id: 70, domain: 3, diff: "hard", type: "scenario",
+    q: "A detection relies on a normalized XDM field, but the same field is null for one vendor's events while it works for another vendor. Raw events from both vendors are available. What is the most appropriate next step?",
+    options: [
+      "A. Disable the detection rule",
+      "B. Compare the vendor-specific raw fields and review the data-modeling mapping for the affected source",
+      "C. Increase dashboard refresh frequency",
+      "D. Replace the XSIAM Engine"
+    ],
+    answer: 1,
+    explanation: "The issue points to a source-specific normalization/mapping problem. Compare the raw vendor field names and values with the expected XDM field and correct the mapping rather than disabling the detection."
+  },
+  {
+    id: 71, domain: 3, diff: "medium", type: "mcq",
+    q: "When optimizing detection content, what is the primary reason to map detections to MITRE ATT&CK techniques?",
+    options: [
+      "A. To replace all detection logic with ATT&CK labels",
+      "B. To understand detection coverage and identify gaps across adversary tactics and techniques",
+      "C. To configure user authentication",
+      "D. To increase raw log ingestion capacity"
+    ],
+    answer: 1,
+    explanation: "MITRE ATT&CK mapping provides a common framework for understanding what adversary behaviors are covered and where detection gaps remain. It supports detection-engineering prioritization and reporting."
+  },
+  {
+    id: 72, domain: 4, diff: "medium", type: "scenario",
+    q: "A recurring false positive is caused by a legitimate vulnerability scanner that operates only during a defined maintenance window. What is the most appropriate exception strategy?",
+    options: [
+      "A. Disable the affected detection permanently for the entire environment",
+      "B. Create a narrowly scoped exception for the scanner and relevant detection behavior, and use the known maintenance context where supported",
+      "C. Delete all vulnerability-scanner data",
+      "D. Disable endpoint protection during the scan"
+    ],
+    answer: 1,
+    explanation: "A narrowly scoped exception reduces known noise while preserving detection coverage elsewhere. Broadly disabling detections would create unnecessary blind spots."
+  },
+  {
+    id: 73, domain: 4, diff: "hard", type: "scenario",
+    q: "After a component update, only one data source stops ingesting while other sources continue normally. What is the best troubleshooting approach?",
+    options: [
+      "A. Rebuild the entire XSIAM environment",
+      "B. Compare the affected source's configuration and component logs with a working source, then verify connectivity, protocol/settings, and any update-related configuration changes",
+      "C. Disable all detection rules",
+      "D. Increase the global storage quota immediately"
+    ],
+    answer: 1,
+    explanation: "A single-source failure should be isolated systematically. Compare the affected path with a known-good source, inspect component logs, validate connectivity and configuration, and identify changes introduced by the update."
+  },
+  {
+    id: 74, domain: 4, diff: "medium", type: "short",
+    q: "Describe how you would distinguish a data-ingestion problem from a data-normalization problem when troubleshooting XSIAM.",
+    options: null,
+    answer: null,
+    explanation: "First establish whether the raw events are reaching XSIAM. If events are absent, investigate the ingestion path: source status, connectivity, collector/Broker configuration, protocol, and component logs. If raw events are present but expected structured/XDM fields are missing or incorrect, investigate parsing and data-modeling/normalization rules."
+  },
+  {
+    id: 75, domain: 4, diff: "hard", type: "scenario",
+    q: "An incident review finds that all required data sources were present, but a multi-stage attack was not detected because individual events never crossed the threshold for any single detection. What detection-engineering change should be considered?",
+    options: [
+      "A. Remove the existing data sources",
+      "B. Review the detection coverage and consider behavior-based or correlation logic that links related events across the appropriate time window",
+      "C. Disable low-severity alerts globally",
+      "D. Increase storage without changing detection content"
+    ],
+    answer: 1,
+    explanation: "If the telemetry exists but individual events are insufficient to trigger detections, the gap may be in detection logic rather than ingestion. Correlation or behavior-based detections can connect multiple related activities and improve coverage of multi-stage attacks."
+  }
+
+];
+
+// State
+let activeDomain = "all";
+let activeDiff = "all";
+let activeType = "all";
+let answeredCount = 0;
+let correctCount = 0;
+let cardStates = {}; // id -> {answered: bool, correct: bool, revealed: bool}
+
+function render() {
+  const list = document.getElementById("questions-list");
+  const empty = document.getElementById("empty-state");
+
+  const filtered = questions.filter(q => {
+    if (activeDomain !== "all" && q.domain !== parseInt(activeDomain)) return false;
+    if (activeDiff !== "all" && q.diff !== activeDiff) return false;
+    if (activeType !== "all" && q.type !== activeType) return false;
+    return true;
+  });
+
+  document.getElementById("total-count").textContent = filtered.length;
+  document.getElementById("pg-total").textContent = questions.length;
+  document.getElementById("pg-easy").textContent = questions.filter(q=>q.diff==="easy").length;
+  document.getElementById("pg-medium").textContent = questions.filter(q=>q.diff==="medium").length;
+  document.getElementById("pg-hard").textContent = questions.filter(q=>q.diff==="hard").length;
+
+  if (filtered.length === 0) {
+    list.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  list.innerHTML = filtered.map((q, idx) => {
+    const state = cardStates[q.id] || {};
+    const domainClass = `d${q.domain}`;
+    const diffClass = `badge-${q.diff}`;
+    const typeLabel = q.type === "mcq" ? "MCQ" : q.type === "scenario" ? "Scenario" : "Short Answer";
+    const typeClass = `badge-${q.type}`;
+    const isOpen = state.open;
+    const isAnswered = state.answered;
+    const isRevealed = state.revealed;
+
+    let optionsHTML = "";
+    if (q.options && q.type !== "short") {
+      optionsHTML = `<div class="q-options">` +
+        q.options.map((opt, i) => {
+          let cls = "option";
+          if (isAnswered) {
+            if (i === q.answer) cls += " correct";
+            else if (state.selected === i) cls += " wrong";
+          } else if (state.selected === i) cls += " selected";
+          const keys = ["A","B","C","D"];
+          return `<div class="${cls}" data-qid="${q.id}" data-oidx="${i}">
+            <span class="opt-key">${keys[i]}</span>${opt.substring(2).trim()}
+          </div>`;
+        }).join("") +
+        `</div>`;
+    }
+
+    let shortInputHTML = "";
+    if (q.type === "short") {
+      shortInputHTML = `<div class="short-input"><textarea placeholder="Write your answer here…" data-qid="${q.id}">${state.shortText || ""}</textarea></div>`;
+    }
+
+    let answerHTML = `<div class="q-answer ${(isOpen || isRevealed || isAnswered) ? "" : ""}">
+      <span class="answer-label ${q.type === "short" ? "short-ans" : ""}">
+        ${q.type === "short" ? "▸ MODEL ANSWER" : "▸ EXPLANATION"}
+      </span>
+      ${q.explanation}
+    </div>`;
+
+    let revealBtnHTML = "";
+    if (q.type === "short") {
+      revealBtnHTML = `<button class="reveal-btn" data-qid="${q.id}">Reveal Model Answer</button>`;
+    }
+
+    return `<div class="q-card ${isOpen ? "open" : ""} ${isAnswered ? "answered" : ""} ${isRevealed ? "revealed" : ""}" data-qid="${q.id}" data-domain="${q.domain}" data-diff="${q.diff}" data-type="${q.type}">
+      <div class="domain-bar ${domainClass}"></div>
+      <div class="q-header" data-qid="${q.id}">
+        <span class="q-number">#${String(idx+1).padStart(2,"0")}</span>
+        <div style="flex:1">
+          <div class="q-meta">
+            <span class="badge ${diffClass}">${q.diff}</span>
+            <span class="badge ${typeClass}">${typeLabel}</span>
+            <span class="badge" style="background:rgba(255,255,255,0.04);color:var(--muted);border-color:var(--border);font-size:9px;">Domain ${q.domain}</span>
+          </div>
+          <div class="q-text">${q.q}</div>
+        </div>
+        <div class="q-toggle" data-qid="${q.id}">▾</div>
+      </div>
+      ${optionsHTML}
+      ${shortInputHTML}
+      ${revealBtnHTML}
+      ${answerHTML}
+    </div>`;
+  }).join("");
+
+  // Attach events
+  list.querySelectorAll(".q-header, .q-toggle").forEach(el => {
+    el.addEventListener("click", (e) => {
+      const qid = parseInt(el.dataset.qid);
+      if (!cardStates[qid]) cardStates[qid] = {};
+      cardStates[qid].open = !cardStates[qid].open;
+      render();
+    });
+  });
+
+  list.querySelectorAll(".option").forEach(opt => {
+    opt.addEventListener("click", (e) => {
+      const qid = parseInt(opt.dataset.qid);
+      const oidx = parseInt(opt.dataset.oidx);
+      if (!cardStates[qid]) cardStates[qid] = {};
+      if (cardStates[qid].answered) return;
+      cardStates[qid].selected = oidx;
+      const q = questions.find(q => q.id === qid);
+      cardStates[qid].answered = true;
+      cardStates[qid].open = true;
+      const correct = oidx === q.answer;
+      cardStates[qid].correct = correct;
+      updateProgress();
+      render();
+    });
+  });
+
+  list.querySelectorAll(".reveal-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const qid = parseInt(btn.dataset.qid);
+      if (!cardStates[qid]) cardStates[qid] = {};
+      cardStates[qid].revealed = true;
+      if (!cardStates[qid].answered) {
+        cardStates[qid].answered = true;
+        updateProgress();
+      }
+      render();
+    });
+  });
+
+  list.querySelectorAll(".short-input textarea").forEach(ta => {
+    ta.addEventListener("input", (e) => {
+      const qid = parseInt(ta.dataset.qid);
+      if (!cardStates[qid]) cardStates[qid] = {};
+      cardStates[qid].shortText = ta.value;
+    });
+    ta.addEventListener("click", e => e.stopPropagation());
+  });
+}
+
+function updateProgress() {
+  answeredCount = Object.values(cardStates).filter(s => s.answered).length;
+  correctCount = Object.values(cardStates).filter(s => s.correct).length;
+  document.getElementById("answered-count").textContent = answeredCount;
+  const pct = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+  document.getElementById("score-count").textContent = pct + "%";
+  document.getElementById("pg-pct").textContent = `${answeredCount} / ${questions.length} answered`;
+  document.getElementById("pg-bar").style.width = `${(answeredCount / questions.length) * 100}%`;
+}
+
+// Tabs
+document.getElementById("tabs").addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+  activeDomain = tab.dataset.domain;
+  render();
+});
+
+// Diff filters
+document.querySelectorAll(".filter-btn[data-diff]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn[data-diff]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeDiff = btn.dataset.diff;
+    render();
+  });
+});
+
+// Type filters
+document.querySelectorAll(".filter-btn[data-type]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn[data-type]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeType = btn.dataset.type;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
