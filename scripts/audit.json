@@ -1,65 +1,5 @@
 [
   {
-    "timestamp": "2026-08-13T01:42:44.660Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-13T01:42:44.663Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "AVAXUSDT",
-    "sym": "BINANCE:AVAXUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-08-13T01:42:44.668Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-13T01:42:45.677Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at 409115058c720e978ed8d159f9cf71a7159136bd but expected 50b452e224052612a53ec61452028cc69ce5c6c2"
-  },
-  {
-    "timestamp": "2026-08-13T01:42:46.084Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "AVAX"
-    ],
-    "caution": [
-      "AVAX"
-    ]
-  },
-  {
-    "timestamp": "2026-08-13T01:42:46.085Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-13T01:42:48.805Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-08-13T01:45:49.812Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4199,7 +4139,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-13T02:42:44.543Z",
+    "timestamp": "2026-08-13T02:42:46.293Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -4355,5 +4295,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-13T02:42:46.351Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-13T02:42:46.797Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-13T02:42:47.854Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-08-13T02:42:47.856Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 5,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-13T02:42:47.857Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 4
+  },
+  {
+    "timestamp": "2026-08-13T02:42:47.859Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-13T02:42:49.713Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
