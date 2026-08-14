@@ -2180,7 +2180,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-14T07:08:19.836Z",
+    "timestamp": "2026-08-14T07:08:27.747Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -2192,21 +2192,21 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2241,7 +2241,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2283,7 +2283,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2325,7 +2325,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2336,5 +2336,100 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-14T07:08:27.811Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-14T07:08:28.238Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 6.378,
+    "stop": 6.3872,
+    "entry": 6.4517,
+    "pnlPct": "-1.14",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-14T07:08:28.239Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-14T07:08:28.241Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 488.15,
+    "stop": 489.99,
+    "entry": 494.94,
+    "pnlPct": "-1.37",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-14T07:08:29.306Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 2
+  },
+  {
+    "timestamp": "2026-08-14T07:08:29.308Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 496
+  },
+  {
+    "timestamp": "2026-08-14T07:08:30.074Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 3,
+    "openAfter": 2,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-14T07:08:30.075Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-14T07:08:30.077Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-14T07:08:30.078Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-14T07:08:31.276Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 0
   }
 ]
