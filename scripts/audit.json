@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-14T09:02:48.156Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
     "timestamp": "2026-08-14T09:05:50.439Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3963,7 +3956,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-14T10:02:46.651Z",
+    "timestamp": "2026-08-14T10:02:50.769Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -4101,7 +4094,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4119,5 +4112,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-14T10:02:50.832Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-14T10:02:51.158Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-14T10:02:51.162Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-14T10:02:51.163Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-14T10:02:52.454Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 0,
+    "monitored": 0
   }
 ]
