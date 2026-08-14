@@ -4433,7 +4433,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-14T21:07:46.147Z",
+    "timestamp": "2026-08-14T21:07:47.185Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -4589,5 +4589,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-14T21:07:47.238Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-14T21:07:47.737Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-14T21:07:47.739Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-08-14T21:07:47.748Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-14T21:07:48.993Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 2
+  },
+  {
+    "timestamp": "2026-08-14T21:07:49.441Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ZEC"
+    ],
+    "caution": [
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-08-14T21:07:49.443Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-14T21:07:52.377Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
