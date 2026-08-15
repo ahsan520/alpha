@@ -1,48 +1,5 @@
 [
   {
-    "timestamp": "2026-08-15T08:07:46.903Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at 915579ed5d6ef048d1b4fb7444b10702c9e90340 but expected 0b8b7457839c98aba5d6003f034284b0e0a2cdf1"
-  },
-  {
-    "timestamp": "2026-08-15T08:07:46.904Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 4,
-    "openAfter": 3,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-15T08:07:46.907Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-15T08:07:46.910Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-15T08:07:46.912Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-15T08:07:48.317Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 3
-  },
-  {
     "timestamp": "2026-08-15T08:10:55.999Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4498,7 +4455,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-15T09:07:46.314Z",
+    "timestamp": "2026-08-15T09:07:46.568Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 23,
@@ -4510,7 +4467,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4538,7 +4495,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4666,5 +4623,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-15T09:07:46.649Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-15T09:07:47.154Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-15T09:07:47.171Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-15T09:07:47.199Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-15T09:07:48.817Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
