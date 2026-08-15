@@ -4759,7 +4759,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-15T22:17:50.704Z",
+    "timestamp": "2026-08-15T22:17:53.538Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 23,
@@ -4883,7 +4883,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4927,5 +4927,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-15T22:17:53.603Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-15T22:17:58.329Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-08-15T22:17:58.331Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-15T22:17:58.334Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-15T22:17:58.337Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-15T22:17:58.338Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-15T22:17:59.849Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
