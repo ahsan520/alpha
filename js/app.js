@@ -910,22 +910,83 @@ function _classifySignal(e) {
 }
 
 
+// ── Market Data: click-to-sort on every column header ───────────────────────
+// Categorical columns (bias, OI DIV, CVD, OI MOM) get ranked rather than
+// alphabetized — "BULL 4H" should sort above "BEAR 4H", not below it just
+// because B < B alphabetically ties and falls through to the next letter.
+const _MD_BIAS_RANK   = { 'BEAR 4H': 0, 'LEAN BEAR': 1, 'NEUTRAL': 2, '—': 2, 'LEAN BULL': 3, 'BULL 4H': 4 };
+const _MD_OIDIV_RANK  = { 'OI DROP': 0, 'NEUTRAL': 1, 'CONFIRM': 2, 'DIP BUY': 3 };
+const _MD_TREND_RANK  = { 'down': 0, 'FADING': 0, 'FLAT': 1, '—': 1, 'up': 2, 'ACCELERATING': 2 };
+const _MD_SIGNAL_RANK = { '🔪 FALLING KNIFE': 0, '⚠ CHASING': 1, '—': 2, '✅ BUY': 3, '🚀 EARLY SPIKE': 4 };
+
+const _MD_SORT_ACCESSORS = {
+  symbol:   e => e.base || '',
+  price:    e => e.price,
+  signal:   e => _MD_SIGNAL_RANK[_classifySignal(e).label] ?? 2,
+  chg:      e => e.chg,
+  conv:     e => e.conv,
+  bullConf: e => e.bullConf,
+  whale:    e => e.whale?.score,
+  shock:    e => e.d?.shock,
+  rsi15:    e => e.d?.r15,
+  bias4h:   e => _MD_BIAS_RANK[e.d?.bias4h] ?? 2,
+  biasDay:  e => _MD_BIAS_RANK[e.d?.biasDay] ?? 2,
+  oiDiv:    e => _MD_OIDIV_RANK[e.d?.oiDiv] ?? 1,
+  cvd:      e => _MD_TREND_RANK[e.d?.cvdTrend] ?? 1,
+  oiMom:    e => _MD_TREND_RANK[_marketDataState.regime?.symbols?.[e.pair]?.oiMomentum?.trend] ?? 1,
+  hist:     e => e.hist?.winRate,
+  position: e => _marketDataState.positions[e.base] ? (_marketDataState.positions[e.base].highestPnLSeen ?? 0) : -Infinity,
+  buyIntel: e => e.d?.buyIntel?.penalty ?? -1,
+};
+
+// [header label, sort key] — order here IS the column order rendered.
+const _MD_COLUMNS = [
+  ['SYMBOL', 'symbol'], ['PRICE', 'price'], ['SIGNAL', 'signal'], ['24H%', 'chg'],
+  ['CONV', 'conv'], ['BULLCONF', 'bullConf'], ['WHALE', 'whale'], ['SHOCK', 'shock'],
+  ['RSI15', 'rsi15'], ['4H BIAS', 'bias4h'], ['DAILY BIAS', 'biasDay'], ['OI DIV', 'oiDiv'],
+  ['CVD', 'cvd'], ['OI MOM', 'oiMom'], ['HIST (30D)', 'hist'], ['POSITION', 'position'],
+  ['BUY INTEL', 'buyIntel'],
+];
+
+// dir: -1 = descending (default on first click of a new column — "biggest/
+// most interesting first" matches how this table has always defaulted),
+// 1 = ascending. Clicking the SAME column again flips direction; clicking a
+// DIFFERENT column resets to descending on the new one.
+let _marketDataSort = { key: 'conv', dir: -1 };
+
+function sortMarketDataBy(key) {
+  if (_marketDataSort.key === key) _marketDataSort.dir *= -1;
+  else _marketDataSort = { key, dir: -1 };
+  renderMarketData();
+}
+
+function _renderMarketDataHeader() {
+  const row = document.getElementById('market-data-thead-row');
+  if (!row) return;
+  row.innerHTML = _MD_COLUMNS.map(([label, key]) => {
+    const active = _marketDataSort.key === key;
+    const arrow = active ? (_marketDataSort.dir === -1 ? ' ▾' : ' ▴') : '';
+    return `<th onclick="sortMarketDataBy('${key}')" style="cursor:pointer;user-select:none;${active ? 'color:var(--accent)' : ''}">${label}${arrow}</th>`;
+  }).join('');
+}
+
+
 function renderMarketData() {
   const tbody = document.getElementById('market-data-tbody');
   const stats = document.getElementById('market-data-stats');
   if (!tbody) return;
 
+  _renderMarketDataHeader();
+
   let rows = [...(_marketDataState.symbols || [])];
-  const sortKey = document.getElementById('market-data-sort')?.value || 'conv';
+  const acc = _MD_SORT_ACCESSORS[_marketDataSort.key] || _MD_SORT_ACCESSORS.conv;
   rows.sort((a, b) => {
-    if (sortKey === 'pair') return (a.pair || '').localeCompare(b.pair || '');
-    const pick = (r) => sortKey === 'bullConf' ? r.bullConf
-      : sortKey === 'whale' ? r.whale?.score
-      : sortKey === 'shock' ? r.d?.shock
-      : sortKey === 'chg' ? r.chg
-      : sortKey === 'histWinRate' ? r.hist?.winRate
-      : r.conv;
-    return (pick(b) ?? -Infinity) - (pick(a) ?? -Infinity);
+    const av = acc(a), bv = acc(b);
+    if (typeof av === 'string' || typeof bv === 'string') {
+      return _marketDataSort.dir * String(av ?? '').localeCompare(String(bv ?? ''));
+    }
+    const an = av ?? -Infinity, bn = bv ?? -Infinity;
+    return _marketDataSort.dir * (an - bn);
   });
 
   if (stats) {
@@ -968,6 +1029,7 @@ function renderMarketData() {
     return `<tr>
       <td style="font-weight:700;color:var(--text-bright)">${e.base}</td>
       <td style="font-size:9px">${e.price != null ? '$' + e.price : '—'}</td>
+      <td style="font-size:9px;color:${_classifySignal(e).color}" title="${(bi?.reasons || []).join(' · ') || ''}">${_classifySignal(e).label}</td>
       <td style="font-size:9px;color:${_mdColorChg(e.chg)}">${e.chg != null ? (e.chg > 0 ? '+' : '') + e.chg.toFixed(2) + '%' : '—'}</td>
       <td style="font-size:9px;font-weight:700;color:${_mdColorConv(e.conv)}">${e.conv ?? '—'}</td>
       <td style="font-size:9px;color:${_mdColorBullConf(e.bullConf)}">${e.bullConf != null ? e.bullConf + '/10' : '—'}</td>
@@ -982,7 +1044,6 @@ function renderMarketData() {
       <td style="font-size:9px">${histText}</td>
       <td style="font-size:9px">${posText}</td>
       <td style="font-size:9px">${biText}</td>
-      <td style="font-size:9px;color:${_classifySignal(e).color}" title="${(bi?.reasons || []).join(' · ') || ''}">${_classifySignal(e).label}</td>
     </tr>`;
   }).join('');
 }
