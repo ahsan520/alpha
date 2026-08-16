@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-16T16:27:49.380Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-08-16T16:30:58.682Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4229,7 +4222,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-16T17:27:47.530Z",
+    "timestamp": "2026-08-16T17:27:47.743Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4379,5 +4372,65 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-16T17:27:47.786Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-16T17:27:48.212Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-08-16T17:27:48.213Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-16T17:27:49.973Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
+  },
+  {
+    "timestamp": "2026-08-16T17:27:51.886Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "pair": "XLM",
+    "price": 0.1581,
+    "entry": 0.1597,
+    "stop": 0.158103,
+    "pnlPct": "-1.00"
+  },
+  {
+    "timestamp": "2026-08-16T17:27:52.681Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 7
+  },
+  {
+    "timestamp": "2026-08-16T17:27:53.739Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 7,
+    "statusChanged": true
   }
 ]
