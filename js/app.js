@@ -99,6 +99,27 @@ function _normalizeNamedLists(raw) {
 // it's opened, not just once at page load. Returns the resolved `base`
 // symbol list for the active watchlist.
 async function reloadWatchlistSource() {
+  // ── Pending-edit guard ──────────────────────────────────────────────
+  // If the last local edit never got confirmed as pushed (tab was
+  // reloaded/closed before the debounced sync completed — a plain
+  // setTimeout doesn't survive that), fetching the server copy right now
+  // would just re-fetch the OLD pre-edit version and silently overwrite
+  // the newer local edit that's sitting in localStorage. Load from
+  // localStorage instead, keep it as-is, and kick off a fresh push
+  // attempt for it — don't touch the network read path below at all.
+  if (localStorage.getItem('a49_wl_pending_push') === '1') {
+    try {
+      const saved = JSON.parse(localStorage.getItem('a49_named_wl') || 'null');
+      if (saved && typeof saved === 'object') {
+        STATE.namedWatchlists = saved;
+        STATE.activeWatchlistName = localStorage.getItem('a49_active_wl') || Object.keys(saved)[0] || 'Default';
+        logAlertItem('info', '⚠ Unsynced watchlist edit found from before reload — retrying push instead of pulling from server.');
+        if (typeof scheduleWatchlistSync === 'function') scheduleWatchlistSync(0);
+        return Object.keys(saved[STATE.activeWatchlistName] || {});
+      }
+    } catch { /* fall through to normal network path if the saved copy is unreadable */ }
+  }
+
   let fetchedRaw = null;
   let fetchedFrom = null;
 
@@ -463,6 +484,7 @@ function switchTab(tab, btn) {
     renderWatchlistManager();
   }
   if (tab === 'journal')       renderApiTrades();  // always refresh on open
+  if (tab === 'market-data')   refreshMarketData(); // always refresh on open
   if (tab === 'api-audit')     refreshApiAudit();  // always refresh on open
 }
 
@@ -494,7 +516,10 @@ async function refreshApiTrades() {
   setApiTradesFooter('Loading…');
   try {
     const cfg     = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
-    const repo    = cfg.repo  || window.__GH_REPO || '';
+    // Same _deriveRepo() (alerts.js) used by Audit and Market Data now —
+    // adds the GitHub-Pages-URL auto-detect fallback on top of
+    // window.__GH_REPO/cfg.repo, so this tab works with zero Sync config too.
+    const repo    = (typeof _deriveRepo === 'function' ? _deriveRepo() : '') || window.__GH_REPO || cfg.repo || '';
     const branch  = cfg.branch || 'main';
     const fpath   = (cfg.tradeLogPath || 'scripts/trade-log.json');
     const balPath = (cfg.liveBalancesPath || 'scripts/mexc-live-balances.json');
@@ -651,7 +676,9 @@ async function refreshApiAudit() {
   setApiAuditFooter('Loading…');
   try {
     const cfg    = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
-    const repo   = cfg.repo   || window.__GH_REPO || '';
+    // Same _deriveRepo() (alerts.js) used by Audit's Runner Audit Log and
+    // Market Data now — adds the GitHub-Pages-URL auto-detect fallback.
+    const repo   = (typeof _deriveRepo === 'function' ? _deriveRepo() : '') || window.__GH_REPO || cfg.repo || '';
     const branch = cfg.branch || 'main';
     const fpath  = (cfg.auditLogPath || 'scripts/audit-log.json');
     if (!repo) { setApiAuditFooter('GitHub repo not configured — set GH_REPO in sync settings.'); return; }
@@ -720,6 +747,242 @@ function renderApiAudit(entries) {
       <td style="font-size:9px;white-space:nowrap;color:var(--text-dim)">${time}</td>
       <td style="font-size:9px;font-weight:700;color:${isFail ? 'var(--bear)' : 'var(--text-bright)'}">${e.action || '—'}</td>
       <td style="font-size:9px;color:var(--text-dim);white-space:normal;word-break:break-word;">${detailStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══ MARKET DATA TAB ══════════════════════════════════════════════════
+// Combines all four data sources a manual buy decision actually needs —
+// previously scattered across market-data.json (fresh signal), market-
+// state.json (BTC regime + momentum), symbol-history.json (real win
+// rate), and positions.json (live status) — into one page, so none of
+// them has to be cross-referenced by hand.
+let _marketDataState = { loading: false, symbols: [], regime: {}, positions: {} };
+
+// Generic GitHub raw-file fetch, shared by every "read X.json from repo"
+// path (this tab, API Audit, API Trades) — small enough not to be worth
+// a bigger refactor of the older call sites, but new fetches use it.
+async function _fetchGhJson(fpath, { optional = true } = {}) {
+  const cfg    = typeof loadGhSyncCfg === 'function' ? loadGhSyncCfg() : {};
+  // Routed through the same _deriveRepo() (alerts.js) the Audit panel
+  // already uses, instead of this function's own narrower
+  // `window.__GH_REPO || cfg.repo || ''`. _deriveRepo() has the same two
+  // tiers PLUS a third: auto-detect from the GitHub Pages URL itself
+  // (<owner>.github.io/<repo>) when both window.__GH_REPO and the
+  // localStorage sync config are empty — which is exactly the state a
+  // fresh/incognito browser (or one where Sync was never configured) is
+  // in. Previously this function had no such fallback and threw "GitHub
+  // repo not configured" in that case, even though the page's own URL
+  // already contained everything needed to resolve it — same class of gap
+  // this whole Market Data tab is meant to avoid per its own design intent
+  // (read-only, no sync required).
+  const repo   = (typeof _deriveRepo === 'function' ? _deriveRepo() : '') || window.__GH_REPO || cfg.repo || '';
+  const branch = cfg.branch || 'main';
+  if (!repo) throw new Error('GitHub repo not configured — set GH_REPO in sync settings.');
+  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${fpath}?t=${Date.now()}`;
+  const res = await fetch(url, { cache: 'no-store' });
+  if (res.status === 404) { if (optional) return null; throw new Error(`${fpath} not found`); }
+  if (!res.ok) throw new Error(`HTTP ${res.status} loading ${fpath}`);
+  return res.json();
+}
+
+// Client-side port of leaderboard-decider.js's getHistoryStrength() —
+// same "wins = pnlPct > 0" definition (a profitable close counts,
+// regardless of which exit reason fired), same 30-day lookback default,
+// so this tab's numbers always match what the bot itself would compute.
+function _historyStrength(history, base, lookbackDays = 30) {
+  const cutoff = Date.now() - lookbackDays * 86_400_000;
+  const rows = (history || []).filter(e => e.base === base && e.closedAt >= cutoff);
+  if (!rows.length) return { winRate: null, sample: 0 };
+  const wins = rows.filter(e => (e.pnlPct || 0) > 0).length;
+  return { winRate: wins / rows.length, sample: rows.length };
+}
+
+async function refreshMarketData() {
+  if (_marketDataState.loading) return;
+  _marketDataState.loading = true;
+  setMarketDataFooter('Loading…');
+  try {
+    const [marketData, marketState, history, positions] = await Promise.all([
+      _fetchGhJson('scripts/market-data.json',   { optional: false }),
+      _fetchGhJson('scripts/market-state.json',  { optional: true }),
+      _fetchGhJson('scripts/symbol-history.json',{ optional: true }),
+      _fetchGhJson('scripts/positions.json',     { optional: true }),
+    ]);
+
+    const symbols = marketData.symbols || {};
+    const historyRows = Array.isArray(history) ? history : [];
+    _marketDataState.symbols = Object.entries(symbols).map(([pair, e]) => {
+      const base = pair.replace('USDT', '');
+      return { pair, base, ...e, hist: _historyStrength(historyRows, base) };
+    });
+    _marketDataState.fetchedAt = marketData.fetchedAt;
+    _marketDataState.regime = (marketState && marketState.symbols) ? marketState : { symbols: {} };
+    // positions.json is keyed like "BINANCE:BTCUSDT" — match by base symbol
+    _marketDataState.positions = {};
+    Object.values(positions || {}).forEach(p => { if (p?.base) _marketDataState.positions[p.base] = p; });
+
+    renderMarketDataRegimeBanner(marketData);
+    renderMarketData();
+
+    const age = marketData.fetchedAt ? Math.round((Date.now() - marketData.fetchedAt) / 60000) : null;
+    setMarketDataFooter(
+      `Last synced ${new Date().toLocaleTimeString()}` +
+      (age !== null ? ` · data is ${age}m old` : '') +
+      ` · ${_marketDataState.symbols.length} symbols` +
+      (marketState ? '' : ' · ⚠ market-state.json unavailable (regime/momentum blank)') +
+      (history ? '' : ' · ⚠ symbol-history.json unavailable (win rate blank)') +
+      (positions ? '' : ' · ⚠ positions.json unavailable (position status blank)')
+    );
+  } catch (e) {
+    setMarketDataFooter(`Error loading market data: ${e.message}`);
+  } finally {
+    _marketDataState.loading = false;
+  }
+}
+
+function renderMarketDataRegimeBanner(marketData) {
+  const el = document.getElementById('market-data-regime');
+  if (!el) return;
+  const g = marketData.global || {};
+  // btcRiskScore/regime/breadth live in market-state.json in the actual
+  // gate code (checkMarketIntelligenceGate) — market-data.json only
+  // carries the raw BTC 24h change. Show whichever fields are present;
+  // this banner degrades gracefully rather than failing outright if
+  // market-state.json didn't load.
+  const ms = _marketDataState.regime || {};
+  const riskScore = ms.btcRiskScore;
+  const riskBand  = ms.btcRiskBand;
+  const regime    = ms.marketRegime;
+  const breadth   = ms.breadth?.score;
+  const riskColor = riskScore == null ? 'var(--text-dim)' : riskScore > 60 ? 'var(--bear)' : 'var(--bull)';
+  const regimeColor = regime === 'RISK_OFF' ? 'var(--bear)' : regime === 'RISK_ON' ? 'var(--bull)' : 'var(--text-dim)';
+  const breadthColor = breadth == null ? 'var(--text-dim)' : breadth < 60 ? 'var(--bear)' : 'var(--bull)';
+  el.innerHTML = [
+    `BTC 24h: <b style="color:${_mdColorChg(g.btcChg24h)}">${g.btcChg24h != null ? (g.btcChg24h > 0 ? '+' : '') + g.btcChg24h.toFixed(2) + '%' : '—'}</b>`,
+    `BTC 4H bias: <b style="color:${_mdColorBias(g.btcBias4h)}">${g.btcBias4h || '—'}</b>`,
+    `Risk score: <b style="color:${riskColor}">${riskScore ?? '—'}${riskBand ? ' (' + riskBand + ')' : ''}</b>`,
+    `Regime: <b style="color:${regimeColor}">${regime || '—'}</b>`,
+    `Breadth: <b style="color:${breadthColor}">${breadth != null ? breadth + '%' : '—'}</b>`,
+    `Fear/Greed: <b>${g.fearGreed ?? '—'}</b>`,
+  ].join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+}
+
+function setMarketDataFooter(msg) {
+  const el = document.getElementById('market-data-footer');
+  if (el) el.textContent = msg;
+}
+
+// Color thresholds match the actual gate values used across the bot's
+// buy-side checks (see leaderboard-scanner.js/market-guard.js) — not
+// arbitrary, so a color here means the same thing it means to the code.
+function _mdColorConv(v)     { if (v == null) return 'var(--text-dim)'; return v >= 8 ? 'var(--bull)' : v >= 6 ? 'var(--text-bright)' : 'var(--bear)'; }
+function _mdColorShock(v)    { if (v == null) return 'var(--text-dim)'; return v >= 1.3 ? 'var(--bull)' : v >= 0.5 ? 'var(--text-bright)' : 'var(--bear)'; }
+function _mdColorBullConf(v) { if (v == null) return 'var(--text-dim)'; return v >= 7 ? 'var(--bull)' : v >= 5 ? 'var(--text-bright)' : 'var(--bear)'; }
+function _mdColorWhale(v)    { if (v == null) return 'var(--text-dim)'; return v >= 70 ? 'var(--bull)' : v >= 40 ? 'var(--text-bright)' : 'var(--bear)'; }
+function _mdColorChg(v)      { if (v == null) return 'var(--text-dim)'; return v > 0 ? 'var(--bull)' : v < 0 ? 'var(--bear)' : 'var(--text-bright)'; }
+function _mdColorBias(b)     { if (!b) return 'var(--text-dim)'; return /BULL/i.test(b) ? 'var(--bull)' : /BEAR/i.test(b) ? 'var(--bear)' : 'var(--text-dim)'; }
+function _mdColorWinRate(v)  { if (v == null) return 'var(--text-dim)'; return v >= 0.5 ? 'var(--bull)' : v >= 0.3 ? 'var(--text-bright)' : 'var(--bear)'; }
+function _mdColorTrend(t)    { return t === 'ACCELERATING' ? 'var(--bull)' : t === 'FADING' ? 'var(--bear)' : 'var(--text-dim)'; }
+
+// ── Signal classification column — computed, read-only, no click ────────────
+// Not a manual flag — synthesizes buyIntel + conv (already in market-data.json)
+// into one label per row. Priority order matters: falling-knife is checked
+// first since it's the most urgent warning regardless of anything else.
+//
+// NOTE ON "SELL": this column classifies ENTRY signal quality, the same
+// thing buyIntel/conv are computed for. A real sell/exit signal comes from
+// position-intelligence.js server-side (thesis-decay, confidence-decay,
+// falling-knife-on-exit — a different calculation, only for symbols with an
+// open position) — replicating that client-side would mean duplicating real
+// scoring logic in the browser and risking it drifting out of sync with the
+// server version. For an open position, the existing POSITION column
+// already shows live P&L; this column intentionally still shows the
+// buy-side read for context, not a sell recommendation.
+function _classifySignal(e) {
+  const bi = e.d?.buyIntel;
+  const fresh = bi?.freshness;
+  if (fresh?.knifePenalty > 0)                    return { label: '🔪 FALLING KNIFE', color: 'var(--bear)' };
+  if (fresh?.consecutiveUp > 0 && fresh.penalty === 0) return { label: '🚀 EARLY SPIKE',    color: 'var(--bull)' };
+  if (bi?.penalty > 0)                            return { label: '⚠ CHASING',        color: 'var(--warn, orange)' };
+  if ((e.conv ?? -Infinity) >= 6)                 return { label: '✅ BUY',            color: 'var(--bull)' };
+  return { label: '—', color: 'var(--text-dim)' };
+}
+
+
+function renderMarketData() {
+  const tbody = document.getElementById('market-data-tbody');
+  const stats = document.getElementById('market-data-stats');
+  if (!tbody) return;
+
+  let rows = [...(_marketDataState.symbols || [])];
+  const sortKey = document.getElementById('market-data-sort')?.value || 'conv';
+  rows.sort((a, b) => {
+    if (sortKey === 'pair') return (a.pair || '').localeCompare(b.pair || '');
+    const pick = (r) => sortKey === 'bullConf' ? r.bullConf
+      : sortKey === 'whale' ? r.whale?.score
+      : sortKey === 'shock' ? r.d?.shock
+      : sortKey === 'chg' ? r.chg
+      : sortKey === 'histWinRate' ? r.hist?.winRate
+      : r.conv;
+    return (pick(b) ?? -Infinity) - (pick(a) ?? -Infinity);
+  });
+
+  if (stats) {
+    const clearing = rows.filter(r => (r.conv ?? -Infinity) >= 6).length;
+    const held = rows.filter(r => _marketDataState.positions[r.base]).length;
+    stats.innerHTML = [
+      `<span>${rows.length}</span> symbols`,
+      `<span style="color:var(--bull)">${clearing}</span> clearing conv≥6`,
+      held ? `<span style="color:var(--accent)">${held}</span> currently held` : null,
+    ].filter(Boolean).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="17" style="text-align:center;color:var(--text-dim);padding:20px;">No market data on record yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(e => {
+    const d = e.d || {};
+    const whale = e.whale?.score;
+    const bi = e.d?.buyIntel; // was e.buyIntel — actual saved path is nested under d, this was always reading undefined
+    const biText = bi && bi.penalty > 0
+      ? `<span style="color:var(--bear)" title="${(bi.reasons || []).join(' · ')}">-${bi.penalty} ⚠</span>`
+      : bi ? '<span style="color:var(--bull)">clean</span>' : '<span style="color:var(--text-dim)">—</span>';
+
+    const symState = _marketDataState.regime?.symbols?.[e.pair] || {};
+    const oiTrend = symState.oiMomentum?.trend;
+    const oiText = oiTrend ? `<span style="color:${_mdColorTrend(oiTrend)}">${oiTrend}</span>` : '<span style="color:var(--text-dim)">—</span>';
+
+    const hist = e.hist || {};
+    const histText = hist.sample
+      ? `<span style="color:${_mdColorWinRate(hist.winRate)}" title="${hist.sample} closes, 30d">${Math.round(hist.winRate * 100)}% (${hist.sample})</span>`
+      : '<span style="color:var(--text-dim)">no data</span>';
+
+    const pos = _marketDataState.positions[e.base];
+    const posText = pos
+      ? `<span style="color:${pos.liveOrder?.mode === 'live' ? 'var(--accent)' : 'var(--text-bright)'}" title="Entry $${pos.entryPrice} · Stop $${pos.stop}">${pos.liveOrder?.mode === 'live' ? '🔴 LIVE' : '👁 watch'} ${pos.highestPnLSeen != null ? (pos.highestPnLSeen >= 0 ? '+' : '') + pos.highestPnLSeen + '%' : ''}</span>`
+      : '<span style="color:var(--text-dim)">—</span>';
+
+    return `<tr>
+      <td style="font-weight:700;color:var(--text-bright)">${e.base}</td>
+      <td style="font-size:9px">${e.price != null ? '$' + e.price : '—'}</td>
+      <td style="font-size:9px;color:${_mdColorChg(e.chg)}">${e.chg != null ? (e.chg > 0 ? '+' : '') + e.chg.toFixed(2) + '%' : '—'}</td>
+      <td style="font-size:9px;font-weight:700;color:${_mdColorConv(e.conv)}">${e.conv ?? '—'}</td>
+      <td style="font-size:9px;color:${_mdColorBullConf(e.bullConf)}">${e.bullConf != null ? e.bullConf + '/10' : '—'}</td>
+      <td style="font-size:9px;color:${_mdColorWhale(whale)}">${whale != null ? whale + '/100' : '—'}</td>
+      <td style="font-size:9px;color:${_mdColorShock(d.shock)}">${d.shock != null ? d.shock.toFixed(2) + 'x' : '—'}</td>
+      <td style="font-size:9px;color:var(--text-dim)">${d.r15 != null ? d.r15.toFixed(0) : '—'}</td>
+      <td style="font-size:9px;color:${_mdColorBias(d.bias4h)}">${d.bias4h || '—'}</td>
+      <td style="font-size:9px;color:${_mdColorBias(d.biasDay)}">${d.biasDay || '—'}</td>
+      <td style="font-size:9px;color:var(--text-dim)">${d.oiDiv || '—'}</td>
+      <td style="font-size:9px;color:${d.cvdTrend === 'up' ? 'var(--bull)' : d.cvdTrend === 'down' ? 'var(--bear)' : 'var(--text-dim)'}">${d.cvdTrend || '—'}</td>
+      <td style="font-size:9px">${oiText}</td>
+      <td style="font-size:9px">${histText}</td>
+      <td style="font-size:9px">${posText}</td>
+      <td style="font-size:9px">${biText}</td>
+      <td style="font-size:9px;color:${_classifySignal(e).color}" title="${(bi?.reasons || []).join(' · ') || ''}">${_classifySignal(e).label}</td>
     </tr>`;
   }).join('');
 }
@@ -842,9 +1105,18 @@ function _renderComparePane() {
 // (github-sync.js) so the change survives a cache clear / different
 // device, not just this browser. Call after ANY mutation to
 // namedWatchlists (create, delete, add symbol, remove symbol, TG toggle).
+//
+// Also sets a49_wl_pending_push=1 — a flag that survives page reload,
+// unlike scheduleWatchlistSync()'s in-memory setTimeout. If the tab is
+// reloaded before that debounced push actually completes, reloadWatchlistSource()
+// checks this flag on the next init() and skips overwriting local state
+// from the (still-stale) server copy — see reloadWatchlistSource() below.
+// Cleared only once syncWatchlistsToGitHub() confirms a successful push
+// (github-sync.js).
 function _persistNamedWatchlists() {
   localStorage.setItem('a49_named_wl', JSON.stringify(STATE.namedWatchlists));
   localStorage.setItem('a49_active_wl', STATE.activeWatchlistName);
+  localStorage.setItem('a49_wl_pending_push', '1');
   if (typeof scheduleWatchlistSync === 'function') scheduleWatchlistSync();
 }
 
