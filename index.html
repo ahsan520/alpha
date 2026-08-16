@@ -414,25 +414,13 @@
     <div class="api-trades-header">
       <span class="api-trades-title">📊 MARKET DATA</span>
       <div class="api-trades-stats" id="market-data-stats"></div>
-      <select id="market-data-sort" onchange="renderMarketData()" style="font-family:var(--mono);font-size:9px;background:var(--bg-panel,#111);color:var(--text-bright);border:1px solid var(--text-dim);padding:2px 6px;">
-        <option value="conv">Sort: Conviction</option>
-        <option value="chg">Sort: 24h Change</option>
-        <option value="shock">Sort: Volume Shock</option>
-        <option value="bullConf">Sort: BullConf</option>
-        <option value="whale">Sort: Whale Score</option>
-        <option value="histWinRate">Sort: Win Rate</option>
-        <option value="pair">Sort: A–Z</option>
-      </select>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim)">Click any column header to sort</span>
       <button class="bsm" onclick="refreshMarketData()" title="Reload from GitHub">↻ Refresh</button>
     </div>
     <div class="api-tbl-wrap">
       <table class="jtbl api-tbl">
         <thead>
-          <tr>
-            <th>SYMBOL</th><th>PRICE</th><th>24H%</th><th>CONV</th><th>BULLCONF</th>
-            <th>WHALE</th><th>SHOCK</th><th>RSI15</th><th>4H BIAS</th><th>DAILY BIAS</th>
-            <th>OI DIV</th><th>CVD</th><th>OI MOM</th><th>HIST (30D)</th><th>POSITION</th><th>BUY INTEL</th><th>SIGNAL</th>
-          </tr>
+          <tr id="market-data-thead-row"></tr>
         </thead>
         <tbody id="market-data-tbody">
           <tr><td colspan="17" style="text-align:center;color:var(--text-dim);padding:20px;">
