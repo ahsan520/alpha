@@ -4068,7 +4068,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-16T18:07:47.723Z",
+    "timestamp": "2026-08-16T18:07:45.385Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4087,7 +4087,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4213,10 +4213,44 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-16T18:07:45.434Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-16T18:07:45.949Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 4
+  },
+  {
+    "timestamp": "2026-08-16T18:07:45.951Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-16T18:07:47.757Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
