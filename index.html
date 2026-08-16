@@ -17,6 +17,7 @@
     <div class="hstat"><span class="hstat-l">MCAP</span><span class="hstat-v" id="h-mcap">—</span></div>
     <div class="hstat"><span class="hstat-l">24H VOL</span><span class="hstat-v" id="h-vol">—</span></div>
     <div id="fg-pill" style="background:rgba(100,100,100,.2);color:#888;">F&G —</div>
+    <div id="mi-pill" title="BTC Risk Score / Market Regime — v15 Market Intelligence Engine" style="background:rgba(100,100,100,.2);color:#888;">🧠 —</div>
     <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">
       <span class="sdot" id="sdot"></span><span id="sstatus">INIT</span>
     </div>
@@ -28,6 +29,7 @@
   <button class="tab on"  onclick="switchTab('matrix',this)">◆ SIGNAL MATRIX</button>
   <button class="tab"     onclick="switchTab('news',this)">📰 NEWS</button>
   <button class="tab"     onclick="switchTab('journal',this)">◆ TRADE JOURNAL</button>
+  <button class="tab"     onclick="switchTab('market-data',this)">📊 MARKET DATA</button>
   <button class="tab"     onclick="switchTab('api-audit',this)">🛡 API AUDIT</button>
   <button class="tab"     onclick="switchTab('alerts',this)">⚙ CONFIG</button>
   <button class="tab"     onclick="switchTab('watchlist-mgr',this)">⚙ WATCHLIST</button>
@@ -151,6 +153,35 @@
   </div>
 
 </div><!-- /mbar -->
+
+<!-- ◆ MARKET INTELLIGENCE (v15 design doc) — BTC Risk Score, market regime,
+     breadth, populated by renderMarketIntelligence() in js/market-intelligence.js.
+     Reads scripts/market-state.json (written by market-fetcher.js each Job A cycle) -->
+<div class="mbar" id="mi-panel" style="margin-top:6px;">
+  <div class="mbar-pulse" style="align-items:center;">
+    <div class="mp-group">
+      <div class="mp-group-lbl">🧠 MARKET INTEL</div>
+      <div class="mp-tile" id="mi-btcrisk" title="BTC Risk Score (0-30 Buy · 30-50 Reduce · 50-70 Watch · 70+ Block) — composite of BTC 4H/day bias, 15m momentum, volatility, Fear &amp; Greed">
+        <div class="mp-tile-name">BTC RISK</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div>
+      </div>
+      <div class="mp-tile" id="mi-regime" title="Market regime — RISK_ON / NEUTRAL / RISK_OFF, combining BTC risk score + breadth">
+        <div class="mp-tile-name">REGIME</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div>
+      </div>
+      <div class="mp-tile" id="mi-breadth" title="% of watchlist crypto symbols currently in a bullish 4H posture, and whether that's rising or falling">
+        <div class="mp-tile-name">BREADTH</div><div class="mp-tile-val">—</div><div class="mp-tile-chg flat">—</div>
+      </div>
+    </div>
+    <div class="mp-vsep"></div>
+    <div class="mp-group" style="flex:1;min-width:0;">
+      <div class="mp-group-lbl">TOP MOVERS (CVD/OI/WHALE)</div>
+      <div id="mi-symbols" style="font-family:var(--mono);font-size:8px;color:var(--text-dim);display:flex;gap:10px;flex-wrap:wrap;">—</div>
+    </div>
+    <div class="mp-refresh-wrap">
+      <div class="mp-updated" id="mi-updated">—</div>
+      <button class="mp-refresh-btn" onclick="fetchMarketIntelligence()" title="Refresh market intelligence">↺</button>
+    </div>
+  </div>
+</div><!-- /mi-panel -->
 
 <!-- ◆ SMART MONEY SECTOR FLOW — populated by renderSectorFlow() in render.js -->
 <div id="sector-flow-panel"></div>
@@ -362,6 +393,59 @@
 <!-- Fed by audit-log.json — every API/trade action the headless job takes -->
 <!-- (buys, sells, skips, failures, GitHub pushes, mode changes, etc). Read- -->
 <!-- only, most-recent-first; capped server-side at ~3000 rows. -->
+<!-- ══ MARKET DATA TAB ══ -->
+<!-- Raw market-data.json, rendered for manual review — the same fields
+     Buy Intelligence/conviction scoring use, so you can eyeball a symbol
+     the way the bot does before deciding to buy early yourself. Color
+     thresholds match the actual gate values discussed this session:
+     conv≥6 (LB_MIN_SCORE) clears a normal buy, ≥8 also clears the
+     stricter exception score bars; shock<0.5 means a move on very thin
+     volume (the single biggest red flag found in review — several real
+     blocked symbols had shock near 0 despite decent price change);
+     bullConf≥7 and whale≥70 are the Alpha Exception's own bars. -->
+<div id="tab-market-data" class="tc" style="height:calc(100vh - 80px);overflow:hidden;">
+  <div class="api-trades-section" style="max-height:none;height:100%;border-top:none;display:flex;flex-direction:column;">
+    <!-- BTC regime banner — the context every gate decision is made
+         against. Without this, a strong-looking row below can appear to
+         be blocked for no visible reason. -->
+    <div id="market-data-regime" style="font-family:var(--mono);font-size:9px;padding:6px 10px;border-bottom:1px solid var(--text-dim);display:flex;gap:16px;flex-wrap:wrap;color:var(--text-dim);">
+      Loading BTC regime…
+    </div>
+    <div class="api-trades-header">
+      <span class="api-trades-title">📊 MARKET DATA</span>
+      <div class="api-trades-stats" id="market-data-stats"></div>
+      <select id="market-data-sort" onchange="renderMarketData()" style="font-family:var(--mono);font-size:9px;background:var(--bg-panel,#111);color:var(--text-bright);border:1px solid var(--text-dim);padding:2px 6px;">
+        <option value="conv">Sort: Conviction</option>
+        <option value="chg">Sort: 24h Change</option>
+        <option value="shock">Sort: Volume Shock</option>
+        <option value="bullConf">Sort: BullConf</option>
+        <option value="whale">Sort: Whale Score</option>
+        <option value="histWinRate">Sort: Win Rate</option>
+        <option value="pair">Sort: A–Z</option>
+      </select>
+      <button class="bsm" onclick="refreshMarketData()" title="Reload from GitHub">↻ Refresh</button>
+    </div>
+    <div class="api-tbl-wrap">
+      <table class="jtbl api-tbl">
+        <thead>
+          <tr>
+            <th>SYMBOL</th><th>PRICE</th><th>24H%</th><th>CONV</th><th>BULLCONF</th>
+            <th>WHALE</th><th>SHOCK</th><th>RSI15</th><th>4H BIAS</th><th>DAILY BIAS</th>
+            <th>OI DIV</th><th>CVD</th><th>OI MOM</th><th>HIST (30D)</th><th>POSITION</th><th>BUY INTEL</th><th>SIGNAL</th>
+          </tr>
+        </thead>
+        <tbody id="market-data-tbody">
+          <tr><td colspan="17" style="text-align:center;color:var(--text-dim);padding:20px;">
+            Click ↻ Refresh to load market data from GitHub
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="api-trades-footer" id="market-data-footer"></div>
+  </div>
+</div>
+
+<!-- ══ API AUDIT TAB ══ -->
 <div id="tab-api-audit" class="tc" style="height:calc(100vh - 80px);overflow:hidden;">
   <div class="api-trades-section" style="max-height:none;height:100%;border-top:none;">
     <div class="api-trades-header">
@@ -451,6 +535,7 @@
 <!-- env.js: auto-generated by GitHub Actions — exposes __GH_PAT / __GH_REPO / __AV_KEY / __GNEWS_KEY -->
 <script src="scripts/env.js" onerror="console.warn('env.js not found')"></script>
 <script src="js/sentiment.js"></script>
+<script src="js/market-intelligence.js"></script>
 <script src="js/general-news.js"></script>
 <script src="js/github-sync.js"></script>
 <script src="js/app.js"></script>
