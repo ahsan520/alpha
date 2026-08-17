@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T04:47:48.846Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-08-17T04:50:56.647Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4043,7 +4036,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T05:47:47.441Z",
+    "timestamp": "2026-08-17T05:47:48.884Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4069,7 +4062,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4193,5 +4186,71 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T05:47:48.943Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T05:47:49.323Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:LINKUSDT",
+    "price": 9.424,
+    "stop": 9.4337,
+    "entry": 9.529,
+    "pnlPct": "-1.10",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-17T05:47:50.438Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-08-17T05:47:50.441Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 514
+  },
+  {
+    "timestamp": "2026-08-17T05:47:50.835Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 11,
+    "openAfter": 11,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-17T05:47:50.839Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-17T05:47:50.840Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T05:47:52.257Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 10
   }
 ]
