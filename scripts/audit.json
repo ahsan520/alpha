@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T14:07:46.227Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-17T14:07:46.229Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-17T14:07:48.635Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 9,
-    "monitored": 9
-  },
-  {
     "timestamp": "2026-08-17T14:10:58.969Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5003,7 +4985,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T15:07:46.058Z",
+    "timestamp": "2026-08-17T15:07:46.888Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -5050,7 +5032,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5120,7 +5102,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5155,7 +5137,7 @@
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5249,5 +5231,74 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T15:07:46.953Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T15:07:47.288Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHY.TO",
+    "sym": "TSX:ETHY.TO",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-17T15:07:47.291Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T15:07:49.876Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 503 No server is currently available to service your request. Sorry about that. Please try resubmitting your request and contact us if the problem persists."
+  },
+  {
+    "timestamp": "2026-08-17T15:07:50.185Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETHY"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-08-17T15:07:50.186Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T15:07:52.827Z",
+    "job": "leaderboard-decider",
+    "action": "heartbeat_push_failed",
+    "error": "PUT 503 No server is currently available to service your request. Sorry about that. Please try resubmitting your request and contact us if the problem persists."
+  },
+  {
+    "timestamp": "2026-08-17T15:07:59.048Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
