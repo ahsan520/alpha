@@ -4119,7 +4119,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T03:52:52.284Z",
+    "timestamp": "2026-08-17T03:52:55.270Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4145,7 +4145,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4194,7 +4194,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4243,7 +4243,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4257,7 +4257,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4269,5 +4269,81 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T03:52:55.332Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T03:52:55.897Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-17T03:52:55.898Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-17T03:52:55.901Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T03:52:57.260Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-08-17T03:52:57.581Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "XLM",
+      "SOL"
+    ],
+    "caution": [
+      "XLM",
+      "SOL"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T03:52:57.582Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T03:53:00.538Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
