@@ -1,18 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T15:32:48.051Z",
-    "job": "leaderboard-decider",
-    "action": "heartbeat_push_failed",
-    "error": "PUT 503 No server is currently available to service your request. Sorry about that. Please try resubmitting your request and contact us if the problem persists."
-  },
-  {
-    "timestamp": "2026-08-17T15:32:50.303Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-08-17T15:35:41.322Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5832,7 +5819,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T16:32:45.987Z",
+    "timestamp": "2026-08-17T16:32:47.240Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -5914,7 +5901,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5935,7 +5922,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6078,5 +6065,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T16:32:47.304Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T16:32:47.658Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-17T16:32:47.659Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T16:32:50.427Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
