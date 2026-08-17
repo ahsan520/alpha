@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T20:02:47.639Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-08-17T20:05:57.105Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6138,7 +6131,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T21:02:45.891Z",
+    "timestamp": "2026-08-17T21:02:45.366Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -6150,7 +6143,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6365,5 +6358,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T21:02:45.429Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T21:02:46.741Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-08-17T21:02:46.743Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-17T21:02:46.747Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-17T21:02:46.748Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T21:02:48.073Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
