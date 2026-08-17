@@ -5883,7 +5883,7 @@
     "monitored": 11
   },
   {
-    "timestamp": "2026-08-17T15:52:49.510Z",
+    "timestamp": "2026-08-17T15:52:51.259Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -5895,7 +5895,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5923,14 +5923,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5958,7 +5958,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6000,7 +6000,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6021,14 +6021,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6051,7 +6051,7 @@
       {
         "pair": "GE.TO",
         "status": "ok",
-        "conv": 2,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6129,5 +6129,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T15:52:51.349Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T15:52:51.859Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-17T15:52:51.861Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T15:52:54.687Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
