@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T14:12:45.775Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-17T14:12:45.777Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-17T14:12:48.223Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 9,
-    "monitored": 9
-  },
-  {
     "timestamp": "2026-08-17T14:15:55.754Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5230,7 +5212,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T15:12:45.438Z",
+    "timestamp": "2026-08-17T15:12:46.309Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -5326,7 +5308,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5382,7 +5364,7 @@
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5476,5 +5458,92 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T15:12:46.377Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T15:12:46.798Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XRPUSDT",
+    "sym": "BINANCE:XRPUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-17T15:12:46.800Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TXF.TO",
+    "sym": "TSX:TXF.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-17T15:12:46.803Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "grade below EXEC_MIN_GRADE (B)"
+    ],
+    "symbols": [
+      "XRPUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T15:12:47.303Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T15:12:50.007Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 503 No server is currently available to service your request. Sorry about that. Please try resubmitting your request and contact us if the problem persists."
+  },
+  {
+    "timestamp": "2026-08-17T15:12:50.304Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "TXF",
+      "XRP"
+    ],
+    "caution": [
+      "XRP"
+    ]
+  },
+  {
+    "timestamp": "2026-08-17T15:12:50.305Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T15:12:55.981Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
