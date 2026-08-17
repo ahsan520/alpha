@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-17T07:47:51.164Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 13,
-    "monitored": 13
-  },
-  {
     "timestamp": "2026-08-17T07:50:57.551Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4076,7 +4069,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-17T08:47:49.926Z",
+    "timestamp": "2026-08-17T08:47:52.259Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4151,7 +4144,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4193,7 +4186,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4226,5 +4219,60 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-17T08:47:52.326Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-17T08:47:55.885Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SUIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-17T08:47:57.018Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-08-17T08:47:57.020Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 9,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-17T08:47:57.023Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-17T08:47:57.024Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-17T08:47:58.555Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 9
   }
 ]
