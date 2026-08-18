@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-18T12:52:49.513Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 10,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-08-18T12:56:03.706Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6297,7 +6290,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-18T13:52:47.364Z",
+    "timestamp": "2026-08-18T13:52:47.963Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -6309,7 +6302,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6344,14 +6337,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6447,14 +6440,14 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 5,
+        "conv": 2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6462,7 +6455,7 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6470,7 +6463,7 @@
       {
         "pair": "GE.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6494,7 +6487,7 @@
       {
         "pair": "GRGD.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6548,5 +6541,104 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-18T13:52:48.033Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-18T13:52:48.527Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 502.1,
+    "stop": 503.1,
+    "entry": 508.18,
+    "pnlPct": "-1.20",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-18T13:52:48.529Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "TSX:NVDA.TO",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-18T13:52:49.475Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 684c6e02f6f3b0552a93f975138d970d25d7c0a7 but expected f8daed60502ad9174f01434b99c8d9e6773aa5d8"
+  },
+  {
+    "timestamp": "2026-08-18T13:52:49.478Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 535
+  },
+  {
+    "timestamp": "2026-08-18T13:52:49.756Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 9,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-18T13:52:49.775Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-18T13:52:49.776Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-18T13:52:51.260Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
+  },
+  {
+    "timestamp": "2026-08-18T13:52:54.031Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "pair": "ZEC",
+    "price": 502.42,
+    "entry": 508.18,
+    "stop": 503.1,
+    "pnlPct": "-1.13"
+  },
+  {
+    "timestamp": "2026-08-18T13:52:55.244Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 10
+  },
+  {
+    "timestamp": "2026-08-18T13:52:56.392Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 10,
+    "statusChanged": true
   }
 ]
