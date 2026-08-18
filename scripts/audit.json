@@ -1,29 +1,5 @@
 [
   {
-    "timestamp": "2026-08-18T15:17:50.044Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "NEARUSDT",
-    "sym": "BINANCE:NEARUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-08-18T15:17:50.048Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-18T15:17:51.588Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 12
-  },
-  {
     "timestamp": "2026-08-18T15:17:52.037Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
@@ -6611,7 +6587,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-18T16:17:49.998Z",
+    "timestamp": "2026-08-18T16:17:49.555Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -6658,7 +6634,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6761,14 +6737,14 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6784,7 +6760,7 @@
       {
         "pair": "GE.TO",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6816,7 +6792,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6862,5 +6838,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-18T16:17:49.617Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-18T16:17:50.009Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-18T16:17:50.010Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-18T16:17:51.611Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
