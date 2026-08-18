@@ -6836,7 +6836,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-18T17:12:48.962Z",
+    "timestamp": "2026-08-18T17:12:46.321Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -6993,7 +6993,7 @@
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7009,7 +7009,7 @@
       {
         "pair": "GE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7041,7 +7041,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7057,7 +7057,7 @@
       {
         "pair": "MU.TO",
         "status": "ok",
-        "conv": 4,
+        "conv": 0,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7087,5 +7087,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-18T17:12:46.372Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-18T17:12:46.889Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-18T17:12:46.890Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-18T17:12:49.237Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
