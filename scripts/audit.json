@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-18T12:47:51.815Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 10,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-08-18T12:51:03.745Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6188,7 +6181,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-18T13:47:50.725Z",
+    "timestamp": "2026-08-18T13:47:47.666Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -6305,7 +6298,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6331,7 +6324,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6439,5 +6432,100 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-18T13:47:47.732Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-18T13:47:48.239Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "TSX:NVDA.TO",
+    "price": 49.18000030517578,
+    "stop": 49.2,
+    "entry": 49.7,
+    "pnlPct": "-1.05",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-18T13:47:49.574Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-08-18T13:47:49.577Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 534
+  },
+  {
+    "timestamp": "2026-08-18T13:47:49.851Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 9,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-18T13:47:49.870Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHY.TO",
+    "sym": "TSX:ETHY.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-18T13:47:49.873Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-18T13:47:51.451Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-08-18T13:47:51.715Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETHY"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-08-18T13:47:51.717Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-18T13:47:55.766Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
