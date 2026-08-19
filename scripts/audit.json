@@ -4141,7 +4141,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-19T05:02:51.231Z",
+    "timestamp": "2026-08-19T05:02:49.653Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4291,5 +4291,70 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T05:02:49.714Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T05:02:53.163Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-19T05:02:53.167Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T05:02:54.418Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at eace1ca394b68df4ead383b73f5fc9c22a5f5d99 but expected d64573264d30ea2403c7f90b8be2c1f91aed6e80"
+  },
+  {
+    "timestamp": "2026-08-19T05:02:54.716Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "XLM"
+    ],
+    "caution": [
+      "XLM"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T05:02:54.717Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T05:02:58.112Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
