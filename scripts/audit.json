@@ -3946,7 +3946,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-19T03:17:50.321Z",
+    "timestamp": "2026-08-19T03:17:45.977Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3972,7 +3972,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4007,7 +4007,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4021,7 +4021,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4084,7 +4084,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4096,5 +4096,92 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T03:17:46.039Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T03:17:46.433Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AVAXUSDT",
+    "sym": "BINANCE:AVAXUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-19T03:17:46.434Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-08-19T03:17:46.435Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-19T03:17:46.438Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T03:17:47.630Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-08-19T03:17:48.055Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "RENDER",
+      "AVAX",
+      "UNI"
+    ],
+    "caution": [
+      "RENDER",
+      "AVAX",
+      "UNI"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T03:17:48.056Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T03:17:50.773Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
