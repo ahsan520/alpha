@@ -4635,7 +4635,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-19T19:27:45.934Z",
+    "timestamp": "2026-08-19T19:27:46.268Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -4780,7 +4780,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4881,5 +4881,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T19:27:46.331Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T19:27:47.658Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 68dbbc9a2a8f8d93e07ff7c4b296b5e48ef04462 but expected bc6d601c9658cf7008ff441c7c73f0adad910631"
+  },
+  {
+    "timestamp": "2026-08-19T19:27:47.659Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 17,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-19T19:27:47.679Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-19T19:27:47.680Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T19:27:48.998Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
