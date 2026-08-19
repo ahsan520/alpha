@@ -1,80 +1,5 @@
 [
   {
-    "timestamp": "2026-08-19T18:22:51.640Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 17
-  },
-  {
-    "timestamp": "2026-08-19T18:22:51.672Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 17,
-    "openAfter": 17,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-19T18:22:51.675Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "AVAXUSDT",
-    "sym": "BINANCE:AVAXUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-08-19T18:22:51.898Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "grade below EXEC_MIN_GRADE (B)"
-    ],
-    "symbols": [
-      "AVAXUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-08-19T18:22:52.430Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-19T18:22:52.933Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 scripts/positions.json does not match 745bf45a3d923694b9d2ca8b35ab4d8ace5fa054"
-  },
-  {
-    "timestamp": "2026-08-19T18:22:53.221Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "AVAX"
-    ],
-    "caution": [
-      "AVAX"
-    ]
-  },
-  {
-    "timestamp": "2026-08-19T18:22:53.223Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-19T18:22:57.016Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-08-19T18:26:04.227Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4359,7 +4284,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-19T19:22:49.491Z",
+    "timestamp": "2026-08-19T19:22:50.686Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -4371,7 +4296,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4497,14 +4422,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4599,11 +4524,76 @@
       {
         "pair": "XDIV.TO",
         "status": "ok",
-        "conv": -6,
+        "conv": -4,
         "session": "open",
-        "setup": "SHORT SETUP",
+        "setup": "WATCHING",
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T19:22:50.751Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T19:22:54.163Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AVAXUSDT",
+    "sym": "BINANCE:AVAXUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-19T19:22:54.168Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T19:22:55.184Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-08-19T19:22:55.600Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AVAX"
+    ],
+    "caution": [
+      "AVAX"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T19:22:55.601Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T19:22:57.943Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
