@@ -1,31 +1,5 @@
 [
   {
-    "timestamp": "2026-08-19T22:52:47.753Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 16,
-    "openAfter": 16,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-08-19T22:52:47.756Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-19T22:52:47.757Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-19T22:52:50.077Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 16,
-    "monitored": 15
-  },
-  {
     "timestamp": "2026-08-19T22:53:34.370Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4444,7 +4418,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-08-19T23:52:47.497Z",
+    "timestamp": "2026-08-19T23:52:47.769Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4491,7 +4465,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4594,5 +4568,70 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T23:52:47.826Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T23:52:48.323Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-19T23:52:48.325Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T23:52:49.503Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at db7c2078e5de7c49e77dcb09a057550a33840ea2 but expected 1ff35c5dc345868cd4dec80f75e47bbb5567a837"
+  },
+  {
+    "timestamp": "2026-08-19T23:52:49.808Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "IMX"
+    ],
+    "caution": [
+      "IMX"
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T23:52:49.809Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T23:52:52.978Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 16
   }
 ]
