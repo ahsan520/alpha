@@ -7501,7 +7501,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-19T16:37:45.196Z",
+    "timestamp": "2026-08-19T16:37:47.841Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -7527,14 +7527,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7548,7 +7548,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7651,7 +7651,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7752,5 +7752,68 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T16:37:47.898Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-19T16:37:50.045Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-08-19T16:37:50.046Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-19T16:37:50.063Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-19T16:37:50.064Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-19T16:37:51.935Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
+  },
+  {
+    "timestamp": "2026-08-19T16:37:59.272Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 18
+  },
+  {
+    "timestamp": "2026-08-19T16:38:00.736Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 1,
+    "remaining": 18,
+    "statusChanged": false
   }
 ]
