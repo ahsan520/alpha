@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-20T15:37:50.737Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-08-20T15:41:14.926Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -3943,7 +3936,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-20T16:37:49.467Z",
+    "timestamp": "2026-08-20T16:38:00.525Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 33,
@@ -3969,35 +3962,35 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4011,7 +4004,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4053,14 +4046,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4081,14 +4074,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4197,5 +4190,158 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-20T16:38:00.571Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-20T16:38:01.057Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-08-20T16:38:01.058Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.2791,
+    "t1": 1.2766,
+    "liveConv": 7,
+    "liveBullConf": 0,
+    "pnlPct": "2.79",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.381Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.384Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 658
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.665Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 18,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.677Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TAOUSDT",
+    "sym": "BINANCE:TAOUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.678Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.678Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AGCC.TO",
+    "sym": "TSX:AGCC.TO",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.679Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHY.TO",
+    "sym": "TSX:ETHY.TO",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.680Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GLCC.TO",
+    "sym": "TSX:GLCC.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.681Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "MU.TO",
+    "sym": "TSX:MU.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-20T16:38:02.686Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-20T16:38:03.707Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 24
+  },
+  {
+    "timestamp": "2026-08-20T16:38:04.023Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 6,
+    "positionsOpened": 6,
+    "recommended": [
+      "ETHY",
+      "TAO",
+      "AGCC"
+    ],
+    "caution": [
+      "TAO",
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-08-20T16:38:04.024Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-20T16:38:06.981Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 24,
+    "monitored": 24
   }
 ]
