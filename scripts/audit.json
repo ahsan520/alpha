@@ -1,29 +1,5 @@
 [
   {
-    "timestamp": "2026-08-20T18:57:52.007Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:XRPUSDT",
-    "price": 1.2374,
-    "stop": 1.2461,
-    "entry": 1.2587,
-    "pnlPct": "-1.69",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-08-20T18:57:52.945Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 17
-  },
-  {
-    "timestamp": "2026-08-20T18:57:52.949Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 676
-  },
-  {
     "timestamp": "2026-08-20T18:57:53.218Z",
     "job": "leaderboard-decider",
     "action": "monitor_complete",
@@ -6888,7 +6864,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-08-20T19:57:50.940Z",
+    "timestamp": "2026-08-20T19:57:50.710Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -6900,7 +6876,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7026,7 +7002,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7150,5 +7126,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-20T19:57:50.774Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-20T19:57:51.117Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-20T19:57:51.119Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-20T19:57:53.081Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 18
   }
 ]
