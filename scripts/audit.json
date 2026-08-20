@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-20T07:17:47.921Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-08-20T07:21:05.961Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3883,7 +3876,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-20T08:17:47.006Z",
+    "timestamp": "2026-08-20T08:18:01.222Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3902,7 +3895,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3923,14 +3916,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3951,7 +3944,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3986,7 +3979,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4007,7 +4000,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4021,7 +4014,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4033,5 +4026,96 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-20T08:18:01.278Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-20T08:18:01.734Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:IMXUSDT",
+    "price": 0.1061,
+    "t1": 0.1059,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "2.81",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T08:18:01.735Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.1333,
+    "t1": 1.1275,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "3.11",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T08:18:01.737Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 3.704,
+    "t1": 3.7018,
+    "liveConv": 8,
+    "liveBullConf": 0,
+    "pnlPct": "2.65",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T08:18:03.168Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-08-20T08:18:03.313Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 3,
+    "totalKept": 624
+  },
+  {
+    "timestamp": "2026-08-20T08:18:04.725Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-08-20T08:18:04.872Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-20T08:18:04.873Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-20T08:18:06.964Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 20
   }
 ]
