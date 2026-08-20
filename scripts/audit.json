@@ -1,5 +1,12 @@
 [
   {
+    "timestamp": "2026-08-20T15:22:53.992Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
+  },
+  {
     "timestamp": "2026-08-20T15:26:03.375Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4005,11 +4012,11 @@
     ]
   },
   {
-    "timestamp": "2026-08-20T16:22:57.843Z",
+    "timestamp": "2026-08-20T16:22:49.071Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
-    "successCount": 6,
+    "successCount": 20,
     "cryptoCount": 20,
     "stockScored": 0,
     "stockFrozen": 0,
@@ -4024,7 +4031,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4052,80 +4059,163 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 7,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 5,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 8,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 10,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 6,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 6,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 10,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XMRUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XRPUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 5,
+        "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
-        "status": "failed",
+        "status": "ok",
+        "conv": 10,
+        "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-20T16:22:49.139Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-20T16:22:49.643Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-20T16:22:51.381Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-08-20T16:22:51.382Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 19,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-20T16:22:51.386Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-20T16:22:51.388Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-20T16:22:53.827Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
   }
 ]
