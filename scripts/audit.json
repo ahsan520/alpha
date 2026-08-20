@@ -4556,7 +4556,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-20T13:37:48.245Z",
+    "timestamp": "2026-08-20T13:37:48.142Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4568,7 +4568,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4582,28 +4582,28 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 11,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 11,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4631,7 +4631,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4659,7 +4659,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4673,7 +4673,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4701,10 +4701,201 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.295Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.977Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 3.664,
+    "stop": 3.6786,
+    "entry": 3.7158,
+    "pnlPct": "-1.39",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.979Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:BTCUSDT",
+    "price": 71244.01,
+    "stop": 71404.49,
+    "entry": 72125.75,
+    "pnlPct": "-1.22",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.980Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 86.3,
+    "stop": 86.42,
+    "entry": 87.29,
+    "pnlPct": "-1.13",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.981Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.1796,
+    "stop": 0.180477,
+    "entry": 0.1823,
+    "pnlPct": "-1.48",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:48.982Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.7162,
+    "stop": 0.717354,
+    "entry": 0.7246,
+    "pnlPct": "-1.16",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:50.292Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 27e3f10834df62a0fc61fe23d674f0889b8c4b15 but expected bd376a71b4811a94bb1484bc9cb63e2062b466ca"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:50.294Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 5,
+    "totalKept": 649
+  },
+  {
+    "timestamp": "2026-08-20T13:37:52.104Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 5
+  },
+  {
+    "timestamp": "2026-08-20T13:37:52.105Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.83936,
+    "reasons": [
+      "BTC 15m: -1.00% — scaling size to 84%"
+    ]
+  },
+  {
+    "timestamp": "2026-08-20T13:37:52.108Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-20T13:37:52.109Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:54.320Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 18
+  },
+  {
+    "timestamp": "2026-08-20T13:37:58.158Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "pair": "UNI",
+    "price": 3.664,
+    "entry": 3.7158,
+    "stop": 3.6786,
+    "pnlPct": "-1.39"
+  },
+  {
+    "timestamp": "2026-08-20T13:37:58.907Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:BTCUSDT",
+    "pair": "BTC",
+    "price": 71220.1,
+    "entry": 72125.75,
+    "stop": 71404.49,
+    "pnlPct": "-1.26"
+  },
+  {
+    "timestamp": "2026-08-20T13:38:00.276Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "pair": "SOL",
+    "price": 86.3,
+    "entry": 87.29,
+    "stop": 86.42,
+    "pnlPct": "-1.13"
+  },
+  {
+    "timestamp": "2026-08-20T13:38:01.038Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "pair": "XLM",
+    "price": 0.1796,
+    "entry": 0.1823,
+    "stop": 0.180477,
+    "pnlPct": "-1.48"
+  },
+  {
+    "timestamp": "2026-08-20T13:38:01.517Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 0.716,
+    "entry": 0.7246,
+    "stop": 0.717354,
+    "pnlPct": "-1.19"
+  },
+  {
+    "timestamp": "2026-08-20T13:38:01.845Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 20
+  },
+  {
+    "timestamp": "2026-08-20T13:38:03.128Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 20,
+    "statusChanged": true
   }
 ]
