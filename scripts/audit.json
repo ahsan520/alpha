@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-08-21T04:32:46.115Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 20
-  },
-  {
-    "timestamp": "2026-08-21T04:32:46.116Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 20,
-    "openAfter": 20,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-21T04:32:46.121Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-21T04:32:46.123Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-21T04:32:47.545Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-08-21T04:36:04.201Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4176,7 +4144,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T05:32:45.837Z",
+    "timestamp": "2026-08-21T05:32:48.258Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4202,14 +4170,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4223,7 +4191,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4251,14 +4219,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4272,14 +4240,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4321,10 +4289,77 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T05:32:48.319Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T05:32:48.699Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 1.821,
+    "t1": 1.821,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "2.59",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T05:32:49.741Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-08-21T05:32:49.745Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 699
+  },
+  {
+    "timestamp": "2026-08-21T05:32:50.007Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-21T05:32:50.011Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-21T05:32:50.011Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T05:32:51.275Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
   }
 ]
