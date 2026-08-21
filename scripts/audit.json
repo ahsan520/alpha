@@ -3916,7 +3916,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T01:52:54.281Z",
+    "timestamp": "2026-08-21T01:52:51.202Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3942,7 +3942,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3956,14 +3956,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3998,7 +3998,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4019,7 +4019,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4033,7 +4033,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4061,10 +4061,101 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T01:52:51.259Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T01:52:51.785Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 89.16,
+    "t1": 89.12,
+    "liveConv": 5,
+    "liveBullConf": 0,
+    "pnlPct": "2.64",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T01:52:51.787Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 580.62,
+    "t1": 580.04,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "2.69",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T01:52:51.789Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.7479,
+    "t1": 0.7476,
+    "liveConv": 7,
+    "liveBullConf": 0,
+    "pnlPct": "2.63",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T01:52:52.739Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-08-21T01:52:52.742Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 3,
+    "totalKept": 689
+  },
+  {
+    "timestamp": "2026-08-21T01:52:53.782Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-08-21T01:52:53.785Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-21T01:52:53.786Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T01:52:54.990Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
