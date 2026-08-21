@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-21T20:37:51.237Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 21,
-    "monitored": 21
-  },
-  {
     "timestamp": "2026-08-21T20:41:15.576Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6780,7 +6773,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T21:37:48.812Z",
+    "timestamp": "2026-08-21T21:37:49.363Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -6827,7 +6820,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6841,7 +6834,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6883,7 +6876,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6918,14 +6911,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7014,5 +7007,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T21:37:49.421Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T21:37:53.191Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.002167,
+    "stop": 0.002178,
+    "entry": 0.0022,
+    "pnlPct": "-1.50",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T21:37:54.558Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-08-21T21:37:54.561Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 809
+  },
+  {
+    "timestamp": "2026-08-21T21:37:54.867Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-21T21:37:54.871Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-21T21:37:54.982Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T21:37:56.679Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 19
   }
 ]
