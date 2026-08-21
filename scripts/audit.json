@@ -7574,7 +7574,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T19:52:46.522Z",
+    "timestamp": "2026-08-21T19:52:46.838Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -7635,7 +7635,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7712,14 +7712,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7836,5 +7836,91 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T19:52:46.897Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T19:52:47.357Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-21T19:52:48.357Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at ac044471f9df11893c7527ff4c73072dcc154afc but expected a9baa0ce0953251b5756c5b32225b9d203bf3b8a"
+  },
+  {
+    "timestamp": "2026-08-21T19:52:48.359Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-21T19:52:48.376Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "APTUSDT",
+    "sym": "BINANCE:APTUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-21T19:52:48.381Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-21T19:52:49.332Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-08-21T19:52:49.606Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "APT"
+    ],
+    "caution": [
+      "APT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-21T19:52:49.607Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T19:52:52.255Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
