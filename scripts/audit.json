@@ -1,31 +1,5 @@
 [
   {
-    "timestamp": "2026-08-21T01:02:56.340Z",
-    "job": "alert-runner",
-    "action": "t1_hit",
-    "sym": "BINANCE:UNIUSDT",
-    "pair": "UNI",
-    "price": 3.823,
-    "t1": 3.8223,
-    "entry": 3.7258,
-    "pnlPct": "2.61"
-  },
-  {
-    "timestamp": "2026-08-21T01:02:59.674Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 20
-  },
-  {
-    "timestamp": "2026-08-21T01:03:00.560Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 20,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-08-21T01:06:03.685Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3973,7 +3947,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T02:02:52.626Z",
+    "timestamp": "2026-08-21T02:02:51.286Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3985,7 +3959,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4006,14 +3980,14 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4076,7 +4050,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4097,7 +4071,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4111,7 +4085,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4123,5 +4097,142 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T02:02:51.350Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T02:02:54.660Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-08-21T02:02:54.662Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-08-21T02:02:54.664Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SUIUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.442Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 3f69d97a8d266f013ab9636fea3b1a24ee9dc3b8 but expected ed21d65989e64e08727a528057165a565dd94242"
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.443Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 18,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.447Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.448Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.449Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-08-21T02:02:55.452Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-21T02:02:56.237Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-08-21T02:02:56.505Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "ZEC",
+      "SOL",
+      "SUI"
+    ],
+    "caution": [
+      "ZEC",
+      "SOL",
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-08-21T02:02:56.506Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T02:02:58.706Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
+  },
+  {
+    "timestamp": "2026-08-21T02:03:05.555Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 20
+  },
+  {
+    "timestamp": "2026-08-21T02:03:06.469Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 1,
+    "remaining": 20,
+    "statusChanged": false
   }
 ]
