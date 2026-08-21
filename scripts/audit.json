@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-08-21T22:02:50.200Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 16
-  },
-  {
-    "timestamp": "2026-08-21T22:02:50.201Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 17,
-    "openAfter": 16,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-21T22:02:50.204Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ETHUSDT",
-    "sym": "BINANCE:ETHUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-08-21T22:02:50.206Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-08-21T22:02:51.085Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -7122,7 +7090,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T23:02:50.074Z",
+    "timestamp": "2026-08-21T23:02:46.216Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -7134,7 +7102,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7148,7 +7116,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7169,7 +7137,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7183,7 +7151,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7246,7 +7214,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7356,5 +7324,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T23:02:46.278Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T23:02:46.748Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.2018,
+    "stop": 0.20196,
+    "entry": 0.204,
+    "pnlPct": "-1.08",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T23:02:48.070Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-08-21T23:02:48.073Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 822
+  },
+  {
+    "timestamp": "2026-08-21T23:02:48.387Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-21T23:02:48.392Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-21T23:02:48.393Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T23:02:50.220Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 15
   }
 ]
