@@ -5377,7 +5377,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-21T14:17:49.393Z",
+    "timestamp": "2026-08-21T14:17:51.678Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -5389,7 +5389,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5403,7 +5403,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5431,7 +5431,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5466,7 +5466,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5487,14 +5487,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5515,7 +5515,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5639,5 +5639,108 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-21T14:17:51.730Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-21T14:17:52.203Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "price": 0.08336,
+    "stop": 0.083556,
+    "entry": 0.0844,
+    "pnlPct": "-1.23",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T14:17:52.205Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 647.29,
+    "stop": 649.38,
+    "entry": 655.94,
+    "pnlPct": "-1.32",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-21T14:17:53.534Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at c1007ab63f5f5a0d0fb2d3eb624c8285c4c3531d but expected 93e8204b1663dd859755773b4aa2e8b5bf8b956a"
+  },
+  {
+    "timestamp": "2026-08-21T14:17:53.536Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 767
+  },
+  {
+    "timestamp": "2026-08-21T14:17:54.382Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-21T14:17:54.397Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-21T14:17:54.398Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-21T14:17:56.266Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 20
+  },
+  {
+    "timestamp": "2026-08-21T14:18:00.913Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "pair": "DOGE",
+    "price": 0.08337,
+    "entry": 0.0844,
+    "stop": 0.083556,
+    "pnlPct": "-1.22"
+  },
+  {
+    "timestamp": "2026-08-21T14:18:02.292Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 21
+  },
+  {
+    "timestamp": "2026-08-21T14:18:03.608Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 21,
+    "statusChanged": true
   }
 ]
