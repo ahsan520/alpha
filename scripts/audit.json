@@ -4650,7 +4650,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-22T21:32:19.392Z",
+    "timestamp": "2026-08-22T21:32:20.324Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4669,7 +4669,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4711,7 +4711,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4774,7 +4774,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4800,5 +4800,119 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-22T21:32:20.386Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-22T21:32:20.730Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.474,
+    "stop": 1.4749,
+    "entry": 1.4898,
+    "pnlPct": "-1.06",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:20.733Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.629,
+    "stop": 0.633105,
+    "entry": 0.6395,
+    "pnlPct": "-1.64",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:21.588Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 722ab73ed537ac803d861d8fde308e2ccb6477be but expected da9a1a9f529563e7b0b756c11d05d92d4163d840"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:21.592Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 968
+  },
+  {
+    "timestamp": "2026-08-22T21:32:22.508Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-22T21:32:22.512Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-22T21:32:22.513Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:23.930Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
+  },
+  {
+    "timestamp": "2026-08-22T21:32:27.951Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "pair": "XRP",
+    "price": 1.4743,
+    "entry": 1.4898,
+    "stop": 1.4749,
+    "pnlPct": "-1.04"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:28.859Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "pair": "APT",
+    "price": 0.63,
+    "entry": 0.6395,
+    "stop": 0.633105,
+    "pnlPct": "-1.49"
+  },
+  {
+    "timestamp": "2026-08-22T21:32:29.145Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 13
+  },
+  {
+    "timestamp": "2026-08-22T21:32:30.070Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 13,
+    "statusChanged": true
   }
 ]
