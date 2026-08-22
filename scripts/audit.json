@@ -1,95 +1,5 @@
 [
   {
-    "timestamp": "2026-08-21T23:27:47.143Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-08-21T23:27:47.666Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:DOGEUSDT",
-    "price": 0.09328,
-    "stop": 0.093357,
-    "entry": 0.0943,
-    "pnlPct": "-1.08",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-08-21T23:27:48.998Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at d46082cbcbb3dc65fabdf62ce71aedc7d2780840 but expected 203606b68157df7547cdfb9950ba689e039c92fc"
-  },
-  {
-    "timestamp": "2026-08-21T23:27:49.001Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 823
-  },
-  {
-    "timestamp": "2026-08-21T23:27:49.506Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 18,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-08-21T23:27:49.510Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "LINKUSDT",
-    "sym": "BINANCE:LINKUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-08-21T23:27:49.512Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-21T23:27:50.626Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-08-21T23:27:50.920Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "LINK"
-    ],
-    "caution": [
-      "LINK"
-    ]
-  },
-  {
-    "timestamp": "2026-08-21T23:27:50.922Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-08-21T23:27:54.170Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5706,7 +5616,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-22T00:27:47.140Z",
+    "timestamp": "2026-08-22T00:27:47.118Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 34,
@@ -5732,7 +5642,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5746,7 +5656,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5760,14 +5670,14 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5940,5 +5850,94 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-22T00:27:47.183Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-22T00:27:47.787Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-22T00:27:47.789Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-08-22T00:27:47.793Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "grade below EXEC_MIN_GRADE (B)"
+    ],
+    "symbols": [
+      "DOGEUSDT",
+      "SUIUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-08-22T00:27:48.574Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-22T00:27:49.845Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-08-22T00:27:50.224Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "DOGE",
+      "SUI"
+    ],
+    "caution": [
+      "DOGE",
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-08-22T00:27:50.225Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-22T00:27:54.044Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
   }
 ]
