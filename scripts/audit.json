@@ -4834,7 +4834,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-22T05:07:47.165Z",
+    "timestamp": "2026-08-22T05:07:46.172Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -4888,7 +4888,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4914,7 +4914,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4942,7 +4942,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4977,17 +4977,153 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.232Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.781Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:RENDERUSDT",
+    "price": 1.605,
+    "stop": 1.6092,
+    "entry": 1.6255,
+    "pnlPct": "-1.26",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.784Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.7,
+    "stop": 0.700722,
+    "entry": 0.7078,
+    "pnlPct": "-1.10",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.785Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 244.3,
+    "stop": 246.01,
+    "entry": 248.49,
+    "pnlPct": "-1.69",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.786Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 2.084,
+    "stop": 2.1003,
+    "entry": 2.1215,
+    "pnlPct": "-1.77",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:46.788Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.6473,
+    "stop": 1.6816,
+    "entry": 1.6986,
+    "pnlPct": "-3.02",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:47.840Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-08-22T05:07:47.842Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 5,
+    "totalKept": 877
+  },
+  {
+    "timestamp": "2026-08-22T05:07:49.859Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 5
+  },
+  {
+    "timestamp": "2026-08-22T05:07:49.864Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-22T05:07:49.865Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:51.466Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 11
+  },
+  {
+    "timestamp": "2026-08-22T05:07:53.853Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "pair": "DOGE",
+    "price": 0.09776,
+    "entry": 0.0988,
+    "stop": 0.097812,
+    "pnlPct": "-1.05"
+  },
+  {
+    "timestamp": "2026-08-22T05:07:54.530Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 16
+  },
+  {
+    "timestamp": "2026-08-22T05:07:55.589Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 16,
+    "statusChanged": true
   }
 ]
