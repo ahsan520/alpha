@@ -6686,7 +6686,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-22T01:37:44.824Z",
+    "timestamp": "2026-08-22T01:37:46.481Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 35,
@@ -6712,14 +6712,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6747,7 +6747,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6766,7 +6766,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6808,14 +6808,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6925,5 +6925,84 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-22T01:37:46.544Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-22T01:37:46.938Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:RENDERUSDT",
+    "price": 1.565,
+    "t1": 1.5615,
+    "liveConv": 5,
+    "liveBullConf": 0,
+    "pnlPct": "2.82",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T01:37:46.941Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.2073,
+    "t1": 0.2073,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "2.57",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T01:37:48.058Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-08-22T01:37:48.062Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 838
+  },
+  {
+    "timestamp": "2026-08-22T01:37:48.886Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-22T01:37:48.891Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-22T01:37:48.892Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-22T01:37:50.265Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
   }
 ]
