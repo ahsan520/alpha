@@ -4171,7 +4171,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-22T15:12:48.295Z",
+    "timestamp": "2026-08-22T15:12:50.189Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 21,
@@ -4197,14 +4197,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4218,7 +4218,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4279,14 +4279,14 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4314,17 +4314,123 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 11,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.257Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.833Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.1606,
+    "stop": 0.160677,
+    "entry": 0.1623,
+    "pnlPct": "-1.05",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.835Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 7.448,
+    "stop": 7.4488,
+    "entry": 7.524,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.836Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 1.874,
+    "stop": 1.8766,
+    "entry": 1.8956,
+    "pnlPct": "-1.14",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.838Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XLMUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:50.839Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "price": 0.08982,
+    "stop": 0.089892,
+    "entry": 0.0908,
+    "pnlPct": "-1.08",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:51.950Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-08-22T15:12:51.952Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 4,
+    "totalKept": 948
+  },
+  {
+    "timestamp": "2026-08-22T15:12:53.769Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 11,
+    "openAfter": 10,
+    "alerts": 4
+  },
+  {
+    "timestamp": "2026-08-22T15:12:53.774Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-22T15:12:53.774Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-22T15:12:55.455Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 6
   }
 ]
