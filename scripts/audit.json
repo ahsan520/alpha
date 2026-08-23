@@ -4009,7 +4009,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-23T04:47:19.142Z",
+    "timestamp": "2026-08-23T04:47:18.192Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4021,7 +4021,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4042,14 +4042,14 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4105,21 +4105,21 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4133,7 +4133,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4147,7 +4147,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4159,5 +4159,71 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-23T04:47:18.255Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-23T04:47:18.665Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:BTCUSDT",
+    "price": 76757.03,
+    "stop": 76781.2,
+    "entry": 77556.77,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-23T04:47:19.710Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 2
+  },
+  {
+    "timestamp": "2026-08-23T04:47:19.714Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 993
+  },
+  {
+    "timestamp": "2026-08-23T04:47:20.128Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 2,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-23T04:47:20.130Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 4
+  },
+  {
+    "timestamp": "2026-08-23T04:47:20.131Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-23T04:47:21.360Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 1
   }
 ]
