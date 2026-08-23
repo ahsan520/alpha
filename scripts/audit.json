@@ -1,110 +1,5 @@
 [
   {
-    "timestamp": "2026-08-23T14:07:18.704Z",
-    "job": "leaderboard-decider",
-    "action": "tp1_hit_sell",
-    "sym": "BINANCE:AVAXUSDT",
-    "price": 7.626,
-    "t1": 7.6241,
-    "liveConv": 10,
-    "liveBullConf": 0,
-    "pnlPct": "2.62",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-08-23T14:07:18.708Z",
-    "job": "leaderboard-decider",
-    "action": "tp1_hit_sell",
-    "sym": "BINANCE:IMXUSDT",
-    "price": 0.1298,
-    "t1": 0.1298,
-    "liveConv": 9,
-    "liveBullConf": 0,
-    "pnlPct": "2.61",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-08-23T14:07:18.711Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:NEARUSDT",
-    "price": 1.971,
-    "stop": 1.976,
-    "entry": 1.996,
-    "pnlPct": "-1.25",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-08-23T14:07:19.699Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-08-23T14:07:19.702Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 3,
-    "totalKept": 1023
-  },
-  {
-    "timestamp": "2026-08-23T14:07:20.836Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 18,
-    "alerts": 3
-  },
-  {
-    "timestamp": "2026-08-23T14:07:20.840Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XRPUSDT",
-    "sym": "BINANCE:XRPUSDT",
-    "setup": "BREAKOUT",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-08-23T14:07:20.844Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-08-23T14:07:21.698Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-08-23T14:07:21.966Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "XRP"
-    ],
-    "caution": [
-      "XRP"
-    ]
-  },
-  {
-    "timestamp": "2026-08-23T14:07:21.967Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-23T14:07:24.045Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-08-23T14:10:33.209Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4456,7 +4351,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-23T15:07:18.540Z",
+    "timestamp": "2026-08-23T15:07:21.520Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4482,7 +4377,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4524,7 +4419,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4552,7 +4447,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4566,21 +4461,21 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4601,10 +4496,107 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-23T15:07:21.581Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-23T15:07:22.182Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.00197,
+    "stop": 0.00198,
+    "entry": 0.002,
+    "pnlPct": "-1.50",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-23T15:07:23.377Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-08-23T15:07:23.381Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1031
+  },
+  {
+    "timestamp": "2026-08-23T15:07:23.851Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-23T15:07:23.854Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XRPUSDT",
+    "sym": "BINANCE:XRPUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-08-23T15:07:23.858Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-23T15:07:25.022Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-08-23T15:07:25.357Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "XRP"
+    ],
+    "caution": [
+      "XRP"
+    ]
+  },
+  {
+    "timestamp": "2026-08-23T15:07:25.358Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-23T15:07:28.233Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 16
   }
 ]
