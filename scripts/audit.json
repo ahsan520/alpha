@@ -4344,7 +4344,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-24T07:32:22.213Z",
+    "timestamp": "2026-08-24T07:32:22.749Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4356,7 +4356,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4370,14 +4370,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4468,7 +4468,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4482,17 +4482,79 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-24T07:32:22.809Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-24T07:32:23.268Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-24T07:32:23.270Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SUIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-24T07:32:24.493Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at f447ede120de56c9817012096096669c17e82fc0 but expected e19303c733199143d5dbb85dd4d2b729a0abeb58"
+  },
+  {
+    "timestamp": "2026-08-24T07:32:24.494Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-24T07:32:24.498Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-24T07:32:24.499Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-24T07:32:26.314Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 16
   }
 ]
