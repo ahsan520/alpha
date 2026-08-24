@@ -1,63 +1,5 @@
 [
   {
-    "timestamp": "2026-08-24T11:52:19.381Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-08-24T11:52:19.383Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 18,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-24T11:52:19.387Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-24T11:52:19.389Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-24T11:52:20.807Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 18
-  },
-  {
-    "timestamp": "2026-08-24T11:52:24.416Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:AAVEUSDT",
-    "pair": "AAVE",
-    "price": 136.85,
-    "entry": 138.27,
-    "stop": 136.89,
-    "pnlPct": "-1.03"
-  },
-  {
-    "timestamp": "2026-08-24T11:52:25.333Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 18
-  },
-  {
-    "timestamp": "2026-08-24T11:52:26.325Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 18,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-08-24T11:54:27.748Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -3930,7 +3872,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-24T12:52:18.782Z",
+    "timestamp": "2026-08-24T12:52:23.118Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -3942,14 +3884,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3963,7 +3905,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3977,7 +3919,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4033,7 +3975,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4068,17 +4010,162 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-24T12:52:23.181Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-24T12:52:23.561Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 855.4,
+    "t1": 855.14,
+    "liveConv": 8,
+    "liveBullConf": 0,
+    "pnlPct": "2.62",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-24T12:52:23.563Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.8394,
+    "t1": 0.8363,
+    "liveConv": 10,
+    "liveBullConf": 0,
+    "pnlPct": "2.98",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-24T12:52:23.565Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.1996,
+    "t1": 0.1992,
+    "liveConv": 7,
+    "liveBullConf": 0,
+    "pnlPct": "2.78",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-24T12:52:23.567Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 4.437,
+    "t1": 4.4321,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "2.70",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-24T12:52:24.797Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-08-24T12:52:24.800Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 4,
+    "totalKept": 1125
+  },
+  {
+    "timestamp": "2026-08-24T12:52:26.278Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 4
+  },
+  {
+    "timestamp": "2026-08-24T12:52:26.281Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-08-24T12:52:26.283Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-24T12:52:26.287Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-24T12:52:27.415Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-08-24T12:52:27.686Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "IMX",
+      "RENDER"
+    ],
+    "caution": [
+      "IMX",
+      "RENDER"
+    ]
+  },
+  {
+    "timestamp": "2026-08-24T12:52:27.687Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-24T12:52:30.433Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
