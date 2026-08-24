@@ -1,52 +1,5 @@
 [
   {
-    "timestamp": "2026-08-24T07:37:19.187Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at 15192e0c41cea2f104ecb2d04bc06fe0677b062c but expected 9af74b5137c065310fd1b31cbc4d2765e546414d"
-  },
-  {
-    "timestamp": "2026-08-24T07:37:19.189Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 16,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-08-24T07:37:19.192Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-08-24T07:37:19.193Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-08-24T07:37:20.821Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 16
-  },
-  {
-    "timestamp": "2026-08-24T07:37:27.010Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 1,
-    "remaining": 17
-  },
-  {
-    "timestamp": "2026-08-24T07:37:28.400Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 1,
-    "remaining": 17,
-    "statusChanged": false
-  },
-  {
     "timestamp": "2026-08-24T07:40:23.761Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4627,7 +4580,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-24T08:37:19.121Z",
+    "timestamp": "2026-08-24T08:37:22.684Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 20,
@@ -4639,14 +4592,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4667,7 +4620,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4681,7 +4634,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4777,5 +4730,105 @@
         "assetType": "crypto"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-24T08:37:22.744Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-24T08:37:23.371Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:RENDERUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-24T08:37:23.373Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-24T08:37:23.374Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:IMXUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-24T08:37:25.114Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-08-24T08:37:25.115Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-24T08:37:25.118Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-08-24T08:37:25.122Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-08-24T08:37:26.604Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-08-24T08:37:27.050Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "RENDER"
+    ],
+    "caution": [
+      "RENDER"
+    ]
+  },
+  {
+    "timestamp": "2026-08-24T08:37:27.051Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-24T08:37:30.940Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
