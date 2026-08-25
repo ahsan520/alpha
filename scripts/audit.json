@@ -5073,7 +5073,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-25T23:47:24.119Z",
+    "timestamp": "2026-08-25T23:47:26.715Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -5085,7 +5085,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5113,7 +5113,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5148,7 +5148,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5218,7 +5218,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5283,5 +5283,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-25T23:47:26.767Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-25T23:47:27.201Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 4.268,
+    "stop": 4.2701,
+    "entry": 4.3132,
+    "pnlPct": "-1.05",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-25T23:47:28.331Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-08-25T23:47:28.334Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1245
+  },
+  {
+    "timestamp": "2026-08-25T23:47:28.742Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 5,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-25T23:47:28.743Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-08-25T23:47:28.759Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-25T23:47:30.329Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 4
   }
 ]
