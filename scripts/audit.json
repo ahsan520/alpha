@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-08-24T23:17:20.259Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-08-24T23:20:29.027Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6530,7 +6523,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-25T00:17:19.295Z",
+    "timestamp": "2026-08-25T00:17:18.175Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 35,
@@ -6556,7 +6549,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6605,7 +6598,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6626,7 +6619,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6675,7 +6668,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6770,5 +6763,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-25T00:17:18.245Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-25T00:17:18.741Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 4.291,
+    "stop": 4.3038,
+    "entry": 4.3473,
+    "pnlPct": "-1.30",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-25T00:17:18.743Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 99.62,
+    "stop": 100.38,
+    "entry": 101.39,
+    "pnlPct": "-1.75",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-25T00:17:20.574Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-08-25T00:17:20.578Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1163
+  },
+  {
+    "timestamp": "2026-08-25T00:17:21.523Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 14,
+    "openAfter": 14,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-08-25T00:17:21.527Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-25T00:17:21.529Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-25T00:17:24.247Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 12
   }
 ]
