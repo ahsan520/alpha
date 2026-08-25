@@ -7338,7 +7338,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-25T17:42:19.638Z",
+    "timestamp": "2026-08-25T17:42:21.494Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 38,
@@ -7364,7 +7364,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7385,7 +7385,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7406,7 +7406,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7441,7 +7441,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7455,7 +7455,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7476,7 +7476,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7612,5 +7612,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-25T17:42:21.557Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-25T17:42:22.064Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:GOOG.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-08-25T17:42:23.185Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at a858f9a9f533a1eca4988f1ac0f029f395bd1c4c but expected a9d7aec2662e5e3a3693dcd0ab0a0d2fc7609bab"
+  },
+  {
+    "timestamp": "2026-08-25T17:42:23.605Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 6,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-25T17:42:23.624Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-25T17:42:23.625Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-25T17:42:25.266Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
