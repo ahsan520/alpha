@@ -6402,7 +6402,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-25T21:37:19.917Z",
+    "timestamp": "2026-08-25T21:37:19.616Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -6449,7 +6449,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6463,7 +6463,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6612,5 +6612,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-25T21:37:19.680Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-25T21:37:20.159Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-25T21:37:20.160Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-25T21:37:22.061Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
