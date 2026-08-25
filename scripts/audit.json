@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-08-25T05:47:20.238Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 22,
-    "monitored": 22
-  },
-  {
-    "timestamp": "2026-08-25T05:47:26.586Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:NEARUSDT",
-    "pair": "NEAR",
-    "price": 1.989,
-    "entry": 2.011,
-    "stop": 1.9909,
-    "pnlPct": "-1.09"
-  },
-  {
     "timestamp": "2026-08-25T05:47:27.460Z",
     "job": "alert-runner",
     "action": "positions_sweep_start",
@@ -5393,7 +5375,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-25T06:47:19.659Z",
+    "timestamp": "2026-08-25T06:47:22.798Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 28,
@@ -5405,7 +5387,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5426,7 +5408,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5440,14 +5422,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5468,14 +5450,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5489,7 +5471,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5503,14 +5485,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5531,7 +5513,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5591,5 +5573,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-25T06:47:22.858Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-25T06:47:24.839Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-08-25T06:47:24.840Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 18,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-25T06:47:24.844Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-25T06:47:24.846Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-25T06:47:27.277Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
