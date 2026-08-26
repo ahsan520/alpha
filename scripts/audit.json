@@ -5701,7 +5701,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-26T08:07:20.891Z",
+    "timestamp": "2026-08-26T08:07:23.610Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -5727,14 +5727,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5776,7 +5776,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5811,7 +5811,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5846,7 +5846,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5911,5 +5911,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-26T08:07:23.671Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-26T08:07:27.051Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 4
+  },
+  {
+    "timestamp": "2026-08-26T08:07:27.054Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-26T08:07:28.487Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
