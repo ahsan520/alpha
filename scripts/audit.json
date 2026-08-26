@@ -5681,7 +5681,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-26T09:42:16.879Z",
+    "timestamp": "2026-08-26T09:42:24.524Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -5707,14 +5707,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5763,7 +5763,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5777,7 +5777,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5798,7 +5798,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5819,7 +5819,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5891,5 +5891,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-26T09:42:24.584Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-26T09:42:25.152Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 96.09,
+    "stop": 96.12,
+    "entry": 97.09,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-08-26T09:42:26.393Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-08-26T09:42:26.398Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1250
+  },
+  {
+    "timestamp": "2026-08-26T09:42:26.824Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-08-26T09:42:26.825Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 4
+  },
+  {
+    "timestamp": "2026-08-26T09:42:26.827Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-26T09:42:28.541Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 5
   }
 ]
