@@ -6230,7 +6230,7 @@
     ]
   },
   {
-    "timestamp": "2026-08-31T19:18:08.756Z",
+    "timestamp": "2026-08-31T19:19:03.406Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -6242,7 +6242,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6263,21 +6263,21 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6319,35 +6319,35 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6368,21 +6368,21 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6390,25 +6390,25 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -5,
+        "conv": -1,
         "session": "open",
-        "setup": "SHORT SETUP",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
@@ -6488,5 +6488,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-31T19:19:03.470Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-31T19:19:03.795Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-31T19:19:03.796Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-31T19:19:05.274Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
