@@ -4879,7 +4879,7 @@
     "monitored": 3
   },
   {
-    "timestamp": "2026-08-31T15:20:58.492Z",
+    "timestamp": "2026-08-31T15:20:58.941Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 30,
@@ -5089,5 +5089,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-31T15:20:59.017Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-08-31T15:20:59.342Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-08-31T15:21:00.372Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 88497987710d946f8339e61e310fd7d5874b7fbf but expected d2dc370dfe22cef8e39733e528bb679136e4deb6"
+  },
+  {
+    "timestamp": "2026-08-31T15:21:00.374Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 3,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-08-31T15:21:00.377Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-08-31T15:21:00.379Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-08-31T15:21:01.739Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 3
   }
 ]
