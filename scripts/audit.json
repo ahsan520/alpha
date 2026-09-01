@@ -6430,7 +6430,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-09-01T18:51:12.203Z",
+    "timestamp": "2026-09-01T18:51:09.698Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -6449,7 +6449,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6477,7 +6477,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6526,21 +6526,21 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6568,7 +6568,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6590,9 +6590,9 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": -5,
         "session": "open",
-        "setup": "WATCHING",
+        "setup": "SHORT SETUP",
         "assetType": "stock"
       },
       {
@@ -6606,7 +6606,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6674,7 +6674,7 @@
       {
         "pair": "TXF.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6688,5 +6688,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-01T18:51:09.762Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-01T18:51:10.229Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T18:51:10.233Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-01T18:51:10.236Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-01T18:51:12.115Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
