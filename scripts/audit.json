@@ -7147,7 +7147,7 @@
     "monitored": 3
   },
   {
-    "timestamp": "2026-09-01T15:20:59.711Z",
+    "timestamp": "2026-09-01T15:21:02.875Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -7187,14 +7187,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7222,7 +7222,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7243,14 +7243,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7264,7 +7264,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7285,21 +7285,21 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AGCC.TO",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7307,7 +7307,7 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7315,7 +7315,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7391,7 +7391,7 @@
       {
         "pair": "TXF.TO",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7405,5 +7405,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-01T15:21:02.927Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-01T15:21:03.678Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T15:21:03.681Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-01T15:21:03.682Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-01T15:21:05.694Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 3
   }
 ]
