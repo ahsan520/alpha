@@ -7001,7 +7001,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-09-01T18:31:03.506Z",
+    "timestamp": "2026-09-01T18:31:03.048Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -7027,7 +7027,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7041,14 +7041,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7062,7 +7062,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7097,7 +7097,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7139,14 +7139,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7245,7 +7245,7 @@
       {
         "pair": "TXF.TO",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7259,5 +7259,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-01T18:31:03.101Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-01T18:31:03.515Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T18:31:03.519Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-01T18:31:03.560Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-01T18:31:05.485Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
