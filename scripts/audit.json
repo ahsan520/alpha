@@ -4779,7 +4779,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-01T11:40:56.616Z",
+    "timestamp": "2026-09-01T11:40:59.917Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -4805,7 +4805,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4826,7 +4826,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4924,7 +4924,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5025,5 +5025,95 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-01T11:40:59.982Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-01T11:41:01.549Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-09-01T11:41:01.551Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 5,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-01T11:41:01.553Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T11:41:01.557Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "NEARUSDT",
+    "sym": "BINANCE:NEARUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-09-01T11:41:01.561Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T11:41:02.661Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-09-01T11:41:02.920Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "NEAR"
+    ],
+    "caution": [
+      "NEAR"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T11:41:02.921Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-01T11:41:05.606Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
