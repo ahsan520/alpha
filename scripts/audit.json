@@ -6703,7 +6703,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-09-01T00:20:55.239Z",
+    "timestamp": "2026-09-01T00:20:58.922Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -6799,7 +6799,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6820,7 +6820,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6949,5 +6949,84 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-01T00:20:58.985Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-01T00:21:00.304Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-09-01T00:21:00.306Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 10,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-01T00:21:00.310Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-09-01T00:21:00.314Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T00:21:01.136Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-09-01T00:21:01.390Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "RENDER"
+    ],
+    "caution": [
+      "RENDER"
+    ]
+  },
+  {
+    "timestamp": "2026-09-01T00:21:01.392Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-01T00:21:03.723Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
