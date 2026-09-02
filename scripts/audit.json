@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-02T19:11:00.859Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-09-02T19:16:16.396Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4932,7 +4925,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-09-02T20:11:00.723Z",
+    "timestamp": "2026-09-02T20:11:00.991Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 36,
@@ -5007,7 +5000,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5178,5 +5171,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-02T20:11:01.052Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-02T20:11:02.803Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 191e0d0677307f8b8a1c9e54f0177b77a65d6ae1 but expected 7c78955d4f188372353460179a629540bddc2cb4"
+  },
+  {
+    "timestamp": "2026-09-02T20:11:02.805Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 2,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-02T20:11:02.807Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-02T20:11:02.810Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-02T20:11:02.812Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-02T20:11:04.425Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
