@@ -1,48 +1,5 @@
 [
   {
-    "timestamp": "2026-09-03T06:46:01.551Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-09-03T06:46:01.553Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 10,
-    "openAfter": 10,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-03T06:46:01.555Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-03T06:46:01.559Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-03T06:46:01.561Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-03T06:46:03.079Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 10,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-09-03T06:50:57.436Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -3474,7 +3431,7 @@
     "monitored": 14
   },
   {
-    "timestamp": "2026-09-03T07:45:49.288Z",
+    "timestamp": "2026-09-03T07:46:18.563Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 32,
@@ -3486,56 +3443,56 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3549,14 +3506,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3570,14 +3527,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3598,7 +3555,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3612,14 +3569,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -3698,7 +3655,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-03T07:45:49.352Z",
+    "timestamp": "2026-09-03T07:46:18.621Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -3714,78 +3671,53 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-09-03T07:45:51.173Z",
+    "timestamp": "2026-09-03T07:46:19.162Z",
     "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "GALAUSDT",
-    "sym": "BINANCE:GALAUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 100.66,
+    "stop": 100.7,
+    "entry": 101.72,
+    "pnlPct": "-1.04",
+    "closeReason": "already_closed"
   },
   {
-    "timestamp": "2026-09-03T07:45:51.178Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-03T07:45:52.328Z",
+    "timestamp": "2026-09-03T07:46:20.460Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
-    "count": 15
+    "count": 14
   },
   {
-    "timestamp": "2026-09-03T07:45:52.577Z",
+    "timestamp": "2026-09-03T07:46:20.464Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1455
+  },
+  {
+    "timestamp": "2026-09-03T07:46:20.758Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 14,
+    "openAfter": 14,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-03T07:46:20.761Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "GALA"
-    ],
-    "caution": [
-      "GALA"
-    ]
+    "signalsFound": 0
   },
   {
-    "timestamp": "2026-09-03T07:45:52.578Z",
+    "timestamp": "2026-09-03T07:46:20.762Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-09-03T07:45:55.122Z",
+    "timestamp": "2026-09-03T07:46:22.773Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 15,
-    "monitored": 15
-  },
-  {
-    "timestamp": "2026-09-03T07:46:00.095Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:GALAUSDT",
-    "pair": "GALA",
-    "price": 0.001783,
-    "entry": 0.0018,
-    "stop": 0.0018,
-    "pnlPct": "-0.94"
-  },
-  {
-    "timestamp": "2026-09-03T07:46:00.533Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 15
-  },
-  {
-    "timestamp": "2026-09-03T07:46:01.494Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 15,
-    "statusChanged": true
+    "total": 14,
+    "monitored": 13
   }
 ]
