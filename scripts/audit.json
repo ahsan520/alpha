@@ -5196,7 +5196,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-09-04T21:30:58.266Z",
+    "timestamp": "2026-09-04T21:30:57.968Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5208,7 +5208,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5460,5 +5460,97 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-04T21:30:58.034Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-04T21:30:58.511Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 6.154,
+    "stop": 6.1675,
+    "entry": 6.2298,
+    "pnlPct": "-1.22",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-04T21:31:03.691Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "GET 500"
+  },
+  {
+    "timestamp": "2026-09-04T21:31:03.696Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-04T21:31:04.249Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 8,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-04T21:31:04.253Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-04T21:31:04.254Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-04T21:31:05.822Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
+  },
+  {
+    "timestamp": "2026-09-04T21:31:08.523Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "pair": "UNI",
+    "price": 6.153,
+    "entry": 6.2298,
+    "stop": 6.1675,
+    "pnlPct": "-1.23"
+  },
+  {
+    "timestamp": "2026-09-04T21:31:08.956Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 8
+  },
+  {
+    "timestamp": "2026-09-04T21:31:09.745Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 8,
+    "statusChanged": true
   }
 ]
