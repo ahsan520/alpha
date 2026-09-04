@@ -6083,7 +6083,7 @@
     "monitored": 3
   },
   {
-    "timestamp": "2026-09-04T15:26:05.142Z",
+    "timestamp": "2026-09-04T15:26:06.918Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -6095,7 +6095,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6158,7 +6158,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6200,7 +6200,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6228,7 +6228,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6359,5 +6359,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-04T15:26:06.988Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-04T15:26:07.441Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-04T15:26:07.447Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-04T15:26:08.559Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 4
+  },
+  {
+    "timestamp": "2026-09-04T15:26:08.944Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ZEC"
+    ],
+    "caution": [
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-09-04T15:26:08.946Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-04T15:26:11.666Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
