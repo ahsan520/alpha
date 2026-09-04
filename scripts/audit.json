@@ -1,47 +1,5 @@
 [
   {
-    "timestamp": "2026-09-04T20:00:59.608Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "UNIUSDT",
-    "sym": "BINANCE:UNIUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-09-04T20:00:59.613Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-04T20:01:00.770Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 8
-  },
-  {
-    "timestamp": "2026-09-04T20:01:01.202Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "UNI"
-    ],
-    "caution": [
-      "UNI"
-    ]
-  },
-  {
-    "timestamp": "2026-09-04T20:01:01.203Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-09-04T20:01:05.367Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4945,7 +4903,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-09-04T21:00:59.208Z",
+    "timestamp": "2026-09-04T21:00:58.151Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5209,5 +5167,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-04T21:00:58.214Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-04T21:00:58.594Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-04T21:00:58.596Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-04T21:01:04.752Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
   }
 ]
