@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-04T18:31:00.373Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-09-04T18:36:18.996Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5523,7 +5516,7 @@
     "monitored": 9
   },
   {
-    "timestamp": "2026-09-04T19:30:58.869Z",
+    "timestamp": "2026-09-04T19:30:59.136Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5605,7 +5598,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5668,7 +5661,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5799,5 +5792,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-04T19:30:59.205Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-04T19:31:00.647Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 328d3737306d8ec156c40b4079da649252ef8281 but expected 81c1a0e8f24a1b7497fa076104bb37ec7b799d8b"
+  },
+  {
+    "timestamp": "2026-09-04T19:31:00.649Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 10,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-04T19:31:00.669Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-04T19:31:00.670Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-04T19:31:02.281Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
