@@ -1789,7 +1789,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-05T10:59:10.727Z",
+    "timestamp": "2026-09-05T10:59:17.798Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -1836,7 +1836,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1906,7 +1906,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2053,5 +2053,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-05T10:59:17.859Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-05T10:59:18.324Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.001881,
+    "stop": 0.001881,
+    "entry": 0.0019,
+    "pnlPct": "-1.00",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-05T10:59:19.675Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-09-05T10:59:19.679Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-05T10:59:20.080Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 17,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-05T10:59:20.083Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-05T10:59:20.083Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-05T10:59:22.269Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 16
   }
 ]
