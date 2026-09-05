@@ -7706,7 +7706,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-05T14:30:49.308Z",
+    "timestamp": "2026-09-05T14:30:48.325Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -7718,7 +7718,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7739,7 +7739,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7823,7 +7823,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7970,5 +7970,105 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-05T14:30:48.394Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-05T14:30:52.126Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:AGCC.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-09-05T14:30:52.129Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:TXF.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-09-05T14:30:52.132Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:XDIV.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-09-05T14:30:53.601Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-09-05T14:30:55.025Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 17,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-09-05T14:30:55.029Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-05T14:30:55.035Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-05T14:30:55.993Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-05T14:30:56.343Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AAVE"
+    ],
+    "caution": [
+      "AAVE"
+    ]
+  },
+  {
+    "timestamp": "2026-09-05T14:30:56.345Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-05T14:30:59.258Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
