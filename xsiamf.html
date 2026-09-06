@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XSIAM Engineer Final Review — 30 Questions</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --text:#17202a; --muted:#64748b; --border:#d9e1ea; --accent:#2563eb; --good:#15803d; --bad:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+  header { background:#111827; color:white; padding:28px 20px; }
+  header .wrap, main { max-width:1050px; margin:auto; }
+  h1 { margin:0 0 6px; font-size:28px; }
+  header p { margin:0; color:#cbd5e1; }
+  main { padding:24px 16px 50px; }
+  .toolbar { position:sticky; top:0; z-index:5; background:rgba(245,247,250,.96); padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:18px; }
+  button { border:1px solid var(--border); background:white; color:var(--text); padding:9px 13px; border-radius:8px; cursor:pointer; margin-right:7px; }
+  button.primary { background:var(--accent); color:white; border-color:var(--accent); }
+  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:22px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:15px; }
+  .stat strong { display:block; font-size:22px; }
+  .section { margin:28px 0 10px; color:#334155; border-bottom:2px solid var(--border); padding-bottom:6px; }
+  .q { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin:14px 0; }
+  .q h3 { margin:0 0 10px; font-size:17px; }
+  .question { white-space:pre-line; margin-bottom:12px; }
+  .options { margin:0 0 12px 20px; }
+  .options li { margin:6px 0; }
+  details { border-top:1px solid var(--border); padding-top:12px; }
+  summary { cursor:pointer; color:var(--accent); font-weight:bold; }
+  .answer { margin-top:10px; padding:12px; border-radius:8px; background:#f0fdf4; border-left:4px solid var(--good); }
+  .answer strong { color:var(--good); }
+  .tip { margin-top:8px; color:#334155; }
+  .score { color:var(--muted); font-size:14px; }
+  @media(max-width:700px){ .summary{grid-template-columns:1fr;} h1{font-size:23px;} }
+  @media print {
+    .toolbar { display:none; } body { background:white; } .q { break-inside:avoid; }
+    details { display:block; } details > summary { display:none; }
+  }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>XSIAM Engineer Final Review — 30 Practical Questions</h1>
+<p>20 practical exam scenarios + 10 targeted XSIAM feature/command questions</p>
+</div></header>
+<main>
+<div class="toolbar">
+  <button class="primary" onclick="document.querySelectorAll('details').forEach(x=>x.open=true)">Show all answers</button>
+  <button onclick="document.querySelectorAll('details').forEach(x=>x.open=false)">Hide all answers</button>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="summary">
+  <div class="stat"><strong>30</strong><span>Questions</span></div>
+  <div class="stat"><strong>20 + 10</strong><span>Scenario + targeted recall</span></div>
+  <div class="stat"><strong>100%</strong><span>Your mock score</span></div>
+</div>
+
+<h2 class="section">Part 1 — 20 Practical Engineer Scenarios</h2>
+
+<div id="questions"></div>
+
+<h2 class="section">Part 2 — 10 Targeted XSIAM Feature / Command Questions</h2>
+<div id="targeted"></div>
+
+</main>
+<script>
+const q1 = [
+["Question 1 — Data Ingestion",
+"A customer has onboarded a new firewall into Cortex XSIAM. The firewall administrator confirms that syslog messages are being sent to the Broker VM. The Broker VM is Online, and there are no obvious Broker errors. However, analysts cannot find any events from this firewall in XSIAM searches. What should you investigate NEXT?",
+["A. Reinstall the XDR Agent on the firewall","B. Verify the Broker VM listener, port/protocol configuration, and parsing/ingestion path","C. Disable all firewall detection rules and re-enable them","D. Increase the Cortex Data Lake storage capacity"],
+"B","The correct approach is to trace the ingestion path systematically: Broker listener → port/protocol → parsing/ingestion configuration."],
+
+["Question 2 — Parsing vs. Normalization",
+"A newly onboarded SaaS application is sending events successfully. You can see the raw events in XSIAM, but the expected normalized user_name field is consistently null. The parsing rule successfully extracts the username from the raw JSON. What is the most likely next area to investigate?",
+["A. Network connectivity between the SaaS application and XSIAM","B. XDM/data-model mapping for the extracted username field","C. XDR Agent version on the analyst's workstation","D. Cortex Data Lake storage capacity"],
+"B","Raw data is present and parsing extracts the value, so investigate the XDM/data-model mapping layer."],
+
+["Question 3 — Playbook Authentication",
+"A playbook is triggered correctly and reaches a firewall integration. The integration task fails with HTTP 401 Unauthorized. The firewall API is reachable from the environment. What should you investigate FIRST?",
+["A. Rewrite the playbook logic","B. Verify the integration's API credentials/token and re-authenticate if necessary","C. Reinstall the Broker VM","D. Modify the detection rule that triggered the playbook"],
+"B","A 401 indicates an authentication failure. Verify the integration credentials/token before changing playbook logic."],
+
+["Question 4 — Playbook Authorization",
+"The same firewall integration is now returning HTTP 403 Forbidden. The API credentials are valid, and the integration connection test succeeds. What is the most likely issue?",
+["A. The API credentials are invalid","B. The firewall API account/token lacks permission for the requested action","C. The XSIAM Engine cannot parse the alert","D. The Broker VM is offline"],
+"B","403 indicates the request is authenticated but not authorized for the requested operation."],
+
+["Question 5 — Agent Troubleshooting",
+"An endpoint appears Connected in XSIAM. Yesterday, Windows security event collection was working normally. Today, no new Windows events are appearing. The endpoint itself is healthy and the agent remains connected. What should you check FIRST?",
+["A. Reinstall the XDR Agent","B. Check the endpoint's policy/profile and verify that the required Windows event collection is still enabled","C. Increase Cortex Data Lake storage","D. Recreate the endpoint in XSIAM"],
+"B","Connected status does not prove every telemetry type is enabled. Check the relevant policy/profile first."],
+
+["Question 6 — Detection Troubleshooting",
+"A custom detection rule was working correctly for several weeks. After a firewall configuration change, raw firewall events are still arriving. The parser extracts src_ip, dst_ip, and user_name correctly. However, the detection has stopped generating alerts. The rule is enabled. What should you investigate NEXT?",
+["A. Reinstall the Broker VM","B. Verify that the detection's query conditions still match the current normalized event fields/data","C. Delete and recreate the firewall integration","D. Increase Cortex Data Lake storage"],
+"B","With ingestion, parsing, and rule status confirmed, validate that current normalized data still satisfies the detection logic."],
+
+["Question 7 — Playbook Logic",
+"A phishing playbook receives an alert containing a suspicious URL. It must extract the URL, query threat intelligence, isolate the endpoint only if the verdict is malicious, and create a ticket either way. Which design is BEST?",
+["A. Isolate the endpoint first, then perform the TI lookup","B. Perform the TI lookup, evaluate the result, branch conditionally for isolation, then continue to ticket creation","C. Create two completely independent playbooks","D. Have the analyst manually perform the TI lookup"],
+"B","The TI result is the decision point. Query → evaluate → conditional branch → ticket."],
+
+["Question 8 — Broker VM Troubleshooting",
+"After a Broker VM update, 15 on-premises log sources stop appearing in XSIAM. The Broker VM shows Online. You confirm the source devices are still sending traffic to the Broker. What is the BEST troubleshooting sequence?",
+["A. Reinstall all source agents and recreate integrations","B. Check Broker logs → verify listener/port/protocol → verify network connectivity → review Broker configuration changes","C. Disable all detection rules → restart Broker → enable detections","D. Increase Data Lake storage → recreate data sources"],
+"B","Use a systematic path: Broker logs, listener/ports/protocol, connectivity, then configuration changes."],
+
+["Question 9 — Exceptions & Detection Coverage",
+"A legitimate vulnerability scanner generates hundreds of alerts every week. The activity is expected and originates from a known scanner IP range. Security wants fewer alerts without weakening the same detections for other systems. What is the BEST approach?",
+["A. Disable the detection rules","B. Create a narrowly scoped exception for the scanner IP/rules, constrained to expected activity","C. Lower the severity of all network alerts","D. Exclude the entire internal network"],
+"B","Tune narrowly. Preserve detection coverage elsewhere rather than disabling the detection globally."],
+
+["Question 10 — XQL + Normalization",
+"An analyst runs an XQL query looking for authentication failures using normalized user_name and event_type. The query returns zero results, but raw authentication-failure events are present. What should you do FIRST?",
+["A. Assume the source stopped sending data and restart the connector","B. Determine whether relevant raw fields are correctly parsed and mapped to the expected XDM fields","C. Disable authentication detection rules","D. Increase the query time range indefinitely"],
+"B","Raw events exist, so first verify parsing and XDM normalization of the fields used by the XQL query."],
+
+["Question 11 — Data Source Permissions",
+"You onboard AWS CloudTrail. Events are arriving, but certain CloudTrail event types are consistently missing. The AWS account and network connectivity are healthy. What is the most likely area to investigate?",
+["A. XSIAM dashboard permissions","B. IAM permissions and API credentials/role used by the integration","C. XDR Agent policy on endpoints","D. Broker VM disk space"],
+"B","Incomplete cloud-source coverage can result from insufficient IAM permissions or API access scope."],
+
+["Question 12 — TI Feed & Performance",
+"An organization adds a threat-intelligence feed containing millions of indicators. Within days, XSIAM query performance becomes significantly slower. The organization primarily needs high-confidence malicious indicators for real-time detection. What is the BEST engineering response?",
+["A. Remove all existing detection rules","B. Filter the feed by confidence/relevance and reduce unnecessary IOC volume before ingestion","C. Increase endpoint agents","D. Disable all XQL queries"],
+"B","Very large TI feeds can increase lookup workload. Filter for relevant/high-confidence indicators and reduce unnecessary volume."],
+
+["Question 13 — Content Pack Deployment",
+"A Marketplace content pack provides an integration, detection rules, and a playbook. The customer wants to deploy it immediately because it is official Marketplace content. What should the Engineer do?",
+["A. Deploy directly because Marketplace content needs no testing","B. Review content, configure credentials/environment settings, test it, and customize where necessary","C. Rewrite the entire content pack","D. Disable existing detections before installing it"],
+"B","Marketplace content accelerates deployment but still requires review, configuration, testing, and environment-specific customization."],
+
+["Question 14 — Playbook Debugging",
+"A playbook starts successfully but fails at the third task. The first two tasks completed. The third task expects an IP address, but the value is empty. What is the BEST first troubleshooting action?",
+["A. Rebuild the entire playbook","B. Use playbook debugging to inspect the third task's input/context and determine why the IP was not passed correctly","C. Reinstall the XDR Agent","D. Disable the third task permanently"],
+"B","Inspect task inputs/outputs/context at the point of failure rather than rebuilding or disabling the workflow."],
+
+["Question 15 — Architecture",
+"A customer has on-premises servers, internet-restricted network segments, cloud workloads, endpoints that must use an approved proxy, and a requirement for a specific geographic tenant region. Which architecture is BEST?",
+["A. Direct internet communication from every endpoint and a globally located Data Lake","B. XDR Agents configured for the approved proxy, Broker VM for appropriate on-premises data flows, and a region-specific XSIAM/Data Lake tenant","C. Syslog-only collection with no endpoint agents","D. Broker VM only; endpoint agents communicate directly without proxy"],
+"B","The combination addresses proxy control, on-premises routing, and regional data-residency requirements."],
+
+["Question 16 — Normalization Failure",
+"A Cisco firewall integration has run for months. After a firewall software upgrade, raw events arrive and the parser still extracts fields, but src_ip is null for about 15%. The affected events have a slightly different format. What is the MOST likely root cause?",
+["A. Data Lake storage is full","B. Firewall is intermittently losing connectivity","C. New event format is not handled correctly by parsing/data-modeling logic","D. XDR Agents need upgrading"],
+"C","The subset-specific format change points to parser/data-modeling logic that does not handle the new format."],
+
+["Question 17 — Incident Automation",
+"A critical malware incident triggers a playbook. It must isolate the endpoint, query TI, notify the SOC, and create a ServiceNow ticket. The TI lookup can take several seconds, but none of the other three actions depend on its result. What is the best design?",
+["A. Execute every task sequentially","B. Run independent actions in parallel while keeping genuine dependencies sequential","C. Wait for TI before any action","D. Create a separate playbook for each action"],
+"B","Parallelize independent actions to reduce elapsed time; retain sequencing only where there is a real dependency."],
+
+["Question 18 — Exceptions",
+"You discover 47 active exceptions. Some were created more than a year ago, and nobody knows whether they are still required. What is the BEST engineering approach?",
+["A. Delete all exceptions immediately","B. Leave them because they were previously approved","C. Review each exception, document justification, add expiration/review dates, and establish periodic review","D. Disable the associated detection rules"],
+"C","Use exception lifecycle management rather than blindly deleting or permanently retaining exceptions."],
+
+["Question 19 — Full Pipeline",
+"A SaaS application has a successful API connection, events are arriving, raw JSON is visible, and parsing extracts expected fields. However, normalized XDM fields are missing and detections relying on them do not fire. The customer asks you to recreate the integration. What is BEST?",
+["A. Recreate the integration","B. Restart the XSIAM Engine","C. Investigate and correct XDM/data-model mapping, then validate normalized fields and detections","D. Disable detections and create new ones against raw JSON"],
+"C","The evidence isolates the problem to normalization. Do not recreate a working integration."],
+
+["Question 20 — Final Detection Tuning",
+"A custom detection worked for months. After onboarding a new source, false positives increase. The detection logic is unchanged, the new source is correctly parsed/normalized, and most new alerts come from a legitimate enterprise automation account. The same PowerShell behavior from normal users should still alert. What is BEST?",
+["A. Disable the detection globally","B. Create a narrowly scoped exception/condition for the legitimate automation account and validate coverage for other users","C. Delete the new source","D. Reduce severity of all PowerShell detections"],
+"B","Narrowly tune the known legitimate behavior while preserving detection coverage elsewhere."]
+];
+
+const q2 = [
+["Question 21 — Playbook Transformers",
+"A playbook task returns a JSON object containing multiple URLs. The next task requires URLs in a specific usable format, but the output contains additional fields and nested JSON. What is the most appropriate approach?",
+["A. Rewrite the playbook and manually enter each URL","B. Use a filter/transformer to extract and format required values before passing them to the next task","C. Disable the previous task","D. Convert JSON to plain text and send the entire output"],
+"B","Use filters/transformers to reshape task output into the input expected by the next task."],
+
+["Question 22 — !totable",
+"A playbook task produces a JSON result containing a list of objects. You want to transform that JSON output into a table format. Which command from the exam notes is associated with this operation?",
+["A. !setParentIncidentFields","B. !totable","C. !filter","D. !parsejson"],
+"B","JSON/list output → table is associated in the study notes with !totable."],
+
+["Question 23 — Parent Incident",
+"A playbook operates on a child incident linked to a parent incident. You need to update fields on the parent incident from within the playbook. Which command from the notes is associated with this?",
+["A. !totable","B. !setParentIncidentFields","C. !updateChildIncident","D. !setIncidentLayout"],
+"B","The study note associates !setParentIncidentFields with updating parent incident fields."],
+
+["Question 24 — Multiple URLs",
+"A third-party integration returns 20 URLs, but the playbook only processes the first few. The URLs are present in the task output, so the problem is not the API response itself. What should you investigate FIRST?",
+["A. Whether the playbook task has an execution/time limit or output-processing limitation","B. Whether the XDR Agent is connected","C. Whether incident severity is too low","D. Whether the Data Lake has sufficient storage"],
+"A","Because the data is already in task output, investigate playbook execution/output handling, limits, filtering, or timeout behavior."],
+
+["Question 25 — Cytool",
+"An engineer is troubleshooting an endpoint and needs the Cortex XDR Agent's local command-line utility to investigate or manage agent policy-related information. Which tool should they think of?",
+["A. XQL","B. Cytool","C. !totable","D. Data Modeling Rules"],
+"B","The study notes associate Cytool with local Cortex XDR Agent command-line policy/query operations."],
+
+["Question 26 — RBAC & Scope",
+"An analyst should retain general analyst capabilities but only access incidents/data for a particular organizational scope. Which concept is most relevant?",
+["A. Parsing rules","B. Scope-based access control","C. Scoring rules","D. Data modeling rules"],
+"B","Scope-based access control restricts what data/scope a user can access while preserving applicable role capabilities."],
+
+["Question 27 — Scoring Rules",
+"A security team wants to prioritize incidents based on severity and characteristics of detected activity. They want to change prioritization rather than how raw logs are parsed. Which capability is most relevant?",
+["A. Parsing rules","B. Data modeling rules","C. Scoring rules","D. Alert layout"],
+"C","Scoring rules relate to incident/finding prioritization, while parsing and data modeling handle data processing."],
+
+["Question 28 — Alert & Incident Layout",
+"Analysts complain that an important alert does not display fields needed for rapid triage. The underlying data is present and correctly normalized. What should the Engineer modify?",
+["A. Parsing rules","B. Data modeling rules","C. Incident and alert layout","D. Scoring rules"],
+"C","If the data exists and is normalized but is not displayed, the issue is presentation/layout."],
+
+["Question 29 — Exceptions vs Exclusions",
+"A detection generates false positives from a known legitimate application. You want to suppress the known legitimate behavior while preserving the detection for other applications and users. Which area should you investigate?",
+["A. Exception/exclusion configuration","B. Data modeling rules","C. Alert layout","D. Scoring rules"],
+"A","Use appropriately scoped exception/exclusion configuration to reduce known noise without globally weakening the detection."],
+
+["Question 30 — Data Modeling",
+"A new data source sends logs successfully. The parsing rule extracts source_ip correctly, but the field does not appear in the expected normalized XDM field used by detections. What should the Engineer do?",
+["A. Modify alert layout","B. Deploy/correct the data modeling rule so the parsed field maps to the appropriate XDM field","C. Increase incident score","D. Create an exception for the data source"],
+"B","Parsing extracts the value; data modeling maps it into the normalized XDM field used downstream."]
+];
+
+function render(list, id, start) {
+  document.getElementById(id).innerHTML = list.map((x,i) => `
+    <article class="q">
+      <h3>${x[0]}</h3>
+      <div class="question">${x[1]}</div>
+      <ol class="options" type="A">${x[2].map(o=>`<li>${o.replace(/^[A-D]\.\s*/,'')}</li>`).join('')}</ol>
+      <details>
+        <summary>Show answer & explanation</summary>
+        <div class="answer"><strong>Answer: ${x[3]}</strong><div class="tip">${x[4]}</div></div>
+      </details>
+    </article>`).join('');
+}
+render(q1,"questions",1);
+render(q2,"targeted",21);
+</script>
+</body>
+</html>
