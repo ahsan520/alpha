@@ -1,238 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XSIAM Engineer Final Review — 30 Questions</title>
-<style>
-  :root { --bg:#f5f7fa; --card:#fff; --text:#17202a; --muted:#64748b; --border:#d9e1ea; --accent:#2563eb; --good:#15803d; --bad:#b91c1c; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
-  header { background:#111827; color:white; padding:28px 20px; }
-  header .wrap, main { max-width:1050px; margin:auto; }
-  h1 { margin:0 0 6px; font-size:28px; }
-  header p { margin:0; color:#cbd5e1; }
-  main { padding:24px 16px 50px; }
-  .toolbar { position:sticky; top:0; z-index:5; background:rgba(245,247,250,.96); padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:18px; }
-  button { border:1px solid var(--border); background:white; color:var(--text); padding:9px 13px; border-radius:8px; cursor:pointer; margin-right:7px; }
-  button.primary { background:var(--accent); color:white; border-color:var(--accent); }
-  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:22px; }
-  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:15px; }
-  .stat strong { display:block; font-size:22px; }
-  .section { margin:28px 0 10px; color:#334155; border-bottom:2px solid var(--border); padding-bottom:6px; }
-  .q { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin:14px 0; }
-  .q h3 { margin:0 0 10px; font-size:17px; }
-  .question { white-space:pre-line; margin-bottom:12px; }
-  .options { margin:0 0 12px 20px; }
-  .options li { margin:6px 0; }
-  details { border-top:1px solid var(--border); padding-top:12px; }
-  summary { cursor:pointer; color:var(--accent); font-weight:bold; }
-  .answer { margin-top:10px; padding:12px; border-radius:8px; background:#f0fdf4; border-left:4px solid var(--good); }
-  .answer strong { color:var(--good); }
-  .tip { margin-top:8px; color:#334155; }
-  .score { color:var(--muted); font-size:14px; }
-  @media(max-width:700px){ .summary{grid-template-columns:1fr;} h1{font-size:23px;} }
-  @media print {
-    .toolbar { display:none; } body { background:white; } .q { break-inside:avoid; }
-    details { display:block; } details > summary { display:none; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortex XSIAM Engineer - Practice Suite & Exam Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        xsiam: {
+                            bg: '#0B0F19',
+                            card: '#111827',
+                            border: '#1F2937',
+                            accent: '#38BDF8',
+                            hover: '#1E293B',
+                            success: '#10B981',
+                            error: '#EF4444',
+                            warning: '#F59E0B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0F19; color: #F3F4F6; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111827; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
 </head>
-<body>
-<header><div class="wrap">
-<h1>XSIAM Engineer Final Review — 30 Practical Questions</h1>
-<p>20 practical exam scenarios + 10 targeted XSIAM feature/command questions</p>
-</div></header>
-<main>
-<div class="toolbar">
-  <button class="primary" onclick="document.querySelectorAll('details').forEach(x=>x.open=true)">Show all answers</button>
-  <button onclick="document.querySelectorAll('details').forEach(x=>x.open=false)">Hide all answers</button>
-  <button onclick="window.print()">Print / Save PDF</button>
-</div>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-<div class="summary">
-  <div class="stat"><strong>30</strong><span>Questions</span></div>
-  <div class="stat"><strong>20 + 10</strong><span>Scenario + targeted recall</span></div>
-  <div class="stat"><strong>100%</strong><span>Your mock score</span></div>
-</div>
+    <div>
+        <!-- Navigation Header -->
+        <header class="border-b border-gray-800 bg-gray-900/90 backdrop-blur sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-sky-500/10 rounded-lg border border-sky-500/30">
+                        <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Cortex XSIAM Engineer</h1>
+                        <p class="text-xs text-gray-400">80 Practical Scenario Questions & Exam Simulator</p>
+                    </div>
+                </div>
 
-<h2 class="section">Part 1 — 20 Practical Engineer Scenarios</h2>
+                <!-- Mode & Control Toolbar -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <button onclick="setMode('practice')" id="mode-practice" class="px-3 py-1.5 rounded-md border border-sky-500 bg-sky-500/20 text-sky-300 font-medium transition">Practice Mode</button>
+                    <button onclick="setMode('exam')" id="mode-exam" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">Timed Exam Mode</button>
+                    <button onclick="setMode('flashcard')" id="mode-flashcard" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">Flashcards</button>
+                    <button onclick="resetProgress()" class="px-3 py-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition">Reset Progress</button>
+                </div>
+            </div>
+        </header>
 
-<div id="questions"></div>
+        <!-- Stats & Controls Bar -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col">
+                    <span class="text-xs text-gray-400">Answered / Total</span>
+                    <span id="stat-answered" class="text-2xl font-bold text-white mt-1">0 / 80</span>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col">
+                    <span class="text-xs text-gray-400">Accuracy Rate</span>
+                    <span id="stat-accuracy" class="text-2xl font-bold text-sky-400 mt-1">0%</span>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col">
+                    <span class="text-xs text-gray-400">Score Status</span>
+                    <span id="stat-status" class="text-2xl font-bold text-gray-400 mt-1">N/A</span>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col">
+                    <span class="text-xs text-gray-400">Exam Timer</span>
+                    <span id="stat-timer" class="text-2xl font-bold text-amber-400 mt-1">--:--</span>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col">
+                    <span class="text-xs text-gray-400">Weakest Focus Area</span>
+                    <span id="stat-focus" class="text-xs font-semibold text-amber-400 mt-2 truncate">Start Answering Questions</span>
+                </div>
+            </div>
 
-<h2 class="section">Part 2 — 10 Targeted XSIAM Feature / Command Questions</h2>
-<div id="targeted"></div>
+            <!-- Domain Filter Buttons (Practice Mode Only) -->
+            <div id="domain-filters" class="flex flex-wrap gap-2 text-xs mt-6">
+                <button onclick="filterDomain('all')" id="btn-filter-all" class="px-3 py-1.5 rounded-md border border-sky-500 bg-sky-500/20 text-sky-300 font-medium transition">All Domains (80)</button>
+                <button onclick="filterDomain(1)" id="btn-filter-1" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">D1: Planning (20)</button>
+                <button onclick="filterDomain(2)" id="btn-filter-2" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">D2: Integration (20)</button>
+                <button onclick="filterDomain(3)" id="btn-filter-3" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">D3: Optimization (20)</button>
+                <button onclick="filterDomain(4)" id="btn-filter-4" class="px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition">D4: Maint & TS (20)</button>
+            </div>
+        </section>
 
-</main>
-<script>
-const q1 = [
-["Question 1 — Data Ingestion",
-"A customer has onboarded a new firewall into Cortex XSIAM. The firewall administrator confirms that syslog messages are being sent to the Broker VM. The Broker VM is Online, and there are no obvious Broker errors. However, analysts cannot find any events from this firewall in XSIAM searches. What should you investigate NEXT?",
-["A. Reinstall the XDR Agent on the firewall","B. Verify the Broker VM listener, port/protocol configuration, and parsing/ingestion path","C. Disable all firewall detection rules and re-enable them","D. Increase the Cortex Data Lake storage capacity"],
-"B","The correct approach is to trace the ingestion path systematically: Broker listener → port/protocol → parsing/ingestion configuration."],
+        <!-- Main Content Area -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+            <!-- Questions List (Practice Mode) -->
+            <div id="questions-container" class="space-y-6"></div>
 
-["Question 2 — Parsing vs. Normalization",
-"A newly onboarded SaaS application is sending events successfully. You can see the raw events in XSIAM, but the expected normalized user_name field is consistently null. The parsing rule successfully extracts the username from the raw JSON. What is the most likely next area to investigate?",
-["A. Network connectivity between the SaaS application and XSIAM","B. XDM/data-model mapping for the extracted username field","C. XDR Agent version on the analyst's workstation","D. Cortex Data Lake storage capacity"],
-"B","Raw data is present and parsing extracts the value, so investigate the XDM/data-model mapping layer."],
+            <!-- Exam Controls / Submit Panel (Exam Mode) -->
+            <div id="exam-controls" class="hidden text-center py-8 bg-gray-900 border border-gray-800 rounded-xl mt-6 space-y-4">
+                <p class="text-gray-300 text-sm">When you have completed all questions, submit your exam to view final scoring analytics.</p>
+                <button onclick="submitExam()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shadow-lg transition">
+                    Submit Exam & View Report
+                </button>
+            </div>
 
-["Question 3 — Playbook Authentication",
-"A playbook is triggered correctly and reaches a firewall integration. The integration task fails with HTTP 401 Unauthorized. The firewall API is reachable from the environment. What should you investigate FIRST?",
-["A. Rewrite the playbook logic","B. Verify the integration's API credentials/token and re-authenticate if necessary","C. Reinstall the Broker VM","D. Modify the detection rule that triggered the playbook"],
-"B","A 401 indicates an authentication failure. Verify the integration credentials/token before changing playbook logic."],
+            <!-- Flashcard View (Flashcard Mode) -->
+            <div id="flashcard-container" class="hidden flex flex-col items-center justify-center py-12">
+                <div id="flashcard" class="w-full max-w-2xl min-h-[280px] bg-gray-900 border border-gray-800 rounded-2xl p-8 flex flex-col justify-between shadow-2xl relative">
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-4">
+                        <span id="fc-domain" class="font-semibold text-sky-400">Domain</span>
+                        <span id="fc-counter" class="font-mono">Card 1 of 80</span>
+                    </div>
+                    <div id="fc-content" class="text-lg text-gray-100 font-medium text-center my-auto">
+                        <!-- Flashcard Front/Back Content -->
+                    </div>
+                    <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-800">
+                        <button onclick="prevFlashcard()" class="px-4 py-2 text-xs font-semibold bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300">Previous</button>
+                        <button onclick="flipFlashcard()" class="px-5 py-2 text-xs font-semibold bg-sky-600 hover:bg-sky-500 rounded-lg text-white">Flip Card</button>
+                        <button onclick="nextFlashcard()" class="px-4 py-2 text-xs font-semibold bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300">Next</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-["Question 4 — Playbook Authorization",
-"The same firewall integration is now returning HTTP 403 Forbidden. The API credentials are valid, and the integration connection test succeeds. What is the most likely issue?",
-["A. The API credentials are invalid","B. The firewall API account/token lacks permission for the requested action","C. The XSIAM Engine cannot parse the alert","D. The Broker VM is offline"],
-"B","403 indicates the request is authenticated but not authorized for the requested operation."],
+    <footer class="border-t border-gray-800 bg-gray-900/50 py-6 text-center text-xs text-gray-500">
+        <p>Cortex XSIAM Certification Exam Preparation Suite • Designed for Practical Domain Mastery</p>
+    </footer>
 
-["Question 5 — Agent Troubleshooting",
-"An endpoint appears Connected in XSIAM. Yesterday, Windows security event collection was working normally. Today, no new Windows events are appearing. The endpoint itself is healthy and the agent remains connected. What should you check FIRST?",
-["A. Reinstall the XDR Agent","B. Check the endpoint's policy/profile and verify that the required Windows event collection is still enabled","C. Increase Cortex Data Lake storage","D. Recreate the endpoint in XSIAM"],
-"B","Connected status does not prove every telemetry type is enabled. Check the relevant policy/profile first."],
+    <script>
+        // Database of 80 Questions
+        const questionsData = [
+            // DOMAIN 1: PLANNING AND INSTALLATION (1 to 20)
+            { id: 1, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An organization is deploying an on-premises Broker VM to forward syslog from corporate firewalls to Cortex XSIAM. Which outbound firewall port and target MUST be permitted on the network perimeter for the Broker VM to establish management communication with the XSIAM cloud tenant?", options: ["TCP Port 443 outbound to *.paloaltonetworks.com / Tenant FQDN", "UDP Port 514 inbound from XSIAM Cloud", "TCP Port 8443 outbound to Broker VM Local IP", "TCP Port 22 inbound from Palo Alto Support Network"], answer: 0, explanation: "Broker VMs initiate all connectivity outbound over HTTPS (TCP 443) to the Cortex XSIAM tenant FQDN. Inbound ports from the cloud to the Broker VM are strictly not required." },
+            { id: 2, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "During Cortex XDR agent installation via SCCM across 10,000 endpoint machines, what parameter syntax MUST be passed in the `msiexec` CLI to ensure agents automatically pair with the tenant and register under a specific installation key?", options: ["msiexec /i CortexXDR.msi /qn TS_URL=https://tenant.xdr.paloaltonetworks.com TS_AUTH_KEY=12345678", "msiexec /i CortexXDR.msi /qn AGENT_KEY=12345678 TENANT=tenant.xdr", "msiexec /i CortexXDR.msi /qn INSTALL_POLICY=HIGH_SECURITY SERVER=cloud", "msiexec /i CortexXDR.msi /qn REGISTRATION_TOKEN=12345678"], answer: 0, explanation: "The official installer properties for Windows MSI silent installations are `TS_URL` (Tenant URL) and `TS_AUTH_KEY` (Installation Authentication Key)." },
+            { id: 3, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An engineer needs to configure a Broker VM to collect Windows Event Logs directly via WMI/WinRM from domain controllers without installing agents. What credential privilege level is minimally required for the domain account configured on the Broker VM app?", options: ["Domain Admin privileges on all Domain Controllers", "Member of Distributed COM Users and Event Log Readers group with Remote Enable permissions", "Local System Account on the Broker VM appliance", "Schema Admin privileges in Active Directory"], answer: 1, explanation: "To enforce least privilege, the service account used by Broker VM for agentless WMI/WinRM collection only requires membership in 'Event Log Readers' and 'Distributed COM Users' alongside specific WMI namespace security permissions." },
+            { id: 4, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "When deploying a Broker VM in an enterprise network behind an explicit HTTP/HTTPS proxy, where must the proxy configuration settings be defined during initial deployment?", options: ["Directly in the Broker VM Web UI / CLI console during setup", "In the XSIAM Tenant Settings under 'Agent Management'", "Inside the XSOAR Integration Parameters", "Within the Cortex XDR Agent Policy Rules"], answer: 0, explanation: "Network connectivity settings, including explicit proxy server hostnames, ports, and authentication credentials, must be configured directly on the Broker VM via its local CLI or Web Console interface before it can connect to XSIAM." },
+            { id: 5, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "What is the primary sizing consideration when allocating CPU, RAM, and Disk for a Broker VM that will aggregate 25,000 EPS (Events Per Second) of Syslog data?", options: ["Default VM specs (2 vCPU, 8GB RAM) are sufficient regardless of EPS", "Broker VM automatically offloads raw EPS to local disk; disk speed is the only factor", "Higher EPS rates require scaling vCPU and RAM allocations according to Palo Alto sizing guidelines (e.g., 8 to 16+ vCPU, 16-32GB RAM)", "EPS collection requires deploying multiple Broker VMs behind a round-robin DNS load balancer only"], answer: 2, explanation: "Syslog caching, parsing, and compression consume significant memory and CPU processing. High EPS environments (>10k EPS) require scaling up the Broker VM specs (vCPU and RAM) based on official sizing tables." },
+            { id: 6, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Which Cortex XDR Endpoint agent deployment mechanism supports isolated network endpoints that cannot reach the Palo Alto Networks Cloud directly?", options: ["Deploying a Broker VM configured as a Proxy / Collector to relay agent traffic", "Direct deployment via Microsoft Intune only", "Configuring endpoints to upload logs directly via SFTP", "Agents cannot function without direct cloud connectivity"], answer: 0, explanation: "The Broker VM can be configured with the 'Agent Proxy' feature, allowing endpoints without direct internet access to route all control plane and telemetry traffic through the local Broker VM." },
+            { id: 7, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An engineer is preparing to install Cortex XDR agent on Linux servers running Kubernetes containers. Which component must be enabled in the Endpoint Policy to ensure container image execution security and process monitoring?", options: ["Host Insights and Kubernetes Collector Module", "EDR / Process Monitoring and Container Protection Settings", "Syslog Forwarder Settings", "WMI Agentless Collector"], answer: 1, explanation: "Linux endpoint protection profiles include specific Container Security settings enabling the XDR agent to monitor containerized processes and namespaces." },
+            { id: 8, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "When planning the deployment of Cortex XDR agents across VDI non-persistent environments, which operational step is mandatory to avoid duplicate endpoint entries in XSIAM?", options: ["Install the agent in the Golden Image with the VDI mode parameter enabled (`/vdi`)", "Assign a static IP address to each virtual machine", "Disable process telemetry collection in the agent profile", "Re-install the agent every time a user logs in"], answer: 0, explanation: "Installing the agent using VDI installation parameters (or enabling VDI mode) ensures that golden image master instances do not retain unique endpoint IDs, preventing ID collisions when dynamic VDIs boot up." },
+            { id: 9, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "What is the required disk space type and performance specification recommended for Broker VM disk allocation?", options: ["High-speed SSD / NVMe storage with thick provisioning to prevent disk latency during log buffering", "Thin-provisioned standard magnetic HDD", "Network Attached Storage (NAS) over NFS v3", "Cloud S3 Object Storage attached directly"], answer: 0, explanation: "Broker VM uses local storage as a buffer during high-throughput syslog spikes or cloud connectivity loss. SSD/NVMe with Thick Provisioning is recommended to prevent IOPS bottlenecks." },
+            { id: 10, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Which operating system family supports installing the Cortex XDR Agent for Endpoints without requiring kernel modules (using User-Space / Endpoint Security framework)?", options: ["macOS (macOS 10.15 Catalina and later)", "Windows Server 2008 R2", "CentOS 6.5", "Solaris 11"], answer: 0, explanation: "Apple replaced kernel extensions (KEXTs) with the System Extensions and Endpoint Security Framework in modern macOS, allowing the XDR agent to run completely in user-space." },
+            { id: 11, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An architecture team needs to collect raw NetFlow/IPFIX data from core switches into Cortex XSIAM. Which Broker VM app applet must be configured?", options: ["NetFlow Collector Applet", "Syslog Receiver Applet", "WMI Log Collector", "XSOAR Engine"], answer: 0, explanation: "The Broker VM features a dedicated NetFlow Collector applet designed to ingest, parse, and structure flow data (NetFlow v5/v9, IPFIX) before transmitting it to XSIAM." },
+            { id: 12, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Before deploying Cortex XDR Agents on legacy Windows machines in a hardened environment, which certificate authority requirement must be validated?", options: ["The machine must trust Palo Alto Networks Root CA and Digicert Certificate revocation lists (CRLs)", "The machine must have a local self-signed SSH key generated", "Active Directory Domain Controller CA must sign the agent executable", "No CA validation is performed by the XDR agent"], answer: 0, explanation: "The Cortex XDR agent requires strict TLS chain of trust verification and CRL checks to securely connect to the cloud tenant." },
+            { id: 13, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "What registration mechanism is used to authorize a newly deployed Broker VM with the XSIAM tenant?", options: ["A single-use or multi-use Registration Token generated from XSIAM Settings > Broker VMs", "A root password set during initial SSH prompt", "An SSL client certificate uploaded via SFTP", "An automated DNS TXT record lookup"], answer: 0, explanation: "When setting up a Broker VM, the administrator generates a Registration Token in the XSIAM web console and enters it into the Broker VM setup screen." },
+            { id: 14, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "In an enterprise network with strict microsegmentation, which internal port must be open from network firewalls to the Broker VM for Syslog over TLS collection?", options: ["TCP Port 6514 (or custom configured TLS syslog port)", "UDP Port 53", "TCP Port 80", "TCP Port 3389"], answer: 0, explanation: "Syslog over TLS standard default port is TCP 6514, though custom ports can be mapped within the Broker VM Syslog applet configuration." },
+            { id: 15, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Which deployment model is required when installing XSIAM in an air-gapped environment with no internet access?", options: ["Cortex XSIAM is a pure SaaS platform; full air-gapped deployment is not supported without minimum cloud outbound telemetry relay capabilities", "On-premises bare metal installation", "Deploying XSIAM inside a local VMware ESXi environment without WAN connections", "Deploying XSIAM onto AWS Outposts without AWS Internet Gateways"], answer: 0, explanation: "Cortex XSIAM is delivered exclusively as a cloud SaaS platform. While Broker VMs and Agent Proxies collect data locally, they must have outbound internet connectivity to communicate with the SaaS tenant." },
+            { id: 16, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "When planning the deployment of Cortex XDR agent tamper protection, what feature prevents unauthorized users from stopping agent services or uninstalling the software?", options: ["Uninstall Password / Anti-Tamper Protection enabled in Agent Policy", "Windows BitLocker integration", "Disabling the Local Administrator account", "Enabling Domain Controller Security Policies"], answer: 0, explanation: "Agent Policy profiles allow administrators to enforce Anti-Tamper Protection and set a protected Uninstall Password required to CLI-stop or uninstall the agent." },
+            { id: 17, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An organization is deploying Broker VMs across multiple geographic data centers (US, EU, APAC). How should syslog sources be configured to guarantee high availability?", options: ["Deploy Broker VMs in pairs per data center behind an internal network load balancer", "Configure syslog forwarders to send logs to the XSIAM cloud FQDN directly", "Deploy a single Broker VM globally and route all traffic over WAN", "Broker VMs automatically load balance without external hardware"], answer: 0, explanation: "To achieve high availability and redundancy for syslog ingestion, Broker VMs are typically deployed in active-active pairs per region behind internal Load Balancers." },
+            { id: 18, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Which component must be installed on a Broker VM to allow XSIAM playbooks to execute scripts or commands on internal on-premises servers?", options: ["XSOAR Engine component enabled on the Broker VM", "Broker Syslog Applet", "Host Insights Collector", "Local Database Connector"], answer: 0, explanation: "Enabling the XSOAR Engine role on a Broker VM turns the appliance into an execution node capable of executing playbook actions, scripts, and local network integration commands within internal networks." },
+            { id: 19, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "An engineer needs to verify that the local network DNS server can resolve the Cortex XSIAM tenant hostname from the Broker VM CLI. Which command line utility is available on the Broker VM shell?", options: ["network-test / dig / nslookup via Broker VM diagnostics menu", "cmd.exe ipconfig /flushdns", "systemctl restart named", "apt-get install dnsutils"], answer: 0, explanation: "The Broker VM management shell includes built-in network diagnostic utilities (including DNS resolution and port connectivity tests) under its admin menu." },
+            { id: 20, domainId: 1, domainName: "Domain 1: Planning & Installation", question: "Which agent profile setting in Cortex XDR governs how telemetry log collection bandwidth is managed on metered network connections?", options: ["Bandwidth Throttling / Log Rate Limiting in Endpoint Policy Settings", "Disk Space Reservation setting", "Kernel Driver Polling Frequency", "WMI Query Timeout Setting"], answer: 0, explanation: "Endpoint Policy profiles allow administrators to configure bandwidth upload limits and network throttling rules to prevent saturation of low-bandwidth links." },
 
-["Question 6 — Detection Troubleshooting",
-"A custom detection rule was working correctly for several weeks. After a firewall configuration change, raw firewall events are still arriving. The parser extracts src_ip, dst_ip, and user_name correctly. However, the detection has stopped generating alerts. The rule is enabled. What should you investigate NEXT?",
-["A. Reinstall the Broker VM","B. Verify that the detection's query conditions still match the current normalized event fields/data","C. Delete and recreate the firewall integration","D. Increase Cortex Data Lake storage"],
-"B","With ingestion, parsing, and rule status confirmed, validate that current normalized data still satisfies the detection logic."],
+            // DOMAIN 2: INTEGRATION AND AUTOMATION (21 to 40)
+            { id: 21, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "An engineer is configuring incident notification forwarding in Cortex XSIAM core settings. Which TWO outbound messaging/alerting destinations are supported natively out-of-the-box without requiring custom playbooks?", options: ["Slack and Email", "ServiceNow and Microsoft Teams", "Jira and PagerDuty", "Twilio SMS and Webhooks"], answer: 0, explanation: "Cortex XSIAM core tenant notification settings natively support forwarding alert notifications to Slack and Email directly." },
+            { id: 22, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "A SOC playbook task invokes the command `!ip ip=1.1.1.1` to fetch threat intelligence, but the task fails with: `No context transformer or command found`. How should the engineer resolve this issue?", options: ["Enable and configure an active Threat Intelligence Integration instance (e.g., VirusTotal, ThreatConnect) that handles the `!ip` command", "Restart the Broker VM", "Upgrade the Cortex XDR Agent on the domain controller", "Change the incident severity to High"], answer: 0, explanation: "Generic automation commands like `!ip` rely on active Integration Instances configured in the Cortex XSOAR/XSIAM integration engine." },
+            { id: 23, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "When integrating AWS CloudTrail event logs into Cortex XSIAM via Cloud Collector, which AWS authentication method follows security best practices for cross-account access?", options: ["AWS IAM Role Delegation with External ID (STS AssumeRole)", "Hardcoded Root Account IAM Access Keys", "Creating a local IAM user with AdministratorAccess and password", "Exporting logs to CSV and uploading via FTP"], answer: 0, explanation: "Using an IAM Role with STS AssumeRole and a unique External ID allows XSIAM to securely pull logs from AWS environments without storing static credentials." },
+            { id: 24, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "An automated playbook is configured to trigger on 'Critical Host Compromise' incidents. What playbook construct prevents infinite execution loops when sub-playbooks update incident context?", options: ["Setting Quiet Mode or Loop Execution Limits / Playbook Conditions", "Deleting the incident context upon completion", "Disabling XSOAR engine debug logs", "Converting all task outputs to plain text"], answer: 0, explanation: "Playbooks use condition nodes, max loop counts, and execution control settings (such as Quiet Mode or state checking) to prevent infinite loops." },
+            { id: 25, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "In Cortex XSIAM XSOAR engine, what is the purpose of the 'Context Data' memory structure during playbook execution?", options: ["A JSON storage tree holding variables, inputs, outputs, and enrichment data shared between playbook tasks", "A temporary SQL database storing agent performance metrics", "An encrypted log file stored on the endpoint agent", "The persistent database table holding raw syslog data"], answer: 0, explanation: "Context Data is a dynamic JSON dictionary that stores intermediate results, indicator values, and outputs of integration commands across tasks." },
+            { id: 26, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "You need to ingest security alerts from Microsoft Defender for Endpoint into Cortex XSIAM. Which integration method should be used?", options: ["Installing the Microsoft Defender Content Pack from XSIAM Marketplace and configuring API credentials", "Deploying a Broker VM directly into Azure Active Directory", "Forwarding Defender alerts via local Windows Event Log Channel 514", "Creating a custom Python script running on the endpoint"], answer: 0, explanation: "XSIAM Marketplace offers pre-built Content Packs that include API collectors, data mappings, playbooks, and dashboards out-of-the-box." },
+            { id: 27, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "An engineer wants an automated playbook task to wait for manual analyst approval before performing a host isolation action. Which task type must be added to the playbook layout?", options: ["Manual Task / Ask Task", "Automatic Script Task", "Condition Task", "Data Collector Node"], answer: 0, explanation: "'Ask Tasks' or 'Manual Tasks' pause playbook execution and send an interactive prompt requiring an analyst to click Approve or Reject before proceeding." },
+            { id: 28, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "Which feature in Cortex XSIAM automates indicator extraction, reputation scoring, and threat intelligence mapping from ingested alerts?", options: ["TIM (Threat Intelligence Management) Module and Indicator Auto-Extraction", "Broker VM Syslog Parsing Rule", "Host Insights Profiler", "XQL Query Builder"], answer: 0, explanation: "The Threat Intelligence Management (TIM) engine automatically extracts indicators from incoming alerts, looks up reputation, and tags them." },
+            { id: 29, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "What is the function of an XSIAM Integration Instance test button (`Test` / `Test Connection`) during integration setup?", options: ["Validates API connectivity, credentials, and basic response parameters with the target service", "Triggers a complete full database backup of the third-party system", "Executes all playbooks attached to the integration", "Generates a synthetic critical incident in XSIAM"], answer: 0, explanation: "The 'Test' button verifies network reachability, API key validity, and authentication parameters between XSIAM and the remote third-party API endpoint." },
+            { id: 30, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "An engineer is writing a custom Python automation script inside XSIAM XSOAR engine. How does the script access context data variables passed from previous tasks?", options: ["demisto.args() or demisto.context()", "sys.argv[1]", "os.getenv('CONTEXT_DATA')", "import json; json.loads(input)"], answer: 0, explanation: "XSOAR Python scripts interact with the playbook execution environment using the built-in `demisto` module API methods." },
+            { id: 31, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "Which integration protocol is commonly used by XSIAM Cloud Collectors to pull audit logs from SaaS platforms like Google Workspace or Okta?", options: ["REST API (OAuth 2.0 / Bearer Tokens / API Keys)", "SNMP v2 Traps", "Syslog over UDP 514", "Raw FTP file drop"], answer: 0, explanation: "Modern SaaS platforms provide REST APIs with OAuth 2.0 or API Token authentication for log retrieval, which XSIAM Cloud Collectors poll periodically." },
+            { id: 32, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "What happens when an indicator's Threat Intel reputation score changes from 'Good' to 'Bad' in XSIAM TIM?", options: ["TIM automatically updates the indicator score and can trigger re-evaluation of past incidents or auto-run playbooks", "XSIAM deletes all historical logs containing that indicator", "The Cortex XDR agent is automatically uninstalled from all hosts", "The tenant administrator receives an SMS alert immediately"], answer: 0, explanation: "When indicator scoring updates to malicious, XSIAM updates its local intelligence cache and can trigger automated threat hunting against historical logs." },
+            { id: 33, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "Which XSOAR concept allows mapping incoming third-party alert fields into standard XSIAM Incident fields?", options: ["Incident Classification & Mapping (Ingestion Mapping)", "XQL Parse Stage", "Broker VM Filtering", "Agent Security Profile"], answer: 0, explanation: "Classification & Mapping rules take raw JSON payloads from incoming integration alerts and align them with unified XSIAM Incident Schema fields." },
+            { id: 34, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "An organization wants to send outbound Incident closing data from XSIAM back to an external ticketing system (e.g., Jira). What feature should be configured?", options: ["Mirroring / Directional Sync in Integration Instance configuration", "Parsing Rules on Broker VM", "NetFlow Collector Applet", "BIOC Detection Rule"], answer: 0, explanation: "Integrations like Jira or ServiceNow support Sync / Mirroring settings, allowing 2-way synchronization of comments, statuses, and closures." },
+            { id: 35, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "What is the primary benefit of installing Marketplace Content Packs in XSIAM?", options: ["Provides pre-built integrations, playbooks, dashboards, parsing rules, and layout modifications for specific vendors", "Increases endpoint scanning speed by 50%", "Eliminates the need for Broker VMs completely", "Bypasses firewall proxy inspection"], answer: 0, explanation: "Content Packs bundle all necessary artifacts (playbooks, incident fields, integrations, data mappings) required to support a specific technology." },
+            { id: 36, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "When configuring a custom Webhook integration in XSIAM to ingest incoming alerts from an external system, what authentication header standard is recommended?", options: ["HMAC Signature verification or Authorization Bearer Tokens", "Plaintext HTTP basic auth over port 80", "No authentication header is allowed", "FTP user credentials"], answer: 0, explanation: "Securing webhooks requires verifying request authenticity using Bearer API keys or HMAC signatures passed in HTTP request headers over HTTPS." },
+            { id: 37, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "In an XSOAR playbook, what node type allows the workflow to split into multiple parallel execution paths based on evaluation criteria?", options: ["Conditional / Decision Task Node", "Terminal Node", "Manual Input Node", "Rest API Node"], answer: 0, explanation: "Conditional tasks evaluate expressions or context fields to branch playbook execution into different downstream paths." },
+            { id: 38, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "Where are integration passwords, API tokens, and secret keys securely stored in XSIAM XSOAR engine?", options: ["Encrypted Integration Parameter Store / Credentials Vault", "Plaintext text files on the Broker VM", "In the Playbook script source code comments", "In local browser cookie storage"], answer: 0, explanation: "Integrations store credentials in XSIAM's encrypted credentials store, ensuring secrets are never exposed in raw playbook logs." },
+            { id: 39, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "How can an engineer trigger an automated playbook run immediately when a specific custom alert fires in XSIAM?", options: ["Associate the Playbook with the Incident Type assigned to that Alert Rule", "Manually trigger the playbook from the CLI", "Schedule a cron job on the Broker VM", "Restart the XDR Agent service"], answer: 0, explanation: "Alert rules map to Incident Types, and Incident Types are configured with Default Playbooks that execute automatically upon incident creation." },
+            { id: 40, domainId: 2, domainName: "Domain 2: Integration & Automation", question: "What is the command syntax in XSOAR automation to output text comments directly to the Incident War Room?", options: ["return_results('Analysis complete') or demisto.results()", "print('Analysis complete')", "echo 'Analysis complete'", "console.log('Analysis complete')"], answer: 0, explanation: "In Python automation scripts within XSOAR, using `return_results()` publishes formatted messages directly into the War Room layout." },
 
-["Question 7 — Playbook Logic",
-"A phishing playbook receives an alert containing a suspicious URL. It must extract the URL, query threat intelligence, isolate the endpoint only if the verdict is malicious, and create a ticket either way. Which design is BEST?",
-["A. Isolate the endpoint first, then perform the TI lookup","B. Perform the TI lookup, evaluate the result, branch conditionally for isolation, then continue to ticket creation","C. Create two completely independent playbooks","D. Have the analyst manually perform the TI lookup"],
-"B","The TI result is the decision point. Query → evaluate → conditional branch → ticket."],
+            // DOMAIN 3: CONTENT OPTIMIZATION (41 to 60)
+            { id: 41, domainId: 3, domainName: "Domain 3: Content Optimization", question: "You are writing a custom Ingestion Parsing Rule for raw syslog arriving from an unformatted security gateway. Which directive syntax correctly uses regex to parse the IP address from `_raw_log` into the attribute field `_attr.source_ip`?", options: ["alter _attr.source_ip = regextract(_raw_log, \"src_ip=(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\")", "SELECT source_ip FROM _raw_log WHERE regex = true", "extractfields _raw_log into source_ip", "parse_json _raw_log source_ip"], answer: 0, explanation: "In Parsing Rules, field transformation directives use expressions like `alter _attr.<field> = regextract(_raw_log, \"regex\")` to extract matched capture groups into dataset attributes." },
+            { id: 42, domainId: 3, domainName: "Domain 3: Content Optimization", question: "An engineer needs to construct an XQL query to search for process execution events where PowerShell executed an encoded command (`-enc` or `-EncodedCommand`) across all endpoint data in the past 24 hours. Which XQL query is syntactically correct?", options: ["dataset = xdr_data | filter event_type = PROCESS | filter action_process_image_name = 'powershell.exe' and action_process_cmdline regmatch '(?i)-(enc|encodedcommand)'", "SELECT * FROM endpoints WHERE process = 'powershell' AND cmd LIKE '%-enc%'", "dataset = alerts | search process == 'powershell.exe' | where cmdline contains '-enc'", "xdr_data | search 'powershell.exe' | filter enc = true"], answer: 0, explanation: "Valid XQL starts with `dataset = xdr_data`, pipes commands, filters by schema attributes, and uses `regmatch` for case-insensitive regex pattern matching." },
+            { id: 43, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What is the primary function of the XDM (Cortex Data Model) in XSIAM Content Optimization?", options: ["Normalizes diverse data sources (syslog, cloud, agent logs) into unified canonical schemas (e.g., Network, Authentication, Process)", "Encrypts stored customer log databases", "Accelerates network proxy download rates", "Generates automatic agent installation keys"], answer: 0, explanation: "XDM normalizes disparate logs into standardized fields, allowing analytics engine rules and threat queries to run across all vendor logs uniformly." },
+            { id: 44, domainId: 3, domainName: "Domain 3: Content Optimization", question: "Which XQL pipe command aggregates data and calculates statistical counts of failed login attempts grouped by user?", options: ["comp count(event_type) as total_failures by target_username", "group by target_username sum(failed)", "aggregate count() user", "summarize events by user"], answer: 0, explanation: "The `comp` (computation) stage in XQL is used for statistical aggregation functions (like `count`, `sum`, `avg`) grouped by specified fields (`by target_username`)." },
+            { id: 45, domainId: 3, domainName: "Domain 3: Content Optimization", question: "An analyst is building a custom BIOC (Behavioral Indicator of Compromise) rule to detect suspicious child processes spawned by MS Word. Which field relationship construct must be defined in the BIOC editor?", options: ["Parent Process Name equals 'winword.exe' AND Action Process Name in ('cmd.exe', 'powershell.exe', 'wscript.exe')", "File Hash equals MD5", "Destination Port equals 443", "Registry Key deleted equals true"], answer: 0, explanation: "BIOCs track behavioral relationship logic (such as Parent Process to Child Process relationship) rather than static file indicators." },
+            { id: 46, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What XQL command is used to add new calculated fields or modify existing fields during query runtime execution?", options: ["alter", "modify", "addfield", "set"], answer: 0, explanation: "The `alter` stage in XQL creates new fields or transforms field values dynamically within query results." },
+            { id: 47, domainId: 3, domainName: "Domain 3: Content Optimization", question: "When creating a Modeling Rule for custom JSON structured logs, which directive converts JSON key-value pairs directly into XDM attributes?", options: ["| json_parse (_raw_log, _attr)", "| xml_decode (_raw_log)", "| split_string (_raw_log, ',')", "| convert_json_to_sql ()"], answer: 0, explanation: "The `json_parse` rule function automatically parses raw JSON strings into memory attribute key-value maps." },
+            { id: 48, domainId: 3, domainName: "Domain 3: Content Optimization", question: "An engineer wants to optimize an XQL query that is timing out on a multi-terabyte dataset. Which query optimization technique is most effective?", options: ["Narrow the time range limit (`preset = LAST_24_HOURS`) and filter indexed fields (like `dataset`, `event_type`) early in the pipeline", "Remove all filter stages", "Use regex matching on every field", "Run the query during midnight hours only"], answer: 0, explanation: "Filtering indexed attributes early reduces the total data partition scanned, preventing timeouts." },
+            { id: 49, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What is the key difference between Correlation Rules and BIOC Rules in Cortex XSIAM?", options: ["Correlation Rules evaluate queries across historical/ingested log datasets in the backend database; BIOCs evaluate real-time events directly on endpoints or streaming ingestion", "BIOCs can only inspect network logs", "Correlation Rules run on endpoints only", "There is no difference"], answer: 0, explanation: "BIOCs evaluate live agent/stream event flows for immediate matching, whereas Correlation Rules execute scheduled XQL queries over historical data lakes." },
+            { id: 50, domainId: 3, domainName: "Domain 3: Content Optimization", question: "In XQL, what operator is used for wildcard string pattern matching within a `filter` command?", options: ["like or contains", "==", "=", "in"], answer: 0, explanation: "XQL supports string operators like `like` (with `%` wildcards) or `contains` / `regmatch` for pattern string matching." },
+            { id: 51, domainId: 3, domainName: "Domain 3: Content Optimization", question: "Which parsing rule stage is executed FIRST when logs arrive at the XSIAM Data Ingestion pipeline?", options: ["Parsing Rule (Filtering / Extraction) -> Modeling Rule (XDM Alignment)", "Modeling Rule -> Parsing Rule", "Correlation Engine -> BIOC Engine", "XQL Query -> Alert Generation"], answer: 0, explanation: "Raw logs undergo Parsing Rules first (to filter, clean, and extract raw attributes) before Modeling Rules map those attributes into standardized XDM schemas." },
+            { id: 52, domainId: 3, domainName: "Domain 3: Content Optimization", question: "An analyst needs to format timestamp strings in custom logs into ISO 8601 unified standard time during parsing. Which function is used in parsing rules?", options: ["parse_timestamp", "time_to_string", "epoch_converter", "format_clock"], answer: 0, explanation: "The `parse_timestamp` function converts specific vendor date-time string formats into standard epoch/XDM timestamp metrics." },
+            { id: 53, domainId: 3, domainName: "Domain 3: Content Optimization", question: "How can an engineer suppress benign low-priority noise events during the parsing stage BEFORE data is stored in datasets?", options: ["Use a Parsing Rule with a `drop` / `filter` condition to discard undesired log patterns early", "Delete the Agent from the dashboard", "Disable the Broker VM storage disk", "Turn off XSIAM indexing"], answer: 0, explanation: "Filtering and dropping unneeded debug logs at the ingestion parsing stage saves license volume and storage capacity." },
+            { id: 54, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What command in XQL allows joining events from two separate datasets based on a common field?", options: ["join", "merge", "combine", "union"], answer: 0, explanation: "The `join` stage in XQL merges records from two datasets based on key equality matching." },
+            { id: 55, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What XSIAM feature allows testing custom Parsing Rules against raw log samples before deploying them to production ingestion streams?", options: ["Parsing Rule 'Test Rule' editor in XSIAM Console Settings", "Live Agent Deployment Test", "Broker VM Reboot verification", "Playbook Debugger console"], answer: 0, explanation: "The Parsing Rule UI includes a 'Test Rule' feature where engineers paste sample raw log lines to preview extracted attributes and verify logic safety." },
+            { id: 56, domainId: 3, domainName: "Domain 3: Content Optimization", question: "In XQL analytics, how do you sort query results in descending order by event count?", options: ["sort desc event_count", "order by event_count rising", "arrange down event_count", "group desc"], answer: 0, explanation: "Sorting in XQL uses the syntax `sort desc <field_name>` or `sort asc <field_name>`." },
+            { id: 57, domainId: 3, domainName: "Domain 3: Content Optimization", question: "Which schema field in the Endpoint XDM dataset represents the fully qualified user account that executed a process?", options: ["actor_user_name / action_total_exec_user", "dst_host", "file_md5", "network_bytes"], answer: 0, explanation: "In XDM schema standards, `actor_user_name` identifies the user principal identity driving the action." },
+            { id: 58, domainId: 3, domainName: "Domain 3: Content Optimization", question: "An engineer creates a scheduled Correlation Rule to run every 1 hour. What setting determines how far back in time the query looks during execution?", options: ["Query Time Frame / Lookback Window (e.g., 1 hour)", "Broker VM Network Timeout", "Agent Heartbeat Interval", "XSOAR Cache Expiry"], answer: 0, explanation: "Correlation Rules define both an execution frequency and a lookback window time relative to the execution timestamp." },
+            { id: 59, domainId: 3, domainName: "Domain 3: Content Optimization", question: "Which XQL filter expression correctly limits query output to records where the source IP is within a specific private CIDR subnet?", options: ["filter incitypes(incitypes_ip, \"192.168.1.0/24\") or cidrmatch(src_ip, \"192.168.1.0/24\")", "filter src_ip == 192.168.1.*", "where subnet = 192.168.1.0", "search ip in range"], answer: 0, explanation: "XQL provides functions like `cidrmatch(field, \"CIDR_NET\")` to test IP inclusion within network subnets." },
+            { id: 60, domainId: 3, domainName: "Domain 3: Content Optimization", question: "What is the purpose of the `arrayexpand` command in XQL queries?", options: ["Unrolls a JSON array field into individual rows for each array element", "Compresses query log size for export", "Deletes duplicate array records", "Converts strings to uppercase"], answer: 0, explanation: "The `arrayexpand` stage flattens multi-value array fields, outputting a separate row per item to allow granular filtering on array elements." },
 
-["Question 8 — Broker VM Troubleshooting",
-"After a Broker VM update, 15 on-premises log sources stop appearing in XSIAM. The Broker VM shows Online. You confirm the source devices are still sending traffic to the Broker. What is the BEST troubleshooting sequence?",
-["A. Reinstall all source agents and recreate integrations","B. Check Broker logs → verify listener/port/protocol → verify network connectivity → review Broker configuration changes","C. Disable all detection rules → restart Broker → enable detections","D. Increase Data Lake storage → recreate data sources"],
-"B","Use a systematic path: Broker logs, listener/ports/protocol, connectivity, then configuration changes."],
+            // DOMAIN 4: MAINTENANCE AND TROUBLESHOOTING (61 to 80)
+            { id: 61, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "A custom API log source ingestion pipeline suddenly stops receiving data in XSIAM. The Data Ingestion Health dashboard shows status 'Parsing Failure / Model Mapping Error'. Where in Cortex XSIAM should an engineer navigate to inspect the error log details?", options: ["Settings > Data Ingestion > Parsing Rules / Ingestion Health Dashboard", "Settings > Agent Management > Custom Groups", "Incident Management > Layout Settings", "Marketplace > Installed Content Packs"], answer: 0, explanation: "Ingestion pipeline status, parsing failures, raw data dropped statistics, and health alerts are monitored under Settings > Data Ingestion > Ingestion Health." },
+            { id: 62, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "An administrative vulnerability scanner server triggers hundreds of false-positive process alerts daily in XSIAM. To suppress these benign alerts cleanly WITHOUT disabling the security detection rule globally, what action should the engineer take?", options: ["Configure an Alert Exclusion / Exception Rule specifying the scanner hostname/IP and process scope", "Delete the underlying detection rule from XSIAM", "Uninstall the Cortex XDR Agent from the scanner machine", "Lower the global tenant alert severity to Informational"], answer: 0, explanation: "XSIAM Alert Exceptions / Tuning Rules allow engineers to define precise condition scopes to suppress known false positives without turning off security protection globally." },
+            { id: 63, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "A Cortex XDR Agent on a critical Windows server displays status 'Disconnected' in the XSIAM Agent Management console. What local CLI utility on the endpoint can be run to diagnose agent connection issues?", options: ["`cytool runtime status` or `cytool reconnect`", "agent-cli restart", "netstart xdr", "paloalto-diag --check"], answer: 0, explanation: "The `cytool` CLI utility installed with the Cortex XDR agent provides troubleshooting commands to diagnose endpoint issues." },
+            { id: 64, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "An engineer needs to collect a support log bundle from a Broker VM experiencing high disk usage. How can this log bundle be generated?", options: ["From the XSIAM Console (Settings > Broker VMs > Actions > Tech Support File) or via Broker VM CLI menu", "By SSHing into the VM and running `rm -rf /var/log`", "By emailing Palo Alto Support with the serial number", "Log bundles are automatically uploaded every hour"], answer: 0, explanation: "Tech Support Files (TSF) for Broker VMs can be pulled directly from the XSIAM Web Console or generated via the Broker VM local diagnostic console." },
+            { id: 65, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "During a Cortex XDR Agent policy upgrade, several workstations fail to update to the target version. What is the most common operational cause?", options: ["Endpoint requires a pending system reboot or has insufficient disk space / network bandwidth throttling active", "The XSIAM tenant license expired during download", "The Windows Firewall blocked outgoing DNS port 53", "The agent password was changed"], answer: 0, explanation: "Agent upgrade failures are frequently caused by insufficient disk space for the installer payload or pending OS reboots locking agent files." },
+            { id: 66, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "How can an administrator verify if a Broker VM's Syslog Receiver applet is bound and listening on TCP Port 514 locally?", options: ["Run network diagnostics / port check from the Broker VM CLI interface", "Query `dataset = xdr_data` in XQL", "Check the endpoint policy profile", "Inspect the agent installation MSI logs"], answer: 0, explanation: "The Broker VM CLI diagnostic menu allows administrators to check active port bindings and local socket listeners directly." },
+            { id: 67, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "When troubleshooting an XSOAR playbook that hangs indefinitely at a specific task, what step should the engineer take first?", options: ["Inspect the Playbook Execution Work Plan, check task inputs/outputs, and examine CLI debug logs for that task instance", "Delete the incident from the database", "Reinstall the tenant SSL certificate", "Restart all Broker VMs in the network"], answer: 0, explanation: "Reviewing the interactive Work Plan for the specific incident allows analysts to see which task is blocked, review error messages, and retry or skip the failed task." },
+            { id: 68, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "A custom Python integration script is throwing `HTTP 429 Too Many Requests` errors during high-volume alert processing. What modification should be made to the integration configuration or script?", options: ["Implement rate limiting / backoff retry logic and adjust integration fetch intervals", "Disable SSL certificate validation", "Increase endpoint agent polling frequency", "Change the script language to C++"], answer: 0, explanation: "HTTP 429 indicates API rate limit exhaustion. Adding exponential backoff retries and lowering fetch batch sizes resolves API throttling." },
+            { id: 69, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "Which Cortex XDR endpoint component log should be inspected if malware prevention modules fail to inject into process memory on a Windows host?", options: ["Cortex XDR Agent Execution / Diagnostic Logs (`pm_service.log` / `cytool log collect`)", "Broker VM Syslog file", "Domain Controller NTDS.dit", "Browser Extensions log"], answer: 0, explanation: "The endpoint agent's local service logs contain detailed driver and DLL injection status messages for prevention modules." },
+            { id: 70, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "In Cortex XSIAM Data Ingestion settings, what does a status of 'Log Drop Warning / Ingestion Exceeded' signify?", options: ["The incoming log volume exceeds licensed capacity or ingestion rate limits, causing excess logs to be queued or dropped", "The Broker VM network cable was physically disconnected", "The endpoint agent uninstall password was incorrect", "All firewall rules were automatically wiped"], answer: 0, explanation: "Ingestion warnings occur when incoming telemetry surges beyond tenant quota thresholds or Broker VM processing limits." },
+            { id: 71, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "An engineer notices that IP address indicators are failing to automatically enrich in War Rooms. What is the first component to check?", options: ["Active Threat Intelligence Integration Instances health and valid API key quota status", "Windows Event Forwarding Service", "Broker VM NetFlow collector applet", "Agent Tamper Protection status"], answer: 0, explanation: "Threat intel enrichment relies on active integrations. Checking integration status health and remaining API key usage limits is the primary diagnostic step." },
+            { id: 72, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "What action must be taken if a Broker VM's disk buffer fills to 100% due to an extended WAN outage?", options: ["Restore WAN connectivity; once connected, the Broker VM flushes buffered logs to XSIAM. If disk space is exhausted, increase disk partition size before restarting services.", "Format the VM immediately", "Logs are permanently lost and the VM must be recreated", "No action needed; cloud storage absorbs the disk full error"], answer: 0, explanation: "Broker VM flushes cached logs when WAN is restored. Expanding VM disk capacity allows processing to resume if the disk filled completely." },
+            { id: 73, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "An analyst reports that an XQL query returned incomplete results for an incident that occurred 45 days ago. What setting determines log retention duration in Cortex XSIAM?", options: ["Dataset Hot/Cold Retention Policy settings in XSIAM Data Management", "Browser Cache Retention Settings", "Broker VM Local Buffer Size", "Endpoint Policy Log Reservation Size"], answer: 0, explanation: "Log query results are bound by the tenant's configured storage retention policies (e.g., 30, 60, 90 days hot retention)." },
+            { id: 74, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "What is the recommended troubleshooting step when a custom BIOC rule triggers excessive false positive alerts across the environment?", options: ["Disable or edit the BIOC rule to refine behavioral conditions (add exclusions or narrow scope) before re-enabling", "Disable all endpoint security policies globally", "Re-install agents on all endpoints", "Delete all historical logs in the database"], answer: 0, explanation: "Tuning BIOCs involves tightening process attribute conditions or adding negative exception logic to exclude legitimate software activity." },
+            { id: 75, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "When performing an offline upgrade of Cortex XDR Agents on isolated machines, what package artifact is required?", options: ["The full standalone installation installer executable along with the target content version zip file", "A simple text file with serial numbers", "A Broker VM ISO image", "A Python script file only"], answer: 0, explanation: "Offline upgrades require copying the complete agent package payload and definition/content zip files directly to the target system." },
+            { id: 76, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "Where in the Cortex XSIAM console can an administrator view audit logs tracking user login attempts, policy edits, and system configuration changes?", options: ["Settings > Audit Logs / Administration Audit Trail", "Incident Management > Alerts", "Dataset = xdr_data", "Marketplace > Installed Packs"], answer: 0, explanation: "Administrative actions, policy updates, and console logins are recorded in Settings > Audit Logs for compliance and accountability." },
+            { id: 77, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "A Windows machine experiences a Blue Screen (BSOD) after updating the Cortex XDR Agent driver. What command can be executed in Windows Safe Mode to disable the XDR agent drivers temporarily?", options: ["`cytool protect disable` or disabling agent driver services in safe mode registry", "format C:", "msiexec /x CortexXDR.msi", "ipconfig /renew"], answer: 0, explanation: "Using `cytool protect disable` or safe-mode administrative commands allows engineers to disable driver components for recovery without formatting." },
+            { id: 78, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "How can an engineer verify that a cloud log source (e.g., Azure Event Hub) integration is actively fetching data without errors?", options: ["Check Ingestion Health Dashboard / Instance Fetch Status under Data Collectors", "Run `ping azure.com` from local host", "Restart the desktop PC", "Open a support ticket with Microsoft"], answer: 0, explanation: "Cloud Collector fetch statuses, last event ingested timestamps, and execution logs are tracked live under Settings > Data Sources / Data Collectors." },
+            { id: 79, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "What is the function of the 'Re-index' option when modifying a custom Parsing or Modeling Rule in XSIAM?", options: ["Applies the updated parsing/modeling rules retroactively to historical raw logs within a designated time window", "Deletes all raw log files permanently", "Reboots the XSIAM SaaS tenant instance", "Disconnects all endpoints for 10 minutes"], answer: 0, explanation: "Re-indexing processes raw stored logs through updated parsing or modeling definitions to fix past data field extractions." },
+            { id: 80, domainId: 4, domainName: "Domain 4: Maintenance & Troubleshooting", question: "An XSIAM administrator wants to receive automated email notifications whenever a Broker VM status changes to 'Disconnected'. Where is this configured?", options: ["Settings > Alert Notifications / System Notifications > Broker VM Status Alerts", "Inside individual endpoint agent profiles", "In the Windows Event Viewer", "On the network switch interface"], answer: 0, explanation: "System health notification rules under Tenant Settings allow mapping critical system alerts (like Broker VM offline status) to automated Email or Slack channels." }
+        ];
 
-["Question 9 — Exceptions & Detection Coverage",
-"A legitimate vulnerability scanner generates hundreds of alerts every week. The activity is expected and originates from a known scanner IP range. Security wants fewer alerts without weakening the same detections for other systems. What is the BEST approach?",
-["A. Disable the detection rules","B. Create a narrowly scoped exception for the scanner IP/rules, constrained to expected activity","C. Lower the severity of all network alerts","D. Exclude the entire internal network"],
-"B","Tune narrowly. Preserve detection coverage elsewhere rather than disabling the detection globally."],
+        // Application State
+        let currentMode = 'practice'; // 'practice', 'exam', 'flashcard'
+        let currentFilter = 'all';
+        let userAnswers = {}; // { questionId: selectedOptionIndex }
+        let currentFlashcardIdx = 0;
+        let timerInterval = null;
+        let timeRemainingSeconds = 120 * 60; // 120 minutes for exam mode
 
-["Question 10 — XQL + Normalization",
-"An analyst runs an XQL query looking for authentication failures using normalized user_name and event_type. The query returns zero results, but raw authentication-failure events are present. What should you do FIRST?",
-["A. Assume the source stopped sending data and restart the connector","B. Determine whether relevant raw fields are correctly parsed and mapped to the expected XDM fields","C. Disable authentication detection rules","D. Increase the query time range indefinitely"],
-"B","Raw events exist, so first verify parsing and XDM normalization of the fields used by the XQL query."],
+        // Load saved progress from LocalStorage
+        function loadState() {
+            const saved = localStorage.getItem('xsiam_exam_user_answers');
+            if (saved) {
+                try {
+                    userAnswers = JSON.parse(saved);
+                } catch (e) {
+                    userAnswers = {};
+                }
+            }
+        }
 
-["Question 11 — Data Source Permissions",
-"You onboard AWS CloudTrail. Events are arriving, but certain CloudTrail event types are consistently missing. The AWS account and network connectivity are healthy. What is the most likely area to investigate?",
-["A. XSIAM dashboard permissions","B. IAM permissions and API credentials/role used by the integration","C. XDR Agent policy on endpoints","D. Broker VM disk space"],
-"B","Incomplete cloud-source coverage can result from insufficient IAM permissions or API access scope."],
+        // Save progress
+        function saveState() {
+            localStorage.setItem('xsiam_exam_user_answers', JSON.stringify(userAnswers));
+        }
 
-["Question 12 — TI Feed & Performance",
-"An organization adds a threat-intelligence feed containing millions of indicators. Within days, XSIAM query performance becomes significantly slower. The organization primarily needs high-confidence malicious indicators for real-time detection. What is the BEST engineering response?",
-["A. Remove all existing detection rules","B. Filter the feed by confidence/relevance and reduce unnecessary IOC volume before ingestion","C. Increase endpoint agents","D. Disable all XQL queries"],
-"B","Very large TI feeds can increase lookup workload. Filter for relevant/high-confidence indicators and reduce unnecessary volume."],
+        // Reset progress
+        function resetProgress() {
+            if (confirm("Are you sure you want to reset all saved answers and stats?")) {
+                userAnswers = {};
+                localStorage.removeItem('xsiam_exam_user_answers');
+                renderView();
+            }
+        }
 
-["Question 13 — Content Pack Deployment",
-"A Marketplace content pack provides an integration, detection rules, and a playbook. The customer wants to deploy it immediately because it is official Marketplace content. What should the Engineer do?",
-["A. Deploy directly because Marketplace content needs no testing","B. Review content, configure credentials/environment settings, test it, and customize where necessary","C. Rewrite the entire content pack","D. Disable existing detections before installing it"],
-"B","Marketplace content accelerates deployment but still requires review, configuration, testing, and environment-specific customization."],
+        // Mode Switching
+        function setMode(mode) {
+            currentMode = mode;
+            ['practice', 'exam', 'flashcard'].forEach(m => {
+                const btn = document.getElementById(`mode-${m}`);
+                if (m === mode) {
+                    btn.className = "px-3 py-1.5 rounded-md border border-sky-500 bg-sky-500/20 text-sky-300 font-medium transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition";
+                }
+            });
 
-["Question 14 — Playbook Debugging",
-"A playbook starts successfully but fails at the third task. The first two tasks completed. The third task expects an IP address, but the value is empty. What is the BEST first troubleshooting action?",
-["A. Rebuild the entire playbook","B. Use playbook debugging to inspect the third task's input/context and determine why the IP was not passed correctly","C. Reinstall the XDR Agent","D. Disable the third task permanently"],
-"B","Inspect task inputs/outputs/context at the point of failure rather than rebuilding or disabling the workflow."],
+            const filtersElem = document.getElementById('domain-filters');
+            const examCtrlElem = document.getElementById('exam-controls');
+            const flashcardElem = document.getElementById('flashcard-container');
 
-["Question 15 — Architecture",
-"A customer has on-premises servers, internet-restricted network segments, cloud workloads, endpoints that must use an approved proxy, and a requirement for a specific geographic tenant region. Which architecture is BEST?",
-["A. Direct internet communication from every endpoint and a globally located Data Lake","B. XDR Agents configured for the approved proxy, Broker VM for appropriate on-premises data flows, and a region-specific XSIAM/Data Lake tenant","C. Syslog-only collection with no endpoint agents","D. Broker VM only; endpoint agents communicate directly without proxy"],
-"B","The combination addresses proxy control, on-premises routing, and regional data-residency requirements."],
+            if (mode === 'practice') {
+                filtersElem.classList.remove('hidden');
+                examCtrlElem.classList.add('hidden');
+                flashcardElem.classList.add('hidden');
+                stopTimer();
+            } else if (mode === 'exam') {
+                filtersElem.classList.add('hidden');
+                examCtrlElem.classList.remove('hidden');
+                flashcardElem.classList.add('hidden');
+                startTimer();
+            } else if (mode === 'flashcard') {
+                filtersElem.classList.add('hidden');
+                examCtrlElem.classList.add('hidden');
+                flashcardElem.classList.remove('hidden');
+                stopTimer();
+                renderFlashcard();
+            }
 
-["Question 16 — Normalization Failure",
-"A Cisco firewall integration has run for months. After a firewall software upgrade, raw events arrive and the parser still extracts fields, but src_ip is null for about 15%. The affected events have a slightly different format. What is the MOST likely root cause?",
-["A. Data Lake storage is full","B. Firewall is intermittently losing connectivity","C. New event format is not handled correctly by parsing/data-modeling logic","D. XDR Agents need upgrading"],
-"C","The subset-specific format change points to parser/data-modeling logic that does not handle the new format."],
+            renderView();
+        }
 
-["Question 17 — Incident Automation",
-"A critical malware incident triggers a playbook. It must isolate the endpoint, query TI, notify the SOC, and create a ServiceNow ticket. The TI lookup can take several seconds, but none of the other three actions depend on its result. What is the best design?",
-["A. Execute every task sequentially","B. Run independent actions in parallel while keeping genuine dependencies sequential","C. Wait for TI before any action","D. Create a separate playbook for each action"],
-"B","Parallelize independent actions to reduce elapsed time; retain sequencing only where there is a real dependency."],
+        // Timer Logic
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                if (timeRemainingSeconds <= 0) {
+                    stopTimer();
+                    alert("Exam Time Expired!");
+                    submitExam();
+                } else {
+                    timeRemainingSeconds--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
 
-["Question 18 — Exceptions",
-"You discover 47 active exceptions. Some were created more than a year ago, and nobody knows whether they are still required. What is the BEST engineering approach?",
-["A. Delete all exceptions immediately","B. Leave them because they were previously approved","C. Review each exception, document justification, add expiration/review dates, and establish periodic review","D. Disable the associated detection rules"],
-"C","Use exception lifecycle management rather than blindly deleting or permanently retaining exceptions."],
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
 
-["Question 19 — Full Pipeline",
-"A SaaS application has a successful API connection, events are arriving, raw JSON is visible, and parsing extracts expected fields. However, normalized XDM fields are missing and detections relying on them do not fire. The customer asks you to recreate the integration. What is BEST?",
-["A. Recreate the integration","B. Restart the XSIAM Engine","C. Investigate and correct XDM/data-model mapping, then validate normalized fields and detections","D. Disable detections and create new ones against raw JSON"],
-"C","The evidence isolates the problem to normalization. Do not recreate a working integration."],
+        function updateTimerDisplay() {
+            const m = Math.floor(timeRemainingSeconds / 60);
+            const s = timeRemainingSeconds % 60;
+            document.getElementById('stat-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
 
-["Question 20 — Final Detection Tuning",
-"A custom detection worked for months. After onboarding a new source, false positives increase. The detection logic is unchanged, the new source is correctly parsed/normalized, and most new alerts come from a legitimate enterprise automation account. The same PowerShell behavior from normal users should still alert. What is BEST?",
-["A. Disable the detection globally","B. Create a narrowly scoped exception/condition for the legitimate automation account and validate coverage for other users","C. Delete the new source","D. Reduce severity of all PowerShell detections"],
-"B","Narrowly tune the known legitimate behavior while preserving detection coverage elsewhere."]
-];
+        // Main View Renderer
+        function renderView() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
 
-const q2 = [
-["Question 21 — Playbook Transformers",
-"A playbook task returns a JSON object containing multiple URLs. The next task requires URLs in a specific usable format, but the output contains additional fields and nested JSON. What is the most appropriate approach?",
-["A. Rewrite the playbook and manually enter each URL","B. Use a filter/transformer to extract and format required values before passing them to the next task","C. Disable the previous task","D. Convert JSON to plain text and send the entire output"],
-"B","Use filters/transformers to reshape task output into the input expected by the next task."],
+            if (currentMode === 'flashcard') {
+                updateStats();
+                return;
+            }
 
-["Question 22 — !totable",
-"A playbook task produces a JSON result containing a list of objects. You want to transform that JSON output into a table format. Which command from the exam notes is associated with this operation?",
-["A. !setParentIncidentFields","B. !totable","C. !filter","D. !parsejson"],
-"B","JSON/list output → table is associated in the study notes with !totable."],
+            const filteredQuestions = questionsData.filter(q => {
+                if (currentMode === 'exam') return true; // Show all in exam mode
+                if (currentFilter === 'all') return true;
+                return q.domainId === currentFilter;
+            });
 
-["Question 23 — Parent Incident",
-"A playbook operates on a child incident linked to a parent incident. You need to update fields on the parent incident from within the playbook. Which command from the notes is associated with this?",
-["A. !totable","B. !setParentIncidentFields","C. !updateChildIncident","D. !setIncidentLayout"],
-"B","The study note associates !setParentIncidentFields with updating parent incident fields."],
+            filteredQuestions.forEach((q) => {
+                const isAnswered = userAnswers.hasOwnProperty(q.id);
+                const selectedIdx = userAnswers[q.id];
+                const isCorrect = isAnswered && selectedIdx === q.answer;
 
-["Question 24 — Multiple URLs",
-"A third-party integration returns 20 URLs, but the playbook only processes the first few. The URLs are present in the task output, so the problem is not the API response itself. What should you investigate FIRST?",
-["A. Whether the playbook task has an execution/time limit or output-processing limitation","B. Whether the XDR Agent is connected","C. Whether incident severity is too low","D. Whether the Data Lake has sufficient storage"],
-"A","Because the data is already in task output, investigate playbook execution/output handling, limits, filtering, or timeout behavior."],
+                const showResult = currentMode === 'practice' && isAnswered;
 
-["Question 25 — Cytool",
-"An engineer is troubleshooting an endpoint and needs the Cortex XDR Agent's local command-line utility to investigate or manage agent policy-related information. Which tool should they think of?",
-["A. XQL","B. Cytool","C. !totable","D. Data Modeling Rules"],
-"B","The study notes associate Cytool with local Cortex XDR Agent command-line policy/query operations."],
+                const card = document.createElement('div');
+                card.className = `bg-gray-900 border rounded-xl p-6 transition-all duration-200 ${
+                    showResult 
+                        ? (isCorrect ? 'border-emerald-500/50 bg-emerald-950/10' : 'border-rose-500/50 bg-rose-950/10')
+                        : 'border-gray-800 hover:border-gray-700'
+                }`;
 
-["Question 26 — RBAC & Scope",
-"An analyst should retain general analyst capabilities but only access incidents/data for a particular organizational scope. Which concept is most relevant?",
-["A. Parsing rules","B. Scope-based access control","C. Scoring rules","D. Data modeling rules"],
-"B","Scope-based access control restricts what data/scope a user can access while preserving applicable role capabilities."],
+                let badgeClass = "bg-sky-500/10 text-sky-400 border-sky-500/30";
+                if(q.domainId === 2) badgeClass = "bg-indigo-500/10 text-indigo-400 border-indigo-500/30";
+                if(q.domainId === 3) badgeClass = "bg-purple-500/10 text-purple-400 border-purple-500/30";
+                if(q.domainId === 4) badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/30";
 
-["Question 27 — Scoring Rules",
-"A security team wants to prioritize incidents based on severity and characteristics of detected activity. They want to change prioritization rather than how raw logs are parsed. Which capability is most relevant?",
-["A. Parsing rules","B. Data modeling rules","C. Scoring rules","D. Alert layout"],
-"C","Scoring rules relate to incident/finding prioritization, while parsing and data modeling handle data processing."],
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    let btnStyle = "bg-gray-800/60 border-gray-700 hover:bg-gray-800 hover:border-sky-500 text-gray-200";
+                    
+                    if (isAnswered) {
+                        if (currentMode === 'practice') {
+                            if (optIdx === q.answer) {
+                                btnStyle = "bg-emerald-900/40 border-emerald-500 text-emerald-200 font-semibold";
+                            } else if (optIdx === selectedIdx) {
+                                btnStyle = "bg-rose-900/40 border-rose-500 text-rose-200 font-semibold";
+                            } else {
+                                btnStyle = "bg-gray-800/30 border-gray-800 text-gray-500 opacity-50";
+                            }
+                        } else {
+                            // Exam Mode: simple selected highlight
+                            if (optIdx === selectedIdx) {
+                                btnStyle = "bg-sky-900/50 border-sky-500 text-sky-200 font-semibold";
+                            }
+                        }
+                    }
 
-["Question 28 — Alert & Incident Layout",
-"Analysts complain that an important alert does not display fields needed for rapid triage. The underlying data is present and correctly normalized. What should the Engineer modify?",
-["A. Parsing rules","B. Data modeling rules","C. Incident and alert layout","D. Scoring rules"],
-"C","If the data exists and is normalized but is not displayed, the issue is presentation/layout."],
+                    optionsHTML += `
+                        <button 
+                            onclick="selectAnswer(${q.id}, ${optIdx})"
+                            class="w-full text-left p-3.5 rounded-lg border text-sm transition-all duration-150 flex items-start space-x-3 ${btnStyle}">
+                            <span class="font-mono text-xs px-2 py-0.5 rounded bg-black/30 border border-white/10 mt-0.5">${String.fromCharCode(65 + optIdx)}</span>
+                            <span class="flex-1">${opt}</span>
+                        </button>
+                    `;
+                });
 
-["Question 29 — Exceptions vs Exclusions",
-"A detection generates false positives from a known legitimate application. You want to suppress the known legitimate behavior while preserving the detection for other applications and users. Which area should you investigate?",
-["A. Exception/exclusion configuration","B. Data modeling rules","C. Alert layout","D. Scoring rules"],
-"A","Use appropriately scoped exception/exclusion configuration to reduce known noise without globally weakening the detection."],
+                let explanationHTML = '';
+                if (showResult) {
+                    explanationHTML = `
+                        <div class="mt-4 p-4 rounded-lg bg-black/40 border border-gray-800 text-xs space-y-2">
+                            <div class="flex items-center space-x-2 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
+                                <span>${isCorrect ? '✓ Correct Answer' : '✕ Incorrect Answer'}</span>
+                            </div>
+                            <p class="text-gray-300 leading-relaxed"><strong class="text-gray-200">Technical Rationale:</strong> ${q.explanation}</p>
+                        </div>
+                    `;
+                }
 
-["Question 30 — Data Modeling",
-"A new data source sends logs successfully. The parsing rule extracts source_ip correctly, but the field does not appear in the expected normalized XDM field used by detections. What should the Engineer do?",
-["A. Modify alert layout","B. Deploy/correct the data modeling rule so the parsed field maps to the appropriate XDM field","C. Increase incident score","D. Create an exception for the data source"],
-"B","Parsing extracts the value; data modeling maps it into the normalized XDM field used downstream."]
-];
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-md border ${badgeClass}">
+                            ${q.domainName}
+                        </span>
+                        <span class="text-xs font-mono text-gray-500">Q${q.id} of 80</span>
+                    </div>
+                    <h3 class="text-base font-medium text-gray-100 mb-4 leading-relaxed">${q.question}</h3>
+                    <div class="space-y-2.5">
+                        ${optionsHTML}
+                    </div>
+                    ${explanationHTML}
+                `;
 
-function render(list, id, start) {
-  document.getElementById(id).innerHTML = list.map((x,i) => `
-    <article class="q">
-      <h3>${x[0]}</h3>
-      <div class="question">${x[1]}</div>
-      <ol class="options" type="A">${x[2].map(o=>`<li>${o.replace(/^[A-D]\.\s*/,'')}</li>`).join('')}</ol>
-      <details>
-        <summary>Show answer & explanation</summary>
-        <div class="answer"><strong>Answer: ${x[3]}</strong><div class="tip">${x[4]}</div></div>
-      </details>
-    </article>`).join('');
-}
-render(q1,"questions",1);
-render(q2,"targeted",21);
-</script>
+                container.appendChild(card);
+            });
+
+            updateStats();
+        }
+
+        // Handle Selecting Answer
+        function selectAnswer(questionId, selectedIdx) {
+            userAnswers[questionId] = selectedIdx;
+            saveState();
+            renderView();
+        }
+
+        // Domain Filter
+        function filterDomain(domainId) {
+            currentFilter = domainId;
+            ['all', 1, 2, 3, 4].forEach(id => {
+                const btn = document.getElementById(`btn-filter-${id}`);
+                if (id === domainId) {
+                    btn.className = "px-3 py-1.5 rounded-md border border-sky-500 bg-sky-500/20 text-sky-300 font-medium transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-md border border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600 transition";
+                }
+            });
+            renderView();
+        }
+
+        // Flashcard Logic
+        let isCardFlipped = false;
+
+        function renderFlashcard() {
+            const q = questionsData[currentFlashcardIdx];
+            document.getElementById('fc-domain').innerText = q.domainName;
+            document.getElementById('fc-counter').innerText = `Card ${currentFlashcardIdx + 1} of 80`;
+
+            const contentElem = document.getElementById('fc-content');
+            if (!isCardFlipped) {
+                contentElem.innerHTML = `
+                    <p class="text-xs font-mono uppercase text-sky-400 mb-2">Question Prompt</p>
+                    <p>${q.question}</p>
+                `;
+            } else {
+                contentElem.innerHTML = `
+                    <p class="text-xs font-mono uppercase text-emerald-400 mb-2">Correct Answer & Explanation</p>
+                    <p class="font-semibold text-emerald-300 mb-2">${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}</p>
+                    <p class="text-xs text-gray-300 leading-relaxed">${q.explanation}</p>
+                `;
+            }
+        }
+
+        function flipFlashcard() {
+            isCardFlipped = !isCardFlipped;
+            renderFlashcard();
+        }
+
+        function nextFlashcard() {
+            isCardFlipped = false;
+            currentFlashcardIdx = (currentFlashcardIdx + 1) % questionsData.length;
+            renderFlashcard();
+        }
+
+        function prevFlashcard() {
+            isCardFlipped = false;
+            currentFlashcardIdx = (currentFlashcardIdx - 1 + questionsData.length) % questionsData.length;
+            renderFlashcard();
+        }
+
+        // Submit Exam Modal / Report
+        function submitExam() {
+            stopTimer();
+            const totalAnswered = Object.keys(userAnswers).length;
+            let correctCount = 0;
+
+            questionsData.forEach(q => {
+                if (userAnswers[q.id] === q.answer) correctCount++;
+            });
+
+            const scorePct = Math.round((correctCount / questionsData.length) * 100);
+            const passed = scorePct >= 70;
+
+            alert(`EXAM RESULT:\n\nScore: ${scorePct}%\nCorrect: ${correctCount} / 80\nStatus: ${passed ? 'PASSED (Target Grade Achieved)' : 'FAILED (70% Passing Score Required)'}`);
+            setMode('practice');
+        }
+
+        // Statistics Engine
+        function updateStats() {
+            const totalAnswered = Object.keys(userAnswers).length;
+            let correctCount = 0;
+
+            const domainStats = {
+                1: { correct: 0, total: 0 },
+                2: { correct: 0, total: 0 },
+                3: { correct: 0, total: 0 },
+                4: { correct: 0, total: 0 }
+            };
+
+            Object.keys(userAnswers).forEach(qId => {
+                const question = questionsData.find(q => q.id === parseInt(qId));
+                if (!question) return;
+                const isCorrect = userAnswers[qId] === question.answer;
+                
+                domainStats[question.domainId].total++;
+                if (isCorrect) {
+                    correctCount++;
+                    domainStats[question.domainId].correct++;
+                }
+            });
+
+            const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+            document.getElementById('stat-answered').innerText = `${totalAnswered} / 80`;
+            document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+
+            const statusElem = document.getElementById('stat-status');
+            if (totalAnswered === 0) {
+                statusElem.innerText = 'N/A';
+                statusElem.className = 'text-2xl font-bold text-gray-400 mt-1';
+            } else if (accuracy >= 70) {
+                statusElem.innerText = 'Passing';
+                statusElem.className = 'text-2xl font-bold text-emerald-400 mt-1';
+            } else {
+                statusElem.innerText = 'Needs Work';
+                statusElem.className = 'text-2xl font-bold text-rose-400 mt-1';
+            }
+
+            // Find lowest scoring domain
+            let lowestDomain = null;
+            let lowestScore = 101;
+
+            for (let d = 1; d <= 4; d++) {
+                if (domainStats[d].total > 0) {
+                    const domainAcc = (domainStats[d].correct / domainStats[d].total) * 100;
+                    if (domainAcc < lowestScore) {
+                        lowestScore = domainAcc;
+                        lowestDomain = d;
+                    }
+                }
+            }
+
+            const focusElem = document.getElementById('stat-focus');
+            if (lowestDomain === null) {
+                focusElem.innerText = "Start Answering Questions";
+                focusElem.className = "text-xs font-semibold text-amber-400 mt-2 truncate";
+            } else {
+                const domainNames = {
+                    1: "D1: Planning & Install",
+                    2: "D2: Integration & Automate",
+                    3: "D3: Content Optimization",
+                    4: "D4: Maintenance & TS"
+                };
+                focusElem.innerText = `${domainNames[lowestDomain]} (${Math.round(lowestScore)}%)`;
+                focusElem.className = lowestScore < 70 ? "text-xs font-semibold text-rose-400 mt-2 truncate" : "text-xs font-semibold text-emerald-400 mt-2 truncate";
+            }
+        }
+
+        // Initialize App on window load
+        window.onload = () => {
+            loadState();
+            renderView();
+        };
+    </script>
 </body>
 </html>
