@@ -1,16 +1,5 @@
 [
   {
-    "timestamp": "2026-09-06T22:00:32.915Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:TAOUSDT",
-    "price": 265.9,
-    "stop": 266.97,
-    "entry": 269.67,
-    "pnlPct": "-1.40",
-    "closeReason": "already_closed"
-  },
-  {
     "timestamp": "2026-09-06T22:00:33.917Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -5690,7 +5679,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-09-06T23:00:32.707Z",
+    "timestamp": "2026-09-06T23:00:31.403Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5786,7 +5775,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5835,7 +5824,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5954,5 +5943,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-06T23:00:31.454Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-06T23:00:31.962Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-06T23:00:31.964Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-06T23:00:33.747Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
