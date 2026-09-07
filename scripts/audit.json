@@ -1,43 +1,5 @@
 [
   {
-    "timestamp": "2026-09-07T05:05:35.261Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 17
-  },
-  {
-    "timestamp": "2026-09-07T05:05:35.699Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 6,
-    "positionsOpened": 6,
-    "recommended": [
-      "XLM",
-      "FET",
-      "GALA"
-    ],
-    "caution": [
-      "XLM",
-      "FET",
-      "GALA",
-      "AVAX",
-      "TAO",
-      "SUI"
-    ]
-  },
-  {
-    "timestamp": "2026-09-07T05:05:35.701Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-07T05:05:38.964Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-09-07T05:07:34.437Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5025,7 +4987,7 @@
     "monitored": 14
   },
   {
-    "timestamp": "2026-09-07T06:05:34.359Z",
+    "timestamp": "2026-09-07T06:05:34.594Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5142,7 +5104,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5170,7 +5132,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5289,5 +5251,92 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-07T06:05:34.643Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-07T06:05:35.081Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-07T06:05:35.083Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-07T06:05:35.084Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TAOUSDT",
+    "sym": "BINANCE:TAOUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-07T06:05:35.088Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-07T06:05:36.490Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 43b4698c41c3e41b1f210806190226b2e8b63c81 but expected 777ed83d0d8e0eac92f639f2dc93f5d8785a4062"
+  },
+  {
+    "timestamp": "2026-09-07T06:05:36.805Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "FET",
+      "SUI",
+      "TAO"
+    ],
+    "caution": [
+      "FET",
+      "SUI",
+      "TAO"
+    ]
+  },
+  {
+    "timestamp": "2026-09-07T06:05:36.807Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-07T06:05:39.679Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
