@@ -1,66 +1,5 @@
 [
   {
-    "timestamp": "2026-09-07T01:20:33.749Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:SUIUSDT",
-    "price": 0.7989,
-    "stop": 0.799326,
-    "entry": 0.8074,
-    "pnlPct": "-1.05",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-09-07T01:20:33.750Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:AVAXUSDT",
-    "price": 7.86,
-    "stop": 7.8732,
-    "entry": 7.9527,
-    "pnlPct": "-1.17",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-09-07T01:20:35.004Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 15
-  },
-  {
-    "timestamp": "2026-09-07T01:20:35.008Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 2,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-09-07T01:20:36.039Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 15,
-    "openAfter": 15,
-    "alerts": 2
-  },
-  {
-    "timestamp": "2026-09-07T01:20:36.043Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "TAOUSDT",
-    "sym": "BINANCE:TAOUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-09-07T01:20:36.047Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-09-07T01:20:37.274Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -5563,7 +5502,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-09-07T02:20:33.350Z",
+    "timestamp": "2026-09-07T02:20:35.175Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5666,7 +5605,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5708,7 +5647,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5827,5 +5766,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-07T02:20:35.237Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-07T02:20:35.590Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-07T02:20:35.592Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-07T02:20:37.071Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
