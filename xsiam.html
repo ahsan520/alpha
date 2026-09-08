@@ -28,7 +28,7 @@ button{border:0;border-radius:9px;padding:9px 13px;cursor:pointer;background:var
 <body>
 <header><div class="header-inner">
 <h1>XSIAM Engineer Exam — Combined (95 Questions)</h1>
-<div class="subtitle">Options verified against the supplied PDF text/images • Select an answer, then reveal</div>
+<div class="subtitle">Options verified against the supplied PDFs • Single-answer and two-answer questions supported • Select, then reveal</div>
 </div></header>
 <div class="controls">
 <input id="search" type="search" placeholder="Search questions, options, or answers…">
@@ -47,38 +47,33 @@ const IMAGES={"9":{"data":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2w
 const visualIds=new Set([9,18,22,37,43,45,46,67,89]);
 let state={},working=[...QUESTIONS];
 const root=document.getElementById('questions'),search=document.getElementById('search'),filter=document.getElementById('filter'),stats=document.getElementById('stats');
-
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function status(q){const s=state[q.id];if(!s)return'unanswered';if(!s.revealed)return'answered';return s.selected===q.answer?'correct':'wrong'}
-function matches(q){
- const t=search.value.trim().toLowerCase(),all=(q.question+' '+Object.values(q.options).join(' ')+' '+q.answer).toLowerCase();
- return (!t||all.includes(t))&&(filter.value==='all'||status(q)===filter.value);
-}
+function esc(s){return String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+function answers(q){return q.answer.split('').filter(x=>'ABCD'.includes(x))}
+function status(q){const s=state[q.id];if(!s||!s.selected?.length)return'unanswered';if(!s.revealed)return'answered';const a=answers(q),sel=[...s.selected].sort(),cor=[...a].sort();return sel.length===cor.length&&sel.join('')===cor.join('')?'correct':'wrong'}
+function matches(q){const t=search.value.trim().toLowerCase(),all=(q.question+' '+Object.values(q.options).join(' ')+' '+q.answer).toLowerCase();return(!t||all.includes(t))&&(filter.value==='all'||status(q)===filter.value)}
 function render(){
- const visible=working.filter(matches);
- const rev=QUESTIONS.filter(q=>state[q.id]?.revealed).length;
- const cor=QUESTIONS.filter(q=>status(q)==='correct').length;
- const wr=QUESTIONS.filter(q=>status(q)==='wrong').length;
+ const visible=working.filter(matches),rev=QUESTIONS.filter(q=>state[q.id]?.revealed).length,cor=QUESTIONS.filter(q=>status(q)==='correct').length,wr=QUESTIONS.filter(q=>status(q)==='wrong').length;
  stats.textContent=`${visible.length} shown • ${QUESTIONS.length} total • ${rev} revealed • ${cor} correct • ${wr} wrong`;
  if(!visible.length){root.innerHTML='<div class="empty">No questions match your filter.</div>';return}
  root.innerHTML=visible.map(q=>{
-  const s=state[q.id]||{},selected=s.selected,revealed=!!s.revealed;
+  const s=state[q.id]||{},selected=s.selected||[],revealed=!!s.revealed,correctAnswers=answers(q),multi=correctAnswers.length>1;
   const img=IMAGES[String(q.id)]?`<div class="visual"><div class="visual-label">Original PDF question image</div><img src="${IMAGES[String(q.id)].data}" alt="Original PDF question image for Q${q.id}"></div>`:'';
   const opts=Object.entries(q.options).map(([k,v])=>{
-   let cls='option';if(selected===k)cls+=' selected';if(revealed&&k===q.answer)cls+=' correct';if(revealed&&selected===k&&k!==q.answer)cls+=' wrong';
+   let cls='option';if(selected.includes(k))cls+=' selected';if(revealed&&correctAnswers.includes(k))cls+=' correct';if(revealed&&selected.includes(k)&&!correctAnswers.includes(k))cls+=' wrong';
    const isCode=/^(dataset|preset)\s*=|^\|/.test(v);
    return `<div class="${cls}" data-option="${k}"><strong>${k}.</strong><span class="${isCode?'code':''}">${esc(v)}</span></div>`;
   }).join('');
   let fb='';
-  if(revealed) fb=selected===q.answer?'<span class="feedback good">✓ Correct</span>':`<span class="feedback bad">✗ Wrong — correct answer: ${esc(q.answer)}</span>`;
-  else if(selected) fb=`<span class="feedback">Selected: ${esc(selected)}</span>`;
-  return `<section class="card" data-id="${q.id}"><div class="qhead"><span class="qnum">Q${q.id}</span>${esc(q.question)}</div>${img}<div class="options">${opts}</div><div class="reveal-row"><button class="revealBtn" ${selected?'':'disabled'}>${revealed?'Hide result':'Reveal answer'}</button>${fb}</div></section>`;
+  if(revealed) fb=status(q)==='correct'?'<span class="feedback good">✓ Correct</span>':`<span class="feedback bad">✗ Wrong — correct answer: ${esc(correctAnswers.join(' + '))}</span>`;
+  else if(selected.length) fb=`<span class="feedback">Selected: ${esc(selected.join(', '))}${multi?' — choose '+correctAnswers.length:''}</span>`;
+  const buttonDisabled=selected.length!==correctAnswers.length;
+  return `<section class="card" data-id="${q.id}"><div class="qhead"><span class="qnum">Q${q.id}</span>${esc(q.question)}${multi?'<div style="font-size:12px;color:#687386;font-weight:500;margin-top:5px">Choose '+correctAnswers.length+' answers</div>':''}</div>${img}<div class="options">${opts}</div><div class="reveal-row"><button class="revealBtn" ${buttonDisabled?'disabled':''}>${revealed?'Hide result':'Reveal answer'}</button>${fb}</div></section>`;
  }).join('');
- root.querySelectorAll('.option').forEach(el=>el.onclick=()=>{const id=+el.closest('.card').dataset.id;if(state[id]?.revealed)return;state[id]={selected:el.dataset.option,revealed:false};render()});
+ root.querySelectorAll('.option').forEach(el=>el.onclick=()=>{const id=+el.closest('.card').dataset.id;if(state[id]?.revealed)return;const q=QUESTIONS.find(x=>x.id===id),key=el.dataset.option,multi=answers(q).length>1;let sel=state[id]?.selected||[];if(multi){sel=sel.includes(key)?sel.filter(x=>x!==key):[...sel,key]}else{sel=[key]}state[id]={selected:sel,revealed:false};render()});
  root.querySelectorAll('.revealBtn').forEach(b=>b.onclick=()=>{const id=+b.closest('.card').dataset.id;if(!state[id]?.selected)return;state[id].revealed=!state[id].revealed;render()});
 }
 search.oninput=render;filter.onchange=render;
-document.getElementById('revealVisible').onclick=()=>{working.filter(matches).forEach(q=>{if(state[q.id]?.selected)state[q.id].revealed=true});render()};
+document.getElementById('revealVisible').onclick=()=>{working.filter(matches).forEach(q=>{if(state[q.id]?.selected?.length===answers(q).length)state[q.id].revealed=true});render()};
 document.getElementById('reset').onclick=()=>{state={};render()};
 document.getElementById('shuffle').onclick=()=>{for(let i=working.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[working[i],working[j]]=[working[j],working[i]]}render()};
 render();
