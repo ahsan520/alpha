@@ -4845,7 +4845,7 @@
     "monitored": 5
   },
   {
-    "timestamp": "2026-09-09T04:10:40.942Z",
+    "timestamp": "2026-09-09T04:10:41.899Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -4920,7 +4920,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4934,7 +4934,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4962,7 +4962,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4983,14 +4983,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 11,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5109,5 +5109,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-09T04:10:41.957Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-09T04:10:43.524Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 3986308246251a177e9e829529b1b0e37973be6f but expected 2315b93c25e986f8f00e65251c02df98fb167acd"
+  },
+  {
+    "timestamp": "2026-09-09T04:10:43.526Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 5,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-09T04:10:43.528Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-09T04:10:43.532Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-09T04:10:43.533Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-09T04:10:45.594Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
