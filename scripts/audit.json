@@ -5434,7 +5434,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-09T05:35:36.407Z",
+    "timestamp": "2026-09-09T05:35:32.991Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 39,
@@ -5460,14 +5460,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5481,7 +5481,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5509,7 +5509,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5537,7 +5537,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5551,7 +5551,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5572,7 +5572,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5698,5 +5698,130 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-09T05:35:33.053Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-09T05:35:33.378Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.8147,
+    "stop": 0.817641,
+    "entry": 0.8259,
+    "pnlPct": "-1.36",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-09T05:35:33.380Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1221.4,
+    "stop": 1239.47,
+    "entry": 1251.99,
+    "pnlPct": "-2.44",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-09T05:35:33.383Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 7.99,
+    "stop": 7.9925,
+    "entry": 8.0732,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-09T05:35:34.359Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-09-09T05:35:34.364Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 3,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-09T05:35:35.273Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 15,
+    "openAfter": 15,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-09-09T05:35:35.276Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-09T05:35:35.280Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-09T05:35:35.281Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-09T05:35:36.605Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 12
+  },
+  {
+    "timestamp": "2026-09-09T05:35:38.305Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "pair": "DOGE",
+    "price": 0.09009,
+    "entry": 0.091,
+    "stop": 0.09009,
+    "pnlPct": "-1.00"
+  },
+  {
+    "timestamp": "2026-09-09T05:35:40.981Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 15
+  },
+  {
+    "timestamp": "2026-09-09T05:35:41.955Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 15,
+    "statusChanged": true
   }
 ]
