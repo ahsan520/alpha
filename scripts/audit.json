@@ -1,34 +1,5 @@
 [
   {
-    "timestamp": "2026-09-10T16:25:53.189Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-10T16:25:53.207Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-10T16:25:53.209Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-10T16:25:54.653Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
     "timestamp": "2026-09-10T16:27:25.508Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5532,7 +5503,7 @@
     "monitored": 0
   },
   {
-    "timestamp": "2026-09-10T17:25:50.468Z",
+    "timestamp": "2026-09-10T17:25:54.709Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 40,
@@ -5814,5 +5785,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-10T17:25:54.786Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-10T17:25:55.406Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-10T17:25:55.424Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-10T17:25:55.719Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-10T17:25:57.565Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 0,
+    "monitored": 0
   }
 ]
