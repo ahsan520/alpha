@@ -6302,7 +6302,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-09-11T22:26:01.792Z",
+    "timestamp": "2026-09-11T22:26:01.656Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 40,
@@ -6328,7 +6328,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6398,7 +6398,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6412,7 +6412,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6440,7 +6440,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6572,5 +6572,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-11T22:26:01.710Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-11T22:26:02.040Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-11T22:26:02.043Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-11T22:26:02.045Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-11T22:26:03.644Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
