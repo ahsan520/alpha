@@ -4452,7 +4452,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-09-13T05:55:38.913Z",
+    "timestamp": "2026-09-13T05:55:40.466Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 40,
@@ -4464,7 +4464,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4492,7 +4492,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4597,7 +4597,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4722,5 +4722,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-13T05:55:40.530Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-13T05:55:43.853Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-13T05:55:43.857Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-09-13T05:55:43.862Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-13T05:55:50.406Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-09-13T05:55:50.825Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AAVE"
+    ],
+    "caution": [
+      "AAVE"
+    ]
+  },
+  {
+    "timestamp": "2026-09-13T05:55:50.826Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-13T05:55:52.960Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
