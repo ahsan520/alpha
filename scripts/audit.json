@@ -1,68 +1,5 @@
 [
   {
-    "timestamp": "2026-09-14T20:30:35.365Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-09-14T20:30:35.367Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 19,
-    "openAfter": 18,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-14T20:30:35.370Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "SOLUSDT",
-    "sym": "BINANCE:SOLUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-09-14T20:30:35.375Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-14T20:30:36.534Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-09-14T20:30:36.797Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "SOL"
-    ],
-    "caution": [
-      "SOL"
-    ]
-  },
-  {
-    "timestamp": "2026-09-14T20:30:36.799Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-14T20:30:39.377Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 19,
-    "monitored": 19
-  },
-  {
     "timestamp": "2026-09-14T20:35:28.694Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6047,7 +5984,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-09-14T21:30:34.098Z",
+    "timestamp": "2026-09-14T21:30:35.861Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -6150,7 +6087,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6185,14 +6122,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6329,5 +6266,84 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-14T21:30:35.926Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-14T21:30:37.343Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at a71cf9d14ea85b15cdd77bae2afa23d5e6dd95e6 but expected 76779edc20928d135635633dcc8f67fea2a8ddb0"
+  },
+  {
+    "timestamp": "2026-09-14T21:30:37.345Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-14T21:30:37.350Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-14T21:30:37.355Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T21:30:38.233Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-09-14T21:30:38.502Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SOL"
+    ],
+    "caution": [
+      "SOL"
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T21:30:38.504Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-14T21:30:41.030Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
