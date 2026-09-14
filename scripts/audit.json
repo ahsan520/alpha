@@ -6158,7 +6158,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-09-14T23:35:35.683Z",
+    "timestamp": "2026-09-14T23:35:34.380Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -6205,7 +6205,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6303,7 +6303,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6440,5 +6440,79 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-14T23:35:34.447Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-14T23:35:35.791Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-09-14T23:35:35.792Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-14T23:35:35.796Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-14T23:35:35.798Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-14T23:35:37.142Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
+  },
+  {
+    "timestamp": "2026-09-14T23:35:39.364Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:LINKUSDT",
+    "pair": "LINK",
+    "price": 11.53,
+    "entry": 11.65,
+    "stop": 11.53,
+    "pnlPct": "-1.03"
+  },
+  {
+    "timestamp": "2026-09-14T23:35:41.398Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 13
+  },
+  {
+    "timestamp": "2026-09-14T23:35:42.301Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 13,
+    "statusChanged": true
   }
 ]
