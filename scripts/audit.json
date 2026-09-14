@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-09-14T15:45:35.235Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at a4301e57f63e3ead664c1de5c57cc83b17a6ded6 but expected d2a09d84a76831a4ad9a2b6748621a22d6bab79e"
-  },
-  {
-    "timestamp": "2026-09-14T15:45:35.237Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 12,
-    "openAfter": 12,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-14T15:45:35.257Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-14T15:45:35.258Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-09-14T15:45:37.227Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5941,7 +5916,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-14T16:45:33.422Z",
+    "timestamp": "2026-09-14T16:45:33.802Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -6044,7 +6019,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6079,7 +6054,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6235,5 +6210,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-14T16:45:33.861Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-14T16:45:34.319Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-14T16:45:34.321Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-14T16:45:36.454Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
