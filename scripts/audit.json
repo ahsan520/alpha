@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-14T19:55:37.859Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-09-14T20:01:00.558Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5615,7 +5608,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-14T20:55:36.182Z",
+    "timestamp": "2026-09-14T20:55:40.469Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -5641,21 +5634,21 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5690,7 +5683,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5711,14 +5704,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5753,14 +5746,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5897,5 +5890,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-14T20:55:40.533Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-14T20:55:41.032Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:LINKUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-14T20:55:42.517Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-09-14T20:55:42.519Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 15,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-14T20:55:42.524Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-14T20:55:42.526Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-14T20:55:44.472Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
