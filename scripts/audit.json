@@ -5849,7 +5849,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-09-14T23:40:34.157Z",
+    "timestamp": "2026-09-14T23:40:35.254Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -5994,7 +5994,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6131,5 +6131,120 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-14T23:40:35.320Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-14T23:40:38.867Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-14T23:40:38.870Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 2.47,
+    "stop": 2.47,
+    "entry": 2.4949,
+    "pnlPct": "-1.00",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-14T23:40:39.962Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 12
+  },
+  {
+    "timestamp": "2026-09-14T23:40:39.967Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-14T23:40:40.273Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 12,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-14T23:40:40.277Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-14T23:40:40.278Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XRPUSDT",
+    "sym": "BINANCE:XRPUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-14T23:40:40.283Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T23:40:41.291Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-09-14T23:40:41.614Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "XRP",
+      "ETH"
+    ],
+    "caution": [
+      "XRP",
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-09-14T23:40:41.616Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-14T23:40:44.469Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 12
   }
 ]
