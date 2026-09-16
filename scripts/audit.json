@@ -5553,7 +5553,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-09-16T13:35:50.324Z",
+    "timestamp": "2026-09-16T13:35:51.890Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 42,
@@ -5579,7 +5579,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5600,7 +5600,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5628,7 +5628,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5649,7 +5649,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5670,7 +5670,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5691,14 +5691,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5847,5 +5847,128 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-16T13:35:51.956Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-16T13:35:52.278Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:XDIV.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-09-16T13:35:52.281Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "TSX:ETHY.TO",
+    "price": 1.4900000095367432,
+    "stop": 1.4909,
+    "entry": 1.506,
+    "pnlPct": "-1.06",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-16T13:35:53.193Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at f862857cd0c4c8bf03acb9e8fac0254870ae363d but expected 513954f3b324e10ca8a5f74aaa3ac891fdd253bc"
+  },
+  {
+    "timestamp": "2026-09-16T13:35:53.199Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-16T13:35:54.152Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 1,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-16T13:35:54.155Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-16T13:35:54.172Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TXF.TO",
+    "sym": "TSX:TXF.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-16T13:35:54.174Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XDIV.TO",
+    "sym": "TSX:XDIV.TO",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-16T13:35:54.179Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-16T13:35:55.204Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 3
+  },
+  {
+    "timestamp": "2026-09-16T13:35:55.458Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "TXF",
+      "XDIV"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-09-16T13:35:55.459Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-16T13:35:58.281Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 2
   }
 ]
