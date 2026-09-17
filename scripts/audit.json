@@ -1,31 +1,5 @@
 [
   {
-    "timestamp": "2026-09-17T16:05:33.868Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 22,
-    "openAfter": 22,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-09-17T16:05:33.887Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-17T16:05:33.889Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-17T16:05:35.713Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 22,
-    "monitored": 22
-  },
-  {
     "timestamp": "2026-09-17T16:07:29.597Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5970,7 +5944,7 @@
     "monitored": 22
   },
   {
-    "timestamp": "2026-09-17T17:05:33.591Z",
+    "timestamp": "2026-09-17T17:05:31.793Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6010,7 +5984,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6031,7 +6005,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6275,5 +6249,84 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-17T17:05:31.856Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-17T17:05:32.386Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 128.79,
+    "t1": 127.59,
+    "liveConv": 11,
+    "liveBullConf": 0,
+    "pnlPct": "3.55",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-17T17:05:32.390Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.1696,
+    "t1": 0.1683,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "3.35",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-17T17:05:33.733Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 22
+  },
+  {
+    "timestamp": "2026-09-17T17:05:33.738Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-17T17:05:34.438Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 22,
+    "openAfter": 22,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-17T17:05:34.457Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-17T17:05:34.459Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-17T17:05:35.990Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 22,
+    "monitored": 22
   }
 ]
