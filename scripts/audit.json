@@ -6702,7 +6702,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-09-17T14:10:32.244Z",
+    "timestamp": "2026-09-17T14:10:30.309Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 43,
@@ -6756,7 +6756,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6777,7 +6777,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6805,7 +6805,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7002,5 +7002,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-17T14:10:30.382Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-17T14:10:30.793Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "BTCUSDT",
+    "sym": "BINANCE:BTCUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-17T14:10:30.796Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-17T14:10:30.801Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-17T14:10:32.001Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-09-17T14:10:32.279Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "BTC",
+      "DOGE"
+    ],
+    "caution": [
+      "BTC",
+      "DOGE"
+    ]
+  },
+  {
+    "timestamp": "2026-09-17T14:10:32.281Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-17T14:10:35.883Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 20
   }
 ]
