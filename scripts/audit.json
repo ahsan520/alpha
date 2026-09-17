@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-09-17T20:20:40.983Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 22
-  },
-  {
-    "timestamp": "2026-09-17T20:20:40.986Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 23,
-    "openAfter": 22,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-17T20:20:40.991Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-17T20:20:40.993Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-17T20:20:42.828Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 22,
-    "monitored": 22
-  },
-  {
     "timestamp": "2026-09-17T20:25:32.977Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6222,7 +6190,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-17T21:20:40.601Z",
+    "timestamp": "2026-09-17T21:20:41.686Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6367,7 +6335,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6516,5 +6484,65 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-17T21:20:41.756Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-17T21:20:42.120Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-17T21:20:42.126Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-17T21:20:42.128Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-17T21:20:43.695Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
+  },
+  {
+    "timestamp": "2026-09-17T21:20:50.019Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 20
+  },
+  {
+    "timestamp": "2026-09-17T21:20:51.016Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 1,
+    "remaining": 20,
+    "statusChanged": false
   }
 ]
