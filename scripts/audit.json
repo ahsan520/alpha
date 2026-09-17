@@ -1,40 +1,5 @@
 [
   {
-    "timestamp": "2026-09-16T23:25:36.483Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 4
-  },
-  {
-    "timestamp": "2026-09-16T23:25:36.815Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 3,
-    "positionsOpened": 3,
-    "recommended": [
-      "NEAR",
-      "UNI",
-      "RENDER"
-    ],
-    "caution": [
-      "NEAR",
-      "UNI",
-      "RENDER"
-    ]
-  },
-  {
-    "timestamp": "2026-09-16T23:25:36.817Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-16T23:25:40.283Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 4
-  },
-  {
     "timestamp": "2026-09-16T23:30:42.639Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5739,7 +5704,7 @@
     "monitored": 5
   },
   {
-    "timestamp": "2026-09-17T00:25:35.807Z",
+    "timestamp": "2026-09-17T00:25:38.802Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 43,
@@ -5751,7 +5716,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5772,7 +5737,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5800,7 +5765,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5814,14 +5779,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5849,14 +5814,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5877,14 +5842,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6027,5 +5992,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-17T00:25:38.852Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-17T00:25:42.274Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-17T00:25:43.449Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 4
+  },
+  {
+    "timestamp": "2026-09-17T00:25:43.451Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 4,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-17T00:25:43.453Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-17T00:25:43.457Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-17T00:25:43.458Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-17T00:25:44.864Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
