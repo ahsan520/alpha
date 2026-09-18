@@ -1,31 +1,5 @@
 [
   {
-    "timestamp": "2026-09-18T22:35:36.849Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:AVAXUSDT",
-    "pair": "AVAX",
-    "price": 8.196,
-    "entry": 8.28,
-    "stop": 8.1972,
-    "pnlPct": "-1.01"
-  },
-  {
-    "timestamp": "2026-09-18T22:35:38.197Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 21
-  },
-  {
-    "timestamp": "2026-09-18T22:35:39.222Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 21,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-09-18T22:40:40.677Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4335,7 +4309,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-09-18T23:35:35.497Z",
+    "timestamp": "2026-09-18T23:35:35.386Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4629,5 +4603,91 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T23:35:35.464Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T23:35:38.973Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "tp2_hit"
+  },
+  {
+    "timestamp": "2026-09-18T23:35:40.434Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-09-18T23:35:40.435Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 20,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-18T23:35:40.437Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-09-18T23:35:40.440Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-18T23:35:41.904Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-18T23:35:42.415Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ZEC"
+    ],
+    "caution": [
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-09-18T23:35:42.416Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T23:35:45.216Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
