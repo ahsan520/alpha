@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-09-17T23:35:31.573Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 16,
-    "monitored": 16
-  },
-  {
-    "timestamp": "2026-09-17T23:35:32.010Z",
-    "job": "alert-runner",
-    "action": "t1_hit",
-    "sym": "BINANCE:TAOUSDT",
-    "pair": "TAO",
-    "price": 233.7,
-    "t1": 232.88,
-    "entry": 227,
-    "pnlPct": "2.95"
-  },
-  {
     "timestamp": "2026-09-17T23:35:35.701Z",
     "job": "alert-runner",
     "action": "positions_sweep_start",
@@ -6223,7 +6205,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-09-18T00:35:31.013Z",
+    "timestamp": "2026-09-18T00:35:25.313Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6235,7 +6217,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6298,7 +6280,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6312,7 +6294,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6517,5 +6499,63 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T00:35:25.380Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T00:35:25.808Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-18T00:35:25.814Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T00:35:25.815Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T00:35:27.612Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
+  },
+  {
+    "timestamp": "2026-09-18T00:35:32.854Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 16
+  },
+  {
+    "timestamp": "2026-09-18T00:35:33.942Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_failed",
+    "error": "PUT 409"
   }
 ]
