@@ -5264,7 +5264,7 @@
     "monitored": 24
   },
   {
-    "timestamp": "2026-09-18T07:50:40.849Z",
+    "timestamp": "2026-09-18T07:50:40.880Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5558,5 +5558,98 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T07:50:40.943Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T07:50:41.516Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 246.2,
+    "t1": 246.17,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "2.60",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T07:50:42.808Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 946e8f7cc92efa6ea6e81fbecd69a9c195a7c21e but expected ea34eea33a91f96de5b2361f423e21e50ca52127"
+  },
+  {
+    "timestamp": "2026-09-18T07:50:42.813Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-18T07:50:43.239Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 24,
+    "openAfter": 24,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-18T07:50:43.243Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T07:50:43.245Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T07:50:45.277Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 24,
+    "monitored": 24
+  },
+  {
+    "timestamp": "2026-09-18T07:50:48.894Z",
+    "job": "alert-runner",
+    "action": "t1_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "pair": "TAO",
+    "price": 246.2,
+    "t1": 246.17,
+    "entry": 239.96,
+    "pnlPct": "2.60"
+  },
+  {
+    "timestamp": "2026-09-18T07:50:51.160Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 24
+  },
+  {
+    "timestamp": "2026-09-18T07:50:52.151Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 24,
+    "statusChanged": true
   }
 ]
