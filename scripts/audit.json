@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-09-18T04:45:36.441Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 21
-  },
-  {
-    "timestamp": "2026-09-18T04:45:36.443Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 21,
-    "openAfter": 21,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-18T04:45:36.448Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-18T04:45:36.449Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-18T04:45:38.123Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 21,
-    "monitored": 21
-  },
-  {
     "timestamp": "2026-09-18T04:50:36.266Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5852,7 +5820,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-18T05:45:35.103Z",
+    "timestamp": "2026-09-18T05:45:35.207Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6146,5 +6114,119 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T05:45:35.269Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T05:45:35.829Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.1873,
+    "stop": 0.187308,
+    "entry": 0.1892,
+    "pnlPct": "-1.00",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:35.831Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.662,
+    "stop": 0.668943,
+    "entry": 0.6757,
+    "pnlPct": "-2.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:36.917Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 0a204a6256c1ae35b469a897905192cb6e310689 but expected 8333935d4d5788f9228610bf9b4247a3a99513ea"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:36.922Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-18T05:45:37.839Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 22,
+    "openAfter": 22,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-18T05:45:37.843Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T05:45:37.844Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:39.787Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 22,
+    "monitored": 22
+  },
+  {
+    "timestamp": "2026-09-18T05:45:43.158Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "pair": "XLM",
+    "price": 0.1873,
+    "entry": 0.1892,
+    "stop": 0.187308,
+    "pnlPct": "-1.00"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:44.100Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "pair": "APT",
+    "price": 0.662,
+    "entry": 0.6757,
+    "stop": 0.668943,
+    "pnlPct": "-2.03"
+  },
+  {
+    "timestamp": "2026-09-18T05:45:45.182Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 22
+  },
+  {
+    "timestamp": "2026-09-18T05:45:46.284Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 22,
+    "statusChanged": true
   }
 ]
