@@ -5588,7 +5588,7 @@
     "monitored": 24
   },
   {
-    "timestamp": "2026-09-18T05:20:35.621Z",
+    "timestamp": "2026-09-18T05:20:40.556Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5621,14 +5621,14 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5649,7 +5649,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5670,7 +5670,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5705,7 +5705,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5733,7 +5733,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5882,5 +5882,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T05:20:40.627Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T05:20:41.164Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 3.476,
+    "stop": 3.4828,
+    "entry": 3.518,
+    "pnlPct": "-1.19",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T05:20:42.359Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 24
+  },
+  {
+    "timestamp": "2026-09-18T05:20:42.363Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-18T05:20:42.653Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 24,
+    "openAfter": 24,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-18T05:20:42.659Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T05:20:42.660Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T05:20:44.509Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 24,
+    "monitored": 23
   }
 ]
