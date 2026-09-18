@@ -1,68 +1,5 @@
 [
   {
-    "timestamp": "2026-09-18T12:40:52.896Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 21
-  },
-  {
-    "timestamp": "2026-09-18T12:40:52.898Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 22,
-    "openAfter": 21,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-18T12:40:52.902Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "AVAXUSDT",
-    "sym": "BINANCE:AVAXUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-09-18T12:40:52.907Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-18T12:40:54.413Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 22
-  },
-  {
-    "timestamp": "2026-09-18T12:40:54.723Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "AVAX"
-    ],
-    "caution": [
-      "AVAX"
-    ]
-  },
-  {
-    "timestamp": "2026-09-18T12:40:54.724Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-18T12:40:57.860Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 22,
-    "monitored": 22
-  },
-  {
     "timestamp": "2026-09-18T12:42:32.387Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6085,7 +6022,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-18T13:40:52.885Z",
+    "timestamp": "2026-09-18T13:40:57.141Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6104,28 +6041,28 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6139,14 +6076,14 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6160,7 +6097,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6188,7 +6125,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6202,7 +6139,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6230,7 +6167,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6391,5 +6328,108 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T13:40:57.229Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T13:41:00.747Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "TSX:ETHY.TO",
+    "price": 1.5800000429153442,
+    "t1": 1.5759,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "2.86",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T13:41:00.748Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:BTCUSDT",
+    "price": 79103.05,
+    "t1": 79021.6,
+    "liveConv": 7,
+    "liveBullConf": 0,
+    "pnlPct": "2.70",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T13:41:00.749Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:ETHUSDT",
+    "price": 2533.2,
+    "t1": 2531.04,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "2.68",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T13:41:00.751Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.8098,
+    "t1": 0.8097,
+    "liveConv": 9,
+    "liveBullConf": 0,
+    "pnlPct": "2.61",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T13:41:02.365Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-18T13:41:02.369Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 4,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-18T13:41:03.925Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 4
+  },
+  {
+    "timestamp": "2026-09-18T13:41:04.032Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T13:41:04.032Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T13:41:06.104Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
