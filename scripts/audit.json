@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-09-18T09:05:39.272Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "FET"
-    ],
-    "caution": [
-      "FET"
-    ]
-  },
-  {
-    "timestamp": "2026-09-18T09:05:39.273Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-09-18T09:05:42.002Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5842,7 +5824,7 @@
     "monitored": 24
   },
   {
-    "timestamp": "2026-09-18T10:05:39.151Z",
+    "timestamp": "2026-09-18T10:05:38.177Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5896,7 +5878,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5952,7 +5934,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6136,5 +6118,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T10:05:38.243Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T10:05:38.618Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T10:05:38.620Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T10:05:40.214Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 24,
+    "monitored": 24
   }
 ]
