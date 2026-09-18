@@ -6879,7 +6879,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-18T16:50:26.911Z",
+    "timestamp": "2026-09-18T16:50:27.394Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6926,7 +6926,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6954,7 +6954,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7185,5 +7185,119 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T16:50:27.461Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T16:50:27.875Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:IMXUSDT",
+    "price": 0.1294,
+    "stop": 0.12969,
+    "entry": 0.131,
+    "pnlPct": "-1.22",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:27.877Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.001879,
+    "stop": 0.001881,
+    "entry": 0.0019,
+    "pnlPct": "-1.11",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:29.100Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at f3bbe64e662ec5b5f5da555b3760ad06921a3626 but expected 47143ac31f081ec70bf69928e7ae2aaa8914c2a7"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:29.105Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-18T16:50:30.096Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 22,
+    "openAfter": 22,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-18T16:50:30.115Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T16:50:30.116Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:31.946Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 22,
+    "monitored": 21
+  },
+  {
+    "timestamp": "2026-09-18T16:50:37.227Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:IMXUSDT",
+    "pair": "IMX",
+    "price": 0.1294,
+    "entry": 0.131,
+    "stop": 0.12969,
+    "pnlPct": "-1.22"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:37.896Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "pair": "GALA",
+    "price": 0.001879,
+    "entry": 0.0019,
+    "stop": 0.001881,
+    "pnlPct": "-1.11"
+  },
+  {
+    "timestamp": "2026-09-18T16:50:38.313Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 22
+  },
+  {
+    "timestamp": "2026-09-18T16:50:39.579Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 22,
+    "statusChanged": true
   }
 ]
