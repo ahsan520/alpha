@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-09-18T13:10:46.578Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 24,
-    "monitored": 24
-  },
-  {
-    "timestamp": "2026-09-18T13:10:52.875Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:NEARUSDT",
-    "pair": "NEAR",
-    "price": 3.58,
-    "entry": 3.6184,
-    "stop": 3.5822,
-    "pnlPct": "-1.06"
-  },
-  {
     "timestamp": "2026-09-18T13:10:53.614Z",
     "job": "alert-runner",
     "action": "positions_sweep_start",
@@ -6496,7 +6478,7 @@
     "monitored": 19
   },
   {
-    "timestamp": "2026-09-18T14:10:46.321Z",
+    "timestamp": "2026-09-18T14:10:47.297Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6529,21 +6511,21 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6571,7 +6553,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6613,7 +6595,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6634,7 +6616,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6802,5 +6784,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T14:10:47.366Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T14:10:50.770Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-18T14:10:51.949Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-18T14:10:51.951Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 18,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-18T14:10:51.971Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T14:10:51.972Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T14:10:53.479Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
