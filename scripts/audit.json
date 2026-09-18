@@ -6356,7 +6356,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-18T22:05:35.575Z",
+    "timestamp": "2026-09-18T22:05:35.888Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -6382,7 +6382,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6473,7 +6473,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6650,5 +6650,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-18T22:05:35.943Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-18T22:05:37.496Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at b1e9d8738ed88f23ce629653502869222fd9f350 but expected 65e2e369e3b17a7ce1abd8398ac2018388e179ca"
+  },
+  {
+    "timestamp": "2026-09-18T22:05:37.497Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-18T22:05:37.500Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-18T22:05:37.501Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-18T22:05:39.047Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
