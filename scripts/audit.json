@@ -4605,7 +4605,7 @@
     "monitored": 19
   },
   {
-    "timestamp": "2026-09-19T13:45:36.135Z",
+    "timestamp": "2026-09-19T13:45:58.246Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4617,7 +4617,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4631,7 +4631,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4645,7 +4645,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4659,14 +4659,14 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4687,7 +4687,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4701,14 +4701,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4722,14 +4722,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4743,14 +4743,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4899,109 +4899,5 @@
         "assetType": "stock"
       }
     ]
-  },
-  {
-    "timestamp": "2026-09-19T13:45:36.202Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-09-19T13:45:36.576Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:APTUSDT",
-    "price": 0.729,
-    "stop": 0.729531,
-    "entry": 0.7369,
-    "pnlPct": "-1.07",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-09-19T13:45:36.580Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:UNIUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-09-19T13:45:37.644Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-09-19T13:45:37.648Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-09-19T13:45:38.017Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 20,
-    "openAfter": 19,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-09-19T13:45:38.020Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "UNIUSDT",
-    "sym": "BINANCE:UNIUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-09-19T13:45:38.025Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-19T13:45:38.867Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 20
-  },
-  {
-    "timestamp": "2026-09-19T13:45:39.137Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "UNI"
-    ],
-    "caution": [
-      "UNI"
-    ]
-  },
-  {
-    "timestamp": "2026-09-19T13:45:39.138Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-19T13:45:41.206Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 19
   }
 ]
