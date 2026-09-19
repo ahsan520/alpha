@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-19T21:50:27.055Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 8,
-    "monitored": 8
-  },
-  {
     "timestamp": "2026-09-19T21:52:56.778Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4834,7 +4827,7 @@
     "monitored": 11
   },
   {
-    "timestamp": "2026-09-19T22:50:26.862Z",
+    "timestamp": "2026-09-19T22:50:27.999Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4860,7 +4853,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5128,5 +5121,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-19T22:50:28.065Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-19T22:50:28.493Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-19T22:50:28.495Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-19T22:50:30.112Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
