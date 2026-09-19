@@ -4108,7 +4108,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-19T12:15:34.543Z",
+    "timestamp": "2026-09-19T12:15:28.837Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4141,7 +4141,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4232,7 +4232,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4253,7 +4253,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4402,5 +4402,65 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-19T12:15:28.892Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-19T12:15:29.390Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-19T12:15:29.392Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-19T12:15:31.433Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
+  },
+  {
+    "timestamp": "2026-09-19T12:15:35.308Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 0.8574,
+    "entry": 0.8666,
+    "stop": 0.857934,
+    "pnlPct": "-1.06"
+  },
+  {
+    "timestamp": "2026-09-19T12:15:37.114Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 21
+  },
+  {
+    "timestamp": "2026-09-19T12:15:38.269Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 21,
+    "statusChanged": true
   }
 ]
