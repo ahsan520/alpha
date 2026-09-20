@@ -1,83 +1,5 @@
 [
   {
-    "timestamp": "2026-09-20T17:30:30.897Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:AAVEUSDT",
-    "price": 135.76,
-    "stop": 136.12,
-    "entry": 137.49,
-    "pnlPct": "-1.26",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-09-20T17:30:30.900Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:LINKUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-09-20T17:30:30.902Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:SUIUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-09-20T17:30:30.903Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:FETUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-09-20T17:30:30.906Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:RENDERUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-09-20T17:30:32.483Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-09-20T17:30:32.488Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-09-20T17:30:32.917Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 14,
-    "openAfter": 10,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-09-20T17:30:32.921Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "AVAXUSDT",
-    "sym": "BINANCE:AVAXUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-09-20T17:30:32.925Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-09-20T17:30:34.267Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -5825,7 +5747,7 @@
     "monitored": 11
   },
   {
-    "timestamp": "2026-09-20T18:30:30.127Z",
+    "timestamp": "2026-09-20T18:30:30.902Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5837,7 +5759,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5851,7 +5773,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5872,14 +5794,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5900,7 +5822,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5928,7 +5850,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5963,14 +5885,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6119,5 +6041,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-20T18:30:30.963Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-20T18:30:31.459Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-20T18:30:31.460Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-20T18:30:33.322Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
