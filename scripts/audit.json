@@ -4909,7 +4909,7 @@
     "monitored": 11
   },
   {
-    "timestamp": "2026-09-20T02:40:24.548Z",
+    "timestamp": "2026-09-20T02:40:25.270Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5026,7 +5026,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5203,5 +5203,97 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-20T02:40:25.332Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-20T02:40:25.654Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ETHUSDT",
+    "price": 2607.21,
+    "stop": 2608.19,
+    "entry": 2634.54,
+    "pnlPct": "-1.04",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-20T02:40:26.514Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 6efa11e53786699524477ea1424fd9a45edd3f5c but expected e72166b7dd14215a6239ff359b0aaa27a6a41eda"
+  },
+  {
+    "timestamp": "2026-09-20T02:40:26.520Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-20T02:40:26.893Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 12,
+    "openAfter": 12,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-20T02:40:26.897Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-20T02:40:26.898Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-20T02:40:28.043Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 11
+  },
+  {
+    "timestamp": "2026-09-20T02:40:31.489Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:ETHUSDT",
+    "pair": "ETH",
+    "price": 2606.54,
+    "entry": 2634.54,
+    "stop": 2608.19,
+    "pnlPct": "-1.06"
+  },
+  {
+    "timestamp": "2026-09-20T02:40:32.235Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 12
+  },
+  {
+    "timestamp": "2026-09-20T02:40:33.099Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 12,
+    "statusChanged": true
   }
 ]
