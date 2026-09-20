@@ -5139,7 +5139,7 @@
     "monitored": 5
   },
   {
-    "timestamp": "2026-09-20T12:10:33.713Z",
+    "timestamp": "2026-09-20T12:10:34.097Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5165,14 +5165,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5433,5 +5433,91 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-20T12:10:34.214Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-20T12:10:34.881Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-20T12:10:35.803Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 51ef5974a443d8f6fd49e1ea6cf5d57ac8206d57 but expected d8d53c948eafd784cdf3771a441e4f73210562e2"
+  },
+  {
+    "timestamp": "2026-09-20T12:10:35.870Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 5,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-20T12:10:35.952Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-20T12:10:35.961Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-20T12:10:36.867Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-09-20T12:10:37.223Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ZEC"
+    ],
+    "caution": [
+      "ZEC"
+    ]
+  },
+  {
+    "timestamp": "2026-09-20T12:10:37.224Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-20T12:10:39.522Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
