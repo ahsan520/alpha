@@ -1,32 +1,5 @@
 [
   {
-    "timestamp": "2026-09-20T17:55:31.248Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [
-      "SUI",
-      "LINK"
-    ],
-    "caution": [
-      "SUI",
-      "LINK"
-    ]
-  },
-  {
-    "timestamp": "2026-09-20T17:55:31.250Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-20T17:55:34.109Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-09-20T17:58:01.334Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5752,7 +5725,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-09-20T18:55:30.957Z",
+    "timestamp": "2026-09-20T18:55:33.920Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5785,7 +5758,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5799,7 +5772,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5834,7 +5807,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5855,7 +5828,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5869,7 +5842,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5897,7 +5870,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6046,5 +6019,116 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-20T18:55:33.978Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-20T18:55:37.596Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-20T18:55:37.597Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:IMXUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-20T18:55:37.704Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:RENDERUSDT",
+    "price": 1.646,
+    "stop": 1.6499,
+    "entry": 1.6666,
+    "pnlPct": "-1.24",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-20T18:55:39.009Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-09-20T18:55:39.012Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-20T18:55:39.422Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 12,
+    "openAfter": 10,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-20T18:55:39.426Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-20T18:55:39.430Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-20T18:55:40.377Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-09-20T18:55:40.672Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SUI"
+    ],
+    "caution": [
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-09-20T18:55:40.673Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-20T18:55:43.321Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 10
   }
 ]
