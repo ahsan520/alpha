@@ -4976,7 +4976,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-09-21T09:15:35.427Z",
+    "timestamp": "2026-09-21T09:15:38.699Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5009,28 +5009,28 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5079,7 +5079,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5093,7 +5093,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5121,7 +5121,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5270,5 +5270,98 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T09:15:38.767Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T09:15:39.169Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:BTCUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-21T09:15:39.171Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-21T09:15:40.170Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-09-21T09:15:40.171Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-21T09:15:40.174Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "BTCUSDT",
+    "sym": "BINANCE:BTCUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-21T09:15:40.178Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T09:15:41.045Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-09-21T09:15:41.489Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "BTC"
+    ],
+    "caution": [
+      "BTC"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T09:15:41.490Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T09:15:43.802Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
