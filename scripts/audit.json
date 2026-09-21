@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-09-21T22:05:30.142Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 21
-  },
-  {
-    "timestamp": "2026-09-21T22:05:30.144Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 21,
-    "openAfter": 21,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-21T22:05:30.149Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-21T22:05:30.150Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-21T22:05:31.776Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 21,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-09-21T22:08:00.784Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4841,7 +4809,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-09-21T23:05:28.908Z",
+    "timestamp": "2026-09-21T23:05:30.341Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4881,7 +4849,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4937,7 +4905,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5135,5 +5103,110 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T23:05:30.389Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T23:05:30.808Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 9.036,
+    "t1": 9.03,
+    "liveConv": 10,
+    "liveBullConf": 0,
+    "pnlPct": "2.66",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T23:05:30.812Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-21T23:05:31.754Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 486a51673df0dbcaed16e8eb82cef886cb7da413 but expected d12859621d92a5c875bd950e64f0eda4a75c0a7f"
+  },
+  {
+    "timestamp": "2026-09-21T23:05:31.756Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-21T23:05:32.151Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 19,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-21T23:05:32.153Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-21T23:05:32.156Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T23:05:33.238Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-09-21T23:05:33.513Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": [
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T23:05:33.513Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T23:05:36.363Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 20
   }
 ]
