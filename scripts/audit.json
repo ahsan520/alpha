@@ -5506,7 +5506,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-09-21T20:10:26.292Z",
+    "timestamp": "2026-09-21T20:10:27.398Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5518,7 +5518,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5567,7 +5567,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5581,7 +5581,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5623,7 +5623,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5651,7 +5651,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5800,5 +5800,79 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T20:10:27.451Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T20:10:30.834Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.2141,
+    "t1": 0.2137,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "2.78",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T20:10:30.836Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "tp2_hit"
+  },
+  {
+    "timestamp": "2026-09-21T20:10:32.048Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-09-21T20:10:32.052Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-21T20:10:32.427Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 17,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-21T20:10:32.431Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-21T20:10:32.432Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T20:10:34.062Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
