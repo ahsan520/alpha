@@ -1,91 +1,5 @@
 [
   {
-    "timestamp": "2026-09-21T14:20:46.839Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "GALAUSDT",
-    "sym": "BINANCE:GALAUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-09-21T14:20:46.840Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ZECUSDT",
-    "sym": "BINANCE:ZECUSDT",
-    "setup": "BREAKOUT",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-09-21T14:20:46.845Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-21T14:20:48.380Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 21
-  },
-  {
-    "timestamp": "2026-09-21T14:20:48.698Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [
-      "GALA",
-      "ZEC"
-    ],
-    "caution": [
-      "GALA",
-      "ZEC"
-    ]
-  },
-  {
-    "timestamp": "2026-09-21T14:20:48.699Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-21T14:20:52.226Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 21,
-    "monitored": 21
-  },
-  {
-    "timestamp": "2026-09-21T14:20:56.300Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:GALAUSDT",
-    "pair": "GALA",
-    "price": 0.002079,
-    "entry": 0.0021,
-    "stop": 0.0021,
-    "pnlPct": "-1.00"
-  },
-  {
-    "timestamp": "2026-09-21T14:20:57.033Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 21
-  },
-  {
-    "timestamp": "2026-09-21T14:20:58.107Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 21,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-09-21T14:25:47.470Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5459,7 +5373,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-21T15:20:45.411Z",
+    "timestamp": "2026-09-21T15:20:39.991Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5478,7 +5392,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5499,7 +5413,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5765,5 +5679,108 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T15:20:40.054Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T15:20:40.367Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 144.5,
+    "stop": 144.63,
+    "entry": 146.09,
+    "pnlPct": "-1.09",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T15:20:40.368Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.2002,
+    "stop": 0.200772,
+    "entry": 0.2028,
+    "pnlPct": "-1.28",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T15:20:41.422Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-21T15:20:41.427Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-21T15:20:42.237Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-21T15:20:42.256Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-21T15:20:42.257Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T15:20:43.714Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 19
+  },
+  {
+    "timestamp": "2026-09-21T15:20:47.941Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 1.0138,
+    "entry": 1.0284,
+    "stop": 1.0181,
+    "pnlPct": "-1.42"
+  },
+  {
+    "timestamp": "2026-09-21T15:21:00.198Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 21
+  },
+  {
+    "timestamp": "2026-09-21T15:21:01.192Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 21,
+    "statusChanged": true
   }
 ]
