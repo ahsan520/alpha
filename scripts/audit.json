@@ -1,20 +1,5 @@
 [
   {
-    "timestamp": "2026-09-21T15:55:46.826Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 1,
-    "remaining": 20
-  },
-  {
-    "timestamp": "2026-09-21T15:55:48.119Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 1,
-    "remaining": 20,
-    "statusChanged": false
-  },
-  {
     "timestamp": "2026-09-21T16:00:36.238Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5061,7 +5046,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-09-21T16:55:43.019Z",
+    "timestamp": "2026-09-21T16:55:49.512Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5073,7 +5058,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5087,7 +5072,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5122,7 +5107,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5143,7 +5128,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5171,7 +5156,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5199,14 +5184,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5367,5 +5352,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T16:55:49.613Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T16:55:50.229Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 286,
+    "stop": 286.36,
+    "entry": 289.25,
+    "pnlPct": "-1.12",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T16:55:51.634Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-09-21T16:55:51.640Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-21T16:55:51.913Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-21T16:55:51.932Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-21T16:55:51.933Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T16:55:53.720Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 19
   }
 ]
