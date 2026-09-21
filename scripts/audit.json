@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-21T22:25:35.568Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 19,
-    "monitored": 19
-  },
-  {
     "timestamp": "2026-09-21T22:30:27.316Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4608,7 +4601,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-09-21T23:25:33.317Z",
+    "timestamp": "2026-09-21T23:25:32.375Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4690,7 +4683,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4902,5 +4895,134 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-21T23:25:32.441Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-21T23:25:35.892Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:35.895Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.5446,
+    "stop": 1.5449,
+    "entry": 1.5605,
+    "pnlPct": "-1.02",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:35.896Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:35.898Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:35.899Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.2035,
+    "stop": 0.203544,
+    "entry": 0.2056,
+    "pnlPct": "-1.02",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:37.127Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-09-21T23:25:37.131Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-21T23:25:37.975Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 17,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-21T23:25:37.978Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-21T23:25:37.982Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T23:25:39.030Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-21T23:25:39.288Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "DOGE"
+    ],
+    "caution": [
+      "DOGE"
+    ]
+  },
+  {
+    "timestamp": "2026-09-21T23:25:39.289Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-21T23:25:42.226Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 16
   }
 ]
