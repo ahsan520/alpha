@@ -5545,7 +5545,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-09-22T12:00:52.079Z",
+    "timestamp": "2026-09-22T12:00:51.841Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5839,5 +5839,95 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-22T12:00:51.904Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-22T12:00:53.824Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-09-22T12:00:53.826Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-22T12:00:53.830Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-22T12:00:53.832Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-22T12:00:53.836Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T12:00:54.897Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-22T12:00:55.300Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "FET",
+      "GALA"
+    ],
+    "caution": [
+      "FET",
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T12:00:55.301Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-22T12:00:57.915Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
