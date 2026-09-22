@@ -1,16 +1,5 @@
 [
   {
-    "timestamp": "2026-09-22T16:05:32.671Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:SUIUSDT",
-    "price": 1.0026,
-    "stop": 1.0033,
-    "entry": 1.0134,
-    "pnlPct": "-1.07",
-    "closeReason": "already_closed"
-  },
-  {
     "timestamp": "2026-09-22T16:05:34.295Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -6326,7 +6315,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-09-22T17:05:30.965Z",
+    "timestamp": "2026-09-22T17:05:30.054Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -6366,7 +6355,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6471,7 +6460,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6638,5 +6627,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-22T17:05:30.126Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-22T17:05:31.497Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-09-22T17:05:31.499Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-22T17:05:31.518Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-22T17:05:31.520Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-22T17:05:33.069Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 20
   }
 ]
