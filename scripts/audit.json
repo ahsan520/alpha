@@ -5685,7 +5685,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-09-22T05:30:41.114Z",
+    "timestamp": "2026-09-22T05:30:42.521Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -5711,7 +5711,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5732,14 +5732,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5760,14 +5760,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5788,7 +5788,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5802,7 +5802,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5823,14 +5823,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5979,5 +5979,102 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-22T05:30:42.583Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-22T05:30:43.013Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.5002,
+    "stop": 1.5019,
+    "entry": 1.5171,
+    "pnlPct": "-1.11",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-22T05:30:43.991Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 12
+  },
+  {
+    "timestamp": "2026-09-22T05:30:43.996Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-22T05:30:44.263Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 12,
+    "openAfter": 12,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-22T05:30:44.266Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-22T05:30:44.270Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T05:30:45.083Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-09-22T05:30:45.354Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SUI"
+    ],
+    "caution": [
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T05:30:45.355Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-22T05:30:47.598Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
