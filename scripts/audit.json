@@ -1,20 +1,5 @@
 [
   {
-    "timestamp": "2026-09-22T09:55:41.471Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 1,
-    "remaining": 16
-  },
-  {
-    "timestamp": "2026-09-22T09:55:42.525Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 1,
-    "remaining": 16,
-    "statusChanged": false
-  },
-  {
     "timestamp": "2026-09-22T10:00:49.057Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4681,7 +4666,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-22T10:55:37.594Z",
+    "timestamp": "2026-09-22T10:55:40.562Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4700,21 +4685,21 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4756,7 +4741,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4770,7 +4755,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4819,14 +4804,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4975,5 +4960,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-22T10:55:40.616Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-22T10:55:41.072Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-09-22T10:55:41.076Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T10:55:42.538Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-09-22T10:55:42.953Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "FET"
+    ],
+    "caution": [
+      "FET"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T10:55:42.954Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-22T10:55:46.442Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
   }
 ]
