@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-09-22T05:45:31.040Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-09-22T05:50:38.144Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4730,7 +4723,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-22T06:45:28.820Z",
+    "timestamp": "2026-09-22T06:45:36.801Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 44,
@@ -4777,7 +4770,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4805,7 +4798,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4833,14 +4826,14 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5024,5 +5017,150 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-22T06:45:36.956Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-22T06:45:37.412Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 4.395,
+    "stop": 4.3993,
+    "entry": 4.4437,
+    "pnlPct": "-1.10",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-22T06:45:38.674Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-09-22T06:45:38.678Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-22T06:45:39.081Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 15,
+    "openAfter": 15,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-22T06:45:39.084Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-22T06:45:39.086Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-22T06:45:39.086Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-22T06:45:39.089Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T06:45:40.083Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-22T06:45:40.412Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "GALA",
+      "FET",
+      "UNI"
+    ],
+    "caution": [
+      "GALA",
+      "FET",
+      "UNI"
+    ]
+  },
+  {
+    "timestamp": "2026-09-22T06:45:40.496Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-22T06:45:43.909Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 17
+  },
+  {
+    "timestamp": "2026-09-22T06:45:48.536Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "pair": "GALA",
+    "price": 0.002074,
+    "entry": 0.0021,
+    "stop": 0.0021,
+    "pnlPct": "-1.24"
+  },
+  {
+    "timestamp": "2026-09-22T06:45:49.157Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 18
+  },
+  {
+    "timestamp": "2026-09-22T06:45:50.516Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 18,
+    "statusChanged": true
   }
 ]
