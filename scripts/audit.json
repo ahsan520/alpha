@@ -1,133 +1,5 @@
 [
   {
-    "timestamp": "2026-09-23T05:30:31.157Z",
-    "job": "leaderboard-decider",
-    "action": "position_stale_evicted",
-    "sym": "BINANCE:ETHUSDT",
-    "ageHrs": 24
-  },
-  {
-    "timestamp": "2026-09-23T05:30:31.163Z",
-    "job": "leaderboard-decider",
-    "action": "tp1_hit_sell",
-    "sym": "BINANCE:APTUSDT",
-    "price": 0.8484,
-    "t1": 0.8456,
-    "liveConv": 9,
-    "liveBullConf": 0,
-    "pnlPct": "2.92",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-09-23T05:30:31.165Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:NEARUSDT",
-    "status": "tp1_hit"
-  },
-  {
-    "timestamp": "2026-09-23T05:30:32.482Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 16
-  },
-  {
-    "timestamp": "2026-09-23T05:30:32.486Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.449Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 16,
-    "alerts": 2
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.453Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "AVAXUSDT",
-    "sym": "BINANCE:AVAXUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.454Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "TAOUSDT",
-    "sym": "BINANCE:TAOUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.455Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "UNIUSDT",
-    "sym": "BINANCE:UNIUSDT",
-    "setup": "BREAKOUT",
-    "score": 8
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.458Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XRPUSDT",
-    "sym": "BINANCE:XRPUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-09-23T05:30:33.462Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T05:30:34.684Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 20
-  },
-  {
-    "timestamp": "2026-09-23T05:30:35.012Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 4,
-    "positionsOpened": 4,
-    "recommended": [
-      "UNI",
-      "XRP",
-      "AVAX"
-    ],
-    "caution": [
-      "UNI",
-      "XRP",
-      "AVAX",
-      "TAO"
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T05:30:35.013Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-23T05:30:38.699Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-09-23T05:33:34.008Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4869,7 +4741,7 @@
     "monitored": 19
   },
   {
-    "timestamp": "2026-09-23T06:30:28.235Z",
+    "timestamp": "2026-09-23T06:30:32.420Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -4888,7 +4760,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4909,7 +4781,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5007,14 +4879,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5169,5 +5041,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T06:30:32.479Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T06:30:35.812Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AVAXUSDT",
+    "sym": "BINANCE:AVAXUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-09-23T06:30:35.815Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-09-23T06:30:35.820Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T06:30:36.854Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-23T06:30:37.236Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "UNI",
+      "AVAX"
+    ],
+    "caution": [
+      "UNI",
+      "AVAX"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T06:30:37.237Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T06:30:39.795Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
