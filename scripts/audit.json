@@ -5612,7 +5612,7 @@
     "monitored": 21
   },
   {
-    "timestamp": "2026-09-23T08:48:00.213Z",
+    "timestamp": "2026-09-23T08:48:04.225Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -5624,21 +5624,21 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5659,56 +5659,56 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5736,7 +5736,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5750,7 +5750,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5912,5 +5912,93 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T08:48:04.288Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T08:48:04.846Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.2172,
+    "stop": 0.217206,
+    "entry": 0.2194,
+    "pnlPct": "-1.00",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-23T08:48:04.848Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.5997,
+    "stop": 1.6062,
+    "entry": 1.6224,
+    "pnlPct": "-1.40",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-23T08:48:04.851Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 311.5,
+    "stop": 311.6,
+    "entry": 314.75,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-23T08:48:06.163Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-23T08:48:06.168Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 3,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-23T08:48:07.485Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 21,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-09-23T08:48:07.489Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-23T08:48:07.491Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T08:48:09.282Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 18
   }
 ]
