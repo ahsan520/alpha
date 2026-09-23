@@ -1,75 +1,5 @@
 [
   {
-    "timestamp": "2026-09-23T01:15:24.949Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-09-23T01:15:24.952Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-09-23T01:15:25.215Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 19,
-    "openAfter": 19,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-09-23T01:15:25.219Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "TAOUSDT",
-    "sym": "BINANCE:TAOUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-09-23T01:15:25.225Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T01:15:26.183Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 20
-  },
-  {
-    "timestamp": "2026-09-23T01:15:26.444Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "TAO"
-    ],
-    "caution": [
-      "TAO"
-    ]
-  },
-  {
-    "timestamp": "2026-09-23T01:15:26.445Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-23T01:15:28.973Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-09-23T01:18:06.164Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5531,7 +5461,7 @@
     "monitored": 14
   },
   {
-    "timestamp": "2026-09-23T02:15:24.008Z",
+    "timestamp": "2026-09-23T02:15:25.165Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -5571,7 +5501,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5592,7 +5522,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5634,7 +5564,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5831,5 +5761,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T02:15:25.229Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T02:15:25.567Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-09-23T02:15:25.576Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T02:15:26.370Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at a60bbdc66f65be1f16c7e06e073d7faab24ce018 but expected c92c8abc447fc96864d1827cc48210bb4621a782"
+  },
+  {
+    "timestamp": "2026-09-23T02:15:26.781Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "IMX"
+    ],
+    "caution": [
+      "IMX"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T02:15:26.782Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T02:15:29.208Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
