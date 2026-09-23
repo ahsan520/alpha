@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-09-23T05:45:28.931Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at 844a3e66e20c0faf26fb6bfb310fd0ac60626f35 but expected 862c546b5c7280b5854d66b048299dc750f2d828"
-  },
-  {
-    "timestamp": "2026-09-23T05:45:28.934Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 21,
-    "openAfter": 21,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-23T05:45:28.939Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-09-23T05:45:28.941Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-09-23T05:45:30.356Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 21,
-    "monitored": 21
-  },
-  {
     "timestamp": "2026-09-23T05:50:30.067Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5092,7 +5060,7 @@
     "monitored": 22
   },
   {
-    "timestamp": "2026-09-23T06:45:27.875Z",
+    "timestamp": "2026-09-23T06:45:32.968Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -5104,21 +5072,21 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5132,7 +5100,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5188,21 +5156,21 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5230,14 +5198,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5392,5 +5360,79 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T06:45:33.028Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T06:45:37.367Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 22
+  },
+  {
+    "timestamp": "2026-09-23T06:45:37.369Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 22,
+    "openAfter": 22,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-23T06:45:37.374Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-23T06:45:37.375Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T06:45:38.663Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 22,
+    "monitored": 22
+  },
+  {
+    "timestamp": "2026-09-23T06:45:45.401Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "pair": "APT",
+    "price": 0.8494,
+    "entry": 0.8585,
+    "stop": 0.849915,
+    "pnlPct": "-1.06"
+  },
+  {
+    "timestamp": "2026-09-23T06:45:46.200Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 22
+  },
+  {
+    "timestamp": "2026-09-23T06:45:47.269Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 22,
+    "statusChanged": true
   }
 ]
