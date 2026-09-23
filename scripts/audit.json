@@ -4875,7 +4875,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-23T07:15:45.739Z",
+    "timestamp": "2026-09-23T07:15:48.455Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -4894,7 +4894,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4908,7 +4908,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4922,7 +4922,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4950,14 +4950,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4978,21 +4978,21 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5175,5 +5175,67 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T07:15:48.509Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T07:15:49.006Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-23T07:15:49.009Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:AVAXUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-23T07:15:50.458Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-09-23T07:15:50.459Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 21,
+    "openAfter": 19,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-23T07:15:50.463Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-23T07:15:50.464Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T07:15:52.420Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
   }
 ]
