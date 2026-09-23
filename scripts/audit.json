@@ -5472,7 +5472,7 @@
     "monitored": 14
   },
   {
-    "timestamp": "2026-09-23T11:40:25.536Z",
+    "timestamp": "2026-09-23T11:40:26.220Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -5498,7 +5498,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5772,5 +5772,119 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T11:40:26.274Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T11:40:26.765Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 146.85,
+    "stop": 147.07,
+    "entry": 148.56,
+    "pnlPct": "-1.15",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:26.767Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.569,
+    "stop": 1.5749,
+    "entry": 1.5908,
+    "pnlPct": "-1.37",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:27.741Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 6b8f58fc9e81aa830d9d1b2815c8851667e02f5b but expected 7991bd70142393b0d2021aabbf810f942539830e"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:27.744Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-23T11:40:28.921Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 14,
+    "openAfter": 14,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-09-23T11:40:28.924Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-23T11:40:28.925Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:30.535Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
+  },
+  {
+    "timestamp": "2026-09-23T11:40:32.542Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "pair": "AAVE",
+    "price": 146.89,
+    "entry": 148.56,
+    "stop": 147.07,
+    "pnlPct": "-1.12"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:33.710Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "pair": "XRP",
+    "price": 1.5693,
+    "entry": 1.5908,
+    "stop": 1.5749,
+    "pnlPct": "-1.35"
+  },
+  {
+    "timestamp": "2026-09-23T11:40:34.240Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 14
+  },
+  {
+    "timestamp": "2026-09-23T11:40:35.388Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 14,
+    "statusChanged": true
   }
 ]
