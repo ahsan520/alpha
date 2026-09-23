@@ -5503,7 +5503,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-09-23T05:35:31.068Z",
+    "timestamp": "2026-09-23T05:35:24.957Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 45,
@@ -5522,14 +5522,14 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5564,7 +5564,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5578,14 +5578,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5620,14 +5620,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5641,14 +5641,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5803,5 +5803,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-23T05:35:25.012Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-23T05:35:25.421Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-23T05:35:25.426Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T05:35:26.647Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 21
+  },
+  {
+    "timestamp": "2026-09-23T05:35:27.027Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "ETH"
+    ],
+    "caution": [
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-09-23T05:35:27.028Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-23T05:35:29.936Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 21,
+    "monitored": 21
   }
 ]
