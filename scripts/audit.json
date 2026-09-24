@@ -1,16 +1,5 @@
 [
   {
-    "timestamp": "2026-09-23T23:55:29.517Z",
-    "job": "leaderboard-decider",
-    "action": "no_candidates",
-    "bestConv": 7
-  },
-  {
-    "timestamp": "2026-09-23T23:55:29.519Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-09-23T23:55:30.991Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5053,7 +5042,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-09-24T00:55:26.468Z",
+    "timestamp": "2026-09-24T00:55:28.380Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 46,
@@ -5079,14 +5068,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5100,7 +5089,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5128,14 +5117,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5163,7 +5152,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5191,7 +5180,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5359,5 +5348,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-24T00:55:28.441Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-24T00:55:28.811Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-09-24T00:55:28.813Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-24T00:55:30.422Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
