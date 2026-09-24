@@ -5496,7 +5496,7 @@
     ]
   },
   {
-    "timestamp": "2026-09-24T21:50:36.092Z",
+    "timestamp": "2026-09-24T21:50:36.291Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 46,
@@ -5571,7 +5571,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5802,5 +5802,97 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-24T21:50:36.336Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-24T21:50:36.754Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.2284,
+    "stop": 0.229482,
+    "entry": 0.2318,
+    "pnlPct": "-1.47",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-24T21:50:38.134Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 98e32baaf521d8abe76f79137edef13613ead02b but expected b5c0f0b7356b62703edcf0692fe6b857e553436c"
+  },
+  {
+    "timestamp": "2026-09-24T21:50:38.137Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-24T21:50:38.538Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-24T21:50:38.541Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-24T21:50:38.542Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-24T21:50:40.169Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
+  },
+  {
+    "timestamp": "2026-09-24T21:50:45.767Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "pair": "FET",
+    "price": 0.2281,
+    "entry": 0.2318,
+    "stop": 0.229482,
+    "pnlPct": "-1.60"
+  },
+  {
+    "timestamp": "2026-09-24T21:50:46.256Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 19
+  },
+  {
+    "timestamp": "2026-09-24T21:50:47.341Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 19,
+    "statusChanged": true
   }
 ]
