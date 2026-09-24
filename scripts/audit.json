@@ -5309,7 +5309,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-09-24T19:35:33.721Z",
+    "timestamp": "2026-09-24T19:35:42.438Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 46,
@@ -5377,14 +5377,14 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5454,7 +5454,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5627,5 +5627,102 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-24T19:35:42.519Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-24T19:35:43.021Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.2241,
+    "stop": 0.226017,
+    "entry": 0.2283,
+    "pnlPct": "-1.84",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-24T19:35:44.582Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-09-24T19:35:44.588Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-24T19:35:44.884Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 18,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-24T19:35:44.902Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "TAOUSDT",
+    "sym": "BINANCE:TAOUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-09-24T19:35:44.907Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-24T19:35:46.493Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-09-24T19:35:46.791Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "TAO"
+    ],
+    "caution": [
+      "TAO"
+    ]
+  },
+  {
+    "timestamp": "2026-09-24T19:35:46.792Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-24T19:35:50.290Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 18
   }
 ]
