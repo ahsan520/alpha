@@ -4691,7 +4691,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-09-25T06:40:25.405Z",
+    "timestamp": "2026-09-25T06:40:26.107Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 46,
@@ -4738,7 +4738,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4766,7 +4766,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4997,5 +4997,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-25T06:40:26.171Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-25T06:40:26.725Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:FETUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-25T06:40:27.701Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 064bded78af4a062cee0cf788f9c24bac79773ae but expected a210f297557454ca3a190d5c58d56d55c9f4ccd5"
+  },
+  {
+    "timestamp": "2026-09-25T06:40:27.703Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 12,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-25T06:40:27.705Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-25T06:40:27.710Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-25T06:40:27.712Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-25T06:40:29.910Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
