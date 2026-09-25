@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-09-25T20:20:37.714Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "RENDER"
-    ],
-    "caution": [
-      "RENDER"
-    ]
-  },
-  {
-    "timestamp": "2026-09-25T20:20:37.715Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-09-25T20:20:40.377Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5230,7 +5212,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-09-25T21:20:37.646Z",
+    "timestamp": "2026-09-25T21:20:32.318Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5249,7 +5231,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5312,7 +5294,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5333,7 +5315,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5347,7 +5329,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5368,7 +5350,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5542,5 +5524,113 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-25T21:20:32.385Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-25T21:20:32.825Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:IMXUSDT",
+    "price": 0.1587,
+    "stop": 0.158895,
+    "entry": 0.1605,
+    "pnlPct": "-1.12",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.332Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.337Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.769Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 8,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.771Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.775Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-09-25T21:20:34.780Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-25T21:20:35.799Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-09-25T21:20:36.091Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "UNI"
+    ],
+    "caution": [
+      "UNI"
+    ]
+  },
+  {
+    "timestamp": "2026-09-25T21:20:36.093Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-25T21:20:39.067Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 8
   }
 ]
