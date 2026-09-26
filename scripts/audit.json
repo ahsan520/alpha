@@ -7394,7 +7394,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-09-26T12:22:19.246Z",
+    "timestamp": "2026-09-26T12:22:19.637Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -7706,5 +7706,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-26T12:22:19.699Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-26T12:22:20.098Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T12:22:20.104Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-09-26T12:22:20.109Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T12:22:20.992Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 9a1891a9f9fbf8d9a426f1996ba55309c882db26 but expected 7100e8548a2bea9f10b3d4dbb3b6bff6685ac2bf"
+  },
+  {
+    "timestamp": "2026-09-26T12:22:21.379Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "FET"
+    ],
+    "caution": [
+      "FET"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T12:22:21.381Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-26T12:22:23.780Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 10
   }
 ]
