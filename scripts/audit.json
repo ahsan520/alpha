@@ -5484,7 +5484,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-09-26T07:31:29.885Z",
+    "timestamp": "2026-09-26T07:31:31.040Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5510,7 +5510,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5531,7 +5531,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5629,7 +5629,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5796,5 +5796,109 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-26T07:31:31.107Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-26T07:31:31.441Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:IMXUSDT",
+    "price": 0.1666,
+    "t1": 0.1659,
+    "liveConv": 8,
+    "liveBullConf": 0,
+    "pnlPct": "3.87",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.376Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 49eeba5a865c49c67edf73a89a7ce2221225575a but expected 2493b519c8dd968d5212443c95ca8dbf5185d5ec"
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.381Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.641Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 7,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.643Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.648Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-26T07:31:32.650Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-26T07:31:34.745Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 6
+  },
+  {
+    "timestamp": "2026-09-26T07:31:37.013Z",
+    "job": "alert-runner",
+    "action": "t1_hit",
+    "sym": "BINANCE:IMXUSDT",
+    "pair": "IMX",
+    "price": 0.1668,
+    "t1": 0.1659,
+    "entry": 0.1604,
+    "pnlPct": "3.99"
+  },
+  {
+    "timestamp": "2026-09-26T07:31:37.605Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 7
+  },
+  {
+    "timestamp": "2026-09-26T07:31:38.414Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 7,
+    "statusChanged": true
   }
 ]
