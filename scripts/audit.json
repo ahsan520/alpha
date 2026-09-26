@@ -6476,7 +6476,7 @@
     "monitored": 5
   },
   {
-    "timestamp": "2026-09-26T03:36:16.060Z",
+    "timestamp": "2026-09-26T03:36:17.960Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6593,14 +6593,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6614,14 +6614,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6788,5 +6788,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-26T03:36:18.028Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-26T03:36:18.345Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T03:36:18.353Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-26T03:36:18.355Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-26T03:36:19.790Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
