@@ -6353,7 +6353,7 @@
     "monitored": 9
   },
   {
-    "timestamp": "2026-09-26T11:56:33.253Z",
+    "timestamp": "2026-09-26T11:56:30.930Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6379,7 +6379,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6407,7 +6407,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6442,14 +6442,14 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6470,7 +6470,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6498,7 +6498,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6665,5 +6665,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-26T11:56:30.997Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-26T11:56:31.313Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T11:56:31.318Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-09-26T11:56:31.324Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T11:56:32.177Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-09-26T11:56:32.553Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "IMX"
+    ],
+    "caution": [
+      "IMX"
+    ]
+  },
+  {
+    "timestamp": "2026-09-26T11:56:32.556Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-26T11:56:34.702Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 10
   }
 ]
