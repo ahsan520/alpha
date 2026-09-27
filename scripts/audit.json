@@ -6532,7 +6532,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-09-27T06:26:23.094Z",
+    "timestamp": "2026-09-27T06:26:24.277Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6544,7 +6544,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6558,7 +6558,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6572,7 +6572,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6614,7 +6614,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6649,7 +6649,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6677,7 +6677,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6844,5 +6844,86 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-27T06:26:24.342Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-27T06:26:24.824Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-27T06:26:25.955Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 79239c10f20e7ae4caaa22e358ca3052cad5785d but expected 18e594995cac6fd1f8d926a8b0c6b943a54846fb"
+  },
+  {
+    "timestamp": "2026-09-27T06:26:25.957Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 15,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-27T06:26:25.963Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-27T06:26:25.965Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-27T06:26:27.515Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 15
+  },
+  {
+    "timestamp": "2026-09-27T06:26:29.149Z",
+    "job": "alert-runner",
+    "action": "t1_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 1.1925,
+    "t1": 1.1914,
+    "entry": 1.1613,
+    "pnlPct": "2.69"
+  },
+  {
+    "timestamp": "2026-09-27T06:26:32.310Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 16
+  },
+  {
+    "timestamp": "2026-09-27T06:26:33.399Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 16,
+    "statusChanged": true
   }
 ]
