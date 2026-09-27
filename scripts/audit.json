@@ -1,56 +1,5 @@
 [
   {
-    "timestamp": "2026-09-27T21:31:34.985Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:IMXUSDT",
-    "status": "tp1_hit"
-  },
-  {
-    "timestamp": "2026-09-27T21:31:36.345Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 17
-  },
-  {
-    "timestamp": "2026-09-27T21:31:36.348Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 17,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-09-27T21:31:36.352Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "IMXUSDT",
-    "sym": "BINANCE:IMXUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-09-27T21:31:36.356Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "grade below EXEC_MIN_GRADE (B)"
-    ],
-    "symbols": [
-      "IMXUSDT"
-    ]
-  },
-  {
-    "timestamp": "2026-09-27T21:31:36.749Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-09-27T21:31:37.661Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -6490,7 +6439,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-09-27T22:31:33.337Z",
+    "timestamp": "2026-09-27T22:31:34.372Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6509,7 +6458,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6558,7 +6507,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6579,14 +6528,14 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6600,14 +6549,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6628,14 +6577,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6802,5 +6751,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-27T22:31:34.438Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-27T22:31:34.926Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-09-27T22:31:35.954Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 0df754697821380e078aa1855c61a9b5c1bfb564 but expected 6bb2391aa5908af4a6f6855a818724a7bafae10f"
+  },
+  {
+    "timestamp": "2026-09-27T22:31:35.956Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 12,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-09-27T22:31:35.961Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-27T22:31:35.963Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-27T22:31:37.299Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
