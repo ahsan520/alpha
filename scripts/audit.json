@@ -6440,7 +6440,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-09-30T15:06:37.365Z",
+    "timestamp": "2026-09-30T15:06:38.294Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6452,14 +6452,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6480,7 +6480,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6501,7 +6501,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6515,14 +6515,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6536,14 +6536,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6557,14 +6557,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6766,5 +6766,97 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-09-30T15:06:38.361Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-09-30T15:06:38.744Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 5.268,
+    "stop": 5.2779,
+    "entry": 5.3312,
+    "pnlPct": "-1.19",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-09-30T15:06:40.077Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at f8ec491e38246a89d1b454ce1174070487b995a0 but expected c9f6d4601b0baa635bf563cdc5889bd8d248482b"
+  },
+  {
+    "timestamp": "2026-09-30T15:06:40.083Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-09-30T15:06:40.460Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 4,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-09-30T15:06:40.479Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-09-30T15:06:40.481Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-09-30T15:06:42.640Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
+  },
+  {
+    "timestamp": "2026-09-30T15:06:44.017Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "pair": "NEAR",
+    "price": 5.267,
+    "entry": 5.3312,
+    "stop": 5.2779,
+    "pnlPct": "-1.20"
+  },
+  {
+    "timestamp": "2026-09-30T15:06:44.654Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 4
+  },
+  {
+    "timestamp": "2026-09-30T15:06:45.717Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 4,
+    "statusChanged": true
   }
 ]
