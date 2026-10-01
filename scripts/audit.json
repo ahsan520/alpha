@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-01T17:45:52.710Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 10,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-10-01T17:50:41.995Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5509,7 +5502,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-01T18:45:51.224Z",
+    "timestamp": "2026-10-01T18:45:51.996Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5535,7 +5528,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5654,7 +5647,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5835,5 +5828,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-01T18:45:52.049Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-01T18:45:52.445Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "LINKUSDT",
+    "sym": "BINANCE:LINKUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-10-01T18:45:52.447Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-01T18:45:52.451Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T18:45:53.654Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 479bc278f267f3c3c21a6b3adde816b4d98602be but expected 79852b4feafb83c3ce2172ee0a55f98e75ac6242"
+  },
+  {
+    "timestamp": "2026-10-01T18:45:54.071Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "LINK",
+      "SUI"
+    ],
+    "caution": [
+      "LINK",
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T18:45:54.072Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-01T18:45:57.754Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 12
   }
 ]
