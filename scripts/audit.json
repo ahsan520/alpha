@@ -1,44 +1,5 @@
 [
   {
-    "timestamp": "2026-10-01T21:10:34.904Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:SUIUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-10-01T21:10:36.143Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 12
-  },
-  {
-    "timestamp": "2026-10-01T21:10:36.145Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 13,
-    "openAfter": 12,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-01T21:10:36.149Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-01T21:10:36.150Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-01T21:10:38.259Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 12,
-    "monitored": 12
-  },
-  {
     "timestamp": "2026-10-01T21:15:37.391Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4501,7 +4462,7 @@
     "monitored": 7
   },
   {
-    "timestamp": "2026-10-01T22:10:34.653Z",
+    "timestamp": "2026-10-01T22:10:44.661Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4513,7 +4474,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4541,7 +4502,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4604,7 +4565,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4639,14 +4600,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4813,5 +4774,91 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-01T22:10:44.995Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-01T22:10:45.424Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:AAVEUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-10-01T22:10:46.721Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-10-01T22:10:46.723Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-01T22:10:46.725Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-01T22:10:46.729Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T22:10:47.903Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-10-01T22:10:48.305Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AAVE"
+    ],
+    "caution": [
+      "AAVE"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T22:10:48.306Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-01T22:10:51.503Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
