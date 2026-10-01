@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-01T09:46:38.265Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-01T09:46:38.268Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-01T09:46:40.209Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 5,
-    "monitored": 5
-  },
-  {
     "timestamp": "2026-10-01T09:47:29.155Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6789,7 +6771,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-10-01T10:46:37.500Z",
+    "timestamp": "2026-10-01T10:46:34.834Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6808,7 +6790,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6843,14 +6825,14 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6885,14 +6867,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6913,7 +6895,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6927,14 +6909,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7101,5 +7083,92 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-01T10:46:34.897Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-01T10:46:38.412Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-10-01T10:46:38.414Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-01T10:46:38.417Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-01T10:46:38.423Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T10:46:39.595Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 8ed1654e1131357ac495de7f826fac4df3d7b2ac but expected b3112e23dc20a10ea8f8ee181fe371fd5a3dd71c"
+  },
+  {
+    "timestamp": "2026-10-01T10:46:40.050Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "FET",
+      "SUI",
+      "UNI"
+    ],
+    "caution": [
+      "FET",
+      "SUI",
+      "UNI"
+    ]
+  },
+  {
+    "timestamp": "2026-10-01T10:46:40.052Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-01T10:46:43.325Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
