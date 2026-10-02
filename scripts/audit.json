@@ -4258,7 +4258,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-02T07:55:35.464Z",
+    "timestamp": "2026-10-02T07:55:36.999Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4270,14 +4270,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4333,21 +4333,21 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4570,5 +4570,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-02T07:55:37.050Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-02T07:55:37.559Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-02T07:55:37.561Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-10-02T07:55:37.564Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-02T07:55:39.132Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-10-02T07:55:39.422Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "SOL",
+      "FET"
+    ],
+    "caution": [
+      "SOL",
+      "FET"
+    ]
+  },
+  {
+    "timestamp": "2026-10-02T07:55:39.436Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-02T07:55:43.068Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
