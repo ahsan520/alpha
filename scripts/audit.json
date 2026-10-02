@@ -5198,7 +5198,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-10-02T23:50:32.704Z",
+    "timestamp": "2026-10-02T23:50:34.974Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5210,7 +5210,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5273,7 +5273,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5322,7 +5322,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5336,7 +5336,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5510,5 +5510,72 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-02T23:50:35.036Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-02T23:50:35.510Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:IMXUSDT",
+    "price": 0.1785,
+    "t1": 0.1779,
+    "liveConv": 10,
+    "liveBullConf": 0,
+    "pnlPct": "2.94",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-02T23:50:36.729Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-10-02T23:50:36.734Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-02T23:50:37.140Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-02T23:50:37.143Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-02T23:50:37.144Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-02T23:50:38.814Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
