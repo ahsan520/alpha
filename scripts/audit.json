@@ -5571,7 +5571,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-03T08:50:34.344Z",
+    "timestamp": "2026-10-03T08:50:34.325Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5618,7 +5618,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5632,7 +5632,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5653,7 +5653,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5674,7 +5674,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5883,5 +5883,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-03T08:50:34.387Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-03T08:50:34.858Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-03T08:50:34.864Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T08:50:36.069Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 1c817c27886fb41662fadca6c4dd563d49cd4a3f but expected 0d0eca2721c49e63ff4f34e989af4bcd4b2118e8"
+  },
+  {
+    "timestamp": "2026-10-03T08:50:36.475Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": [
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T08:50:36.477Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-03T08:50:39.680Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
