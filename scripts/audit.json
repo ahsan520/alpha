@@ -5204,7 +5204,7 @@
     "monitored": 7
   },
   {
-    "timestamp": "2026-10-03T18:10:31.132Z",
+    "timestamp": "2026-10-03T18:10:32.331Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5342,14 +5342,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5516,5 +5516,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-03T18:10:32.379Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-03T18:10:32.778Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.2261,
+    "stop": 0.226116,
+    "entry": 0.2284,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-03T18:10:33.859Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 2549ad5ecfea9e0d28a61b56074170e88f06e881 but expected cd21d6d96504615089c6382b93eac7b5c531fca1"
+  },
+  {
+    "timestamp": "2026-10-03T18:10:33.862Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-03T18:10:34.268Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 7,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-03T18:10:34.270Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-03T18:10:34.271Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-03T18:10:35.724Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
   }
 ]
