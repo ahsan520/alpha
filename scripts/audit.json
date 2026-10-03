@@ -5380,7 +5380,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-10-03T05:40:23.912Z",
+    "timestamp": "2026-10-03T05:40:25.195Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5441,7 +5441,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5518,7 +5518,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5692,5 +5692,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-03T05:40:25.251Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-03T05:40:25.769Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "RENDERUSDT",
+    "sym": "BINANCE:RENDERUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-03T05:40:25.775Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T05:40:27.074Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-10-03T05:40:27.631Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "RENDER"
+    ],
+    "caution": [
+      "RENDER"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T05:40:27.633Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-03T05:40:31.105Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
