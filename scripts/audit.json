@@ -1,36 +1,5 @@
 [
   {
-    "timestamp": "2026-10-03T07:01:16.353Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-10-03T07:01:16.776Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "IMX"
-    ],
-    "caution": [
-      "IMX"
-    ]
-  },
-  {
-    "timestamp": "2026-10-03T07:01:16.778Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-03T07:01:19.925Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 6
-  },
-  {
     "timestamp": "2026-10-03T07:02:23.010Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6030,7 +5999,7 @@
     "monitored": 5
   },
   {
-    "timestamp": "2026-10-03T08:01:16.130Z",
+    "timestamp": "2026-10-03T08:01:17.055Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6105,7 +6074,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6154,7 +6123,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6342,5 +6311,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-03T08:01:17.117Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-03T08:01:17.446Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-03T08:01:17.451Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "grade below EXEC_MIN_GRADE (B)"
+    ],
+    "symbols": [
+      "IMXUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T08:01:17.996Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T08:01:18.997Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at c8d4eb685d7bd19d11e7a33bc4e9e8e0461c34a1 but expected 06fc91b84d174679c841099abb0b78f92547f82b"
+  },
+  {
+    "timestamp": "2026-10-03T08:01:19.428Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "IMX"
+    ],
+    "caution": [
+      "IMX"
+    ]
+  },
+  {
+    "timestamp": "2026-10-03T08:01:19.585Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-03T08:01:22.513Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 5
   }
 ]
