@@ -1,68 +1,5 @@
 [
   {
-    "timestamp": "2026-10-04T21:15:41.544Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:NEARUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-10-04T21:15:42.833Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 13
-  },
-  {
-    "timestamp": "2026-10-04T21:15:42.836Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 14,
-    "openAfter": 13,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-04T21:15:42.838Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "NEARUSDT",
-    "sym": "BINANCE:NEARUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-10-04T21:15:42.842Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-04T21:15:43.897Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 14
-  },
-  {
-    "timestamp": "2026-10-04T21:15:44.168Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "NEAR"
-    ],
-    "caution": [
-      "NEAR"
-    ]
-  },
-  {
-    "timestamp": "2026-10-04T21:15:44.170Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-10-04T21:15:47.173Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -5935,7 +5872,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-10-04T22:15:41.419Z",
+    "timestamp": "2026-10-04T22:15:41.889Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5947,7 +5884,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6080,7 +6017,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6247,5 +6184,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T22:15:41.956Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T22:15:42.343Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-04T22:15:42.345Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T22:15:44.528Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
