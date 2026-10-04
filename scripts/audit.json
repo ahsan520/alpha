@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-10-04T01:35:21.722Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at b985def1f083335e96e276be6e98ddb49107e3cf but expected acf6018c2b295de7965b3eb810ec8c455945d369"
-  },
-  {
-    "timestamp": "2026-10-04T01:35:22.117Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 13,
-    "openAfter": 12,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-10-04T01:35:22.121Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-04T01:35:22.122Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-10-04T01:35:23.599Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4727,7 +4702,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-10-04T02:35:21.526Z",
+    "timestamp": "2026-10-04T02:35:20.916Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4837,14 +4812,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4865,7 +4840,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5039,5 +5014,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T02:35:20.975Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T02:35:21.385Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-04T02:35:21.388Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T02:35:22.997Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 12,
+    "monitored": 11
   }
 ]
