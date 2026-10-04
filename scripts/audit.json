@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-04T18:00:58.152Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 15,
-    "monitored": 15
-  },
-  {
     "timestamp": "2026-10-04T18:05:44.827Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5394,7 +5387,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-10-04T19:00:56.742Z",
+    "timestamp": "2026-10-04T19:00:57.842Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5469,7 +5462,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5539,7 +5532,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5706,5 +5699,98 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T19:00:57.896Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T19:00:58.288Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:IMXUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-10-04T19:00:58.296Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:FETUSDT",
+    "status": "tp1_hit"
+  },
+  {
+    "timestamp": "2026-10-04T19:00:59.389Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 4697da905cc99687223a1024711c9da28089f752 but expected 8fd30fbefaaa11c6318641178ced5463370f8271"
+  },
+  {
+    "timestamp": "2026-10-04T19:00:59.736Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 14,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-04T19:00:59.738Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "IMXUSDT",
+    "sym": "BINANCE:IMXUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-10-04T19:00:59.743Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-04T19:01:00.815Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-10-04T19:01:01.078Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "IMX"
+    ],
+    "caution": [
+      "IMX"
+    ]
+  },
+  {
+    "timestamp": "2026-10-04T19:01:01.081Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T19:01:03.541Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
