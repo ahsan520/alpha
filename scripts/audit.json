@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-04T06:00:34.443Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-10-04T06:05:25.858Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5099,7 +5092,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-04T07:00:34.191Z",
+    "timestamp": "2026-10-04T07:00:35.091Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5146,7 +5139,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5411,5 +5404,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T07:00:35.154Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T07:00:35.538Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.7957,
+    "stop": 0.795762,
+    "entry": 0.8038,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-04T07:00:36.772Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-10-04T07:00:36.777Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-04T07:00:37.028Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-04T07:00:37.032Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-04T07:00:37.033Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T07:00:38.356Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
