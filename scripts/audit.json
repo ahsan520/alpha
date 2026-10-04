@@ -5037,7 +5037,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-10-04T17:55:28.225Z",
+    "timestamp": "2026-10-04T17:55:33.064Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5098,7 +5098,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5112,7 +5112,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5349,5 +5349,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T17:55:33.134Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T17:55:33.593Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:FETUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-04T17:55:35.059Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-10-04T17:55:35.060Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 15,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-04T17:55:35.073Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-04T17:55:35.074Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T17:55:36.738Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 15
   }
 ]
