@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-04T05:45:33.749Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-10-04T05:47:23.401Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5297,7 +5290,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-04T06:45:33.650Z",
+    "timestamp": "2026-10-04T06:45:34.352Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5309,7 +5302,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5609,5 +5602,119 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-04T06:45:34.415Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-04T06:45:34.862Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 11.027,
+    "stop": 11.03,
+    "entry": 11.14,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:34.867Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 4.806,
+    "stop": 4.8108,
+    "entry": 4.8594,
+    "pnlPct": "-1.10",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:36.130Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 4e0a24f784561a22bc145042cb2561867650e7be but expected f3cf246c1ce66e5b2b446be9786b498cbbde3f70"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:36.134Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-04T06:45:37.075Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-10-04T06:45:37.080Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-04T06:45:37.081Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:38.698Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
+  },
+  {
+    "timestamp": "2026-10-04T06:45:39.182Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "pair": "AVAX",
+    "price": 11.027,
+    "entry": 11.14,
+    "stop": 11.03,
+    "pnlPct": "-1.01"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:42.211Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "pair": "NEAR",
+    "price": 4.806,
+    "entry": 4.8594,
+    "stop": 4.8108,
+    "pnlPct": "-1.10"
+  },
+  {
+    "timestamp": "2026-10-04T06:45:42.830Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 13
+  },
+  {
+    "timestamp": "2026-10-04T06:45:43.988Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 13,
+    "statusChanged": true
   }
 ]
