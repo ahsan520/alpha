@@ -5036,7 +5036,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-10-05T06:25:33.766Z",
+    "timestamp": "2026-10-05T06:25:32.714Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5062,7 +5062,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5118,7 +5118,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5160,7 +5160,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5348,5 +5348,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-05T06:25:32.779Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-05T06:25:33.143Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-10-05T06:25:34.345Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-10-05T06:25:34.721Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 12,
+    "openAfter": 11,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-05T06:25:34.726Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-05T06:25:34.727Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-05T06:25:36.088Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
