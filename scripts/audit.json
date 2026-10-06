@@ -5104,7 +5104,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-10-06T00:05:22.764Z",
+    "timestamp": "2026-10-06T00:05:23.007Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5158,7 +5158,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5200,7 +5200,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5416,5 +5416,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-06T00:05:23.063Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-06T00:05:24.951Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at ad4d9879bf2ce10791025043be72ca338b0cffde but expected 855285aee642e29c38998bf941b03ab6537b93d6"
+  },
+  {
+    "timestamp": "2026-10-06T00:05:24.952Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 18,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-06T00:05:24.956Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-06T00:05:24.957Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-06T00:05:26.822Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
