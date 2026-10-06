@@ -6463,7 +6463,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-10-06T04:20:34.726Z",
+    "timestamp": "2026-10-06T04:20:31.193Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6503,7 +6503,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6608,7 +6608,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6775,5 +6775,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-06T04:20:31.257Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-06T04:20:31.632Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-06T04:20:31.638Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-06T04:20:32.575Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-10-06T04:20:32.967Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "FET"
+    ],
+    "caution": [
+      "FET"
+    ]
+  },
+  {
+    "timestamp": "2026-10-06T04:20:32.969Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-06T04:20:35.345Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 11
   }
 ]
