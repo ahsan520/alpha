@@ -1,44 +1,5 @@
 [
   {
-    "timestamp": "2026-10-06T03:45:37.720Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:RENDERUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-10-06T03:45:38.757Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at fd8a371e81dd1adf2ce0e16e4ba5797eb4a7bd26 but expected 3e1c4642c3839a63e7accc3482adbeba16752fa9"
-  },
-  {
-    "timestamp": "2026-10-06T03:45:38.759Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 11,
-    "openAfter": 10,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-06T03:45:38.762Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-06T03:45:38.763Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-06T03:45:40.349Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-10-06T03:47:20.194Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6009,7 +5970,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-06T04:45:34.819Z",
+    "timestamp": "2026-10-06T04:45:37.262Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6091,7 +6052,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6119,7 +6080,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6321,5 +6282,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-06T04:45:37.324Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-06T04:45:37.747Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-06T04:45:37.748Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-06T04:45:40.416Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
