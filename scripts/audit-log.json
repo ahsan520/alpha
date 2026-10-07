@@ -1,6 +1,49 @@
 [
   {
-    "timestamp": "2026-10-07T18:05:44.301Z",
+    "timestamp": "2026-10-07T19:10:36.824Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 1
+  },
+  {
+    "timestamp": "2026-10-07T19:10:36.826Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 1,
+    "openAfter": 1,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-07T19:10:36.828Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:10:36.855Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-07T19:10:36.857Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T19:10:39.075Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
+  },
+  {
+    "timestamp": "2026-10-07T19:15:34.873Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -12,7 +55,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -26,35 +69,35 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -68,28 +111,28 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -103,7 +146,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -117,14 +160,14 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -138,14 +181,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -180,7 +223,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -188,7 +231,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -196,7 +239,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -328,7 +371,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:05:44.366Z",
+    "timestamp": "2026-10-07T19:15:34.930Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -344,7 +387,708 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T18:05:44.703Z",
+    "timestamp": "2026-10-07T19:15:35.352Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:15:35.363Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-07T19:15:35.365Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T19:15:37.210Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
+  },
+  {
+    "timestamp": "2026-10-07T19:20:54.920Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 27,
+    "cryptoCount": 20,
+    "stockScored": 27,
+    "stockFrozen": 0,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": 1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": 5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "ok",
+        "conv": -7,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "ok",
+        "conv": 5,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "ok",
+        "conv": 6,
+        "session": "open",
+        "setup": "BREAKOUT",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:25:49.647Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 27,
+    "cryptoCount": 20,
+    "stockScored": 27,
+    "stockFrozen": 0,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": 1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": 2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "ok",
+        "conv": -7,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "ok",
+        "conv": 5,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "ok",
+        "conv": 6,
+        "session": "open",
+        "setup": "BREAKOUT",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:25:49.710Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-07T19:25:50.084Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -355,25 +1099,25 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:05:44.721Z",
+    "timestamp": "2026-10-07T19:25:50.102Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 0
   },
   {
-    "timestamp": "2026-10-07T18:05:44.723Z",
+    "timestamp": "2026-10-07T19:25:50.104Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-10-07T18:05:46.304Z",
+    "timestamp": "2026-10-07T19:25:51.669Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 0,
-    "monitored": 0
+    "total": 1,
+    "monitored": 1
   },
   {
-    "timestamp": "2026-10-07T18:10:33.959Z",
+    "timestamp": "2026-10-07T19:30:36.968Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -385,21 +1129,21 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -413,14 +1157,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -434,21 +1178,21 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -469,28 +1213,28 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -518,7 +1262,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -553,7 +1297,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -561,7 +1305,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -569,7 +1313,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -701,7 +1445,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:10:34.023Z",
+    "timestamp": "2026-10-07T19:30:37.037Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -717,7 +1461,7 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T18:10:34.571Z",
+    "timestamp": "2026-10-07T19:30:40.392Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -728,25 +1472,25 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:10:34.589Z",
+    "timestamp": "2026-10-07T19:30:40.410Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 0
   },
   {
-    "timestamp": "2026-10-07T18:10:34.591Z",
+    "timestamp": "2026-10-07T19:30:40.413Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-10-07T18:10:36.438Z",
+    "timestamp": "2026-10-07T19:30:42.336Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 0,
-    "monitored": 0
+    "total": 1,
+    "monitored": 1
   },
   {
-    "timestamp": "2026-10-07T18:15:51.527Z",
+    "timestamp": "2026-10-07T19:35:27.861Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -765,42 +1509,42 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -814,63 +1558,63 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -891,7 +1635,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -926,7 +1670,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -934,7 +1678,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -942,7 +1686,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -1074,7 +1818,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:15:51.591Z",
+    "timestamp": "2026-10-07T19:35:27.909Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -1090,7 +1834,7 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T18:15:55.037Z",
+    "timestamp": "2026-10-07T19:35:28.336Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -1101,25 +1845,25 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:15:55.055Z",
+    "timestamp": "2026-10-07T19:35:28.347Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 0
   },
   {
-    "timestamp": "2026-10-07T18:15:55.057Z",
+    "timestamp": "2026-10-07T19:35:28.349Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-10-07T18:15:56.922Z",
+    "timestamp": "2026-10-07T19:35:30.416Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 0,
-    "monitored": 0
+    "total": 1,
+    "monitored": 1
   },
   {
-    "timestamp": "2026-10-07T18:17:23.611Z",
+    "timestamp": "2026-10-07T19:40:35.436Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -1145,7 +1889,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1173,28 +1917,774 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -6,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
         "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": -6,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "ok",
+        "conv": -7,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "ok",
+        "conv": 5,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "ok",
+        "conv": 6,
+        "session": "open",
+        "setup": "BREAKOUT",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:40:35.505Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-07T19:40:35.934Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:40:35.952Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-07T19:40:35.954Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T19:40:37.598Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
+  },
+  {
+    "timestamp": "2026-10-07T19:45:33.312Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 27,
+    "cryptoCount": 20,
+    "stockScored": 27,
+    "stockFrozen": 0,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": 2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -7,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 9,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
+        "conv": -6,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": -6,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "ok",
+        "conv": -7,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "ok",
+        "conv": -2,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "ok",
+        "conv": 5,
+        "session": "open",
+        "setup": "WATCHING",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "open",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "ok",
+        "conv": 6,
+        "session": "open",
+        "setup": "BREAKOUT",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "ok",
+        "conv": -6,
+        "session": "open",
+        "setup": "SHORT SETUP",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:45:33.359Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-07T19:45:33.758Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T19:45:33.770Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-07T19:45:33.771Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T19:45:35.988Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
+  },
+  {
+    "timestamp": "2026-10-07T19:47:27.290Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 27,
+    "cryptoCount": 20,
+    "stockScored": 27,
+    "stockFrozen": 0,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": 3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -7,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1208,7 +2698,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1222,21 +2712,21 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1257,14 +2747,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1299,7 +2789,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -1307,7 +2797,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -1315,7 +2805,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -1447,7 +2937,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:17:23.678Z",
+    "timestamp": "2026-10-07T19:47:27.359Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -1463,7 +2953,7 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T18:17:23.990Z",
+    "timestamp": "2026-10-07T19:47:30.874Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -1474,25 +2964,25 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:17:24.008Z",
+    "timestamp": "2026-10-07T19:47:30.893Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 0
   },
   {
-    "timestamp": "2026-10-07T18:17:24.011Z",
+    "timestamp": "2026-10-07T19:47:30.895Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-10-07T18:17:25.342Z",
+    "timestamp": "2026-10-07T19:47:33.195Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 0,
-    "monitored": 0
+    "total": 1,
+    "monitored": 1
   },
   {
-    "timestamp": "2026-10-07T18:20:52.034Z",
+    "timestamp": "2026-10-07T19:50:31.846Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -1504,7 +2994,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -1512,1125 +3002,6 @@
         "pair": "APTUSDT",
         "status": "ok",
         "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:20:52.100Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:20:52.476Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:20:52.494Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:20:52.496Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:20:54.280Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:25:31.103Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:25:31.158Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:25:34.494Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:25:34.508Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:25:34.510Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:25:36.474Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:27:26.660Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:27:26.726Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:27:27.142Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:27:27.160Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:27:27.162Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:27:29.150Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:30:40.564Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2644,42 +3015,42 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2700,28 +3071,28 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2749,14 +3120,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -2791,7 +3162,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -2799,7 +3170,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -2807,7 +3178,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -2939,1409 +3310,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T18:35:31.087Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 9,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:35:31.152Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:35:31.744Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:35:31.762Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:35:31.765Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:35:33.900Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:37:24.972Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -8,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:37:25.024Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:37:25.431Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:37:25.443Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:37:25.445Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:37:27.068Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:41:03.212Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -6,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:45:29.742Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:45:57.383Z",
+    "timestamp": "2026-10-07T19:55:45.193Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4360,408 +3329,35 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 9,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
         "status": "ok",
         "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:45:57.445Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:45:58.012Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:45:58.029Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:45:58.032Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:45:59.950Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:50:37.775Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4775,722 +3371,21 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
         "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -7,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:55:43.548Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 10,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": -3,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": -5,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "AMEX:EWY",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "CBOE:SPCH",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -3,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 1,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AAPL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:AMD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:CRWD",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:DOCN",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:GOOG",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:META",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MRVL",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MSFT",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:MU",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:NVDA",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:PANW",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:SIMO",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NASDAQ:ZS",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:BE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GE",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:GEV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "NYSE:IONQ",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TSX:MRV",
-        "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      }
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:55:43.714Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-07T18:55:44.227Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-07T18:55:44.242Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-07T18:55:44.245Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-07T18:55:46.291Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
-    "timestamp": "2026-10-07T19:01:09.866Z",
-    "job": "market-fetcher",
-    "action": "fetch_complete",
-    "totalPairs": 47,
-    "successCount": 27,
-    "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
-    "results": [
-      {
-        "pair": "AAVEUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "APTUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "FETUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -4,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
-        "assetType": "crypto"
-      },
-      {
-        "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5504,14 +3399,14 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5553,14 +3448,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5595,7 +3490,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "open",
         "setup": "SHORT SETUP",
         "assetType": "stock"
@@ -5603,7 +3498,7 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5611,7 +3506,7 @@
       {
         "pair": "HTAE.TO",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -5743,7 +3638,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T19:01:09.927Z",
+    "timestamp": "2026-10-07T19:55:45.261Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -5759,7 +3654,7 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T19:01:10.302Z",
+    "timestamp": "2026-10-07T19:55:45.809Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -5770,37 +3665,396 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T19:01:10.319Z",
+    "timestamp": "2026-10-07T19:55:45.827Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 0
   },
   {
-    "timestamp": "2026-10-07T19:01:10.322Z",
+    "timestamp": "2026-10-07T19:55:45.829Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   },
   {
-    "timestamp": "2026-10-07T19:01:14.128Z",
+    "timestamp": "2026-10-07T19:55:47.928Z",
     "job": "alert-runner",
     "action": "positions_check",
-    "total": 0,
-    "monitored": 0
+    "total": 1,
+    "monitored": 1
   },
   {
-    "timestamp": "2026-10-07T19:05:33.514Z",
+    "timestamp": "2026-10-07T20:01:05.791Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
-    "successCount": 27,
+    "successCount": 20,
     "cryptoCount": 20,
-    "stockScored": 27,
-    "stockFrozen": 0,
+    "stockScored": 20,
+    "stockFrozen": 7,
     "results": [
       {
         "pair": "AAVEUSDT",
         "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
         "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 7,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T20:01:05.853Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-07T20:01:09.364Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T20:01:09.368Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-07T20:01:09.371Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T20:01:11.922Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
+  },
+  {
+    "timestamp": "2026-10-07T20:05:39.692Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 20,
+    "cryptoCount": 20,
+    "stockScored": 20,
+    "stockFrozen": 7,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5821,56 +4075,56 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 11,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5884,14 +4138,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5905,7 +4159,321 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XLMUSDT",
+        "status": "ok",
+        "conv": -5,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XMRUSDT",
+        "status": "ok",
+        "conv": 4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "XRPUSDT",
+        "status": "ok",
+        "conv": -7,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ZECUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AGCC.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "AMEX:EWY",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "CBOE:SPCH",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AAPL",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:AMD",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:CRWD",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:DOCN",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:GOOG",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:META",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MRVL",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MSFT",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:MU",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:NVDA",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:PANW",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:SIMO",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NASDAQ:ZS",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:BE",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GE",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:GEV",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "NYSE:IONQ",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TSX:MRV",
+        "status": "failed",
+        "session": "after_hours",
+        "assetType": "stock"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-10-07T20:10:35.173Z",
+    "job": "market-fetcher",
+    "action": "fetch_complete",
+    "totalPairs": 47,
+    "successCount": 20,
+    "cryptoCount": 20,
+    "stockScored": 20,
+    "stockFrozen": 7,
+    "results": [
+      {
+        "pair": "AAVEUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "APTUSDT",
+        "status": "ok",
+        "conv": -1,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "AVAXUSDT",
+        "status": "ok",
+        "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "BTCUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "DOGEUSDT",
+        "status": "ok",
         "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "ETHUSDT",
+        "status": "ok",
+        "conv": 0,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "FETUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "GALAUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "IMXUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "LINKUSDT",
+        "status": "ok",
+        "conv": -2,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "NEARUSDT",
+        "status": "ok",
+        "conv": 11,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "RENDERUSDT",
+        "status": "ok",
+        "conv": -4,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SOLUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "SUIUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "TAOUSDT",
+        "status": "ok",
+        "conv": -3,
+        "session": "24/7",
+        "assetType": "crypto"
+      },
+      {
+        "pair": "UNIUSDT",
+        "status": "ok",
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5926,197 +4494,183 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AGCC.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "ETHY.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "GLCC.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HOU.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "HTAE.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "TXF.TO",
+        "status": "frozen",
+        "session": "closed",
+        "assetType": "stock"
+      },
+      {
+        "pair": "XDIV.TO",
+        "status": "frozen",
+        "session": "closed",
         "assetType": "stock"
       },
       {
         "pair": "AMEX:EWY",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "CBOE:SPCH",
         "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "ETHY.TO",
-        "status": "ok",
-        "conv": -7,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "GLCC.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HOU.TO",
-        "status": "ok",
-        "conv": -2,
-        "session": "open",
-        "setup": "WATCHING",
-        "assetType": "stock"
-      },
-      {
-        "pair": "HTAE.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:AAPL",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:AMD",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:CRWD",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:DOCN",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:GOOG",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:META",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:MRVL",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:MSFT",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:MU",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:NVDA",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:PANW",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:SIMO",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NASDAQ:ZS",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NYSE:BE",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NYSE:GE",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NYSE:GEV",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "NYSE:IONQ",
         "status": "failed",
-        "session": "open",
+        "session": "after_hours",
         "assetType": "stock"
       },
       {
         "pair": "TSX:MRV",
         "status": "failed",
-        "session": "open",
-        "assetType": "stock"
-      },
-      {
-        "pair": "TXF.TO",
-        "status": "ok",
-        "conv": 6,
-        "session": "open",
-        "setup": "BREAKOUT",
-        "assetType": "stock"
-      },
-      {
-        "pair": "XDIV.TO",
-        "status": "ok",
-        "conv": -6,
-        "session": "open",
-        "setup": "SHORT SETUP",
+        "session": "after_hours",
         "assetType": "stock"
       }
     ]
   },
   {
-    "timestamp": "2026-10-07T19:05:33.564Z",
+    "timestamp": "2026-10-07T20:10:35.243Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -6132,27 +4686,27 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-07T19:05:36.963Z",
+    "timestamp": "2026-10-07T20:10:35.790Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
     "closeAll": false,
     "sizeMult": 1,
     "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
     ]
   },
   {
-    "timestamp": "2026-10-07T19:05:36.976Z",
+    "timestamp": "2026-10-07T20:10:35.794Z",
     "job": "leaderboard-decider",
     "action": "position_opened",
-    "pair": "HTAE.TO",
-    "sym": "TSX:HTAE.TO",
-    "setup": "BREAKOUT",
-    "score": 6
+    "pair": "NEARUSDT",
+    "sym": "BINANCE:NEARUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 11
   },
   {
-    "timestamp": "2026-10-07T19:05:36.979Z",
+    "timestamp": "2026-10-07T20:10:35.800Z",
     "job": "leaderboard-decider",
     "action": "mexc_blocked",
     "strategy": "topN",
@@ -6161,26 +4715,26 @@
     ]
   },
   {
-    "timestamp": "2026-10-07T19:05:38.250Z",
+    "timestamp": "2026-10-07T20:10:37.466Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
-    "count": 1
+    "count": 2
   },
   {
-    "timestamp": "2026-10-07T19:05:38.663Z",
+    "timestamp": "2026-10-07T20:10:37.906Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 1,
     "positionsOpened": 1,
     "recommended": [
-      "HTAE"
+      "NEAR"
     ],
     "caution": [
-      "HTAE"
+      "NEAR"
     ]
   },
   {
-    "timestamp": "2026-10-07T19:05:38.664Z",
+    "timestamp": "2026-10-07T20:10:37.908Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   }
