@@ -4832,7 +4832,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-10-07T10:01:15.945Z",
+    "timestamp": "2026-10-07T10:01:17.294Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4844,7 +4844,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4858,7 +4858,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4907,7 +4907,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5144,5 +5144,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-07T10:01:17.357Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-07T10:01:17.716Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-10-07T10:01:17.718Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-07T10:01:20.161Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
