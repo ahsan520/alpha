@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-09T06:10:43.335Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-10-09T06:15:30.281Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4675,7 +4668,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-10-09T07:10:42.101Z",
+    "timestamp": "2026-10-09T07:10:42.715Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4820,7 +4813,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4987,5 +4980,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-09T07:10:42.782Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-09T07:10:43.103Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-09T07:10:44.072Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at a4a3d90bf8d318a753216a1447e8b7324c330208 but expected 96d519d9b37a652c317abea5768a2982916742c8"
+  },
+  {
+    "timestamp": "2026-10-09T07:10:44.075Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 1,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-09T07:10:44.079Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-09T07:10:44.084Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-09T07:10:44.086Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-09T07:10:45.597Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 1
   }
 ]
