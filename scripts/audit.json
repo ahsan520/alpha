@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-10T02:50:21.164Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 4
-  },
-  {
     "timestamp": "2026-10-10T02:55:19.186Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5392,7 +5385,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-10T03:50:20.526Z",
+    "timestamp": "2026-10-10T03:50:21.418Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5704,5 +5697,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-10T03:50:21.481Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-10T03:50:21.907Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 169.6,
+    "stop": 170.09,
+    "entry": 171.81,
+    "pnlPct": "-1.29",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-10T03:50:22.885Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-10-10T03:50:22.890Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-10T03:50:23.286Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 5,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-10T03:50:23.289Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-10T03:50:23.293Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-10T03:50:23.294Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-10T03:50:24.573Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 4
   }
 ]
