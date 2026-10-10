@@ -5136,7 +5136,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-10-10T19:15:36.604Z",
+    "timestamp": "2026-10-10T19:15:39.675Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5176,7 +5176,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5204,7 +5204,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5218,7 +5218,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5448,5 +5448,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-10T19:15:39.719Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-10T19:15:40.286Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XLMUSDT",
+    "price": 0.197,
+    "stop": 0.19701,
+    "entry": 0.199,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-10T19:15:41.494Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-10-10T19:15:41.588Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-10T19:15:42.670Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 9,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-10T19:15:42.672Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-10T19:15:42.674Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-10T19:15:42.675Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-10T19:15:43.900Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 7
   }
 ]
