@@ -1,44 +1,5 @@
 [
   {
-    "timestamp": "2026-10-11T17:25:46.234Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 17
-  },
-  {
-    "timestamp": "2026-10-11T17:25:46.237Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-10-11T17:25:46.787Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 17,
-    "openAfter": 17,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-10-11T17:25:46.791Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-11T17:25:46.792Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-11T17:25:48.391Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 16
-  },
-  {
     "timestamp": "2026-10-11T17:30:36.225Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5630,7 +5591,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-10-11T18:25:45.441Z",
+    "timestamp": "2026-10-11T18:25:42.737Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5649,7 +5610,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5726,7 +5687,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5942,5 +5903,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-11T18:25:42.810Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-11T18:25:46.278Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-11T18:25:46.279Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-11T18:25:48.872Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
   }
 ]
