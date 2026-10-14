@@ -1,70 +1,5 @@
 [
   {
-    "timestamp": "2026-10-14T13:36:11.463Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 1
-  },
-  {
-    "timestamp": "2026-10-14T13:36:11.884Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 2,
-    "openAfter": 1,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-10-14T13:36:11.886Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-14T13:36:11.900Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XDIV.TO",
-    "sym": "TSX:XDIV.TO",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-10-14T13:36:11.903Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-14T13:36:13.355Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 2
-  },
-  {
-    "timestamp": "2026-10-14T13:36:13.651Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "XDIV"
-    ],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-10-14T13:36:13.652Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-10-14T13:36:17.538Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -4860,7 +4795,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-10-14T14:36:09.903Z",
+    "timestamp": "2026-10-14T14:36:10.522Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4893,7 +4828,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5186,5 +5121,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-14T14:36:10.570Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-14T14:36:11.178Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-14T14:36:11.189Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-14T14:36:11.191Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-14T14:36:15.462Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
