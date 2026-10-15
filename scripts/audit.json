@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-15T14:56:08.248Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-10-15T15:01:20.229Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5195,7 +5188,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-15T15:56:05.344Z",
+    "timestamp": "2026-10-15T15:56:04.901Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5312,7 +5305,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5340,7 +5333,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5521,5 +5514,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-15T15:56:04.956Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-15T15:56:05.451Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-15T15:56:05.465Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-15T15:56:05.468Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-15T15:56:08.879Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 2
   }
 ]
