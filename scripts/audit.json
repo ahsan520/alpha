@@ -1,71 +1,5 @@
 [
   {
-    "timestamp": "2026-10-16T13:36:02.995Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 6,
-    "openAfter": 5,
-    "alerts": 4
-  },
-  {
-    "timestamp": "2026-10-16T13:36:02.998Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-16T13:36:03.015Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XDIV.TO",
-    "sym": "TSX:XDIV.TO",
-    "setup": "BREAKOUT",
-    "score": 8
-  },
-  {
-    "timestamp": "2026-10-16T13:36:03.019Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-16T13:36:04.361Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 6
-  },
-  {
-    "timestamp": "2026-10-16T13:36:04.799Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "XDIV"
-    ],
-    "caution": []
-  },
-  {
-    "timestamp": "2026-10-16T13:36:04.800Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-16T13:36:07.915Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 3
-  },
-  {
     "timestamp": "2026-10-16T13:41:10.449Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4531,7 +4465,7 @@
     "monitored": 11
   },
   {
-    "timestamp": "2026-10-16T14:36:02.935Z",
+    "timestamp": "2026-10-16T14:36:05.307Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4550,14 +4484,14 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4571,7 +4505,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4627,14 +4561,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4648,7 +4582,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4669,14 +4603,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4857,5 +4791,92 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-16T14:36:05.919Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-16T14:36:06.354Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "BTCUSDT",
+    "sym": "BINANCE:BTCUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-10-16T14:36:06.355Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-16T14:36:06.356Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "LINKUSDT",
+    "sym": "BINANCE:LINKUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-16T14:36:06.360Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-16T14:36:07.625Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-10-16T14:36:07.925Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 3,
+    "positionsOpened": 3,
+    "recommended": [
+      "ETH",
+      "LINK",
+      "BTC"
+    ],
+    "caution": [
+      "ETH",
+      "LINK",
+      "BTC"
+    ]
+  },
+  {
+    "timestamp": "2026-10-16T14:36:07.926Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-16T14:36:11.463Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
