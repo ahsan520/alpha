@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-16T11:51:04.153Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-10-16T11:56:11.370Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4510,11 +4503,11 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-16T12:51:02.830Z",
+    "timestamp": "2026-10-16T12:51:20.792Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
-    "successCount": 20,
+    "successCount": 2,
     "cryptoCount": 20,
     "stockScored": 20,
     "stockFrozen": 7,
@@ -4522,7 +4515,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4535,128 +4528,92 @@
       },
       {
         "pair": "AVAXUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
-        "status": "ok",
-        "conv": 0,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "LINKUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
-        "status": "ok",
-        "conv": -1,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
-        "status": "ok",
-        "conv": 2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "XLMUSDT",
-        "status": "ok",
-        "conv": 1,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "XMRUSDT",
-        "status": "ok",
-        "conv": 4,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "XRPUSDT",
-        "status": "ok",
-        "conv": -2,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
-        "status": "ok",
-        "conv": 6,
-        "session": "24/7",
+        "status": "failed",
         "assetType": "crypto"
       },
       {
@@ -4822,5 +4779,109 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-16T12:51:20.833Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-16T12:51:21.316Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-16T12:51:21.318Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-16T12:51:21.320Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-16T12:51:23.520Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
+  },
+  {
+    "timestamp": "2026-10-16T12:51:26.843Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "pair": "FET",
+    "price": 0.2054,
+    "entry": 0.2087,
+    "stop": 0.206613,
+    "pnlPct": "-1.58"
+  },
+  {
+    "timestamp": "2026-10-16T12:51:27.786Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "pair": "SUI",
+    "price": 1.041,
+    "entry": 1.0542,
+    "stop": 1.0437,
+    "pnlPct": "-1.25"
+  },
+  {
+    "timestamp": "2026-10-16T12:51:28.250Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "pair": "ZEC",
+    "price": 1222.25,
+    "entry": 1238.5,
+    "stop": 1226.12,
+    "pnlPct": "-1.31"
+  },
+  {
+    "timestamp": "2026-10-16T12:51:28.804Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "pair": "NEAR",
+    "price": 5.243,
+    "entry": 5.3302,
+    "stop": 5.2769,
+    "pnlPct": "-1.64"
+  },
+  {
+    "timestamp": "2026-10-16T12:51:29.175Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 13
+  },
+  {
+    "timestamp": "2026-10-16T12:51:30.350Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 13,
+    "statusChanged": true
   }
 ]
