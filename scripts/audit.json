@@ -5346,7 +5346,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-10-16T12:25:58.597Z",
+    "timestamp": "2026-10-16T12:25:59.590Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5358,7 +5358,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5435,7 +5435,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5484,7 +5484,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5658,5 +5658,160 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-16T12:25:59.645Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-16T12:26:03.146Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-16T12:26:03.148Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.751Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.753Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.756Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.758Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AVAXUSDT",
+    "sym": "BINANCE:AVAXUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.759Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "BTCUSDT",
+    "sym": "BINANCE:BTCUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.761Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.899Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "FETUSDT",
+    "sym": "BINANCE:FETUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.900Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "BREAKOUT",
+    "score": 8
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.902Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ZECUSDT",
+    "sym": "BINANCE:ZECUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-16T12:26:04.906Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-16T12:26:05.967Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-10-16T12:26:06.768Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 7,
+    "positionsOpened": 7,
+    "recommended": [
+      "AAVE",
+      "BTC",
+      "ZEC"
+    ],
+    "caution": [
+      "AAVE",
+      "BTC",
+      "ZEC",
+      "AVAX",
+      "SUI",
+      "FET",
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-10-16T12:26:06.770Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-16T12:26:09.952Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
