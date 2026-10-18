@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-18T01:05:24.500Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
     "timestamp": "2026-10-18T01:08:03.276Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5826,7 +5819,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-18T02:05:23.811Z",
+    "timestamp": "2026-10-18T02:05:24.064Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5908,7 +5901,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6138,5 +6131,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-18T02:05:24.126Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-18T02:05:24.441Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 8
+  },
+  {
+    "timestamp": "2026-10-18T02:05:24.443Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-18T02:05:26.625Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 0,
+    "monitored": 0
   }
 ]
