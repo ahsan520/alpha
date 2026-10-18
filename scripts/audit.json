@@ -5955,7 +5955,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-10-18T05:40:49.390Z",
+    "timestamp": "2026-10-18T05:40:47.673Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6072,7 +6072,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6100,7 +6100,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -8,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6267,5 +6267,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-18T05:40:47.724Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-18T05:40:48.216Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 8
+  },
+  {
+    "timestamp": "2026-10-18T05:40:48.218Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-18T05:40:49.917Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
