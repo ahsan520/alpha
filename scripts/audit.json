@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-19T09:30:52.664Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-10-19T09:35:49.134Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4933,7 +4926,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-19T10:30:51.706Z",
+    "timestamp": "2026-10-19T10:30:50.612Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4945,14 +4938,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4987,7 +4980,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5008,7 +5001,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5029,7 +5022,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5050,7 +5043,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5071,7 +5064,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5245,5 +5238,93 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-19T10:30:50.665Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-19T10:30:51.340Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:LINKUSDT",
+    "price": 12.044,
+    "stop": 12.08,
+    "entry": 12.2,
+    "pnlPct": "-1.28",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-19T10:30:51.342Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 269.9,
+    "stop": 270.06,
+    "entry": 272.79,
+    "pnlPct": "-1.06",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-19T10:30:51.343Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1145.68,
+    "stop": 1153.57,
+    "entry": 1165.22,
+    "pnlPct": "-1.68",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-19T10:30:52.651Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 11
+  },
+  {
+    "timestamp": "2026-10-19T10:30:52.654Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 3,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-19T10:30:53.886Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 11,
+    "openAfter": 11,
+    "alerts": 3
+  },
+  {
+    "timestamp": "2026-10-19T10:30:53.888Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 8
+  },
+  {
+    "timestamp": "2026-10-19T10:30:53.889Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-19T10:30:55.648Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 11,
+    "monitored": 7
   }
 ]
