@@ -5429,7 +5429,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-10-19T10:40:53.952Z",
+    "timestamp": "2026-10-19T10:40:51.438Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5476,7 +5476,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5497,7 +5497,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5511,7 +5511,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5532,7 +5532,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5574,7 +5574,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5741,5 +5741,74 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-19T10:40:51.498Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-19T10:40:55.001Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:LINKUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-19T10:40:55.002Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-19T10:40:55.003Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-19T10:40:56.412Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 2ca983671fd0745c50de7060b51d836e80478b14 but expected 0900d9293074fbed33d9dc22e908949fe08f0afe"
+  },
+  {
+    "timestamp": "2026-10-19T10:40:56.413Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 7,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-19T10:40:56.416Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-19T10:40:56.417Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-19T10:40:58.466Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 5
   }
 ]
