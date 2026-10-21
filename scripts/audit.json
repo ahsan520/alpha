@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-21T08:55:47.806Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-10-21T08:55:47.812Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-10-21T08:55:49.336Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -6547,7 +6529,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-10-21T09:55:47.494Z",
+    "timestamp": "2026-10-21T09:55:46.220Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6859,5 +6841,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-21T09:55:46.300Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-21T09:55:46.616Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-21T09:55:47.860Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-10-21T09:55:47.862Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 17,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-21T09:55:47.868Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-21T09:55:47.870Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-21T09:55:49.222Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
