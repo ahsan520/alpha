@@ -1,38 +1,5 @@
 [
   {
-    "timestamp": "2026-10-21T19:00:51.795Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 17
-  },
-  {
-    "timestamp": "2026-10-21T19:00:54.641Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:NEARUSDT",
-    "pair": "NEAR",
-    "price": 5.29,
-    "entry": 5.3453,
-    "stop": 5.2918,
-    "pnlPct": "-1.03"
-  },
-  {
-    "timestamp": "2026-10-21T19:00:56.552Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 20
-  },
-  {
-    "timestamp": "2026-10-21T19:00:58.408Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 20,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-10-21T19:05:50.258Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6171,7 +6138,7 @@
     "monitored": 20
   },
   {
-    "timestamp": "2026-10-21T20:00:50.063Z",
+    "timestamp": "2026-10-21T20:00:52.933Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6190,14 +6157,14 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6211,7 +6178,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6225,7 +6192,7 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6246,7 +6213,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6260,14 +6227,14 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6288,7 +6255,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6316,7 +6283,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6483,5 +6450,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-21T20:00:52.992Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-21T20:00:56.430Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.001977,
+    "stop": 0.00198,
+    "entry": 0.002,
+    "pnlPct": "-1.15",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-21T20:00:58.242Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-10-21T20:00:58.255Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-21T20:00:58.737Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-21T20:00:58.856Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-21T20:00:58.885Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-21T20:01:01.363Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 19
   }
 ]
