@@ -1,38 +1,5 @@
 [
   {
-    "timestamp": "2026-10-21T00:50:54.634Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 18
-  },
-  {
-    "timestamp": "2026-10-21T00:50:58.484Z",
-    "job": "alert-runner",
-    "action": "t1_hit",
-    "sym": "BINANCE:UNIUSDT",
-    "pair": "UNI",
-    "price": 7.67,
-    "t1": 7.6684,
-    "entry": 7.4748,
-    "pnlPct": "2.61"
-  },
-  {
-    "timestamp": "2026-10-21T00:50:59.749Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_start",
-    "swept": 0,
-    "remaining": 18
-  },
-  {
-    "timestamp": "2026-10-21T00:51:01.062Z",
-    "job": "alert-runner",
-    "action": "positions_sweep_pushed",
-    "swept": 0,
-    "remaining": 18,
-    "statusChanged": true
-  },
-  {
     "timestamp": "2026-10-21T00:54:00.558Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5388,7 +5355,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-10-21T01:50:52.793Z",
+    "timestamp": "2026-10-21T01:50:51.864Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5428,7 +5395,7 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5505,7 +5472,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5700,5 +5667,85 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-21T01:50:51.915Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-21T01:50:55.355Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "BREAKOUT",
+    "score": 10
+  },
+  {
+    "timestamp": "2026-10-21T01:50:55.358Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-21T01:50:56.739Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-10-21T01:50:57.142Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AAVE"
+    ],
+    "caution": [
+      "AAVE"
+    ]
+  },
+  {
+    "timestamp": "2026-10-21T01:50:57.143Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-21T01:51:00.439Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
+  },
+  {
+    "timestamp": "2026-10-21T01:51:05.806Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 1,
+    "remaining": 17
+  },
+  {
+    "timestamp": "2026-10-21T01:51:07.021Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 1,
+    "remaining": 17,
+    "statusChanged": false
   }
 ]
