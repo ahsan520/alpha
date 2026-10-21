@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-21T18:00:56.180Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 20
-  },
-  {
     "timestamp": "2026-10-21T18:05:46.777Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5644,7 +5637,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-10-21T19:00:54.518Z",
+    "timestamp": "2026-10-21T19:00:46.626Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5656,7 +5649,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5670,7 +5663,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5970,5 +5963,97 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-21T19:00:46.691Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-21T19:00:47.260Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "price": 1.3866,
+    "stop": 1.3873,
+    "entry": 1.4013,
+    "pnlPct": "-1.05",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-21T19:00:49.088Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-10-21T19:00:49.093Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-21T19:00:49.444Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 20,
+    "openAfter": 20,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-21T19:00:49.463Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-21T19:00:49.465Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-21T19:00:51.795Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 17
+  },
+  {
+    "timestamp": "2026-10-21T19:00:54.641Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "pair": "NEAR",
+    "price": 5.29,
+    "entry": 5.3453,
+    "stop": 5.2918,
+    "pnlPct": "-1.03"
+  },
+  {
+    "timestamp": "2026-10-21T19:00:56.552Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 20
+  },
+  {
+    "timestamp": "2026-10-21T19:00:58.408Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 20,
+    "statusChanged": true
   }
 ]
