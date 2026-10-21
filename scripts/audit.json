@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-21T13:06:02.564Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 20,
-    "monitored": 19
-  },
-  {
     "timestamp": "2026-10-21T13:10:44.656Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5474,7 +5467,7 @@
     "monitored": 15
   },
   {
-    "timestamp": "2026-10-21T14:05:47.924Z",
+    "timestamp": "2026-10-21T14:05:47.384Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5507,21 +5500,21 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5535,7 +5528,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5570,7 +5563,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5591,7 +5584,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5800,5 +5793,135 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-21T14:05:47.453Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-21T14:05:50.788Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-10-21T14:05:50.791Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-10-21T14:05:52.220Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-10-21T14:05:53.601Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 15,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-10-21T14:05:53.620Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "ETHUSDT",
+    "sym": "BINANCE:ETHUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-10-21T14:05:53.622Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-10-21T14:05:53.627Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-21T14:05:54.891Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-10-21T14:05:55.295Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "SOL",
+      "ETH"
+    ],
+    "caution": [
+      "SOL",
+      "ETH"
+    ]
+  },
+  {
+    "timestamp": "2026-10-21T14:05:55.297Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-21T14:05:59.876Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 15
+  },
+  {
+    "timestamp": "2026-10-21T14:06:04.705Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:RENDERUSDT",
+    "pair": "RENDER",
+    "price": 1.864,
+    "entry": 1.8835,
+    "stop": 1.8647,
+    "pnlPct": "-1.04"
+  },
+  {
+    "timestamp": "2026-10-21T14:06:05.576Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 17
+  },
+  {
+    "timestamp": "2026-10-21T14:06:07.064Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 17,
+    "statusChanged": true
   }
 ]
