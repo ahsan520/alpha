@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-22T08:50:31.139Z",
-    "job": "leaderboard-decider",
-    "action": "no_candidates",
-    "bestConv": 7
-  },
-  {
-    "timestamp": "2026-10-22T08:50:31.141Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-22T08:50:33.278Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 1,
-    "monitored": 1
-  },
-  {
     "timestamp": "2026-10-22T08:55:32.418Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -4474,7 +4456,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-10-22T09:50:30.829Z",
+    "timestamp": "2026-10-22T09:50:33.992Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4486,14 +4468,14 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4535,7 +4517,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4556,7 +4538,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4584,14 +4566,14 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4786,5 +4768,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-22T09:50:34.057Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-22T09:50:34.444Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-22T09:50:34.448Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-22T09:50:34.449Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-22T09:50:35.875Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
