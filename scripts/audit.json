@@ -4736,7 +4736,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-10-22T12:05:34.626Z",
+    "timestamp": "2026-10-22T12:05:33.241Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -4790,14 +4790,14 @@
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4811,7 +4811,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -4853,7 +4853,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5048,5 +5048,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-22T12:05:33.303Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-22T12:05:36.797Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-10-22T12:05:36.800Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-22T12:05:38.612Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
