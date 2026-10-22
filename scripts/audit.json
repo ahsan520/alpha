@@ -5242,7 +5242,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-10-22T02:42:41.836Z",
+    "timestamp": "2026-10-22T02:42:42.164Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5254,7 +5254,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5268,14 +5268,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5345,7 +5345,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5554,5 +5554,110 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.210Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.615Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:APTUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.616Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.617Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:LINKUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.619Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.620Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ZECUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:42.621Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:43.815Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 6e41d520a970d362d458d676635d211c1262347d but expected 89cd88b53d445a4a8d21cdb09d6aa8fc9bd64031"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:43.817Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 2,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-22T02:42:43.818Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-10-22T02:42:43.819Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-22T02:42:45.652Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 2
+  },
+  {
+    "timestamp": "2026-10-22T02:42:46.944Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 6,
+    "remaining": 2
+  },
+  {
+    "timestamp": "2026-10-22T02:42:48.050Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 6,
+    "remaining": 2,
+    "statusChanged": false
   }
 ]
