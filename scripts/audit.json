@@ -5118,7 +5118,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-24T11:05:28.358Z",
+    "timestamp": "2026-10-24T11:05:29.487Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5200,7 +5200,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5263,7 +5263,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5430,5 +5430,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-24T11:05:29.549Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-24T11:05:29.998Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-10-24T11:05:30.001Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-24T11:05:32.058Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
