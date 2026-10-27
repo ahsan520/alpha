@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-27T19:35:35.287Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-27T19:35:35.288Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-27T19:35:37.265Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 12,
-    "monitored": 12
-  },
-  {
     "timestamp": "2026-10-27T19:38:43.756Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6435,7 +6417,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-10-27T20:35:32.008Z",
+    "timestamp": "2026-10-27T20:35:36.359Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6468,7 +6450,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6510,7 +6492,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6580,7 +6562,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6747,5 +6729,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-27T20:35:36.426Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-27T20:35:36.916Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SUIUSDT",
+    "price": 0.9237,
+    "stop": 0.923967,
+    "entry": 0.9333,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-27T20:35:38.233Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-10-27T20:35:38.242Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-27T20:35:38.552Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 13,
+    "openAfter": 13,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-27T20:35:38.557Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-27T20:35:38.558Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-27T20:35:40.254Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 12
   }
 ]
