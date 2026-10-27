@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-27T12:30:32.219Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 3,
-    "monitored": 3
-  },
-  {
     "timestamp": "2026-10-27T12:32:55.291Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6730,7 +6723,40 @@
     ]
   },
   {
-    "timestamp": "2026-10-27T13:30:31.264Z",
+    "timestamp": "2026-10-27T13:30:39.247Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 7
+  },
+  {
+    "timestamp": "2026-10-27T13:30:39.913Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:DOGEUSDT",
+    "pair": "DOGE",
+    "price": 0.07748,
+    "entry": 0.0783,
+    "stop": 0.077517,
+    "pnlPct": "-1.05"
+  },
+  {
+    "timestamp": "2026-10-27T13:30:41.128Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 7
+  },
+  {
+    "timestamp": "2026-10-27T13:30:42.285Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 7,
+    "statusChanged": true
+  },
+  {
+    "timestamp": "2026-10-27T13:32:51.951Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6742,7 +6768,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6756,14 +6782,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6777,28 +6803,28 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6812,7 +6838,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6826,28 +6852,28 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6868,7 +6894,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6918,9 +6944,9 @@
       {
         "pair": "HOU.TO",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "open",
-        "setup": "BREAKOUT",
+        "setup": "WATCHING",
         "assetType": "stock"
       },
       {
@@ -7050,15 +7076,15 @@
       {
         "pair": "XDIV.TO",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "open",
-        "setup": "WATCHING",
+        "setup": "BREAKOUT",
         "assetType": "stock"
       }
     ]
   },
   {
-    "timestamp": "2026-10-27T13:30:31.321Z",
+    "timestamp": "2026-10-27T13:32:51.998Z",
     "job": "leaderboard-decider",
     "action": "job_start",
     "minScore": 6,
@@ -7074,7 +7100,46 @@
     "dryRun": false
   },
   {
-    "timestamp": "2026-10-27T13:30:31.810Z",
+    "timestamp": "2026-10-27T13:32:52.388Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "TSX:XDIV.TO",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-10-27T13:32:52.391Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.1761,
+    "stop": 0.176121,
+    "entry": 0.1779,
+    "pnlPct": "-1.01",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-27T13:32:55.316Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-10-27T13:32:55.321Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-27T13:32:56.090Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 6,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-10-27T13:32:56.092Z",
     "job": "leaderboard-decider",
     "action": "market_guard",
     "canBuy": false,
@@ -7085,16 +7150,16 @@
     ]
   },
   {
-    "timestamp": "2026-10-27T13:30:31.824Z",
+    "timestamp": "2026-10-27T13:32:56.103Z",
     "job": "leaderboard-decider",
     "action": "position_opened",
-    "pair": "HOU.TO",
-    "sym": "TSX:HOU.TO",
+    "pair": "XDIV.TO",
+    "sym": "TSX:XDIV.TO",
     "setup": "BREAKOUT",
     "score": 6
   },
   {
-    "timestamp": "2026-10-27T13:30:31.829Z",
+    "timestamp": "2026-10-27T13:32:56.107Z",
     "job": "leaderboard-decider",
     "action": "mexc_blocked",
     "strategy": "topN",
@@ -7103,26 +7168,26 @@
     ]
   },
   {
-    "timestamp": "2026-10-27T13:30:33.190Z",
+    "timestamp": "2026-10-27T13:32:57.249Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
     "count": 7
   },
   {
-    "timestamp": "2026-10-27T13:30:33.494Z",
+    "timestamp": "2026-10-27T13:32:57.524Z",
     "job": "leaderboard-decider",
     "action": "buy_cycle_complete",
     "signalsFound": 1,
     "positionsOpened": 1,
     "recommended": [
-      "HOU"
+      "XDIV"
     ],
     "caution": [
-      "HOU"
+      "XDIV"
     ]
   },
   {
-    "timestamp": "2026-10-27T13:30:33.496Z",
+    "timestamp": "2026-10-27T13:32:57.525Z",
     "job": "leaderboard-decider",
     "action": "job_complete"
   }
