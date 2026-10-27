@@ -1,72 +1,5 @@
 [
   {
-    "timestamp": "2026-10-27T15:00:34.011Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 2
-  },
-  {
-    "timestamp": "2026-10-27T15:00:34.013Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 2,
-    "openAfter": 2,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-27T15:00:34.019Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XRPUSDT",
-    "sym": "BINANCE:XRPUSDT",
-    "setup": "BREAKOUT",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-10-27T15:00:34.024Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ZECUSDT",
-    "sym": "BINANCE:ZECUSDT",
-    "setup": "BREAKOUT",
-    "score": 10
-  },
-  {
-    "timestamp": "2026-10-27T15:00:34.031Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-27T15:00:35.364Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 4
-  },
-  {
-    "timestamp": "2026-10-27T15:00:35.667Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 2,
-    "positionsOpened": 2,
-    "recommended": [
-      "ZEC",
-      "XRP"
-    ],
-    "caution": [
-      "ZEC",
-      "XRP"
-    ]
-  },
-  {
-    "timestamp": "2026-10-27T15:00:35.671Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-10-27T15:00:39.139Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6431,7 +6364,7 @@
     "monitored": 7
   },
   {
-    "timestamp": "2026-10-27T16:00:32.959Z",
+    "timestamp": "2026-10-27T16:00:32.894Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6757,5 +6690,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-27T16:00:32.965Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-27T16:00:33.344Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "DOGEUSDT",
+    "sym": "BINANCE:DOGEUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-27T16:00:33.350Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-27T16:00:35.085Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-10-27T16:00:35.504Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "DOGE"
+    ],
+    "caution": [
+      "DOGE"
+    ]
+  },
+  {
+    "timestamp": "2026-10-27T16:00:35.506Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-27T16:00:39.119Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
   }
 ]
