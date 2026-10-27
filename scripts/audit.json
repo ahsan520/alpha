@@ -6626,7 +6626,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-10-27T18:45:33.411Z",
+    "timestamp": "2026-10-27T18:45:30.422Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6729,7 +6729,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6771,7 +6771,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6952,5 +6952,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-27T18:45:30.486Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-27T18:45:30.836Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "price": 0.001751,
+    "stop": 0.001782,
+    "entry": 0.0018,
+    "pnlPct": "-2.72",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-27T18:45:32.226Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 10
+  },
+  {
+    "timestamp": "2026-10-27T18:45:32.231Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-27T18:45:32.496Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 10,
+    "openAfter": 10,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-27T18:45:32.500Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-27T18:45:32.502Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-27T18:45:34.212Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 10,
+    "monitored": 9
   }
 ]
