@@ -6947,7 +6947,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-27T20:00:31.647Z",
+    "timestamp": "2026-10-27T20:00:35.311Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6966,14 +6966,14 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6994,14 +6994,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7036,21 +7036,21 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7085,14 +7085,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7259,5 +7259,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-27T20:00:35.378Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-27T20:00:35.705Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-10-27T20:00:36.833Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 42323e68a4fc28e89124d80772615cd4aff03cac but expected 3438bc8f24efb22992b69d4a4ca1c62cad4e1f56"
+  },
+  {
+    "timestamp": "2026-10-27T20:00:36.836Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 14,
+    "openAfter": 13,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-27T20:00:36.840Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-27T20:00:36.842Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-27T20:00:38.504Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 13
   }
 ]
