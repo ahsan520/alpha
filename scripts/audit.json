@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-28T09:00:36.306Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-28T09:00:36.307Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-28T09:00:38.319Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 17
-  },
-  {
     "timestamp": "2026-10-28T09:05:30.533Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5773,7 +5755,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-10-28T10:00:33.314Z",
+    "timestamp": "2026-10-28T10:00:46.177Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5785,28 +5767,28 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5820,14 +5802,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5848,7 +5830,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5869,14 +5851,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5897,7 +5879,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5911,14 +5893,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6085,5 +6067,70 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-28T10:00:46.247Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-28T10:00:46.986Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "AAVEUSDT",
+    "sym": "BINANCE:AAVEUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-28T10:00:46.992Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-28T10:00:48.241Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-10-28T10:00:48.558Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "AAVE"
+    ],
+    "caution": [
+      "AAVE"
+    ]
+  },
+  {
+    "timestamp": "2026-10-28T10:00:48.559Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-28T10:00:52.236Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
