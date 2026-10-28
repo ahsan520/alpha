@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-28T18:40:35.247Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 17,
-    "monitored": 16
-  },
-  {
     "timestamp": "2026-10-28T18:45:30.923Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6232,7 +6225,7 @@
     "monitored": 19
   },
   {
-    "timestamp": "2026-10-28T19:40:35.196Z",
+    "timestamp": "2026-10-28T19:40:32.273Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6272,14 +6265,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6335,7 +6328,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6370,7 +6363,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6558,5 +6551,110 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-28T19:40:32.338Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-28T19:40:34.213Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-10-28T19:40:34.216Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-28T19:40:34.235Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-10-28T19:40:34.239Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-28T19:40:35.673Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 20
+  },
+  {
+    "timestamp": "2026-10-28T19:40:35.993Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": [
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-10-28T19:40:35.994Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-28T19:40:40.515Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 20,
+    "monitored": 20
+  },
+  {
+    "timestamp": "2026-10-28T19:40:44.903Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:GALAUSDT",
+    "pair": "GALA",
+    "price": 0.001781,
+    "entry": 0.0018,
+    "stop": 0.0018,
+    "pnlPct": "-1.06"
+  },
+  {
+    "timestamp": "2026-10-28T19:40:45.503Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 20
+  },
+  {
+    "timestamp": "2026-10-28T19:40:46.619Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 20,
+    "statusChanged": true
   }
 ]
