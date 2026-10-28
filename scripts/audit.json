@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-28T06:50:31.542Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 16,
-    "monitored": 16
-  },
-  {
     "timestamp": "2026-10-28T06:55:32.879Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6719,7 +6712,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-10-28T07:50:30.555Z",
+    "timestamp": "2026-10-28T07:50:27.952Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6787,7 +6780,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6801,7 +6794,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6857,14 +6850,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7031,5 +7024,53 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-28T07:50:28.001Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-28T07:50:29.732Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-10-28T07:50:29.733Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-10-28T07:50:29.736Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-28T07:50:29.737Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-28T07:50:31.753Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
   }
 ]
