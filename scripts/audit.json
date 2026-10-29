@@ -5618,7 +5618,7 @@
     ]
   },
   {
-    "timestamp": "2026-10-29T12:05:48.573Z",
+    "timestamp": "2026-10-29T12:05:55.183Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5630,7 +5630,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5644,7 +5644,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5665,14 +5665,14 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5693,7 +5693,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5714,14 +5714,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5756,14 +5756,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5930,82 +5930,5 @@
         "assetType": "stock"
       }
     ]
-  },
-  {
-    "timestamp": "2026-10-29T12:05:48.625Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-10-29T12:05:49.039Z",
-    "job": "leaderboard-decider",
-    "action": "stop_hit",
-    "sym": "BINANCE:UNIUSDT",
-    "price": 7.156,
-    "stop": 7.1565,
-    "entry": 7.2288,
-    "pnlPct": "-1.01",
-    "closeReason": "already_closed"
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.411Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 4
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.417Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.811Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 4,
-    "openAfter": 4,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.814Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.817Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-29T12:05:50.819Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-29T12:05:52.897Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 3
   }
 ]
