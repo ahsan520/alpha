@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-10-29T15:25:51.123Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at e462ee9aa9aa0386843cd9839d3a5e5f808c8bc2 but expected d63f884d47670e0677e3034d5798559164c790ed"
-  },
-  {
-    "timestamp": "2026-10-29T15:25:51.125Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 17,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-29T15:25:51.129Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-10-29T15:25:51.131Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-10-29T15:25:52.921Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6436,7 +6411,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-10-29T16:25:51.035Z",
+    "timestamp": "2026-10-29T16:25:50.026Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6455,7 +6430,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6581,7 +6556,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6762,5 +6737,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-29T16:25:50.098Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-29T16:25:50.646Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-29T16:25:50.647Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-29T16:25:52.861Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
