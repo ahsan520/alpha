@@ -1,23 +1,5 @@
 [
   {
-    "timestamp": "2026-10-29T14:35:55.079Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
-    "timestamp": "2026-10-29T14:35:57.428Z",
-    "job": "alert-runner",
-    "action": "stop_hit",
-    "sym": "BINANCE:GALAUSDT",
-    "pair": "GALA",
-    "price": 0.001774,
-    "entry": 0.0018,
-    "stop": 0.0018,
-    "pnlPct": "-1.44"
-  },
-  {
     "timestamp": "2026-10-29T14:35:58.660Z",
     "job": "alert-runner",
     "action": "positions_sweep_start",
@@ -6159,7 +6141,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-10-29T15:35:52.231Z",
+    "timestamp": "2026-10-29T15:35:50.421Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6199,28 +6181,28 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6241,7 +6223,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6255,7 +6237,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6269,7 +6251,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6304,7 +6286,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6485,5 +6467,115 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-29T15:35:50.478Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-29T15:35:50.892Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 7.408,
+    "t1": 7.382,
+    "liveConv": 8,
+    "liveBullConf": 0,
+    "pnlPct": "3.12",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-29T15:35:50.895Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1346.3,
+    "t1": 1332.75,
+    "liveConv": 10,
+    "liveBullConf": 0,
+    "pnlPct": "3.78",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-29T15:35:52.341Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-10-29T15:35:52.344Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-29T15:35:53.250Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 17,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-10-29T15:35:53.254Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "GALAUSDT",
+    "sym": "BINANCE:GALAUSDT",
+    "setup": "BREAKOUT",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-10-29T15:35:53.263Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-29T15:35:54.708Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at b3048a60b8fc27e03b6698aed9955e701c33841e but expected 00e56cb818cab49c5541da4d43d5cc82b4d7af87"
+  },
+  {
+    "timestamp": "2026-10-29T15:35:54.979Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "GALA"
+    ],
+    "caution": [
+      "GALA"
+    ]
+  },
+  {
+    "timestamp": "2026-10-29T15:35:54.980Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-29T15:35:58.405Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
