@@ -1,90 +1,5 @@
 [
   {
-    "timestamp": "2026-10-29T15:10:51.259Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 15
-  },
-  {
-    "timestamp": "2026-10-29T15:10:51.264Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 16,
-    "openAfter": 15,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-10-29T15:10:51.268Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "APTUSDT",
-    "sym": "BINANCE:APTUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-10-29T15:10:51.270Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "NEARUSDT",
-    "sym": "BINANCE:NEARUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-10-29T15:10:51.272Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "XRPUSDT",
-    "sym": "BINANCE:XRPUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-10-29T15:10:51.274Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-10-29T15:10:52.414Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-10-29T15:10:52.879Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 3,
-    "positionsOpened": 3,
-    "recommended": [
-      "APT",
-      "XRP",
-      "NEAR"
-    ],
-    "caution": [
-      "APT",
-      "XRP",
-      "NEAR"
-    ]
-  },
-  {
-    "timestamp": "2026-10-29T15:10:52.880Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-10-29T15:10:56.165Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 18
-  },
-  {
     "timestamp": "2026-10-29T15:16:08.616Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6416,7 +6331,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-10-29T16:10:50.157Z",
+    "timestamp": "2026-10-29T16:10:49.779Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6442,7 +6357,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6533,7 +6448,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6742,5 +6657,103 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-29T16:10:49.844Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-29T16:10:50.330Z",
+    "job": "leaderboard-decider",
+    "action": "tp1_hit_sell",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1390.58,
+    "t1": 1383.57,
+    "liveConv": 6,
+    "liveBullConf": 0,
+    "pnlPct": "3.11",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-29T16:10:51.893Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-10-29T16:10:51.897Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-29T16:10:52.184Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 18,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-29T16:10:52.188Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "NEARUSDT",
+    "sym": "BINANCE:NEARUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-10-29T16:10:52.192Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-29T16:10:53.509Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at bbfd242b4cacf1d1b1f39d729768609dbc89d341 but expected 99ce675d154b107bed9adb764d4baa7fe10d4410"
+  },
+  {
+    "timestamp": "2026-10-29T16:10:53.795Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "NEAR"
+    ],
+    "caution": [
+      "NEAR"
+    ]
+  },
+  {
+    "timestamp": "2026-10-29T16:10:53.797Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-29T16:10:57.711Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
