@@ -6496,7 +6496,7 @@
     "monitored": 0
   },
   {
-    "timestamp": "2026-10-30T16:40:21.970Z",
+    "timestamp": "2026-10-30T16:40:20.904Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6676,7 +6676,7 @@
       {
         "pair": "GLCC.TO",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -6822,5 +6822,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-30T16:40:20.973Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-30T16:40:21.340Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-30T16:40:21.357Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-30T16:40:21.360Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-30T16:40:22.956Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 0,
+    "monitored": 0
   }
 ]
