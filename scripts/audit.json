@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-10-31T21:50:39.565Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 4
-  },
-  {
     "timestamp": "2026-10-31T21:55:47.146Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6386,7 +6379,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-10-31T22:50:38.462Z",
+    "timestamp": "2026-10-31T22:50:36.764Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6398,7 +6391,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6468,7 +6461,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6531,7 +6524,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6698,5 +6691,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-10-31T22:50:36.810Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-10-31T22:50:37.220Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1257.48,
+    "stop": 1266.13,
+    "entry": 1278.92,
+    "pnlPct": "-1.68",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.333Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 4
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.336Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.604Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 4,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.606Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.608Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-10-31T22:50:38.611Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-10-31T22:50:39.982Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 3
   }
 ]
