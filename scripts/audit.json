@@ -1,79 +1,5 @@
 [
   {
-    "timestamp": "2026-11-01T06:10:38.421Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 1
-  },
-  {
-    "timestamp": "2026-11-01T06:10:38.425Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 1500
-  },
-  {
-    "timestamp": "2026-11-01T06:10:38.847Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 1,
-    "openAfter": 1,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-11-01T06:10:38.849Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 1,
-    "reasons": [
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T06:10:38.852Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "ETHUSDT",
-    "sym": "BINANCE:ETHUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 9
-  },
-  {
-    "timestamp": "2026-11-01T06:10:38.857Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T06:10:39.716Z",
-    "job": "leaderboard-decider",
-    "action": "positions_push_failed",
-    "error": "PUT 409 is at 1fe6593beabad16e1a0f30e4a61ace19bf7f59bf but expected 24b8a659f61fe1b426ec266593d750d39d7aecca"
-  },
-  {
-    "timestamp": "2026-11-01T06:10:39.978Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "ETH"
-    ],
-    "caution": [
-      "ETH"
-    ]
-  },
-  {
-    "timestamp": "2026-11-01T06:10:39.980Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-11-01T06:10:42.136Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6035,7 +5961,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-11-01T07:10:37.584Z",
+    "timestamp": "2026-11-01T07:10:38.797Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6110,14 +6036,14 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6152,7 +6078,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6347,5 +6273,50 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-01T07:10:38.854Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-01T07:10:39.406Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-01T07:10:39.434Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-01T07:10:39.454Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-01T07:10:41.205Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
