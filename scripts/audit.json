@@ -6002,7 +6002,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-01T01:05:42.570Z",
+    "timestamp": "2026-11-01T01:05:40.048Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6147,7 +6147,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6314,5 +6314,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-01T01:05:40.118Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-01T01:05:43.458Z",
+    "job": "leaderboard-decider",
+    "action": "position_stale_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "ageHrs": 24
+  },
+  {
+    "timestamp": "2026-11-01T01:05:44.395Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at db0fd9ca7d19947d41bb35d61d7fc0dd15cbd3ed but expected ca4b09e14cbecd2e034111c11966bcede048a048"
+  },
+  {
+    "timestamp": "2026-11-01T01:05:44.763Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 4,
+    "openAfter": 3,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-11-01T01:05:44.766Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-01T01:05:44.770Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-01T01:05:44.773Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-01T01:05:46.359Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
