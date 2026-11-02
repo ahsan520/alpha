@@ -6569,7 +6569,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-11-02T06:10:38.928Z",
+    "timestamp": "2026-11-02T06:10:37.577Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6630,7 +6630,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6714,7 +6714,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6881,5 +6881,71 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-02T06:10:37.639Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-02T06:10:38.029Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 8.613,
+    "stop": 8.6157,
+    "entry": 8.7027,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-02T06:10:39.183Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 7
+  },
+  {
+    "timestamp": "2026-11-02T06:10:39.188Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-11-02T06:10:39.564Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 7,
+    "openAfter": 7,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-11-02T06:10:39.566Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-11-02T06:10:39.568Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-02T06:10:40.985Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 7,
+    "monitored": 5
   }
 ]
