@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-03T13:05:47.713Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-11-03T13:08:00.884Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6099,7 +6092,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-03T14:05:46.926Z",
+    "timestamp": "2026-11-03T14:05:48.460Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6125,14 +6118,14 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6146,21 +6139,21 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "FETUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6188,7 +6181,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6237,14 +6230,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -7,
+        "conv": -6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6411,5 +6404,93 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-03T14:05:48.872Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-03T14:05:49.243Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ETHUSDT",
+    "price": 2279.56,
+    "stop": 2284.36,
+    "entry": 2307.43,
+    "pnlPct": "-1.21",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-03T14:05:49.245Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 7.316,
+    "stop": 7.3334,
+    "entry": 7.4075,
+    "pnlPct": "-1.24",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-03T14:05:50.593Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 5
+  },
+  {
+    "timestamp": "2026-11-03T14:05:50.596Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-11-03T14:05:51.643Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 5,
+    "openAfter": 5,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-11-03T14:05:51.645Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-03T14:05:51.651Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-03T14:05:51.653Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-03T14:05:53.172Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 5,
+    "monitored": 3
   }
 ]
