@@ -1,16 +1,5 @@
 [
   {
-    "timestamp": "2026-11-04T14:20:19.133Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-04T14:20:19.134Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-11-04T14:20:21.063Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -7316,7 +7305,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-11-04T15:20:19.065Z",
+    "timestamp": "2026-11-04T15:20:15.937Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -7377,7 +7366,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7412,7 +7401,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7440,7 +7429,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7461,7 +7450,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7642,5 +7631,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-04T15:20:16.004Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-04T15:20:16.509Z",
+    "job": "leaderboard-decider",
+    "action": "exit_signal_sell",
+    "sym": "BINANCE:BTCUSDT",
+    "exitScore": 3,
+    "signals": "CVD↓ 7 cycles · RSI 80",
+    "price": 80676,
+    "pnlPct": "1.41",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-04T15:20:16.511Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ZECUSDT",
+    "price": 1331.13,
+    "stop": 1336.88,
+    "entry": 1350.38,
+    "pnlPct": "-1.43",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-04T15:20:17.896Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-11-04T15:20:17.902Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1500
+  },
+  {
+    "timestamp": "2026-11-04T15:20:18.661Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 17,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-11-04T15:20:18.682Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-04T15:20:18.684Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-04T15:20:20.646Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 16
   }
 ]
