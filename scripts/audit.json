@@ -6562,7 +6562,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-04T12:25:23.487Z",
+    "timestamp": "2026-11-04T12:25:21.517Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6574,7 +6574,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6595,14 +6595,14 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 0,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6665,7 +6665,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6679,7 +6679,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6700,7 +6700,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6874,5 +6874,126 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-04T12:25:21.584Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.107Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:UNIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.109Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.110Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.113Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.114Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:LINKUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:22.116Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SUIUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.192Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.194Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 15,
+    "openAfter": 9,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.199Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "UNIUSDT",
+    "sym": "BINANCE:UNIUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.204Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.634Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 scripts/positions.json does not match c1f6740ff51a45748b1ebb0c052327d6df4b745c"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.884Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "UNI"
+    ],
+    "caution": [
+      "UNI"
+    ]
+  },
+  {
+    "timestamp": "2026-11-04T12:25:23.885Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-04T12:25:26.320Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 9
   }
 ]
