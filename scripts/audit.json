@@ -1,51 +1,5 @@
 [
   {
-    "timestamp": "2026-11-04T20:00:21.375Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:IMXUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-11-04T20:00:21.471Z",
-    "job": "leaderboard-decider",
-    "action": "position_evicted",
-    "sym": "BINANCE:FETUSDT",
-    "status": "stopped"
-  },
-  {
-    "timestamp": "2026-11-04T20:00:24.686Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 11
-  },
-  {
-    "timestamp": "2026-11-04T20:00:24.688Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 13,
-    "openAfter": 11,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-11-04T20:00:24.692Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "FETUSDT",
-    "sym": "BINANCE:FETUSDT",
-    "setup": "BREAKOUT",
-    "score": 8
-  },
-  {
-    "timestamp": "2026-11-04T20:00:24.695Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-11-04T20:00:25.981Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -6991,7 +6945,7 @@
     "monitored": 17
   },
   {
-    "timestamp": "2026-11-04T21:00:21.283Z",
+    "timestamp": "2026-11-04T21:00:22.181Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -7010,7 +6964,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7038,7 +6992,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7059,7 +7013,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7073,7 +7027,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7087,14 +7041,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7136,7 +7090,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7303,5 +7257,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-04T21:00:22.227Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-04T21:00:22.638Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-04T21:00:24.080Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 17
+  },
+  {
+    "timestamp": "2026-11-04T21:00:24.082Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 18,
+    "openAfter": 17,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-04T21:00:24.087Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-04T21:00:24.088Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-04T21:00:25.906Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 17,
+    "monitored": 17
   }
 ]
