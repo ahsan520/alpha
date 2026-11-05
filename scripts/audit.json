@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-11-05T05:45:15.571Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 18
-  },
-  {
-    "timestamp": "2026-11-05T05:45:15.573Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 18,
-    "openAfter": 18,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-11-05T05:45:15.576Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-05T05:45:15.577Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-05T05:45:17.220Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 18,
-    "monitored": 18
-  },
-  {
     "timestamp": "2026-11-05T05:48:12.266Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6461,7 +6429,7 @@
     "monitored": 18
   },
   {
-    "timestamp": "2026-11-05T06:45:14.332Z",
+    "timestamp": "2026-11-05T06:45:14.522Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6578,7 +6546,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6606,7 +6574,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6773,5 +6741,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-05T06:45:14.589Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-05T06:45:14.964Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:GALAUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-05T06:45:16.029Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 735a748185546de0e7c23b763f3209e6d0f88c18 but expected f8f3e83661fd9abec3f4ad0adc4227957a013763"
+  },
+  {
+    "timestamp": "2026-11-05T06:45:16.031Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 18,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-05T06:45:16.037Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-05T06:45:16.038Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-05T06:45:17.546Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 18
   }
 ]
