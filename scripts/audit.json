@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-11-05T05:30:16.586Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 15
-  },
-  {
-    "timestamp": "2026-11-05T05:30:16.588Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 16,
-    "openAfter": 15,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-11-05T05:30:16.592Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "UNIUSDT",
-    "sym": "BINANCE:UNIUSDT",
-    "setup": "SQUEEZE NOW",
-    "score": 11
-  },
-  {
-    "timestamp": "2026-11-05T05:30:16.597Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
     "timestamp": "2026-11-05T05:30:17.745Z",
     "job": "leaderboard-decider",
     "action": "positions_pushed",
@@ -6497,7 +6465,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-11-05T06:30:15.924Z",
+    "timestamp": "2026-11-05T06:30:14.869Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6642,7 +6610,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6809,5 +6777,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-05T06:30:14.915Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-05T06:30:15.417Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-05T06:30:15.418Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-05T06:30:17.388Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
   }
 ]
