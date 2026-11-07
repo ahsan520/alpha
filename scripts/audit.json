@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-07T04:15:35.731Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
-  },
-  {
     "timestamp": "2026-11-07T04:17:15.599Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5961,7 +5954,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-11-07T05:15:35.578Z",
+    "timestamp": "2026-11-07T05:15:34.892Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6106,7 +6099,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6273,5 +6266,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-07T05:15:34.952Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-07T05:15:39.330Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 1
+  },
+  {
+    "timestamp": "2026-11-07T05:15:39.333Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 1,
+    "openAfter": 1,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-07T05:15:39.336Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-07T05:15:39.341Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-07T05:15:39.345Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-07T05:15:41.033Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
