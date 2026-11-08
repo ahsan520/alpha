@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-08T03:45:34.181Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-11-08T03:47:14.170Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6010,7 +6003,7 @@
     "monitored": 2
   },
   {
-    "timestamp": "2026-11-08T04:45:33.828Z",
+    "timestamp": "2026-11-08T04:45:32.525Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6322,5 +6315,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-08T04:45:32.588Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-08T04:45:33.002Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 130.8,
+    "stop": 130.96,
+    "entry": 132.28,
+    "pnlPct": "-1.12",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-08T04:45:33.005Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 7.092,
+    "stop": 7.0969,
+    "entry": 7.1686,
+    "pnlPct": "-1.07",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-08T04:45:34.090Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 2
+  },
+  {
+    "timestamp": "2026-11-08T04:45:34.095Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 2,
+    "totalKept": 1420
+  },
+  {
+    "timestamp": "2026-11-08T04:45:34.956Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 2,
+    "alerts": 2
+  },
+  {
+    "timestamp": "2026-11-08T04:45:34.959Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-11-08T04:45:34.961Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-08T04:45:37.267Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 0
   }
 ]
