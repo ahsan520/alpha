@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-11-11T13:51:12.113Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "TAO"
-    ],
-    "caution": [
-      "TAO"
-    ]
-  },
-  {
-    "timestamp": "2026-11-11T13:51:12.125Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-11T13:51:14.517Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 4,
-    "monitored": 4
-  },
-  {
     "timestamp": "2026-11-11T13:53:08.036Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6581,7 +6556,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-11-11T14:51:11.869Z",
+    "timestamp": "2026-11-11T14:51:12.021Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6600,7 +6575,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6907,5 +6882,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-11T14:51:12.087Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-11T14:51:15.730Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "TSX:TXF.TO",
+    "price": 23.40999984741211,
+    "stop": 23.46,
+    "entry": 23.7,
+    "pnlPct": "-1.22",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-11T14:51:16.899Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-11-11T14:51:16.904Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 1233
+  },
+  {
+    "timestamp": "2026-11-11T14:51:17.335Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-11-11T14:51:17.338Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 1,
+    "reasons": [
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-11T14:51:17.356Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-11T14:51:17.358Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-11T14:51:19.254Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 5
   }
 ]
