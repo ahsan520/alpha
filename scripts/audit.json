@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-12T09:45:58.102Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 3,
-    "monitored": 3
-  },
-  {
     "timestamp": "2026-11-12T09:47:53.263Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5303,7 +5296,7 @@
     "monitored": 3
   },
   {
-    "timestamp": "2026-11-12T10:45:56.167Z",
+    "timestamp": "2026-11-12T10:45:54.621Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5329,7 +5322,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 3,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5448,7 +5441,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5615,5 +5608,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-12T10:45:54.689Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-12T10:45:58.121Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 7
+  },
+  {
+    "timestamp": "2026-11-12T10:45:58.124Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-12T10:46:00.231Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 3,
+    "monitored": 3
   }
 ]
