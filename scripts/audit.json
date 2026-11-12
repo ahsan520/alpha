@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-12T14:10:58.211Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 2,
-    "monitored": 2
-  },
-  {
     "timestamp": "2026-11-12T14:15:59.267Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5124,7 +5117,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-11-12T15:10:56.753Z",
+    "timestamp": "2026-11-12T15:10:57.087Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5136,7 +5129,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -5,
+        "conv": -3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5450,5 +5443,60 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-12T15:10:57.173Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-12T15:10:57.688Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "TSX:HTAE.TO",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-12T15:10:58.923Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at b947ce5240c4160d90d48425200ae67dc42f0638 but expected 814a742317ec5637504b0db5fdd495c3c28cc9e2"
+  },
+  {
+    "timestamp": "2026-11-12T15:10:58.925Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 2,
+    "openAfter": 1,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-12T15:10:58.927Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 5
+  },
+  {
+    "timestamp": "2026-11-12T15:10:58.929Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-12T15:11:01.189Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 2,
+    "monitored": 1
   }
 ]
