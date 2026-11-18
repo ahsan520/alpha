@@ -1,5 +1,28 @@
 [
   {
+    "timestamp": "2026-11-18T17:46:01.034Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%",
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-18T17:46:01.039Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-18T17:46:01.040Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
     "timestamp": "2026-11-18T17:46:03.368Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6936,7 +6959,7 @@
     "monitored": 0
   },
   {
-    "timestamp": "2026-11-18T18:45:59.003Z",
+    "timestamp": "2026-11-18T18:46:00.965Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6948,7 +6971,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6962,7 +6985,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6983,7 +7006,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7081,7 +7104,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7262,51 +7285,5 @@
         "assetType": "stock"
       }
     ]
-  },
-  {
-    "timestamp": "2026-11-18T18:45:59.069Z",
-    "job": "leaderboard-decider",
-    "action": "job_start",
-    "minScore": 6,
-    "bullConfMin": 5,
-    "cooldownMin": 60,
-    "staleWatchHrs": 24,
-    "exitCvdCycles": 3,
-    "exitScoreMin": 3,
-    "allowAH": false,
-    "allowPre": false,
-    "ghRepo": "ahsan520/alpha",
-    "tgEnabled": true,
-    "dryRun": false
-  },
-  {
-    "timestamp": "2026-11-18T18:45:59.442Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": false,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%",
-      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
-    ]
-  },
-  {
-    "timestamp": "2026-11-18T18:45:59.447Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-18T18:45:59.449Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-18T18:46:01.120Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 0,
-    "monitored": 0
   }
 ]
