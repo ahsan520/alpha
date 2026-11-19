@@ -6857,7 +6857,7 @@
     "monitored": 4
   },
   {
-    "timestamp": "2026-11-19T15:05:59.814Z",
+    "timestamp": "2026-11-19T15:06:09.625Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6904,7 +6904,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6939,14 +6939,14 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7002,7 +7002,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7183,5 +7183,93 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-19T15:06:09.944Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-19T15:06:10.456Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:TAOUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-19T15:06:10.459Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:NEARUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-19T15:06:10.462Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:XRPUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-19T15:06:10.463Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:RENDERUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-19T15:06:11.593Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 4
+  },
+  {
+    "timestamp": "2026-11-19T15:06:11.597Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 8,
+    "openAfter": 4,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-19T15:06:11.599Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 10 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%",
+      "BTC 4H bias is LEAN BEAR — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-19T15:06:11.603Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-19T15:06:11.606Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-19T15:06:12.811Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 4,
+    "monitored": 4
   }
 ]
