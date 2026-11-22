@@ -6143,7 +6143,7 @@
     "monitored": 9
   },
   {
-    "timestamp": "2026-11-22T18:26:02.015Z",
+    "timestamp": "2026-11-22T18:25:57.904Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6176,7 +6176,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6190,7 +6190,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6253,7 +6253,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6288,7 +6288,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6455,5 +6455,82 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-22T18:25:57.946Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-22T18:25:58.383Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 4.698,
+    "stop": 4.6994,
+    "entry": 4.7469,
+    "pnlPct": "-1.03",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.414Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.417Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 817
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.680Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 9,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.682Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.686Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-22T18:25:59.688Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-22T18:26:00.998Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 8
   }
 ]
