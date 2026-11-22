@@ -6944,7 +6944,7 @@
     "monitored": 9
   },
   {
-    "timestamp": "2026-11-22T22:25:59.344Z",
+    "timestamp": "2026-11-22T22:25:57.988Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6956,7 +6956,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7019,7 +7019,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 4,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7040,7 +7040,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7061,7 +7061,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7256,5 +7256,126 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.040Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.441Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 189.4,
+    "stop": 189.45,
+    "entry": 191.36,
+    "pnlPct": "-1.02",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.442Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 6.639,
+    "stop": 6.6486,
+    "entry": 6.7158,
+    "pnlPct": "-1.14",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.445Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:NEARUSDT",
+    "price": 2.949,
+    "stop": 2.9749,
+    "entry": 3.005,
+    "pnlPct": "-1.86",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.447Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:UNIUSDT",
+    "price": 4.656,
+    "stop": 4.7014,
+    "entry": 4.7489,
+    "pnlPct": "-1.96",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T22:25:58.449Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "price": 69.98,
+    "stop": 70.03,
+    "entry": 70.74,
+    "pnlPct": "-1.07",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-22T22:25:59.667Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 9
+  },
+  {
+    "timestamp": "2026-11-22T22:25:59.669Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 5,
+    "totalKept": 824
+  },
+  {
+    "timestamp": "2026-11-22T22:26:01.331Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 9,
+    "alerts": 5
+  },
+  {
+    "timestamp": "2026-11-22T22:26:01.333Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-22T22:26:01.336Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-22T22:26:01.337Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-22T22:26:03.066Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 9,
+    "monitored": 4
   }
 ]
