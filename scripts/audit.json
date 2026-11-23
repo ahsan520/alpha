@@ -1,36 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T13:11:03.674Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 13
-  },
-  {
-    "timestamp": "2026-11-23T13:11:03.941Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "SOL"
-    ],
-    "caution": [
-      "SOL"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T13:11:03.942Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T13:11:06.423Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 13,
-    "monitored": 13
-  },
-  {
     "timestamp": "2026-11-23T13:12:33.070Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -7363,7 +7332,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-11-23T14:11:02.622Z",
+    "timestamp": "2026-11-23T14:11:10.769Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -7375,7 +7344,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7403,14 +7372,14 @@
       {
         "pair": "DOGEUSDT",
         "status": "ok",
-        "conv": 11,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7438,7 +7407,7 @@
       {
         "pair": "LINKUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7459,14 +7428,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7487,7 +7456,7 @@
       {
         "pair": "XLMUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 10,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7501,7 +7470,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7675,5 +7644,113 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T14:11:11.198Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T14:11:11.558Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SUIUSDT",
+    "status": "tp2_hit"
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.827Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 16
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.829Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 17,
+    "openAfter": 16,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.833Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.838Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.841Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SUIUSDT",
+    "sym": "BINANCE:SUIUSDT",
+    "setup": "SQUEEZE NOW",
+    "score": 9
+  },
+  {
+    "timestamp": "2026-11-23T14:11:12.845Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T14:11:14.001Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 18
+  },
+  {
+    "timestamp": "2026-11-23T14:11:14.420Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 2,
+    "positionsOpened": 2,
+    "recommended": [
+      "SOL",
+      "SUI"
+    ],
+    "caution": [
+      "SOL",
+      "SUI"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T14:11:14.423Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T14:11:17.439Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 18,
+    "monitored": 18
   }
 ]
