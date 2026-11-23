@@ -1,34 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T02:10:59.997Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T02:11:00.000Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-23T02:11:00.003Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T02:11:01.661Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 6,
-    "monitored": 5
-  },
-  {
     "timestamp": "2026-11-23T02:15:58.602Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6930,7 +6901,7 @@
     "monitored": 6
   },
   {
-    "timestamp": "2026-11-23T03:10:59.930Z",
+    "timestamp": "2026-11-23T03:11:03.507Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6942,7 +6913,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6977,7 +6948,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7019,7 +6990,7 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7033,7 +7004,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7047,7 +7018,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7068,14 +7039,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 1,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7242,5 +7213,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T03:11:03.581Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T03:11:07.984Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 6
+  },
+  {
+    "timestamp": "2026-11-23T03:11:07.986Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 6,
+    "openAfter": 6,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-23T03:11:07.989Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T03:11:07.994Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-23T03:11:07.997Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T03:11:09.212Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 6,
+    "monitored": 6
   }
 ]
