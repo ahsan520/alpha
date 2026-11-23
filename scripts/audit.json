@@ -1,79 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T09:56:03.454Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 10
-  },
-  {
-    "timestamp": "2026-11-23T09:56:04.603Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 15,
-    "openAfter": 10,
-    "alerts": 3
-  },
-  {
-    "timestamp": "2026-11-23T09:56:04.606Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T09:56:04.609Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "LINKUSDT",
-    "sym": "BINANCE:LINKUSDT",
-    "setup": "BREAKOUT",
-    "score": 6
-  },
-  {
-    "timestamp": "2026-11-23T09:56:04.618Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T09:56:05.494Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 11
-  },
-  {
-    "timestamp": "2026-11-23T09:56:05.796Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "LINK"
-    ],
-    "caution": [
-      "LINK"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T09:56:05.798Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T09:56:08.612Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 11
-  },
-  {
     "timestamp": "2026-11-23T09:57:36.308Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6236,7 +6162,7 @@
     "monitored": 12
   },
   {
-    "timestamp": "2026-11-23T10:56:02.474Z",
+    "timestamp": "2026-11-23T10:56:08.180Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6262,7 +6188,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6283,7 +6209,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6381,7 +6307,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -6,
+        "conv": -5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6548,5 +6474,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T10:56:08.229Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T10:56:08.744Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T10:56:08.746Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "XLMUSDT",
+    "sym": "BINANCE:XLMUSDT",
+    "setup": "BREAKOUT",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-11-23T10:56:08.750Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T10:56:09.786Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 13
+  },
+  {
+    "timestamp": "2026-11-23T10:56:10.235Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "XLM"
+    ],
+    "caution": [
+      "XLM"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T10:56:10.237Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T10:56:13.105Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 13,
+    "monitored": 13
   }
 ]
