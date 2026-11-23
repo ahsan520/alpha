@@ -1,55 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T21:46:04.158Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 11
-  },
-  {
-    "timestamp": "2026-11-23T21:46:04.163Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 902
-  },
-  {
-    "timestamp": "2026-11-23T21:46:04.556Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 11,
-    "openAfter": 11,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-11-23T21:46:04.559Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T21:46:04.564Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-23T21:46:04.565Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T21:46:06.760Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 11,
-    "monitored": 10
-  },
-  {
     "timestamp": "2026-11-23T21:47:39.274Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6615,7 +6565,7 @@
     "monitored": 8
   },
   {
-    "timestamp": "2026-11-23T22:46:03.626Z",
+    "timestamp": "2026-11-23T22:46:11.405Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6927,5 +6877,108 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T22:46:11.598Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T22:46:11.875Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:ETHUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-23T22:46:12.985Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 8
+  },
+  {
+    "timestamp": "2026-11-23T22:46:12.987Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 9,
+    "openAfter": 8,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-23T22:46:12.989Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T22:46:12.992Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-23T22:46:12.994Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T22:46:14.355Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 8,
+    "monitored": 8
+  },
+  {
+    "timestamp": "2026-11-23T22:46:16.890Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:XRPUSDT",
+    "pair": "XRP",
+    "price": 0.9359,
+    "entry": 0.9457,
+    "stop": 0.936243,
+    "pnlPct": "-1.04"
+  },
+  {
+    "timestamp": "2026-11-23T22:46:17.442Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:SOLUSDT",
+    "pair": "SOL",
+    "price": 71.74,
+    "entry": 72.58,
+    "stop": 71.85,
+    "pnlPct": "-1.16"
+  },
+  {
+    "timestamp": "2026-11-23T22:46:17.829Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 8
+  },
+  {
+    "timestamp": "2026-11-23T22:46:18.855Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 8,
+    "statusChanged": true
   }
 ]
