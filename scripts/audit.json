@@ -1,30 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T18:26:02.272Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "AAVE"
-    ],
-    "caution": [
-      "AAVE"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T18:26:02.275Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T18:26:05.157Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 13,
-    "monitored": 13
-  },
-  {
     "timestamp": "2026-11-23T18:27:34.688Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6693,7 +6668,7 @@
     "monitored": 16
   },
   {
-    "timestamp": "2026-11-23T19:26:01.826Z",
+    "timestamp": "2026-11-23T19:26:02.338Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6726,7 +6701,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7019,5 +6994,108 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T19:26:02.485Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T19:26:03.014Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "price": 0.3873,
+    "stop": 0.388179,
+    "entry": 0.3921,
+    "pnlPct": "-1.22",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T19:26:04.723Z",
+    "job": "leaderboard-decider",
+    "action": "positions_push_failed",
+    "error": "PUT 409 is at 759faae4751446e65a9a8febe422209df67bfa05 but expected bcdf8ec5b45f8db2e883cc398246b12faeacaa85"
+  },
+  {
+    "timestamp": "2026-11-23T19:26:04.798Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 1,
+    "totalKept": 883
+  },
+  {
+    "timestamp": "2026-11-23T19:26:05.122Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 16,
+    "alerts": 1
+  },
+  {
+    "timestamp": "2026-11-23T19:26:05.124Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T19:26:05.128Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-23T19:26:05.130Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T19:26:06.792Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 16,
+    "monitored": 16
+  },
+  {
+    "timestamp": "2026-11-23T19:26:08.597Z",
+    "job": "alert-runner",
+    "action": "stop_hit",
+    "sym": "BINANCE:APTUSDT",
+    "pair": "APT",
+    "price": 0.3873,
+    "entry": 0.3921,
+    "stop": 0.388179,
+    "pnlPct": "-1.22"
+  },
+  {
+    "timestamp": "2026-11-23T19:26:11.414Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_start",
+    "swept": 0,
+    "remaining": 16
+  },
+  {
+    "timestamp": "2026-11-23T19:26:12.781Z",
+    "job": "alert-runner",
+    "action": "positions_sweep_pushed",
+    "swept": 0,
+    "remaining": 16,
+    "statusChanged": true
   }
 ]
