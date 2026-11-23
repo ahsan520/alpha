@@ -1,55 +1,5 @@
 [
   {
-    "timestamp": "2026-11-23T15:41:04.336Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 16
-  },
-  {
-    "timestamp": "2026-11-23T15:41:04.340Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 853
-  },
-  {
-    "timestamp": "2026-11-23T15:41:04.623Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 16,
-    "openAfter": 16,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-11-23T15:41:04.626Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-23T15:41:04.630Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-23T15:41:04.632Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-23T15:41:06.292Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 16,
-    "monitored": 14
-  },
-  {
     "timestamp": "2026-11-23T15:46:04.825Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -7318,7 +7268,7 @@
     "monitored": 10
   },
   {
-    "timestamp": "2026-11-23T16:41:03.455Z",
+    "timestamp": "2026-11-23T16:41:18.975Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -7330,7 +7280,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7344,7 +7294,7 @@
       {
         "pair": "AVAXUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7365,7 +7315,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 3,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7386,7 +7336,7 @@
       {
         "pair": "IMXUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7400,14 +7350,14 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7421,7 +7371,7 @@
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7435,7 +7385,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7456,14 +7406,14 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 7,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -7490,7 +7440,7 @@
       {
         "pair": "ETHY.TO",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "open",
         "setup": "WATCHING",
         "assetType": "stock"
@@ -7644,5 +7594,194 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.190Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.477Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AVAXUSDT",
+    "price": 6.946,
+    "stop": 6.9717,
+    "entry": 7.0421,
+    "pnlPct": "-1.36",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.479Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:TAOUSDT",
+    "price": 195.7,
+    "stop": 196.01,
+    "entry": 197.99,
+    "pnlPct": "-1.16",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.481Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:FETUSDT",
+    "price": 0.1135,
+    "stop": 0.114048,
+    "entry": 0.1152,
+    "pnlPct": "-1.48",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.483Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:DOGEUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.484Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:AAVEUSDT",
+    "price": 99.96,
+    "stop": 100.32,
+    "entry": 101.33,
+    "pnlPct": "-1.35",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.487Z",
+    "job": "leaderboard-decider",
+    "action": "position_evicted",
+    "sym": "BINANCE:SOLUSDT",
+    "status": "stopped"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.488Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:BTCUSDT",
+    "price": 62217.32,
+    "stop": 62269.76,
+    "entry": 62898.75,
+    "pnlPct": "-1.08",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:19.490Z",
+    "job": "leaderboard-decider",
+    "action": "stop_hit",
+    "sym": "BINANCE:ETHUSDT",
+    "price": 1763.04,
+    "stop": 1763.42,
+    "entry": 1781.23,
+    "pnlPct": "-1.02",
+    "closeReason": "already_closed"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:20.861Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-11-23T16:41:20.864Z",
+    "job": "leaderboard-decider",
+    "action": "history_recorded",
+    "rows": 6,
+    "totalKept": 872
+  },
+  {
+    "timestamp": "2026-11-23T16:41:29.003Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 16,
+    "openAfter": 14,
+    "alerts": 6
+  },
+  {
+    "timestamp": "2026-11-23T16:41:29.005Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T16:41:29.009Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "SOLUSDT",
+    "sym": "BINANCE:SOLUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-11-23T16:41:29.012Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "grade below EXEC_MIN_GRADE (B)"
+    ],
+    "symbols": [
+      "SOLUSDT"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T16:41:29.493Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T16:41:30.536Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 15
+  },
+  {
+    "timestamp": "2026-11-23T16:41:30.843Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "SOL"
+    ],
+    "caution": [
+      "SOL"
+    ]
+  },
+  {
+    "timestamp": "2026-11-23T16:41:30.845Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-23T16:41:33.385Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 15,
+    "monitored": 5
   }
 ]
