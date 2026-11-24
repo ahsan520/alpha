@@ -1,79 +1,5 @@
 [
   {
-    "timestamp": "2026-11-24T00:26:03.553Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 12
-  },
-  {
-    "timestamp": "2026-11-24T00:26:03.556Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 12,
-    "openAfter": 12,
-    "alerts": 0
-  },
-  {
-    "timestamp": "2026-11-24T00:26:03.558Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-24T00:26:03.563Z",
-    "job": "leaderboard-decider",
-    "action": "position_opened",
-    "pair": "IMXUSDT",
-    "sym": "BINANCE:IMXUSDT",
-    "setup": "BREAKOUT",
-    "score": 7
-  },
-  {
-    "timestamp": "2026-11-24T00:26:03.568Z",
-    "job": "leaderboard-decider",
-    "action": "mexc_blocked",
-    "strategy": "topN",
-    "reasons": [
-      "zero balance (paper)"
-    ]
-  },
-  {
-    "timestamp": "2026-11-24T00:26:04.617Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 13
-  },
-  {
-    "timestamp": "2026-11-24T00:26:04.869Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 1,
-    "positionsOpened": 1,
-    "recommended": [
-      "IMX"
-    ],
-    "caution": [
-      "IMX"
-    ]
-  },
-  {
-    "timestamp": "2026-11-24T00:26:04.872Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
-    "timestamp": "2026-11-24T00:26:07.386Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 13,
-    "monitored": 13
-  },
-  {
     "timestamp": "2026-11-24T00:27:29.382Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6193,7 +6119,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-11-24T01:26:02.481Z",
+    "timestamp": "2026-11-24T01:26:07.969Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6212,7 +6138,7 @@
       {
         "pair": "APTUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6226,7 +6152,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6240,7 +6166,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6275,7 +6201,7 @@
       {
         "pair": "NEARUSDT",
         "status": "ok",
-        "conv": 6,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6289,7 +6215,7 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 6,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6331,7 +6257,7 @@
       {
         "pair": "XRPUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6505,5 +6431,81 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-24T01:26:08.016Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-24T01:26:08.531Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-24T01:26:08.533Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "APTUSDT",
+    "sym": "BINANCE:APTUSDT",
+    "setup": "BREAKOUT",
+    "score": 7
+  },
+  {
+    "timestamp": "2026-11-24T01:26:08.537Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-24T01:26:09.759Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-11-24T01:26:10.220Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "APT"
+    ],
+    "caution": [
+      "APT"
+    ]
+  },
+  {
+    "timestamp": "2026-11-24T01:26:10.221Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-24T01:26:13.307Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
