@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-24T11:31:06.134Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 1,
-    "monitored": 1
-  },
-  {
     "timestamp": "2026-11-24T11:32:34.630Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5937,7 +5930,7 @@
     "monitored": 1
   },
   {
-    "timestamp": "2026-11-24T12:31:03.796Z",
+    "timestamp": "2026-11-24T12:31:03.872Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5949,7 +5942,7 @@
       {
         "pair": "AAVEUSDT",
         "status": "ok",
-        "conv": -3,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5970,7 +5963,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6082,7 +6075,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": 0,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6249,5 +6242,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-24T12:31:03.918Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-24T12:31:04.284Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 3
+  },
+  {
+    "timestamp": "2026-11-24T12:31:04.286Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-24T12:31:06.360Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
