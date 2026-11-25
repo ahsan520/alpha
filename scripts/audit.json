@@ -6026,7 +6026,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-25T00:46:05.198Z",
+    "timestamp": "2026-11-25T00:46:03.251Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6122,14 +6122,14 @@
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SUIUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6338,5 +6338,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-25T00:46:03.320Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-25T00:46:03.751Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 3
+  },
+  {
+    "timestamp": "2026-11-25T00:46:03.753Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-25T00:46:05.546Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 0,
+    "monitored": 0
   }
 ]
