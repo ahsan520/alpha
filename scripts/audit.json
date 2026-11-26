@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-26T16:50:36.333Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 14,
-    "monitored": 13
-  },
-  {
     "timestamp": "2026-11-26T16:55:33.608Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -6416,7 +6409,7 @@
     "monitored": 13
   },
   {
-    "timestamp": "2026-11-26T17:50:35.403Z",
+    "timestamp": "2026-11-26T17:50:35.819Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6561,7 +6554,7 @@
       {
         "pair": "ZECUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -4,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6742,5 +6735,79 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-26T17:50:35.879Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-26T17:50:39.393Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-26T17:50:39.410Z",
+    "job": "leaderboard-decider",
+    "action": "position_opened",
+    "pair": "HTAE.TO",
+    "sym": "TSX:HTAE.TO",
+    "setup": "WATCHING",
+    "score": 6
+  },
+  {
+    "timestamp": "2026-11-26T17:50:39.414Z",
+    "job": "leaderboard-decider",
+    "action": "mexc_blocked",
+    "strategy": "topN",
+    "reasons": [
+      "zero balance (paper)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-26T17:50:40.779Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 14
+  },
+  {
+    "timestamp": "2026-11-26T17:50:41.096Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 1,
+    "positionsOpened": 1,
+    "recommended": [
+      "HTAE"
+    ],
+    "caution": []
+  },
+  {
+    "timestamp": "2026-11-26T17:50:41.099Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-26T17:50:44.399Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 14,
+    "monitored": 14
   }
 ]
