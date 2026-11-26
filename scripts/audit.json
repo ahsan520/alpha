@@ -1,48 +1,5 @@
 [
   {
-    "timestamp": "2026-11-26T01:50:33.961Z",
-    "job": "leaderboard-decider",
-    "action": "positions_pushed",
-    "count": 19
-  },
-  {
-    "timestamp": "2026-11-26T01:50:33.963Z",
-    "job": "leaderboard-decider",
-    "action": "history_recorded",
-    "rows": 1,
-    "totalKept": 870
-  },
-  {
-    "timestamp": "2026-11-26T01:50:34.254Z",
-    "job": "leaderboard-decider",
-    "action": "monitor_complete",
-    "openBefore": 19,
-    "openAfter": 19,
-    "alerts": 1
-  },
-  {
-    "timestamp": "2026-11-26T01:50:34.256Z",
-    "job": "leaderboard-decider",
-    "action": "market_guard",
-    "canBuy": true,
-    "closeAll": false,
-    "sizeMult": 0.25,
-    "reasons": [
-      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
-    ]
-  },
-  {
-    "timestamp": "2026-11-26T01:50:34.259Z",
-    "job": "leaderboard-decider",
-    "action": "buy_cycle_complete",
-    "signalsFound": 0
-  },
-  {
-    "timestamp": "2026-11-26T01:50:34.260Z",
-    "job": "leaderboard-decider",
-    "action": "job_complete"
-  },
-  {
     "timestamp": "2026-11-26T01:50:36.003Z",
     "job": "alert-runner",
     "action": "positions_check",
@@ -6435,7 +6392,7 @@
     "statusChanged": true
   },
   {
-    "timestamp": "2026-11-26T02:50:33.284Z",
+    "timestamp": "2026-11-26T02:50:31.332Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -6482,7 +6439,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": 5,
+        "conv": 8,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6524,14 +6481,14 @@
       {
         "pair": "RENDERUSDT",
         "status": "ok",
-        "conv": 9,
+        "conv": 7,
         "session": "24/7",
         "assetType": "crypto"
       },
       {
         "pair": "SOLUSDT",
         "status": "ok",
-        "conv": 10,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6545,7 +6502,7 @@
       {
         "pair": "TAOUSDT",
         "status": "ok",
-        "conv": 8,
+        "conv": 9,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6747,5 +6704,64 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-26T02:50:31.375Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-26T02:50:33.199Z",
+    "job": "leaderboard-decider",
+    "action": "positions_pushed",
+    "count": 19
+  },
+  {
+    "timestamp": "2026-11-26T02:50:33.201Z",
+    "job": "leaderboard-decider",
+    "action": "monitor_complete",
+    "openBefore": 19,
+    "openAfter": 19,
+    "alerts": 0
+  },
+  {
+    "timestamp": "2026-11-26T02:50:33.207Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": true,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 11 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%"
+    ]
+  },
+  {
+    "timestamp": "2026-11-26T02:50:33.218Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-26T02:50:33.220Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-26T02:50:34.703Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 19,
+    "monitored": 19
   }
 ]
