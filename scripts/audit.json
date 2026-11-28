@@ -5866,7 +5866,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-28T13:10:43.913Z",
+    "timestamp": "2026-11-28T13:10:47.705Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5927,7 +5927,7 @@
       {
         "pair": "GALAUSDT",
         "status": "ok",
-        "conv": 2,
+        "conv": 5,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6178,5 +6178,39 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-28T13:10:47.755Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-28T13:10:48.031Z",
+    "job": "leaderboard-decider",
+    "action": "no_candidates",
+    "bestConv": 8
+  },
+  {
+    "timestamp": "2026-11-28T13:10:48.033Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-28T13:10:49.439Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
