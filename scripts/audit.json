@@ -1,12 +1,5 @@
 [
   {
-    "timestamp": "2026-11-28T06:50:39.319Z",
-    "job": "alert-runner",
-    "action": "positions_check",
-    "total": 1,
-    "monitored": 1
-  },
-  {
     "timestamp": "2026-11-28T06:52:52.750Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
@@ -5712,7 +5705,7 @@
     ]
   },
   {
-    "timestamp": "2026-11-28T07:50:38.124Z",
+    "timestamp": "2026-11-28T07:50:38.384Z",
     "job": "market-fetcher",
     "action": "fetch_complete",
     "totalPairs": 47,
@@ -5745,7 +5738,7 @@
       {
         "pair": "BTCUSDT",
         "status": "ok",
-        "conv": -4,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5759,7 +5752,7 @@
       {
         "pair": "ETHUSDT",
         "status": "ok",
-        "conv": -2,
+        "conv": -1,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -5829,7 +5822,7 @@
       {
         "pair": "UNIUSDT",
         "status": "ok",
-        "conv": -1,
+        "conv": -2,
         "session": "24/7",
         "assetType": "crypto"
       },
@@ -6024,5 +6017,51 @@
         "assetType": "stock"
       }
     ]
+  },
+  {
+    "timestamp": "2026-11-28T07:50:38.443Z",
+    "job": "leaderboard-decider",
+    "action": "job_start",
+    "minScore": 6,
+    "bullConfMin": 5,
+    "cooldownMin": 60,
+    "staleWatchHrs": 24,
+    "exitCvdCycles": 3,
+    "exitScoreMin": 3,
+    "allowAH": false,
+    "allowPre": false,
+    "ghRepo": "ahsan520/alpha",
+    "tgEnabled": true,
+    "dryRun": false
+  },
+  {
+    "timestamp": "2026-11-28T07:50:38.948Z",
+    "job": "leaderboard-decider",
+    "action": "market_guard",
+    "canBuy": false,
+    "closeAll": false,
+    "sizeMult": 0.25,
+    "reasons": [
+      "Fear & Greed: 10 (Extreme Fear) — only symbols diverging from BTC allowed, sizing at 25%",
+      "BTC 4H bias is BEAR 4H — new buys paused (market-regime gate)"
+    ]
+  },
+  {
+    "timestamp": "2026-11-28T07:50:38.952Z",
+    "job": "leaderboard-decider",
+    "action": "buy_cycle_complete",
+    "signalsFound": 0
+  },
+  {
+    "timestamp": "2026-11-28T07:50:38.954Z",
+    "job": "leaderboard-decider",
+    "action": "job_complete"
+  },
+  {
+    "timestamp": "2026-11-28T07:50:41.329Z",
+    "job": "alert-runner",
+    "action": "positions_check",
+    "total": 1,
+    "monitored": 1
   }
 ]
